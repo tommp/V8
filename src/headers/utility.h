@@ -14,7 +14,7 @@
 /*Header content*/
 /*=============================================*/
 /*Waits for user input and quits when detected*/
-void waitForEvent();
+void wait_for_event();
 /*=============================================*/
 
 #endif

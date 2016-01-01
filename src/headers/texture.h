@@ -34,7 +34,7 @@ class Texture
         ~Texture();
 
         /*Loads image at specified path*/
-        bool loadFromFile(SDL_Renderer *ren, std::string path);
+        bool load_from_file(SDL_Renderer *ren, std::string path);
 
         /*Deallocates texture*/
         void free();
@@ -43,9 +43,8 @@ class Texture
         void render(SDL_Renderer *ren, int x, int y, SDL_Rect* clip = NULL);
 
         /*Gets image dimensions*/
-        int getWidth(){return width;};
-        int getHeight(){return height;};
+        int get_width(){return width;};
+        int get_height(){return height;};
 };
 /*=============================================*/
-
 #endif

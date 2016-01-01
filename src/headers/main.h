@@ -5,6 +5,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "./utility.h"
+#include "./timer.h"
 #include "./level.h"
 #include "./errorlogger.h"
 #include "./texture.h"
@@ -20,6 +21,9 @@
 
 /*Header content*/
 /*=============================================*/
+
+const unsigned int SCREEN_FPS = 60;
+const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 const unsigned int WIDTH = 640;
 const unsigned int HEIGHT = 480;

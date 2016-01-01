@@ -12,7 +12,7 @@ Texture::~Texture(){
     free();
 }
 
-bool Texture::loadFromFile( SDL_Renderer *ren, std::string path ){
+bool Texture::load_from_file( SDL_Renderer *ren, std::string path ){
 	/* Get rid of preexisting texture */
 	if( texture != NULL ){
 		errorlogger( "WARNING!! Overwriting texture!" );
