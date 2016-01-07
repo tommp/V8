@@ -12,7 +12,7 @@ Texture::~Texture(){
     free();
 }
 
-bool Texture::load_from_file( SDL_Renderer *ren, std::string path ){
+bool Texture::load_from_file( SDL_Renderer *ren, const std::string& path ){
 	/* Get rid of preexisting texture */
 	if( texture != NULL ){
 		errorlogger( "WARNING!! Overwriting texture!" );
@@ -26,7 +26,6 @@ bool Texture::load_from_file( SDL_Renderer *ren, std::string path ){
     newTexture = IMG_LoadTexture( ren, path.c_str() );;
     if( newTexture == NULL )
     {
-
     	SDLerrorLogger( "Unable to create texture!" );
         printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
     }

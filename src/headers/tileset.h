@@ -1,5 +1,5 @@
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef TILESET_H
+#define TILESET_H
 
 /*Included headers*/
 /*---------------------------------------------*/
@@ -13,11 +13,21 @@
 
 /*Header content*/
 /*=============================================*/
-/*Waits for user input and quits when detected*/
-void wait_for_event();
+class Tile{
+private:
+	SDL_Rect* clip;
+	int temperature;
+	int moisture;
+	int acidity;
+	int toxicity;
+public:
 
-/*Waits for user input and quits when detected*/
-void generate_animation(const char* filename, const char* animation_name);
+};
+
+class Tileset{
+
+};
+
 /*=============================================*/
 
 #endif

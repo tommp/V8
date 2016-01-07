@@ -9,6 +9,8 @@
 #include "./level.h"
 #include "./errorlogger.h"
 #include "./texture.h"
+#include "./events.h"
+#include "./resource_manager.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

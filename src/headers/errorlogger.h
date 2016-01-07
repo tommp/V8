@@ -25,6 +25,9 @@ void SDLerrorLogger(const char *msg);
 /*Used to log standard c++ erors, saves reports in errorlog.txt in the source folder*/
 void errorlogger(const char *errormsg);
 
+/*Used to log standard c++ erors, saves reports in errorlog.txt in the source folder*/
+void errorlogger(const char *errormsg, const char* details);
+
 /*=============================================*/
 
 #endif

@@ -34,7 +34,7 @@ class Texture
         ~Texture();
 
         /*Loads image at specified path*/
-        bool load_from_file(SDL_Renderer *ren, std::string path);
+        bool load_from_file(SDL_Renderer *ren, const std::string& path);
 
         /*Deallocates texture*/
         void free();
