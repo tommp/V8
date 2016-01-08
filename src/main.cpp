@@ -2,68 +2,45 @@
 
 int main(int argc, char** argv){
 
-	/* MAIN VARS */
+	/* INITIAL SETUP */
 	/* ====================================== */
 
-	Resource_manager resource_manager;
-
-	/* Main button map */
-	Button_mappings button_mappings;
-
-	/* Main state handler */
-	State_handler state_handler(&button_mappings);
-
-    /* Random seed to time */
-    srand (time(NULL));
-
-    Timer cap_timer;
-    SDL_Window *win;
-    SDL_Renderer *ren;
-    /* ====================================== */
-
-	/*Initializes SDL for graphical display*/
+	/*Initializes SDL */
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
 		SDLerrorLogger("SDL initialization");
 		std::cout<<"Failed to initialize SDL, see errorlog for details."<<std::endl;
 		return 1;
 	}
 
-	/*Disables pesky screensavers while our wonderful graphics are beeing displayed*/
-	SDL_DisableScreenSaver();
+	/* Random seed to time */
+    srand (time(NULL));
+    /* ====================================== */
 
-	/*Initializes a window to render graphics in*/
-	win = SDL_CreateWindow("Cradlands", 0, 0, WIDTH, HEIGHT, 0);
-	if (win == nullptr){
-		SDLerrorLogger("SDL_CreateWindow");
-		std::cout<<"Failed to create SDL window, see errorlog for details."<<std::endl;
-		return 1;
-	}
+	/* MAIN VARS */
+	/* ====================================== */
 
-	/* CLEAN THIS UP */
-	int ww, wh;
-	SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-	SDL_GetWindowSize(win, &ww, &wh);
+	Display display;
 
-	/*Initializes the renderer to draw in*/
-	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (ren == nullptr){
-		SDLerrorLogger("SDL_CreateRenderer");
-		std::cout<<"Failed to create SDL renderer, see errorlog for details."<<std::endl;
-		return 1;
-	}
+	Resource_manager resource_manager;
 
-	/* Select the color for drawing to black */
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+	Button_mappings button_mappings;
 
-    /* Clear the entire screen to our selected color */
-    SDL_RenderClear(ren);
+	State_handler state_handler(&button_mappings);
+
+    Timer cap_timer;
+    Timer move_timer;
+    /* ====================================== */
 
 
     /* TESTCODE */
     /*=======================================================*/
-    resource_manager.load_texture(ren, "../pixelart/Foilage/SharpBush.png", "bush");
-    Texture bloom = *resource_manager.get_texture_ptr("bush");
+    
+	resource_manager.load_texture(display.get_renderer(), "../pixelart/Animations/simple_animation.png", "simple");
+   	resource_manager.load_texture(display.get_renderer(), "../pixelart/Foilage/SharpBush.png", "bush");
+    Animation simplea(resource_manager, "simple", "../pixelart/Animations/simple_animation.txt");
     /* ===================================================== */
+
+    Player number1(&simplea);
 
 	/* Main loop */
 	/*=======================================================*/
@@ -75,15 +52,19 @@ int main(int argc, char** argv){
 	    /* Handle events in the queue */
 	    state_handler.handle_events();
 
-	    /* Clear the screen */
-	    SDL_RenderClear(ren);
+	    float timedelta = move_timer.get_ticks() / 1000.f;
 
-	    for (int i = 0; i < 10000; i++){
-	    	bloom.render(ren, (rand() % ww) - (bloom.get_width() / 2), (rand() % wh) - (bloom.get_height() / 2) );
-	    }
+	    number1.update_position(timedelta);
+
+	    move_timer.start();
+
+	    /* Clear the screen */
+	    display.clear();
+
+	    number1.render_player(display.get_renderer());
 
 	    /* Render and wait */
-	    SDL_RenderPresent(ren);
+	    display.present();
 
         /* If frame finished early */
         int frame_ticks = cap_timer.get_ticks();

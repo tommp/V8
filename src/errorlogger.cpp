@@ -51,3 +51,7 @@ void errorlogger(const char *errormsg, const char* details){
 		printf(" Error: %s\n Date: %s\n\n", errormsg, date );
 	}/*ELSE*/
 }/*errorLogger*/
+
+void debug(const char *msg){
+	std::cout << msg << std::endl;
+}

@@ -43,8 +43,8 @@ class Texture
         void render(SDL_Renderer *ren, int x, int y, SDL_Rect* clip = NULL);
 
         /*Gets image dimensions*/
-        int get_width(){return width;};
-        int get_height(){return height;};
+        int get_width()const{return width;};
+        int get_height()const{return height;};
 };
 /*=============================================*/
 #endif

@@ -4,13 +4,17 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "./display.h"
+#include "./resource_manager.h"
 #include "./utility.h"
 #include "./timer.h"
 #include "./level.h"
 #include "./errorlogger.h"
 #include "./texture.h"
 #include "./events.h"
-#include "./resource_manager.h"
+#include "./animation.h"
+#include "./player.h"
+
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -23,13 +27,8 @@
 
 /*Header content*/
 /*=============================================*/
-
 const unsigned int SCREEN_FPS = 60;
 const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
-
-const unsigned int WIDTH = 640;
-const unsigned int HEIGHT = 480;
-
 /*=============================================*/
 
 #endif

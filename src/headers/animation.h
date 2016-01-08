@@ -6,6 +6,7 @@
 /*---------------------------------------------*/
 #include "./errorlogger.h"
 #include "./texture.h"
+#include "./resource_manager.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -13,6 +14,8 @@
 #include <SDL2/SDL.h>
 #include <unistd.h>
 #include <forward_list>
+#include <fstream>
+#include <sstream>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -31,17 +34,19 @@ class Frame{
 
 class Animation{
 	private:
-		std::string name;
-		Texture* texture;
+		Texture_ptr texture;
 
 		/* List of frames */
 		std::forward_list<Frame> frames;
 		std::forward_list<Frame>::iterator current_frame;
 		unsigned int current_frame_end;
 	public:
-		Animation();
-		void reset_animation(){current_frame = frames.begin();};
+		Animation(const Resource_manager& resource_manager, 
+					const std::string& texture_name, 
+					const std::string& filename);
+		void reset_animation();
 		void render_current(SDL_Renderer *ren, int x, int y);
+		void render_texture(SDL_Renderer *ren, int x, int y);
 };
 /*=============================================*/
 
