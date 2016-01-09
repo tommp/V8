@@ -22,6 +22,10 @@ void Timer::start(){
     paused_ticks = 0;
 }
 
+void Timer::restart(){
+    start();
+}
+
 void Timer::stop(){
 	/* Stop the timer */
     started = false;

@@ -4,8 +4,8 @@ Display::Display(const std::string& settings_file_path){
 	/* Init to standard settings as a fallback */
 	use_vsync = true;
 	use_fullscreen = true;
-	width = 640;
-	height = 480;
+	width = SCREEN_WIDTH;
+	height = SCREEN_HEIGHT;
 	screen_width = 0;
 	screen_height = 0;
 
@@ -24,8 +24,8 @@ Display::Display(){
 	/* Init to standard settings as a fallback */
 	use_vsync = true;
 	use_fullscreen = true;
-	width = 640;
-	height = 480;
+	width = SCREEN_WIDTH;
+	height = SCREEN_HEIGHT;
 	screen_width = 0;
 	screen_height = 0;
 

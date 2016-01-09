@@ -2,14 +2,13 @@
 
 Player::Player(Animation* init_animation){
 	animation = init_animation;
-	collision_box = {0,0,10,10};
-	speed = 600;
+	speed = 300;
 	x = 100;
 	y = 100;
 	z = 0;
 }
 
-void Player::render_player(SDL_Renderer *ren){
+void Player::render_frame(SDL_Renderer *ren){
 	animation->render_current(ren, (int)x, (int)y);
 }
 
@@ -33,4 +32,8 @@ void Player::update_position(float timedelta){
 
 	x += x_vec * speed * timedelta;
 	y += y_vec * speed * timedelta;
+}
+
+void Player::check_if_colliding(Actor* target){
+
 }

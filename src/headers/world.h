@@ -1,9 +1,12 @@
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef WORLD_H
+#define WORLD_H
+
 
 /*Included headers*/
 /*---------------------------------------------*/
-
+#include "./actor.h"
+#include "./player.h"
+#include "./level.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -13,15 +16,11 @@
 
 /*Header content*/
 /*=============================================*/
-
-#define SCREEN_HEIGHT	640;
-#define SCREEN_WIDTH	360;
-
-/*Waits for user input and quits when detected*/
-void wait_for_event();
-
-/* NOT USED */
-void generate_animation(const char* filename, const char* animation_name);
+class World {
+private:
+	Player player;
+	Level_ptr current_level;
+};
 /*=============================================*/
 
 #endif

@@ -16,15 +16,15 @@
 
 /*Header content*/
 /*=============================================*/
-class Player : public Actor{
+class Player : public Character{
 private:
-	Animation* animation;
-	SDL_Rect collision_box;
 	int speed;
 public:
 	Player(Animation* animation);
-	void render_player(SDL_Renderer *ren);
+	void render_frame(SDL_Renderer *ren);
 	void update_position(float timedelta);
+	void live(SDL_Renderer *ren, float timedelta);
+	void check_if_colliding(Actor* target);
 
 };
 /*=============================================*/

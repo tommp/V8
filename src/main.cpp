@@ -18,7 +18,6 @@ int main(int argc, char** argv){
 
 	/* MAIN VARS */
 	/* ====================================== */
-
 	Display display;
 
 	Resource_manager resource_manager;
@@ -31,23 +30,24 @@ int main(int argc, char** argv){
     Timer move_timer;
     /* ====================================== */
 
-
     /* TESTCODE */
     /*=======================================================*/
-    
 	resource_manager.load_texture(display.get_renderer(), "../pixelart/Animations/simple_animation.png", "simple");
-   	resource_manager.load_texture(display.get_renderer(), "../pixelart/Foilage/SharpBush.png", "bush");
+   	resource_manager.load_texture(display.get_renderer(), "../pixelart/Foilage/grass_test.png", "lightgrass");
+    resource_manager.load_texture(display.get_renderer(), "../pixelart/Foilage/rocks_test.png", "smallrocks");
+    resource_manager.load_texture(display.get_renderer(), "../pixelart/Foilage/SharpBush.png", "bush");
+
     Animation simplea(resource_manager, "simple", "../pixelart/Animations/simple_animation.txt");
-    /* ===================================================== */
 
     Player number1(&simplea);
+    /* ===================================================== */
 
 	/* Main loop */
 	/*=======================================================*/
     while(state_handler.game_is_running()){
 
     	//Start cap timer
-        cap_timer.start();
+        cap_timer.restart();
 
 	    /* Handle events in the queue */
 	    state_handler.handle_events();
@@ -56,12 +56,12 @@ int main(int argc, char** argv){
 
 	    number1.update_position(timedelta);
 
-	    move_timer.start();
+	    move_timer.restart();
 
 	    /* Clear the screen */
 	    display.clear();
 
-	    number1.render_player(display.get_renderer());
+	    number1.render_frame(display.get_renderer());
 
 	    /* Render and wait */
 	    display.present();

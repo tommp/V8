@@ -5,6 +5,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "./errorlogger.h"
+#include "./utility.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

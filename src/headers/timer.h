@@ -35,6 +35,7 @@ class Timer{
 
         /* The various clock actions */
         void start();
+        void restart();
         void stop();
         void pause();
         void unpause();
