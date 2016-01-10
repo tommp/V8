@@ -25,6 +25,8 @@ public:
 	void update_position(float timedelta);
 	void live(SDL_Renderer *ren, float timedelta);
 };
+
+typedef std::shared_ptr<Player> Player_ptr;
 /*=============================================*/
 
 #endif

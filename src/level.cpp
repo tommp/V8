@@ -27,3 +27,19 @@ void Level::center_camera(Actor* target) {
 		camera.y = height - camera.h;
 	}
 }
+
+void Level::load_level(){
+
+}
+
+void Level::unload_level(){
+
+}
+
+void Level::save_level(){
+
+}
+
+void Level::generate_level(){
+	
+}

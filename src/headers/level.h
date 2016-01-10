@@ -36,6 +36,11 @@ class Level {
 		void center_camera(Actor* target);
 
 		SDL_Rect* get_camera_refrence(){ return &camera; };
+
+		void load_level();
+		void unload_level();
+		void save_level();
+		void generate_level();
 };
 
 typedef std::shared_ptr<Level> Level_ptr;

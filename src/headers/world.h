@@ -16,10 +16,20 @@
 
 /*Header content*/
 /*=============================================*/
+class Contact{
+private:
+	Actor* a;
+	Actor* b;
+public:
+	Contact(Actor& c_a, Actor& c_b);
+};
+
 class World {
 private:
 	Player* player;
 	Level_ptr current_level;
+
+	std::forward_list<Player_ptr> players;
 
 	std::forward_list<Character_ptr> on_screen_characters;
 	std::forward_list<Character_ptr> off_screen_characters;
@@ -35,23 +45,28 @@ private:
 	std::forward_list<Contact> contacts;
 public:
 	World(Player* main_player);
-	bool check_if_colliding(Actor* a, Actor* b);
+	bool check_if_colliding(const Actor& a, const Actor& b)const;
 	void update_positions(float timedelta);
-	void detect_collisions();
+
+	void detect_all_collisions();
+	void detect_collisions(const std::forward_list<Player_ptr>& a);
+	void detect_collisions(const std::forward_list<Player_ptr>& a, const std::forward_list<Character_ptr>& b);
+	void detect_collisions(const std::forward_list<Player_ptr>& a, const std::forward_list<Prop_ptr>& b);
+	void detect_collisions(const std::forward_list<Player_ptr>& a, const std::forward_list<Projectile_ptr>& b);
+	void detect_collisions(const std::forward_list<Character_ptr>& a);
+	void detect_collisions(const std::forward_list<Character_ptr>& a, const std::forward_list<Character_ptr>& b);
+	void detect_collisions(const std::forward_list<Character_ptr>& a, const std::forward_list<Prop_ptr>& b);
+	void detect_collisions(const std::forward_list<Character_ptr>& a, const std::forward_list<Projectile_ptr>& b);
+	void detect_collisions(const std::forward_list<Prop_ptr>& a);
+	void detect_collisions(const std::forward_list<Prop_ptr>& a, const std::forward_list<Prop_ptr>& b);
+	void detect_collisions(const std::forward_list<Prop_ptr>& a, const std::forward_list<Projectile_ptr>& b);
+	void detect_collisions(const std::forward_list<Projectile_ptr>& a);
+	void detect_collisions(const std::forward_list<Projectile_ptr>& a, const std::forward_list<Projectile_ptr>& b);
+	
 	void resolve_collisions();
 	void update_groups();
 	void render_world(SDL_Renderer* ren);
 };
-
-class Contact {
-private:
-	Actor* a;
-	Actor* b;
-public:
-	Contact(Actor* c_a, Actor* c_b);
-};
-
-
 /*=============================================*/
 
 #endif
