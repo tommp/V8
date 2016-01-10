@@ -24,8 +24,6 @@ public:
 	void render_frame(SDL_Renderer *ren);
 	void update_position(float timedelta);
 	void live(SDL_Renderer *ren, float timedelta);
-	void check_if_colliding(Actor* target);
-
 };
 /*=============================================*/
 

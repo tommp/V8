@@ -33,7 +33,3 @@ void Player::update_position(float timedelta){
 	x += x_vec * speed * timedelta;
 	y += y_vec * speed * timedelta;
 }
-
-void Player::check_if_colliding(Actor* target){
-
-}

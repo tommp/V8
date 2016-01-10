@@ -48,6 +48,8 @@ class Animation{
 		void render_current(SDL_Renderer *ren, int x, int y);
 		void render_texture(SDL_Renderer *ren, int x, int y);
 };
+
+typedef std::shared_ptr<Animation> Animation_ptr;
 /*=============================================*/
 
 #endif

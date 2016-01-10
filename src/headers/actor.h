@@ -46,7 +46,6 @@ class Character: public Actor{
 		Animation* animation;
 	public:
 		virtual void update_position(float timedelta) = 0;
-		virtual void check_if_colliding(Actor* target) = 0;
 		virtual void render_frame(SDL_Renderer *ren) = 0;
 };
 
@@ -55,7 +54,6 @@ class Projectile: public Actor{
 		Animation* animation;
 	public:
 		virtual void update_position(float timedelta) = 0;
-		virtual void check_if_colliding(Actor* target) = 0;
 		virtual void render_frame(SDL_Renderer *ren) = 0;
 };
 
@@ -63,7 +61,6 @@ class Prop: public Actor{
 	protected:
 		Texture_ptr visual;
 	public:
-		virtual void check_if_colliding(Actor* target) = 0;
 		virtual void render_frame(SDL_Renderer *ren) = 0;
 
 };

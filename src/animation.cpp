@@ -23,7 +23,7 @@ Animation::Animation(const Resource_manager& resource_manager,
 				errorlogger("Wrong text formating in animation: ", filename.c_str());
 				std::cout << "Wrong text formating in animation: " << filename.c_str() << std::endl;
 				break; /* BETTER HANDLING HERE */
-			} // error
+			} /* error */
 			else{
 				if(frames.empty()){
 					frames.emplace_front(x, y, f_width, f_height, duration);
@@ -51,7 +51,6 @@ void Animation::reset_animation(){
 }
 
 void Animation::render_current(SDL_Renderer *ren, int x, int y){
-
 	if( SDL_GetTicks() > current_frame_end ){
 		current_frame++;
 		if( current_frame != frames.end()) {
@@ -63,5 +62,4 @@ void Animation::render_current(SDL_Renderer *ren, int x, int y){
 	}
 
 	texture->render(ren, x, y, &(current_frame->clip));
-
 }

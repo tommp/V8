@@ -36,10 +36,10 @@ int main(int argc, char** argv){
    	resource_manager.load_texture(display.get_renderer(), "../pixelart/Foilage/grass_test.png", "lightgrass");
     resource_manager.load_texture(display.get_renderer(), "../pixelart/Foilage/rocks_test.png", "smallrocks");
     resource_manager.load_texture(display.get_renderer(), "../pixelart/Foilage/SharpBush.png", "bush");
-
-    Animation simplea(resource_manager, "simple", "../pixelart/Animations/simple_animation.txt");
-
+	Animation simplea(resource_manager, "simple", "../pixelart/Animations/simple_animation.txt");
     Player number1(&simplea);
+
+    World cradlands(&number1);
     /* ===================================================== */
 
 	/* Main loop */
@@ -52,18 +52,17 @@ int main(int argc, char** argv){
 	    /* Handle events in the queue */
 	    state_handler.handle_events();
 
+	    /* Update the position of all world objects */
 	    float timedelta = move_timer.get_ticks() / 1000.f;
-
-	    number1.update_position(timedelta);
-
+	    cradlands.update_positions(timedelta);
 	    move_timer.restart();
 
-	    /* Clear the screen */
+	    /* Resolve all collisions */
+	    cradlands.resolve_collisions();
+
+	    /* Render to screen */
 	    display.clear();
-
-	    number1.render_frame(display.get_renderer());
-
-	    /* Render and wait */
+	    cradlands.render_world(display.get_renderer());
 	    display.present();
 
         /* If frame finished early */
