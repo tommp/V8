@@ -27,6 +27,7 @@ void errorlogger(const char *errormsg);
 /*Used to log standard c++ erors, saves reports in errorlog.txt in the source folder*/
 void errorlogger(const char *errormsg, const char* details);
 
+/* Used to print to console */
 void debug(const char *msg);
 /*=============================================*/
 

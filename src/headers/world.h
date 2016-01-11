@@ -33,21 +33,19 @@ private:
 
 	std::forward_list<Player*> players;
 
-	std::forward_list<Character*> on_screen_characters;
-	std::forward_list<Character*> off_screen_characters;
+	std::forward_list<Character*> characters;
 	std::forward_list<Character*> dormant_characters;
 
-	std::forward_list<Prop*> on_screen_props;
-	std::forward_list<Prop*> off_screen_props;
+	std::forward_list<Prop*> props;
 	std::forward_list<Prop*> dormant_props;
 
-	std::forward_list<Projectile*> off_screen_projectiles;
-	std::forward_list<Projectile*> on_screen_projectiles;
+	std::forward_list<Projectile*> projectiles;
 
 	std::forward_list<Contact> contacts;
 public:
 	World(SDL_Renderer &ren, Resource_manager& manager);
 	bool check_if_colliding(const Actor* a, const Actor* b)const;
+	bool check_if_colliding(const Actor* a, const SDL_Rect* b)const;
 	void update_positions(float timedelta);
 
 	void detect_all_collisions();
@@ -64,7 +62,21 @@ public:
 	void detect_collisions(const std::forward_list<Prop*>& a, const std::forward_list<Projectile*>& b);
 	void detect_collisions(const std::forward_list<Projectile*>& a);
 	void detect_collisions(const std::forward_list<Projectile*>& a, const std::forward_list<Projectile*>& b);
+
+	bool insert_player(Player* player);
+	bool add_player(Player* player);
+
+	bool insert_projectile(Projectile* projectile);
+	bool add_projectile(Projectile* projectile);
 	
+	bool insert_character(Character* character);
+	bool add_dormant_character(Character* character);
+	bool add_character(Character* character);
+
+	bool insert_prop(Prop* prop);
+	bool add_dormant_prop(Prop* prop);
+	bool add_prop(Prop* prop);
+
 	void resolve_collisions();
 	void update_groups();
 	void render_world(SDL_Renderer& ren);

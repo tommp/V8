@@ -17,16 +17,13 @@
 /*Header content*/
 /*=============================================*/
 
-const unsigned int SCREEN_HEIGHT =	320;
-const unsigned int SCREEN_WIDTH	=	640;
+const unsigned int SCREEN_HEIGHT =			320;
+const unsigned int SCREEN_WIDTH	=			640;
+const unsigned int RENDERING_SLACK_FACTOR = 1;
 
-const unsigned int TILESIZE = 		32;
-const unsigned int SCREEN_FPS = 	60;
-const int SCREEN_TICKS_PER_FRAME =	1000 / SCREEN_FPS;
-
-const std::string ANIMATIONS_FILE = "./animations.txt";
-const std::string TEXTURES_FILE = "./textures.txt";
-const std::string SOUNDS_FILE = "./sounds.txt";
+const unsigned int TILESIZE = 				32;
+const unsigned int SCREEN_FPS = 			60;
+const int SCREEN_TICKS_PER_FRAME =			1000 / SCREEN_FPS;
 
 const std::unordered_map<std::string, std::string> WORLD_TEXTURES = {
 	{"simple", "../pixelart/Animations/simple.png"},

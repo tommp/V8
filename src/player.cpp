@@ -15,8 +15,8 @@ Player::Player(SDL_Renderer& ren, Resource_manager& manager){
 	depth = TILESIZE*2;
 }
 
-void Player::render_frame(SDL_Renderer &ren){
-	animation->render_current(ren, (int)x, (int)y);
+void Player::render_frame(SDL_Renderer &ren, SDL_Rect* offset){
+	animation->render_current(ren, (int)x - offset->x, (int)y - offset->y);
 }
 
 void Player::update_position(float timedelta){

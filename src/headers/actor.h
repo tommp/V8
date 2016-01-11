@@ -46,7 +46,7 @@ class Character: public Actor{
 		Animation_ptr animation;
 	public:
 		virtual void update_position(float timedelta) = 0;
-		virtual void render_frame(SDL_Renderer& ren) = 0;
+		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
 };
 
 class Projectile: public Actor{
@@ -54,14 +54,14 @@ class Projectile: public Actor{
 		Animation_ptr animation;
 	public:
 		virtual void update_position(float timedelta) = 0;
-		virtual void render_frame(SDL_Renderer& ren) = 0;
+		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
 };
 
 class Prop: public Actor{
 	protected:
 		Texture_ptr visual;
 	public:
-		virtual void render_frame(SDL_Renderer& ren) = 0;
+		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
 
 };
 

@@ -26,7 +26,7 @@ private:
 	int vec_y;
 public:
 	Slime_blob(SDL_Renderer& ren, Resource_manager& manager);
-	void render_frame(SDL_Renderer& ren);
+	void render_frame(SDL_Renderer& ren, SDL_Rect* offset);
 	void update_position(float timedelta);
 };
 /*=============================================*/

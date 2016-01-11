@@ -7,6 +7,7 @@
 #include "./utility.h"
 #include "./actor.h"
 #include "./tiles.h"
+#include "./errorlogger.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -21,11 +22,6 @@
 class Actor;
 
 using std::vector;
-
-namespace level {
-	const int cam_width = SCREEN_WIDTH;
-	const int cam_height = SCREEN_HEIGHT;
-}
 
 class Level {
 	private:
@@ -42,9 +38,9 @@ class Level {
 		int get_height()const { return height; };
 		int get_depth()const { return depth; };
 
-		void center_camera(const Actor& target);
+		void center_camera(const Actor* target);
 
-		SDL_Rect* get_camera_refrence(){ return &camera; };
+		SDL_Rect* get_camera_pointer(){ return &camera; };
 
 		void load_level();
 		void unload_level();

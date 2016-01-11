@@ -1,7 +1,7 @@
 #include "./headers/mobs.h"
 
-void Slime_blob::render_frame(SDL_Renderer &ren){
-	animation->render_current(ren, (int)x, (int)y);
+void Slime_blob::render_frame(SDL_Renderer &ren, SDL_Rect* offset){
+	animation->render_current(ren, (int)x - offset->x, (int)y - offset->y);
 }
 
 void Slime_blob::update_position(float timedelta){
@@ -28,8 +28,8 @@ Slime_blob::Slime_blob(SDL_Renderer& ren, Resource_manager& manager){
 		errorlogger("ERROR: Slime_blobconstructor failed to load animation: ", anim.c_str());
 	}
 	speed = 50;
-	x = 200;
-	y = 200;
+	x = (rand() + 20) % (SCREEN_WIDTH - 20);
+	y = (rand() + 20) % (SCREEN_HEIGHT - 20);
 	z = 0;
 	vec_y = 0;
 	vec_x = 0;
