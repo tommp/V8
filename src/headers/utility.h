@@ -17,8 +17,8 @@
 /*Header content*/
 /*=============================================*/
 
-const unsigned int SCREEN_HEIGHT =	640;
-const unsigned int SCREEN_WIDTH	=	360;
+const unsigned int SCREEN_HEIGHT =	320;
+const unsigned int SCREEN_WIDTH	=	640;
 
 const unsigned int TILESIZE = 		32;
 const unsigned int SCREEN_FPS = 	60;

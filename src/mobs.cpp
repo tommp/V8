@@ -30,7 +30,7 @@ Slime_blob::Slime_blob(SDL_Renderer& ren, Resource_manager& manager){
 	speed = 50;
 	x = 200;
 	y = 200;
-	z = -10;
+	z = 0;
 	vec_y = 0;
 	vec_x = 0;
 	last_move = SDL_GetTicks();

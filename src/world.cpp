@@ -2,7 +2,7 @@
 
 World::World(SDL_Renderer &ren, Resource_manager& manager){
 	Player* new_player = new Player(ren, manager);
-	for (int i = 0; i < 500; i++) {
+	for (int i = 0; i < 1000; i++) {
 		Character* mob = new Slime_blob(ren, manager);
 		on_screen_characters.push_front(mob);
 	}
@@ -302,9 +302,9 @@ void World::render_world(SDL_Renderer& ren){
 
 	/* Render level */
 	/* ====TODO==== */
-	int biggest_z = -1;
-	int biggest_y = -1;
-	int biggest = 1;
+	int smallest_z = 100000;
+	int smallest_y = 100000;
+	int smallest = -1;
 
 	bool done = false;
 
@@ -315,62 +315,66 @@ void World::render_world(SDL_Renderer& ren){
 
 		if(player_it != players.end()) {
 			done = false;
-			if( (*player_it)->get_z() > biggest_z ){
-				biggest_z = (*player_it)->get_z();
-				biggest = 1;
+			if( (*player_it)->get_z() < smallest_z ){
+				smallest_z = (*player_it)->get_z();
+				smallest_y = (*player_it)->get_y() + (*player_it)->get_height();
+				smallest = 1;
 			}
-			else if( (*player_it)->get_z() == biggest_z ){
-				if( (*player_it)->get_y() > biggest_y ){
-					biggest_y = (*player_it)->get_y();
-					biggest = 1;
+			else if( (*player_it)->get_z() == smallest_z ){
+				if( ((*player_it)->get_y() + (*player_it)->get_height()) < smallest_y ){
+					smallest_y = (*player_it)->get_y() + (*player_it)->get_height();
+					smallest = 1;
 				}
 			}
 		}
 
 		if(character_it != on_screen_characters.end()) {
 			done = false;
-			if( (*character_it)->get_z() > biggest_z ){
-				biggest_z = (*character_it)->get_z();
-				biggest = 2;
+			if( (*character_it)->get_z() < smallest_z ){
+				smallest_z = (*character_it)->get_z();
+				smallest_y = (*character_it)->get_y() + (*character_it)->get_height();
+				smallest = 2;
 			}
-			else if( (*character_it)->get_z() == biggest_z ){
-				if( (*character_it)->get_y() > biggest_y ){
-					biggest_y = (*character_it)->get_y();
-					biggest = 2;
+			else if( (*character_it)->get_z() == smallest_z ){
+				if( ((*character_it)->get_y() + (*character_it)->get_height()) < smallest_y ){
+					smallest_y = (*character_it)->get_y() + (*character_it)->get_height();
+					smallest = 2;
 				}
 			}
 		}
 
 		if(props_it != on_screen_props.end()) {
 			done = false;
-			if( (*props_it)->get_z() > biggest_z ){
-				biggest_z = (*props_it)->get_z();
-				biggest = 3;
+			if( (*props_it)->get_z() < smallest_z ){
+				smallest_z = (*props_it)->get_z();
+				smallest_y = (*props_it)->get_y() + (*props_it)->get_height();
+				smallest = 3;
 			}
-			else if( (*props_it)->get_z() == biggest_z ){
-				if( (*props_it)->get_y() > biggest_y ){
-					biggest_y = (*props_it)->get_y();
-					biggest = 3;
+			else if( (*props_it)->get_z() == smallest_z ){
+				if( (*props_it)->get_y() + (*props_it)->get_height() < smallest_y ){
+					smallest_y = (*props_it)->get_y() + (*props_it)->get_height();
+					smallest = 3;
 				}
 			}
 		}
 
 		if(proj_it != on_screen_projectiles.end()) {
 			done = false;
-			if( (*proj_it)->get_z() > biggest_z ){
-				biggest_z = (*proj_it)->get_z();
-				biggest = 4;
+			if( (*proj_it)->get_z() < smallest_z ){
+				smallest_z = (*proj_it)->get_z();
+				smallest_y = (*proj_it)->get_y() + (*proj_it)->get_height();
+				smallest = 4;
 			}
-			else if( (*proj_it)->get_z() == biggest_z ){
-				if( (*proj_it)->get_y() > biggest_y ){
-					biggest_y = (*proj_it)->get_y();
-					biggest = 4;
+			else if( (*proj_it)->get_z() == smallest_z ){
+				if( (*proj_it)->get_y() + (*proj_it)->get_height() < smallest_y ){
+					smallest_y = (*proj_it)->get_y() + (*proj_it)->get_height();
+					smallest = 4;
 				}
 			}
 		}
 
 		if (!done) {
-			switch (biggest){
+			switch (smallest){
 				case 1:
 					(*player_it)->render_frame(ren);
 					player_it++;
@@ -390,13 +394,11 @@ void World::render_world(SDL_Renderer& ren){
 				default:
 					break;
 			}
-			biggest_z = -1;
-			biggest_y = -1;
-			biggest = -1;
 		}
-
+		smallest_z = 1000000;
+		smallest_y = 1000000;
+		smallest = -1;
 	}
-
 }
 
 Contact::Contact(Actor* c_a, Actor* c_b) {
