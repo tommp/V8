@@ -52,7 +52,6 @@ int main(int argc, char** argv){
 	    
 	    /* Resolve all collisions */
 	    cradlands.resolve_collisions();
-
 	    /* Render to screen */
 	    display.clear();
 	    cradlands.render_world(*display.get_renderer_pointer());

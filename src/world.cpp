@@ -1,33 +1,37 @@
 #include "./headers/world.h"
 
 World::World(SDL_Renderer &ren, Resource_manager& manager){
-	Player_ptr new_player = std::make_shared<Player>(ren, manager);
+	Player* new_player = new Player(ren, manager);
+	for (int i = 0; i < 500; i++) {
+		Character* mob = new Slime_blob(ren, manager);
+		on_screen_characters.push_front(mob);
+	}
 	players.push_front(new_player);
 }
 
-bool World::check_if_colliding(const Actor& a, const Actor& b)const{
+bool World::check_if_colliding(const Actor* a, const Actor* b)const{
 
-	if( ( a.get_y() + a.get_height() ) <= b.get_y() ){
+	if( ( a->get_y() + a->get_height() ) <= b->get_y() ){
 		return false;
 	}
 
-	if( a.get_y() >= ( b.get_y() + b.get_height() ) ){
+	if( a->get_y() >= ( b->get_y() + b->get_height() ) ){
 		return false;
 	}
 
-	if( ( a.get_x() + a.get_width() ) <= b.get_x() ){
+	if( ( a->get_x() + a->get_width() ) <= b->get_x() ){
 		return false;
 	}
 
-	if( a.get_x() >= ( b.get_x() + b.get_width() ) ){
+	if( a->get_x() >= ( b->get_x() + b->get_width() ) ){
 		return false;
 	}
 
-	if( ( a.get_z() + a.get_depth() ) <= b.get_z() ){
+	if( ( a->get_z() + a->get_depth() ) <= b->get_z() ){
 		return false;
 	}
 
-	if( a.get_z() >= ( b.get_z() + b.get_depth() ) ){
+	if( a->get_z() >= ( b->get_z() + b->get_depth() ) ){
 		return false;
 	}
 
@@ -37,7 +41,10 @@ bool World::check_if_colliding(const Actor& a, const Actor& b)const{
 
 void World::update_positions(float timedelta){
 	for (auto it = players.begin(); it != players.end(); it++) {
-		it->get()->update_position(timedelta);
+		(*it)->update_position(timedelta);
+	}
+	for (auto it = on_screen_characters.begin(); it != on_screen_characters.end(); it++) {
+		(*it)->update_position(timedelta);
 	}
 }
 
@@ -91,17 +98,16 @@ void World::detect_all_collisions() {
 
 }
 
-void World::detect_collisions(const std::forward_list<Player_ptr>& a) {
+void World::detect_collisions(const std::forward_list<Player*>& a) {
 	if( !(a.begin() != a.end() )){
 		for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 			for (auto it_a_2 = ++it_a; it_a_2 != a.end(); it_a_2++) {
-				debug("lp2");
-				if(check_if_colliding( *(it_a->get()), *(it_a_2->get()) )){
+				if(check_if_colliding( *(it_a), *(it_a_2) )){
 					if (it_a == it_a_2) {
 						continue;
 					}
 					else{
-						contacts.emplace_front( *(it_a->get()), *(it_a_2->get()) );
+						contacts.emplace_front( *(it_a), *(it_a_2) );
 					}
 				}
 				else{
@@ -111,11 +117,11 @@ void World::detect_collisions(const std::forward_list<Player_ptr>& a) {
 		}
 	}
 }
-void World::detect_collisions(const std::forward_list<Player_ptr>& a, const std::forward_list<Character_ptr>& b) {
+void World::detect_collisions(const std::forward_list<Player*>& a, const std::forward_list<Character*>& b) {
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a->get()), *(it_b->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_b->get()) );
+			if(check_if_colliding( *(it_a), *(it_b) )){
+				contacts.emplace_front( *(it_a), *(it_b) );
 			}
 			else{
 				continue;
@@ -123,11 +129,11 @@ void World::detect_collisions(const std::forward_list<Player_ptr>& a, const std:
 		}
 	}
 }
-void World::detect_collisions(const std::forward_list<Player_ptr>& a, const std::forward_list<Prop_ptr>& b) {
+void World::detect_collisions(const std::forward_list<Player*>& a, const std::forward_list<Prop*>& b) {
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a->get()), *(it_b->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_b->get()) );
+			if(check_if_colliding( *(it_a), *(it_b) )){
+				contacts.emplace_front( *(it_a), *(it_b) );
 			}
 			else{
 				continue;
@@ -135,11 +141,11 @@ void World::detect_collisions(const std::forward_list<Player_ptr>& a, const std:
 		}
 	}
 }
-void World::detect_collisions(const std::forward_list<Player_ptr>& a, const std::forward_list<Projectile_ptr>& b) {
+void World::detect_collisions(const std::forward_list<Player*>& a, const std::forward_list<Projectile*>& b) {
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a->get()), *(it_b->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_b->get()) );
+			if(check_if_colliding( *(it_a), *(it_b) )){
+				contacts.emplace_front( *(it_a), *(it_b) );
 			}
 			else{
 				continue;
@@ -148,17 +154,17 @@ void World::detect_collisions(const std::forward_list<Player_ptr>& a, const std:
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Character_ptr>& a){
+void World::detect_collisions(const std::forward_list<Character*>& a){
 	if( !(a.begin() != a.end() )){
 		if( !(a.begin() != a.end() )){
 			for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 				for (auto it_a_2 = ++it_a; it_a_2 != a.end(); it_a_2++) {
-					if(check_if_colliding( *(it_a->get()), *(it_a_2->get()) )){
+					if(check_if_colliding( *(it_a), *(it_a_2) )){
 						if (it_a == it_a_2) {
 							continue;
 						}
 						else{
-							contacts.emplace_front( *(it_a->get()), *(it_a_2->get()) );
+							contacts.emplace_front( *(it_a), *(it_a_2) );
 						}
 					}
 					else{
@@ -170,12 +176,12 @@ void World::detect_collisions(const std::forward_list<Character_ptr>& a){
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Prop_ptr>& a){
+void World::detect_collisions(const std::forward_list<Prop*>& a){
 	if( !(a.begin() != a.end() )){
 		for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 			for (auto it_a_2 = ++it_a; it_a_2 != a.end(); it_a_2++) {
-				if(check_if_colliding( *(it_a->get()), *(it_a_2->get()) )){
-					contacts.emplace_front( *(it_a->get()), *(it_a_2->get()) );
+				if(check_if_colliding( *(it_a), *(it_a_2) )){
+					contacts.emplace_front( *(it_a), *(it_a_2) );
 				}
 				else{
 					continue;
@@ -185,11 +191,11 @@ void World::detect_collisions(const std::forward_list<Prop_ptr>& a){
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Projectile_ptr>& a){
+void World::detect_collisions(const std::forward_list<Projectile*>& a){
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_a_2 = ++it_a; it_a_2 != a.end(); it_a_2++) {
-			if(check_if_colliding( *(it_a->get()), *(it_a_2->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_a_2->get()) );
+			if(check_if_colliding( *(it_a), *(it_a_2) )){
+				contacts.emplace_front( *(it_a), *(it_a_2) );
 			}
 			else{
 				continue;
@@ -199,11 +205,11 @@ void World::detect_collisions(const std::forward_list<Projectile_ptr>& a){
 }
 
 
-void World::detect_collisions(const std::forward_list<Character_ptr>& a, const std::forward_list<Character_ptr>& b){
+void World::detect_collisions(const std::forward_list<Character*>& a, const std::forward_list<Character*>& b){
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a->get()), *(it_b->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_b->get()) );
+			if(check_if_colliding( *(it_a), *(it_b) )){
+				contacts.emplace_front( *(it_a), *(it_b) );
 			}
 			else{
 				continue;
@@ -212,11 +218,11 @@ void World::detect_collisions(const std::forward_list<Character_ptr>& a, const s
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Character_ptr>& a, const std::forward_list<Prop_ptr>& b){
+void World::detect_collisions(const std::forward_list<Character*>& a, const std::forward_list<Prop*>& b){
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a->get()), *(it_b->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_b->get()) );
+			if(check_if_colliding( *(it_a), *(it_b) )){
+				contacts.emplace_front( *(it_a), *(it_b) );
 			}
 			else{
 				continue;
@@ -225,11 +231,11 @@ void World::detect_collisions(const std::forward_list<Character_ptr>& a, const s
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Character_ptr>& a, const std::forward_list<Projectile_ptr>& b){
+void World::detect_collisions(const std::forward_list<Character*>& a, const std::forward_list<Projectile*>& b){
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a->get()), *(it_b->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_b->get()) );
+			if(check_if_colliding( *(it_a), *(it_b) )){
+				contacts.emplace_front( *(it_a), *(it_b) );
 			}
 			else{
 				continue;
@@ -238,11 +244,11 @@ void World::detect_collisions(const std::forward_list<Character_ptr>& a, const s
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Prop_ptr>& a, const std::forward_list<Prop_ptr>& b){
+void World::detect_collisions(const std::forward_list<Prop*>& a, const std::forward_list<Prop*>& b){
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a->get()), *(it_b->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_b->get()) );
+			if(check_if_colliding( *(it_a), *(it_b) )){
+				contacts.emplace_front( *(it_a), *(it_b) );
 			}
 			else{
 				continue;
@@ -251,11 +257,11 @@ void World::detect_collisions(const std::forward_list<Prop_ptr>& a, const std::f
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Prop_ptr>& a, const std::forward_list<Projectile_ptr>& b){
+void World::detect_collisions(const std::forward_list<Prop*>& a, const std::forward_list<Projectile*>& b){
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a->get()), *(it_b->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_b->get()) );
+			if(check_if_colliding( *(it_a), *(it_b) )){
+				contacts.emplace_front( *(it_a), *(it_b) );
 			}
 			else{
 				continue;
@@ -264,11 +270,11 @@ void World::detect_collisions(const std::forward_list<Prop_ptr>& a, const std::f
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Projectile_ptr>& a, const std::forward_list<Projectile_ptr>& b){
+void World::detect_collisions(const std::forward_list<Projectile*>& a, const std::forward_list<Projectile*>& b){
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a->get()), *(it_b->get()) )){
-				contacts.emplace_front( *(it_a->get()), *(it_b->get()) );
+			if(check_if_colliding( *(it_a), *(it_b) )){
+				contacts.emplace_front( *(it_a), *(it_b) );
 			}
 			else{
 				continue;
@@ -286,12 +292,114 @@ void World::update_groups(){
 }
 
 void World::render_world(SDL_Renderer& ren){
-	for (auto it = players.begin(); it != players.end(); it++) {
-		it->get()->render_frame(ren);
+	auto player_it = players.begin();
+
+	auto character_it = on_screen_characters.begin();
+
+	auto props_it = on_screen_props.begin();
+
+	auto proj_it = on_screen_projectiles.begin();
+
+	/* Render level */
+	/* ====TODO==== */
+	int biggest_z = -1;
+	int biggest_y = -1;
+	int biggest = 1;
+
+	bool done = false;
+
+	/* Render actors */
+	while(!done){
+
+		done = true;
+
+		if(player_it != players.end()) {
+			done = false;
+			if( (*player_it)->get_z() > biggest_z ){
+				biggest_z = (*player_it)->get_z();
+				biggest = 1;
+			}
+			else if( (*player_it)->get_z() == biggest_z ){
+				if( (*player_it)->get_y() > biggest_y ){
+					biggest_y = (*player_it)->get_y();
+					biggest = 1;
+				}
+			}
+		}
+
+		if(character_it != on_screen_characters.end()) {
+			done = false;
+			if( (*character_it)->get_z() > biggest_z ){
+				biggest_z = (*character_it)->get_z();
+				biggest = 2;
+			}
+			else if( (*character_it)->get_z() == biggest_z ){
+				if( (*character_it)->get_y() > biggest_y ){
+					biggest_y = (*character_it)->get_y();
+					biggest = 2;
+				}
+			}
+		}
+
+		if(props_it != on_screen_props.end()) {
+			done = false;
+			if( (*props_it)->get_z() > biggest_z ){
+				biggest_z = (*props_it)->get_z();
+				biggest = 3;
+			}
+			else if( (*props_it)->get_z() == biggest_z ){
+				if( (*props_it)->get_y() > biggest_y ){
+					biggest_y = (*props_it)->get_y();
+					biggest = 3;
+				}
+			}
+		}
+
+		if(proj_it != on_screen_projectiles.end()) {
+			done = false;
+			if( (*proj_it)->get_z() > biggest_z ){
+				biggest_z = (*proj_it)->get_z();
+				biggest = 4;
+			}
+			else if( (*proj_it)->get_z() == biggest_z ){
+				if( (*proj_it)->get_y() > biggest_y ){
+					biggest_y = (*proj_it)->get_y();
+					biggest = 4;
+				}
+			}
+		}
+
+		if (!done) {
+			switch (biggest){
+				case 1:
+					(*player_it)->render_frame(ren);
+					player_it++;
+					break;
+				case 2:
+					(*character_it)->render_frame(ren);
+					character_it++;
+					break;
+				case 3:
+					(*props_it)->render_frame(ren);
+					props_it++;
+					break;
+				case 4:
+					(*proj_it)->render_frame(ren);
+					proj_it++;
+					break;
+				default:
+					break;
+			}
+			biggest_z = -1;
+			biggest_y = -1;
+			biggest = -1;
+		}
+
 	}
+
 }
 
-Contact::Contact(Actor& c_a, Actor& c_b) {
-	a = &c_a;
-	b = &c_b;
+Contact::Contact(Actor* c_a, Actor* c_b) {
+	a = c_a;
+	b = c_b;
 }

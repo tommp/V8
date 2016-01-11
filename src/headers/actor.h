@@ -66,6 +66,7 @@ class Prop: public Actor{
 };
 
 class Descriptor{
+
 };
 
 typedef std::shared_ptr<Actor> Actor_ptr;

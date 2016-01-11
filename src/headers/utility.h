@@ -30,10 +30,12 @@ const std::string SOUNDS_FILE = "./sounds.txt";
 
 const std::unordered_map<std::string, std::string> WORLD_TEXTURES = {
 	{"simple", "../pixelart/Animations/simple.png"},
+	{"blob", "../pixelart/Animations/blob.png"},
 };
 
 const std::unordered_map<std::string, std::string> WORLD_ANIMATIONS = {
 	{"simple", "../pixelart/Animations/simple.txt"},
+	{"blob", "../pixelart/Animations/blob.txt"},
 };
 
 /*Waits for user input and quits when detected*/

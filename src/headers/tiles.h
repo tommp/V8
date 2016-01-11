@@ -1,33 +1,32 @@
-#ifndef MAIN_H
-#define MAIN_H
-
+#ifndef TILES_H
+#define TILES_H
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./world.h"
-#include "./display.h"
-#include "./resource_manager.h"
-#include "./utility.h"
-#include "./timer.h"
-#include "./level.h"
-#include "./errorlogger.h"
-#include "./texture.h"
-#include "./events.h"
-#include "./animation.h"
-#include "./player.h"
-
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
-#include <iostream>
 #include <SDL2/SDL.h>
-#include <string>
-#include <unistd.h>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
+class Tile{
+private:
+	SDL_Rect* clip;
+	int temperature;
+	int moisture;
+	int acidity;
+	int toxicity;
+public:
+
+};
+
+class Tileset{
+
+};
+
 /*=============================================*/
 
 #endif
