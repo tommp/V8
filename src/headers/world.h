@@ -26,7 +26,6 @@ public:
 
 class World {
 private:
-	Player* player;
 	Level_ptr current_level;
 
 	std::forward_list<Player_ptr> players;
@@ -44,7 +43,7 @@ private:
 
 	std::forward_list<Contact> contacts;
 public:
-	World(Player* main_player);
+	World(SDL_Renderer &ren, Resource_manager& manager);
 	bool check_if_colliding(const Actor& a, const Actor& b)const;
 	void update_positions(float timedelta);
 
@@ -65,7 +64,7 @@ public:
 	
 	void resolve_collisions();
 	void update_groups();
-	void render_world(SDL_Renderer* ren);
+	void render_world(SDL_Renderer& ren);
 };
 /*=============================================*/
 

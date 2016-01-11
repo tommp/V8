@@ -8,10 +8,10 @@ Level::Level(int init_width, int init_height, int init_depth){
 	camera = {0, 0, level::cam_width, level::cam_height};
 }
 
-void Level::center_camera(Actor* target) {
+void Level::center_camera(const Actor& target) {
 	/* Center on the actor collision box */
-	camera.x = ( target->get_x() + target->get_width() / 2 ) - camera.w / 2;
-	camera.y = ( target->get_y() + target->get_height() / 2 ) - camera.h / 2;
+	camera.x = ( target.get_x() + target.get_width() / 2 ) - camera.w / 2;
+	camera.y = ( target.get_y() + target.get_height() / 2 ) - camera.h / 2;
 
 	/* Keep the camera in bounds */
 	if( camera.x < 0 ) { 

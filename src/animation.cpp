@@ -8,11 +8,21 @@ Frame::Frame(int x, int y, int w, int h, int frame_duration){
 	clip.h = h;
 }
 
-Animation::Animation(const Resource_manager& resource_manager, 
-					const std::string& texture_name, 
-					const std::string& filename) {
+Animation::Animation() {
+	texture = NULL;
+	current_frame_end = 0;
+}
 
-	std::ifstream frame_in(filename.c_str());
+bool Animation::load_from_file(SDL_Renderer& ren, Resource_manager& resource_manager, const std::string& name){
+	
+	if (WORLD_ANIMATIONS.find(name) == WORLD_ANIMATIONS.end()) {
+		std::cout << "ERROR: Animation not found!: " << name << std::endl;
+		errorlogger("ERROR: Animation not found!: ", name.c_str());
+		return false;
+	}
+	
+	std::string filename_txt = WORLD_ANIMATIONS.find(name)->second;
+	std::ifstream frame_in(filename_txt.c_str());
 
 	if(frame_in.is_open()){
 		std::string line;
@@ -20,9 +30,9 @@ Animation::Animation(const Resource_manager& resource_manager,
 		while (std::getline(frame_in, line)){			
 			std::istringstream iss(line);
 			if (!(iss >> duration >> x >> y >> f_width >> f_height)) { 
-				errorlogger("Wrong text formating in animation: ", filename.c_str());
-				std::cout << "Wrong text formating in animation: " << filename.c_str() << std::endl;
-				break; /* BETTER HANDLING HERE */
+				errorlogger("Wrong text formating in animation: ", filename_txt.c_str());
+				std::cout << "Wrong text formating in animation: " << filename_txt.c_str() << std::endl;
+				return false;
 			} /* error */
 			else{
 				if(frames.empty()){
@@ -35,14 +45,16 @@ Animation::Animation(const Resource_manager& resource_manager,
 		}
 		current_frame = frames.begin();
 
-		texture = resource_manager.get_texture_ptr(texture_name);
+		texture = resource_manager.load_texture(ren, name);
 
 		if(!texture) {
-			errorlogger("Unable to load texture from resource handler: ", texture_name.c_str());
-			std::cout << "Unable to load texture from resource handler: " << texture_name.c_str() << std::endl;
+			errorlogger("Unable to load texture from resource handler: ", name.c_str());
+			std::cout << "Unable to load texture from resource handler: " << name.c_str() << std::endl;
+			return false;
 		}
 	}
 	current_frame_end = SDL_GetTicks() + current_frame->duration;
+	return true;
 }
 
 void Animation::reset_animation(){
@@ -50,7 +62,7 @@ void Animation::reset_animation(){
 	current_frame_end = SDL_GetTicks() + current_frame->duration;
 }
 
-void Animation::render_current(SDL_Renderer *ren, int x, int y){
+void Animation::render_current(SDL_Renderer& ren, int x, int y){
 	if( SDL_GetTicks() > current_frame_end ){
 		current_frame++;
 		if( current_frame != frames.end()) {

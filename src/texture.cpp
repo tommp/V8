@@ -12,25 +12,30 @@ Texture::~Texture(){
     free();
 }
 
-bool Texture::load_from_file( SDL_Renderer *ren, const std::string& path ){
+bool Texture::load_from_file( SDL_Renderer& ren, const std::string& name ){
 	/* Get rid of preexisting texture */
 	if( texture != NULL ){
-		errorlogger( "WARNING!! Overwriting texture!" );
     	free();
 	}
 
 	/* The final texture */
     SDL_Texture* newTexture = NULL;
 
+    if (WORLD_TEXTURES.find(name) == WORLD_TEXTURES.end()) {
+        std::cout << "ERROR: Texture not found!: " << name << std::endl;
+        errorlogger("ERROR: Texture not found!: ", name.c_str());
+        return false;
+    }
+
+    std::string path = WORLD_TEXTURES.find(name)->second;
+
 	/* Create texture from path */
-    newTexture = IMG_LoadTexture( ren, path.c_str() );;
-    if( newTexture == NULL )
-    {
+    newTexture = IMG_LoadTexture( &ren, path.c_str() );;
+    if( newTexture == NULL ){
     	SDLerrorLogger( "Unable to create texture!" );
         printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
     }
-    else
-    {
+    else{
         /* Get image dimensions */
         SDL_QueryTexture(newTexture, NULL, NULL, &width, &height);
     }
@@ -51,7 +56,7 @@ void Texture::free(){
     }
 }
 
-void Texture::render(SDL_Renderer *ren, int x, int y, SDL_Rect* clip){
+void Texture::render(SDL_Renderer& ren, int x, int y, SDL_Rect* clip){
 	/* Set rendering space and render to screen */
     SDL_Rect renderQuad = { x, y, width, height };
 
@@ -63,5 +68,5 @@ void Texture::render(SDL_Renderer *ren, int x, int y, SDL_Rect* clip){
     }
 
     /* Render to screen */
-    SDL_RenderCopy(ren, texture, clip, &renderQuad );
+    SDL_RenderCopy(&ren, texture, clip, &renderQuad );
 }

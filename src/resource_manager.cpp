@@ -1,15 +1,33 @@
 #include "./headers/resource_manager.h"
 
-Texture_ptr Resource_manager::load_texture(SDL_Renderer *ren, const std::string& path, const std::string& name){
+Texture_ptr Resource_manager::load_texture(SDL_Renderer& ren, const std::string& name){
 	if (textures.find(name) != textures.end()){
-		errorlogger("Texture with this name already exists: ", name.c_str());
-		std::cout << "Texture with this name already exists: " << name << std::endl;
-		return nullptr;
+		return textures[name];
 	}
 	else{
 		Texture_ptr new_texture = std::make_shared<Texture>();
-		new_texture->load_from_file(ren, path);
+		if ( !( new_texture->load_from_file(ren, name) ) ){
+			std::cout << "ERROR: Resource manager failed to load new texture: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new texture: ", name.c_str());
+			return nullptr;
+		}
 		textures.insert({name, new_texture});
 		return new_texture;
+	}
+}
+
+Animation_ptr Resource_manager::load_animation(SDL_Renderer& ren, const std::string& name){
+	if (animations.find(name) != animations.end()){
+		return animations[name];
+	}
+	else{
+		Animation_ptr new_animation = std::make_shared<Animation>();
+		if ( !(new_animation->load_from_file(ren, *this, name) ) ){
+			std::cout << "ERROR: Resource manager failed to load new animation: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new animation: ", name.c_str());
+			return nullptr;
+		}
+		animations.insert({name, new_animation});
+		return new_animation;
 	}
 }

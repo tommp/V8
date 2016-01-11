@@ -43,25 +43,25 @@ class Actor{
 
 class Character: public Actor{
 	protected:
-		Animation* animation;
+		Animation_ptr animation;
 	public:
 		virtual void update_position(float timedelta) = 0;
-		virtual void render_frame(SDL_Renderer *ren) = 0;
+		virtual void render_frame(SDL_Renderer& ren) = 0;
 };
 
 class Projectile: public Actor{
 	protected:
-		Animation* animation;
+		Animation_ptr animation;
 	public:
 		virtual void update_position(float timedelta) = 0;
-		virtual void render_frame(SDL_Renderer *ren) = 0;
+		virtual void render_frame(SDL_Renderer& ren) = 0;
 };
 
 class Prop: public Actor{
 	protected:
 		Texture_ptr visual;
 	public:
-		virtual void render_frame(SDL_Renderer *ren) = 0;
+		virtual void render_frame(SDL_Renderer& ren) = 0;
 
 };
 

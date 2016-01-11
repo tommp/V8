@@ -33,7 +33,7 @@ class Level {
 		int get_height()const { return height; };
 		int get_depth()const { return depth; };
 
-		void center_camera(Actor* target);
+		void center_camera(const Actor& target);
 
 		SDL_Rect* get_camera_refrence(){ return &camera; };
 

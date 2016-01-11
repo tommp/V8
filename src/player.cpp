@@ -1,14 +1,21 @@
 #include "./headers/player.h"
 
-Player::Player(Animation* init_animation){
-	animation = init_animation;
+Player::Player(SDL_Renderer& ren, Resource_manager& manager){
+	std::string anim = "simple";
+	if ( !(animation = manager.load_animation(ren, anim) ) ){
+		std::cout << "ERROR: Player constructor failed to load animation: " << anim << std::endl;
+		errorlogger("ERROR: Player constructor failed to load animation: ", anim.c_str());
+	}
 	speed = 300;
 	x = 100;
 	y = 100;
 	z = 0;
+	width = TILESIZE;
+	height = TILESIZE;
+	depth = TILESIZE*2;
 }
 
-void Player::render_frame(SDL_Renderer *ren){
+void Player::render_frame(SDL_Renderer &ren){
 	animation->render_current(ren, (int)x, (int)y);
 }
 

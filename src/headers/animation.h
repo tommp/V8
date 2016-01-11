@@ -4,9 +4,10 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "./resource_manager.h"
 #include "./errorlogger.h"
 #include "./texture.h"
-#include "./resource_manager.h"
+#include "./utility.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -16,10 +17,13 @@
 #include <forward_list>
 #include <fstream>
 #include <sstream>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
+
+class Resource_manager;
 
 class Frame{
 	friend class Animation;
@@ -41,12 +45,11 @@ class Animation{
 		std::forward_list<Frame>::iterator current_frame;
 		unsigned int current_frame_end;
 	public:
-		Animation(const Resource_manager& resource_manager, 
-					const std::string& texture_name, 
-					const std::string& filename);
+		Animation();
+		bool load_from_file(SDL_Renderer& ren, Resource_manager& resource_manager, const std::string& name);
+		void render_current(SDL_Renderer& ren, int x, int y);
+		void render_texture(SDL_Renderer& ren, int x, int y);
 		void reset_animation();
-		void render_current(SDL_Renderer *ren, int x, int y);
-		void render_texture(SDL_Renderer *ren, int x, int y);
 };
 
 typedef std::shared_ptr<Animation> Animation_ptr;

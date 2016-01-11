@@ -5,7 +5,9 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "./texture.h"
+#include "./animation.h"
 #include "./errorlogger.h"
+#include "./utility.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -13,22 +15,21 @@
 #include <SDL2/SDL.h>
 #include <unistd.h>
 #include <unordered_map>
-#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
-typedef std::shared_ptr<Texture> Texture_ptr;
+class Animation;
+typedef std::shared_ptr<Animation> Animation_ptr;
 
 class Resource_manager {
 	private:
 		std::unordered_map<std::string, Texture_ptr> textures;
+		std::unordered_map<std::string, Animation_ptr> animations;
 	public:
-		Texture_ptr load_texture(SDL_Renderer *ren, const std::string& path, const std::string& name);
-		Texture_ptr get_texture_ptr(const std::string& name)const {return textures.find(name)->second;};
+		Texture_ptr load_texture(SDL_Renderer& ren, const std::string& name);
+		Animation_ptr load_animation(SDL_Renderer& ren, const std::string& name);
 };
-
-
 /*=============================================*/
 
 #endif

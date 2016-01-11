@@ -20,10 +20,10 @@ class Player : public Character{
 private:
 	int speed;
 public:
-	Player(Animation* animation);
-	void render_frame(SDL_Renderer *ren);
+	Player(SDL_Renderer& ren, Resource_manager& manager);
+	void render_frame(SDL_Renderer& ren);
 	void update_position(float timedelta);
-	void live(SDL_Renderer *ren, float timedelta);
+	void live(SDL_Renderer& ren, float timedelta);
 };
 
 typedef std::shared_ptr<Player> Player_ptr;

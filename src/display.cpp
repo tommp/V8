@@ -49,6 +49,9 @@ int Display::init_window(){
 		enable_fullscreen();
 	}
 
+	/* MAKE SMOOTH WHEN MENU IN PLACE */
+	SDL_ShowCursor(0);
+
 	return 0;
 }
 

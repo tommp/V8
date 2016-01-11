@@ -39,7 +39,7 @@ public:
 	void clear(){SDL_RenderClear(ren);};
 	void present(){SDL_RenderPresent(ren);};
 
-	SDL_Renderer* get_renderer(){return ren;};
+	SDL_Renderer* get_renderer_pointer(){return ren;};
 	int get_screen_width(){return screen_width;};
 	int get_screen_height(){return screen_height;};
 	int get_width(){return width;};
