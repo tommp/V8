@@ -23,7 +23,7 @@ Display::Display(const std::string& settings_file_path){
 Display::Display(){
 	/* Init to standard settings as a fallback */
 	use_vsync = true;
-	use_fullscreen = false;
+	use_fullscreen = true;
 	width = SCREEN_WIDTH;
 	height = SCREEN_HEIGHT;
 	screen_width = 0;
@@ -64,13 +64,19 @@ int Display::init_renderer(){
 	}
 
 	/* Select the color for drawing to black */
-    SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
+    SDL_SetRenderDrawColor(ren, 0, 255, 255, 255);
 
     /* Clear the entire screen to our selected color */
     SDL_RenderClear(ren);
 
 	if(!use_vsync){
 		disable_vsync();
+	}
+
+	if(use_fullscreen){
+		int height_factor = screen_height / SCREEN_HEIGHT;
+		int width_factor = screen_width / SCREEN_WIDTH;
+		SDL_RenderSetScale(ren, height_factor, width_factor);
 	}
 
 	return 0;
@@ -84,12 +90,10 @@ int Display::enable_fullscreen(){
 
 int Display::enable_vsync(){
 	SDL_GL_SetSwapInterval(1);
-
 	return 0;
 }
 
 int Display::disable_vsync(){
 	SDL_GL_SetSwapInterval(0);
-
 	return 0;
 }

@@ -7,7 +7,7 @@ World::World(SDL_Renderer &ren, Resource_manager& manager){
 	if(!players.empty()){
 		current_level->center_camera(players.front());
 	}
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 50000; i++) {
 		Character* mob = new Slime_blob(ren, manager);
 		add_character(mob);
 	}
@@ -50,22 +50,23 @@ bool World::check_if_colliding(const Actor* a, const Actor* b)const{
 bool World::check_if_colliding(const Actor* a, const SDL_Rect* b)const{
 
 	if(! a || !b){
+		std::cout << "WARNING: NULLPTR PASSED TO COLLISION CHECK FOR CAMERA!" << std::endl;
 		return false;
 	}
 
-	if( ( a->get_y() + a->get_height() ) <= b->y ){
+	if( ( a->get_y() + a->get_height() ) <= (b->y - RENDERING_SLACK) ){
 		return false;
 	}
 
-	if( a->get_y() >= ( b->y + b->h ) ){
+	if( a->get_y() >= ( b->y + b->h + RENDERING_SLACK) ){
 		return false;
 	}
 
-	if( ( a->get_x() + a->get_width() ) <= b->x ){
+	if( ( a->get_x() + a->get_width() ) <= (b->x - RENDERING_SLACK) ){
 		return false;
 	}
 
-	if( a->get_x() >= ( b->x + b->w ) ){
+	if( a->get_x() >= ( b->x + b->w  + RENDERING_SLACK) ){
 		return false;
 	}
 
@@ -301,10 +302,6 @@ void World::detect_collisions(const std::forward_list<Projectile*>& a, const std
 			}
 		}
 	}
-}
-
-void World::resolve_collisions(){
-	
 }
 
 void World::update_groups(){
@@ -656,6 +653,11 @@ bool World::insert_projectile(Projectile* projectile){
 
 bool World::add_projectile(Projectile* projectile){
 	return insert_projectile(projectile);
+}
+
+
+void World::resolve_collisions(){
+	contacts.clear();
 }
 
 Contact::Contact(Actor* c_a, Actor* c_b) {

@@ -21,6 +21,8 @@
 /*=============================================*/
 class Animation;
 typedef std::shared_ptr<Animation> Animation_ptr;
+class Animation_set;
+typedef std::shared_ptr<Animation_set> Animation_set_ptr;
 
 class Resource_manager {
 	private:
@@ -29,6 +31,7 @@ class Resource_manager {
 	public:
 		Texture_ptr load_texture(SDL_Renderer& ren, const std::string& name);
 		Animation_ptr load_animation(SDL_Renderer& ren, const std::string& name);
+		Animation_set_ptr return_animation_set(SDL_Renderer& ren, const std::string& name);
 };
 /*=============================================*/
 

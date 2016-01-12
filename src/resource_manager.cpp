@@ -31,3 +31,14 @@ Animation_ptr Resource_manager::load_animation(SDL_Renderer& ren, const std::str
 		return new_animation;
 	}
 }
+
+Animation_set_ptr Resource_manager::return_animation_set(SDL_Renderer& ren, const std::string& name){
+	Animation_set_ptr animation_set = std::make_shared<Animation_set>();
+
+	if (!animation_set->load_from_file(ren, *this, name)) {
+		std::cout << "ERROR: Resource manager failed to load new animation: " << name << std::endl;
+		errorlogger("ERROR: Resource manager failed to load new animation: ", name.c_str());
+		return nullptr;
+	}
+	return animation_set;
+}

@@ -43,7 +43,8 @@ class Actor{
 
 class Character: public Actor{
 	protected:
-		Animation_ptr animation;
+		Animation_set_ptr animations;
+		std::string state;
 	public:
 		virtual void update_position(float timedelta) = 0;
 		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
@@ -51,7 +52,8 @@ class Character: public Actor{
 
 class Projectile: public Actor{
 	protected:
-		Animation_ptr animation;
+		Animation_set_ptr animations;
+		std::string state;
 	public:
 		virtual void update_position(float timedelta) = 0;
 		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
@@ -59,7 +61,8 @@ class Projectile: public Actor{
 
 class Prop: public Actor{
 	protected:
-		Texture_ptr visual;
+		Animation_set_ptr visuals;
+		std::string state;
 	public:
 		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
 

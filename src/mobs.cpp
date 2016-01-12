@@ -1,7 +1,7 @@
 #include "./headers/mobs.h"
 
 void Slime_blob::render_frame(SDL_Renderer &ren, SDL_Rect* offset){
-	animation->render_current(ren, (int)x - offset->x, (int)y - offset->y);
+	animations->render_current(ren, (int)x - offset->x, (int)y - offset->y, state);
 }
 
 void Slime_blob::update_position(float timedelta){
@@ -22,14 +22,15 @@ void Slime_blob::update_position(float timedelta){
 }
 
 Slime_blob::Slime_blob(SDL_Renderer& ren, Resource_manager& manager){
-	std::string anim = "blob";
-	if ( !(animation = manager.load_animation(ren, anim) ) ){
-		std::cout << "ERROR: Slime_blob constructor failed to load animation: " << anim << std::endl;
-		errorlogger("ERROR: Slime_blobconstructor failed to load animation: ", anim.c_str());
+	std::string anim = "blob_movement";
+	state = {"blob"};
+	if ( !(animations = manager.return_animation_set(ren, anim) ) ){
+		std::cout << "ERROR: Slime_blob constructor failed to load animation set: " << anim << std::endl;
+		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim.c_str());
 	}
 	speed = 50;
-	x = (rand() + 20) % (SCREEN_WIDTH - 20);
-	y = (rand() + 20) % (SCREEN_HEIGHT - 20);
+	x = (rand() + 20) % (10000 - 20);
+	y = (rand() + 20) % (10000 - 20);
 	z = 0;
 	vec_y = 0;
 	vec_x = 0;

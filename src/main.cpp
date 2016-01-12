@@ -36,8 +36,10 @@ int main(int argc, char** argv){
 	/*=======================================================*/
     while(state_handler.game_is_running()){
 
+#if DISABLE_VSYNC
     	//Start cap timer
         cap_timer.restart();
+#endif
 
 	    /* Handle events in the queue */
 	    state_handler.handle_events();
@@ -57,6 +59,7 @@ int main(int argc, char** argv){
 	    cradlands.render_world(*display.get_renderer_pointer());
 	    display.present();
 
+#if DISABLE_VSYNC
         /* If frame finished early */
         int frame_ticks = cap_timer.get_ticks();
         if( frame_ticks < SCREEN_TICKS_PER_FRAME )
@@ -64,6 +67,7 @@ int main(int argc, char** argv){
             /* Wait remaining time */
             SDL_Delay( SCREEN_TICKS_PER_FRAME - frame_ticks );
         }
+#endif
 	}
 	/*=======================================================*/
 

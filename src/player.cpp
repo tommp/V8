@@ -1,14 +1,15 @@
 #include "./headers/player.h"
 
 Player::Player(SDL_Renderer& ren, Resource_manager& manager){
-	std::string anim = "simple";
-	if ( !(animation = manager.load_animation(ren, anim) ) ){
-		std::cout << "ERROR: Player constructor failed to load animation: " << anim << std::endl;
-		errorlogger("ERROR: Player constructor failed to load animation: ", anim.c_str());
+	std::string anim = "adventure_time";
+	state = {"adv_down"};
+	if ( !(animations = manager.return_animation_set(ren, anim) ) ){
+		std::cout << "ERROR: Player constructor failed to load animation set: " << anim << std::endl;
+		errorlogger("ERROR: Player constructor failed to load animation set: ", anim.c_str());
 	}
 	speed = 300;
-	x = 100;
-	y = 100;
+	x = 2000;
+	y = 2000;
 	z = 0;
 	width = TILESIZE;
 	height = TILESIZE;
@@ -16,7 +17,7 @@ Player::Player(SDL_Renderer& ren, Resource_manager& manager){
 }
 
 void Player::render_frame(SDL_Renderer &ren, SDL_Rect* offset){
-	animation->render_current(ren, (int)x - offset->x, (int)y - offset->y);
+	animations->render_current(ren, (int)x - offset->x, (int)y - offset->y, state);
 }
 
 void Player::update_position(float timedelta){
@@ -39,4 +40,24 @@ void Player::update_position(float timedelta){
 
 	x += x_vec * speed * timedelta;
 	y += y_vec * speed * timedelta;
+
+	if (x_vec > 0) {
+		state = {"adv_right"};
+	}
+	else if (x_vec < 0){
+		state = {"adv_left"};
+	}
+	else if (y_vec < 0){
+		state = {"adv_up"};
+	}
+	else if (y_vec > 0){
+		state = {"adv_down"};
+	}
+	else{
+		if (state == "adv_right" || state == "adv_left" || state == "adv_up" || state == "adv_down") {
+			state = state + "_loiter";
+		}
+	}
+
+
 }

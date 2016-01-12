@@ -5,7 +5,7 @@ Level::Level(int init_width, int init_height, int init_depth){
 	height = init_height;
 	depth = init_depth;
 
-	camera = {0, 0, SCREEN_WIDTH*RENDERING_SLACK_FACTOR, SCREEN_HEIGHT*RENDERING_SLACK_FACTOR};
+	camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 }
 
 void Level::center_camera(const Actor* target) {

@@ -21,6 +21,8 @@ private:
 	SDL_Window* win;
     SDL_Renderer* ren;
 
+    SDL_Texture* backbuffer;
+
     bool use_vsync;
     bool use_fullscreen;
     int width;
