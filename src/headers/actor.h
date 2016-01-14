@@ -48,25 +48,10 @@ class Character: public Actor{
 	public:
 		virtual void update_position(float timedelta) = 0;
 		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
+		bool operator<(const Character& b);
 };
 
-class Projectile: public Actor{
-	protected:
-		Animation_set_ptr animations;
-		std::string state;
-	public:
-		virtual void update_position(float timedelta) = 0;
-		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
-};
 
-class Prop: public Actor{
-	protected:
-		Animation_set_ptr visuals;
-		std::string state;
-	public:
-		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
-
-};
 
 class Descriptor{
 
@@ -74,8 +59,6 @@ class Descriptor{
 
 typedef std::shared_ptr<Actor> Actor_ptr;
 typedef std::shared_ptr<Character> Character_ptr;
-typedef std::shared_ptr<Projectile> Projectile_ptr;
-typedef std::shared_ptr<Prop> Prop_ptr;
 /*=============================================*/
 
 #endif

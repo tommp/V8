@@ -1,13 +1,13 @@
 #include "./headers/world.h"
 
 World::World(SDL_Renderer &ren, Resource_manager& manager){
-	Player* new_player = new Player(ren, manager);
+	Character* new_player = new Player(ren, manager);
 	add_player(new_player);
 	current_level = new Level(10000, 10000, 10000);
 	if(!players.empty()){
 		current_level->center_camera(players.front());
 	}
-	for (int i = 0; i < 50000; i++) {
+	for (int i = 0; i < 20000; i++) {
 		Character* mob = new Slime_blob(ren, manager);
 		add_character(mob);
 	}
@@ -75,6 +75,7 @@ bool World::check_if_colliding(const Actor* a, const SDL_Rect* b)const{
 }
 
 void World::update_positions(float timedelta){
+
 	for (auto it = players.begin(); it != players.end(); it++) {
 		(*it)->update_position(timedelta);
 	}
@@ -87,85 +88,47 @@ void World::update_positions(float timedelta){
 	}
 }
 
+void World::sort_groups(){
+	for (auto it = players.begin(); it != players.end(); it++) {
+		auto it2 = it;
+		Character* temp;
+
+		while( ( it2 != players.begin() ) && ( (**it2) < (**std::prev(it2)) ) ){
+			temp = *it2;
+			auto prev = std::prev(it2);
+			(*it2) = (*prev);
+			(*prev) = temp;
+			it2--;
+		}
+	}
+
+	for (auto it = characters.begin(); it != characters.end(); it++) {
+		auto it2 = it;
+		Character* temp;
+
+		while( ( it2 != characters.begin() ) && ( (**it2) < (**std::prev(it2)) ) ){
+			temp = *it2;
+			auto prev = std::prev(it2);
+			(*it2) = (*prev);
+			(*prev) = temp;
+			it2--;
+		}
+	}
+}
+
+
 void World::detect_all_collisions() {
-	detect_collisions(players);
-	detect_collisions(players, characters);
-	detect_collisions(players, props);
-	detect_collisions(players, projectiles);
+	if (!players.empty()){
+		detect_collisions(players);
+		detect_collisions(players, characters);
+	}
 
 	if (!characters.empty()){
 		detect_collisions(characters);
-		detect_collisions(characters, props);
-		detect_collisions(characters, projectiles);
-	}
-
-	if(!props.empty()){
-		detect_collisions(props);
-		detect_collisions(props, projectiles);
-	}
-
-	if(!projectiles.empty()){
-		detect_collisions(projectiles);
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Player*>& a) {
-	if (!a.empty()){
-		for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-			for (auto it_a_2 = it_a; it_a_2 != a.end(); it_a_2++) {
-				if(check_if_colliding( *(it_a), *(it_a_2) )){
-					if (it_a == it_a_2) {
-						continue;
-					}
-					else{
-						contacts.emplace_front( *(it_a), *(it_a_2) );
-					}
-				}
-				else{
-					continue;
-				}
-			}
-		}
-	}
-}
-void World::detect_collisions(const std::forward_list<Player*>& a, const std::forward_list<Character*>& b) {
-	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a), *(it_b) )){
-				contacts.emplace_front( *(it_a), *(it_b) );
-			}
-			else{
-				continue;
-			}
-		}
-	}
-}
-void World::detect_collisions(const std::forward_list<Player*>& a, const std::forward_list<Prop*>& b) {
-	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a), *(it_b) )){
-				contacts.emplace_front( *(it_a), *(it_b) );
-			}
-			else{
-				continue;
-			}
-		}
-	}
-}
-void World::detect_collisions(const std::forward_list<Player*>& a, const std::forward_list<Projectile*>& b) {
-	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a), *(it_b) )){
-				contacts.emplace_front( *(it_a), *(it_b) );
-			}
-			else{
-				continue;
-			}
-		}
-	}
-}
-
-void World::detect_collisions(const std::forward_list<Character*>& a){
+void World::detect_collisions(const std::list<Character*>& a){
 	if (!a.empty()) {
 		for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 			for (auto it_a_2 = it_a; it_a_2 != a.end(); it_a_2++) {
@@ -185,113 +148,7 @@ void World::detect_collisions(const std::forward_list<Character*>& a){
 	}
 }
 
-void World::detect_collisions(const std::forward_list<Prop*>& a){
-	if (!a.empty()) {
-		for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-			for (auto it_a_2 = it_a; it_a_2 != a.end(); it_a_2++) {
-				if(check_if_colliding( *(it_a), *(it_a_2) )){
-					if (it_a == it_a_2) {
-						continue;
-					}
-					else{
-						contacts.emplace_front( *(it_a), *(it_a_2) );
-					}
-				}
-				else{
-					continue;
-				}
-			}
-		}
-	}
-}
-
-void World::detect_collisions(const std::forward_list<Projectile*>& a){
-	if (!a.empty()) {
-		for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-			for (auto it_a_2 = it_a; it_a_2 != a.end(); it_a_2++) {
-				if(check_if_colliding( *(it_a), *(it_a_2) )){
-					if (it_a == it_a_2) {
-						continue;
-					}
-					else{
-						contacts.emplace_front( *(it_a), *(it_a_2) );
-					}
-				}
-				else{
-					continue;
-				}
-			}
-		}
-	}
-}
-
-
-void World::detect_collisions(const std::forward_list<Character*>& a, const std::forward_list<Character*>& b){
-	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a), *(it_b) )){
-				contacts.emplace_front( *(it_a), *(it_b) );
-			}
-			else{
-				continue;
-			}
-		}
-	}
-}
-
-void World::detect_collisions(const std::forward_list<Character*>& a, const std::forward_list<Prop*>& b){
-	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a), *(it_b) )){
-				contacts.emplace_front( *(it_a), *(it_b) );
-			}
-			else{
-				continue;
-			}
-		}
-	}
-}
-
-void World::detect_collisions(const std::forward_list<Character*>& a, const std::forward_list<Projectile*>& b){
-	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a), *(it_b) )){
-				contacts.emplace_front( *(it_a), *(it_b) );
-			}
-			else{
-				continue;
-			}
-		}
-	}
-}
-
-void World::detect_collisions(const std::forward_list<Prop*>& a, const std::forward_list<Prop*>& b){
-	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a), *(it_b) )){
-				contacts.emplace_front( *(it_a), *(it_b) );
-			}
-			else{
-				continue;
-			}
-		}
-	}
-}
-
-void World::detect_collisions(const std::forward_list<Prop*>& a, const std::forward_list<Projectile*>& b){
-	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
-			if(check_if_colliding( *(it_a), *(it_b) )){
-				contacts.emplace_front( *(it_a), *(it_b) );
-			}
-			else{
-				continue;
-			}
-		}
-	}
-}
-
-void World::detect_collisions(const std::forward_list<Projectile*>& a, const std::forward_list<Projectile*>& b){
+void World::detect_collisions(const std::list<Character*>& a, const std::list<Character*>& b){
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
 			if(check_if_colliding( *(it_a), *(it_b) )){
@@ -305,179 +162,67 @@ void World::detect_collisions(const std::forward_list<Projectile*>& a, const std
 }
 
 void World::update_groups(){
-	auto prev_it_dormant = dormant_characters.before_begin();
 	auto first_it_dormant = dormant_characters.begin();
-	auto prev_it = characters.before_begin();
+	auto before_it_dormant = dormant_characters.before_begin();
 
 	for (auto it = characters.begin(); it != characters.end(); it++){
 		if( !check_if_colliding(*it, current_level->get_camera_pointer())){
 			add_dormant_character(*it);
-			it = prev_it;
-			characters.erase_after(it);
-		}
-		else{
-			prev_it = it;
-			continue;
+			it = characters.erase(it);
 		}
 	}
 
 	for (auto it = first_it_dormant; it != dormant_characters.end(); it++){
 		if(check_if_colliding(*it, current_level->get_camera_pointer())){
 			insert_character(*it);
-			it = prev_it_dormant;
-			characters.erase_after(it);
+			dormant_characters.erase_after(before_it_dormant);
+			it = before_it_dormant;
 		}
 		else{
-			prev_it_dormant = it;
-			continue;
+			before_it_dormant++;
 		}
 	}
 }
 
 void World::render_world(SDL_Renderer& ren){
-
 	update_groups();
-
+	sort_groups();
 	auto player_it = players.begin();
 
 	auto character_it = characters.begin();
 
-	auto props_it = props.begin();
-
-	auto proj_it = projectiles.begin();
-
 	/* Render level */
 	/* ====TODO==== */
-	int smallest_z = 100000;
-	int smallest_y = 100000;
-	int smallest = -1;
 
-	bool done = false;
+	bool players_done = false;
+	bool characters_done = false;
 
-	/* Render actors */
-	while(!done){
+	/* Render characters */
+	while( (!players_done) || (!characters_done)) {
 
-		done = true;
+		/* Dangerous but clean, works as long as compiler optimizes correctly */
+		if ( (!players_done) && (**player_it < **character_it) ) {
+			(*player_it)->render_frame(ren, current_level->get_camera_pointer());
+			player_it++;
 
-		if(player_it != players.end()) {
-			done = false;
-			if( (*player_it)->get_z() < smallest_z ){
-				smallest_z = (*player_it)->get_z();
-				smallest_y = (*player_it)->get_y() + (*player_it)->get_height();
-				smallest = 1;
-			}
-			else if( (*player_it)->get_z() == smallest_z ){
-				if( ((*player_it)->get_y() + (*player_it)->get_height()) < smallest_y ){
-					smallest_y = (*player_it)->get_y() + (*player_it)->get_height();
-					smallest = 1;
-				}
+			if (player_it == players.end()) {
+				players_done = true;
 			}
 		}
-
-		if(character_it != characters.end()) {
-			done = false;
-			if( (*character_it)->get_z() < smallest_z ){
-				smallest_z = (*character_it)->get_z();
-				smallest_y = (*character_it)->get_y() + (*character_it)->get_height();
-				smallest = 2;
-			}
-			else if( (*character_it)->get_z() == smallest_z ){
-				if( ((*character_it)->get_y() + (*character_it)->get_height()) < smallest_y ){
-					smallest_y = (*character_it)->get_y() + (*character_it)->get_height();
-					smallest = 2;
-				}
+		else if ( !characters_done ) {
+			(*character_it)->render_frame(ren, current_level->get_camera_pointer());
+			character_it++;
+			if (character_it == characters.end()) {
+				characters_done = true;
 			}
 		}
-
-		if(props_it != props.end()) {
-			done = false;
-			if( (*props_it)->get_z() < smallest_z ){
-				smallest_z = (*props_it)->get_z();
-				smallest_y = (*props_it)->get_y() + (*props_it)->get_height();
-				smallest = 3;
-			}
-			else if( (*props_it)->get_z() == smallest_z ){
-				if( (*props_it)->get_y() + (*props_it)->get_height() < smallest_y ){
-					smallest_y = (*props_it)->get_y() + (*props_it)->get_height();
-					smallest = 3;
-				}
-			}
-		}
-
-		if(proj_it != projectiles.end()) {
-			done = false;
-			if( (*proj_it)->get_z() < smallest_z ){
-				smallest_z = (*proj_it)->get_z();
-				smallest_y = (*proj_it)->get_y() + (*proj_it)->get_height();
-				smallest = 4;
-			}
-			else if( (*proj_it)->get_z() == smallest_z ){
-				if( (*proj_it)->get_y() + (*proj_it)->get_height() < smallest_y ){
-					smallest_y = (*proj_it)->get_y() + (*proj_it)->get_height();
-					smallest = 4;
-				}
-			}
-		}
-
-		if (!done) {
-			switch (smallest){
-				case 1:
-					(*player_it)->render_frame(ren, current_level->get_camera_pointer());
-					player_it++;
-					break;
-				case 2:
-					(*character_it)->render_frame(ren, current_level->get_camera_pointer());
-					character_it++;
-					break;
-				case 3:
-					(*props_it)->render_frame(ren, current_level->get_camera_pointer());
-					props_it++;
-					break;
-				case 4:
-					(*proj_it)->render_frame(ren, current_level->get_camera_pointer());
-					proj_it++;
-					break;
-				default:
-					break;
-			}
-		}
-		smallest_z = 1000000;
-		smallest_y = 1000000;
-		smallest = -1;
 	}
 }
 
 bool World::insert_character(Character* character){
 	if (character){
-		if (characters.empty()) {
-			characters.push_front(character);
-			return true;
-		}
-		else{
-			auto last_pos_it = characters.before_begin();
-			for (auto it = characters.begin(); it != characters.end(); it++) {
-				if (character->get_z() == (*it)->get_z()) {
-					if(character->get_y() <= (*it)->get_y()){
-						characters.insert_after(last_pos_it, character);
-						return true;
-					}
-					else{
-						last_pos_it = it;
-						continue;
-					}
-				}
-				else if (character->get_z() < (*it)->get_z() ){
-					characters.insert_after(last_pos_it, character);
-					return true;
-				}
-				else{
-					last_pos_it = it;
-					continue;
-				}
-			}
-			characters.insert_after(last_pos_it, character);
-			return true;
-		}
+		characters.push_back(character);
+		return true;
 	}
 	else{
 		errorlogger("ERROR: Cannot add null Character in world");
@@ -514,37 +259,10 @@ bool World::add_character(Character* character){
 	}
 }
 
-bool World::insert_player(Player* player){
+bool World::insert_player(Character* player){
 	if (player){
-		if (players.empty()) {
-			players.push_front(player);
-			return true;
-		}
-		else{
-			auto last_pos_it = players.before_begin();
-			for (auto it = players.begin(); it != players.end(); it++) {
-				if (player->get_z() == (*it)->get_z()) {
-					if(player->get_y() <= (*it)->get_y()){
-						players.insert_after(last_pos_it, player);
-						return true;
-					}
-					else{
-						last_pos_it = it;
-						continue;
-					}
-				}
-				else if (player->get_z() < (*it)->get_z() ){
-					players.insert_after(last_pos_it, player);
-					return true;
-				}
-				else{
-					last_pos_it = it;
-					continue;
-				}
-			}
-			players.insert_after(last_pos_it, player);
-			return true;
-		}
+		players.push_back(player);	
+		return true;
 	}
 	else{
 		errorlogger("ERROR: Cannot add null player in World");
@@ -554,107 +272,9 @@ bool World::insert_player(Player* player){
 }
 
 
-bool World::add_player(Player* player){
+bool World::add_player(Character* player){
 	return insert_player(player);
 }
-
-bool World::insert_prop(Prop* prop){
-	if (prop){
-		if (props.empty()) {
-			props.push_front(prop);
-			return true;
-		}
-		else{
-			auto last_pos_it = props.before_begin();
-			for (auto it = props.begin(); it != props.end(); it++) {
-				if (prop->get_z() == (*it)->get_z()) {
-					if(prop->get_y() <= (*it)->get_y()){
-						props.insert_after(last_pos_it, prop);
-						return true;
-					}
-					else{
-						last_pos_it = it;
-						continue;
-					}
-				}
-				else if (prop->get_z() < (*it)->get_z() ){
-					props.insert_after(last_pos_it, prop);
-					return true;
-				}
-				else{
-					last_pos_it = it;
-					continue;
-				}
-			}
-			props.insert_after(last_pos_it, prop);
-			return true;
-		}
-	}
-	else{
-		errorlogger("ERROR: Cannot add null prop in World");
-		std::cout << "ERROR: Cannot add null prop in World" << std::endl;
-		return false;
-	}
-}
-
-bool World::add_dormant_prop(Prop* prop){
-	dormant_props.push_front(prop);
-	return true;
-}
-
-bool World::add_prop(Prop* prop){
-	if(check_if_colliding(prop, current_level->get_camera_pointer())) {
-		return insert_prop(prop);
-	}
-	else{
-		return add_dormant_prop(prop);
-	}
-}
-
-bool World::insert_projectile(Projectile* projectile){
-	if (projectile){
-		if (projectiles.empty()) {
-			projectiles.push_front(projectile);
-			return true;
-		}
-		else{
-			auto last_pos_it = projectiles.before_begin();
-			for (auto it = projectiles.begin(); it != projectiles.end(); it++) {
-				if (projectile->get_z() == (*it)->get_z()) {
-					if(projectile->get_y() <= (*it)->get_y()){
-						projectiles.insert_after(last_pos_it, projectile);
-						return true;
-					}
-					else{
-						last_pos_it = it;
-						continue;
-					}
-				}
-				else if (projectile->get_z() < (*it)->get_z() ){
-					projectiles.insert_after(last_pos_it, projectile);
-					return true;
-				}
-				else{
-					last_pos_it = it;
-					continue;
-				}
-			}
-			projectiles.insert_after(last_pos_it, projectile);
-			return true;
-		}
-	}
-	else{
-		errorlogger("ERROR: Cannot add null projectile in World");
-		std::cout << "ERROR: Cannot add null projectile in World" << std::endl;
-		return false;
-	}
-}
-
-
-bool World::add_projectile(Projectile* projectile){
-	return insert_projectile(projectile);
-}
-
 
 void World::resolve_collisions(){
 	contacts.clear();

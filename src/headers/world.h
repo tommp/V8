@@ -15,6 +15,7 @@
 /*---------------------------------------------*/
 #include <SDL2/SDL.h>
 #include <forward_list>
+#include <list>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -30,17 +31,9 @@ public:
 class World {
 private:
 	Level* current_level;
-
-	std::forward_list<Player*> players;
-
-	std::forward_list<Character*> characters;
+	std::list<Character*> players;
+	std::list<Character*> characters;
 	std::forward_list<Character*> dormant_characters;
-
-	std::forward_list<Prop*> props;
-	std::forward_list<Prop*> dormant_props;
-
-	std::forward_list<Projectile*> projectiles;
-
 	std::forward_list<Contact> contacts;
 public:
 	World(SDL_Renderer &ren, Resource_manager& manager);
@@ -48,34 +41,19 @@ public:
 	bool check_if_colliding(const Actor* a, const SDL_Rect* b)const;
 	void update_positions(float timedelta);
 
+	/* Sort players and characters using insertion sort (since it will be nearly sorted most of the time) */
+	void sort_groups();
+
 	void detect_all_collisions();
-	void detect_collisions(const std::forward_list<Player*>& a);
-	void detect_collisions(const std::forward_list<Player*>& a, const std::forward_list<Character*>& b);
-	void detect_collisions(const std::forward_list<Player*>& a, const std::forward_list<Prop*>& b);
-	void detect_collisions(const std::forward_list<Player*>& a, const std::forward_list<Projectile*>& b);
-	void detect_collisions(const std::forward_list<Character*>& a);
-	void detect_collisions(const std::forward_list<Character*>& a, const std::forward_list<Character*>& b);
-	void detect_collisions(const std::forward_list<Character*>& a, const std::forward_list<Prop*>& b);
-	void detect_collisions(const std::forward_list<Character*>& a, const std::forward_list<Projectile*>& b);
-	void detect_collisions(const std::forward_list<Prop*>& a);
-	void detect_collisions(const std::forward_list<Prop*>& a, const std::forward_list<Prop*>& b);
-	void detect_collisions(const std::forward_list<Prop*>& a, const std::forward_list<Projectile*>& b);
-	void detect_collisions(const std::forward_list<Projectile*>& a);
-	void detect_collisions(const std::forward_list<Projectile*>& a, const std::forward_list<Projectile*>& b);
+	void detect_collisions(const std::list<Character*>& a);
+	void detect_collisions(const std::list<Character*>& a, const std::list<Character*>& b);
 
-	bool insert_player(Player* player);
-	bool add_player(Player* player);
-
-	bool insert_projectile(Projectile* projectile);
-	bool add_projectile(Projectile* projectile);
+	bool insert_player(Character* player);
+	bool add_player(Character* player);
 	
 	bool insert_character(Character* character);
 	bool add_dormant_character(Character* character);
 	bool add_character(Character* character);
-
-	bool insert_prop(Prop* prop);
-	bool add_dormant_prop(Prop* prop);
-	bool add_prop(Prop* prop);
 
 	void resolve_collisions();
 	void update_groups();

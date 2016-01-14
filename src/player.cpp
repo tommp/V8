@@ -12,8 +12,8 @@ Player::Player(SDL_Renderer& ren, Resource_manager& manager){
 	y = 2000;
 	z = 0;
 	width = TILESIZE;
-	height = TILESIZE;
-	depth = TILESIZE*2;
+	height = TILESIZE*2;
+	depth = TILESIZE;
 }
 
 void Player::render_frame(SDL_Renderer &ren, SDL_Rect* offset){
