@@ -41,8 +41,8 @@ public:
 	bool check_if_colliding(const Actor* a, const SDL_Rect* b)const;
 	void update_positions(float timedelta);
 
-	/* Sort players and characters using insertion sort (since it will be nearly sorted most of the time) */
-	void sort_groups();
+	/* Sort group using insertion sort (since it will be nearly sorted most of the time) */
+	void sort_group(std::list<Character*>& list);
 
 	void detect_all_collisions();
 	void detect_collisions(const std::list<Character*>& a);

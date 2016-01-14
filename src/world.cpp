@@ -88,25 +88,12 @@ void World::update_positions(float timedelta){
 	}
 }
 
-void World::sort_groups(){
-	for (auto it = players.begin(); it != players.end(); it++) {
+void World::sort_group(std::list<Character*>& list){
+	for (auto it = list.begin(); it != list.end(); it++) {
 		auto it2 = it;
 		Character* temp;
 
-		while( ( it2 != players.begin() ) && ( (**it2) < (**std::prev(it2)) ) ){
-			temp = *it2;
-			auto prev = std::prev(it2);
-			(*it2) = (*prev);
-			(*prev) = temp;
-			it2--;
-		}
-	}
-
-	for (auto it = characters.begin(); it != characters.end(); it++) {
-		auto it2 = it;
-		Character* temp;
-
-		while( ( it2 != characters.begin() ) && ( (**it2) < (**std::prev(it2)) ) ){
+		while( ( it2 != list.begin() ) && ( (**it2) < (**std::prev(it2)) ) ){
 			temp = *it2;
 			auto prev = std::prev(it2);
 			(*it2) = (*prev);
@@ -186,7 +173,8 @@ void World::update_groups(){
 
 void World::render_world(SDL_Renderer& ren){
 	update_groups();
-	sort_groups();
+	sort_group(players);
+	sort_group(characters);
 	auto player_it = players.begin();
 
 	auto character_it = characters.begin();
