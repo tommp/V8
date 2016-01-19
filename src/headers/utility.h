@@ -3,13 +3,16 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "./errorlogger.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <SDL2/SDL.h>
+#include <GL/glew.h>
 #include <string>
 #include <unistd.h>
+#include <iostream>
 #include <unordered_map>
 /*---------------------------------------------*/
 
@@ -63,11 +66,17 @@ const std::unordered_map<std::string, std::string> WORLD_ANIMATION_SETS = {
 	{"blob_movement", "../pixelart/Animations/blob_movement.txt"},
 };
 
-/*Waits for user input and quits when detected*/
+/* Waits for user input and quits when detected */
 void wait_for_event();
 
-/* NOT USED */
-void generate_animation(const char* filename, const char* animation_name);
+/* Read the contents of a file and store it in memory */
+char* file_read(const char* filename);
+
+/* Display compilation errors from the OpenGL shader compiler */
+void print_log(GLuint object);
+
+/* Compile the shader from file 'filename', with error handling */
+GLuint create_shader(const char* filename, GLenum type);
 /*=============================================*/
 
 #endif
