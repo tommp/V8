@@ -16,6 +16,8 @@
 /*Header content*/
 /*=============================================*/
 
+/* STATIC LINKAGE, CHANGE TO DYNAMIC LATER */
+#define GLEW_STATIC
 #define DISABLE_VSYNC 0
 
 const unsigned int SCREEN_HEIGHT =			320;

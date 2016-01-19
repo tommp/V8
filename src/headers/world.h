@@ -4,7 +4,6 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-
 #include "./errorlogger.h"
 #include "./button_mappings.h"
 #include "./contact.h"

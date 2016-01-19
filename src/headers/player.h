@@ -7,6 +7,7 @@
 #include "./state_handler.h"
 #include "./character.h"
 #include "./animation.h"
+#include "./world.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
