@@ -9,6 +9,7 @@
 #include "./player.h"
 #include "./mobs.h"
 #include "./resource_manager.h"
+#include "./events.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -36,7 +37,7 @@ private:
 	std::forward_list<Character*> dormant_characters;
 	std::forward_list<Contact> contacts;
 public:
-	World(SDL_Renderer &ren, Resource_manager& manager);
+	World(SDL_Renderer &ren, Resource_manager& manager, Button_mappings& map);
 	bool check_if_colliding(const Actor* a, const Actor* b)const;
 	bool check_if_colliding(const Actor* a, const SDL_Rect* b)const;
 	void update_positions(float timedelta);

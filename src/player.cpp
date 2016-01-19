@@ -1,9 +1,10 @@
 #include "./headers/player.h"
 
-Player::Player(SDL_Renderer& ren, Resource_manager& manager){
+Player::Player(SDL_Renderer& ren, Resource_manager& manager, Button_mappings& map){
+	button_mappings = &map;
 	std::string anim = "adventure_time";
 	state = {"adv_down"};
-	if ( !(animations = manager.return_animation_set(ren, anim) ) ){
+	if ( !(animations = manager.load_animation_set(ren, anim) ) ){
 		std::cout << "ERROR: Player constructor failed to load animation set: " << anim << std::endl;
 		errorlogger("ERROR: Player constructor failed to load animation set: ", anim.c_str());
 	}
@@ -25,16 +26,16 @@ void Player::update_position(float timedelta){
 	int y_vec = 0;
 
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
-	if(current_key_states[SDL_SCANCODE_W]){
+	if(current_key_states[button_mappings->up]){
 		y_vec -= 1;
 	}
-	if(current_key_states[SDL_SCANCODE_A]){
+	if(current_key_states[button_mappings->left]){
 		x_vec -= 1;
 	}
-	if(current_key_states[SDL_SCANCODE_S]){
+	if(current_key_states[button_mappings->down]){
 		y_vec += 1;
 	}
-	if(current_key_states[SDL_SCANCODE_D]){
+	if(current_key_states[button_mappings->right]){
 		x_vec += 1;	
 	}
 
@@ -58,6 +59,12 @@ void Player::update_position(float timedelta){
 			state = state + "_loiter";
 		}
 	}
+}
 
+void Player::influence_world(std::list<Character*>& characters){
+	characters.splice(characters.begin(), spawn);
+}
+
+void Player::touch_character(Character& character){
 
 }

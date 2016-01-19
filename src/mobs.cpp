@@ -24,7 +24,7 @@ void Slime_blob::update_position(float timedelta){
 Slime_blob::Slime_blob(SDL_Renderer& ren, Resource_manager& manager){
 	std::string anim = "blob_movement";
 	state = {"blob"};
-	if ( !(animations = manager.return_animation_set(ren, anim) ) ){
+	if ( !(animations = manager.load_animation_set(ren, anim) ) ){
 		std::cout << "ERROR: Slime_blob constructor failed to load animation set: " << anim << std::endl;
 		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim.c_str());
 	}
@@ -39,4 +39,12 @@ Slime_blob::Slime_blob(SDL_Renderer& ren, Resource_manager& manager){
 	width = TILESIZE;
 	height = TILESIZE;
 	depth = TILESIZE;
+}
+
+void Slime_blob::influence_world(std::list<Character*>& characters){
+
+}
+
+void Slime_blob::touch_character(Character& character){
+	
 }

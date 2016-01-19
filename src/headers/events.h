@@ -21,30 +21,24 @@ class Button_mappings;
 
 class Button_mappings{
 	friend class State_handler;
+	friend class Player;
 private:
-	char up;
-	char down;
-	char left;
-	char right;
-	char jump;
-	char interact;
-	char menu;
-	char a0;
-	char a1;
-	char a2;
-	char a3;
-	char a4;
-	char a5;
-	char a6;
-	char a7;
-	char a8;
-	char a9;
-	char a10;
-	char a11;
-	char a12;
-	char a13;
-	char a14;
-	char a15;
+	/* Player 1 control */
+	SDL_Keycode up;
+	SDL_Keycode down;
+	SDL_Keycode left;
+	SDL_Keycode right;
+	SDL_Keycode jump;
+	SDL_Keycode interact;
+	SDL_Keycode menu;
+	SDL_Keycode a0;
+	SDL_Keycode a1;
+	SDL_Keycode a2;
+	SDL_Keycode a3;
+	SDL_Keycode a4;
+
+	/* Global commands */
+	SDL_Keycode quit;
 public:
 	Button_mappings();
 };

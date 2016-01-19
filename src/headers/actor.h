@@ -48,6 +48,8 @@ class Character: public Actor{
 	public:
 		virtual void update_position(float timedelta) = 0;
 		virtual void render_frame(SDL_Renderer& ren, SDL_Rect* offset) = 0;
+		virtual void influence_world(std::list<Character*>& characters) = 0;
+		virtual void touch_character(Character& character) = 0;
 		bool operator<(const Character& b);
 };
 

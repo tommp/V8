@@ -1,7 +1,7 @@
 #include "./headers/world.h"
 
-World::World(SDL_Renderer &ren, Resource_manager& manager){
-	Character* new_player = new Player(ren, manager);
+World::World(SDL_Renderer &ren, Resource_manager& manager, Button_mappings& map){
+	Character* new_player = new Player(ren, manager, map);
 	add_player(new_player);
 	current_level = new Level(10000, 10000, 10000);
 	if(!players.empty()){

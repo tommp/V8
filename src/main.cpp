@@ -26,7 +26,7 @@ int main(int argc, char** argv){
 
 	State_handler state_handler(&button_mappings);
 
-	World cradlands(*display.get_renderer_pointer(), resource_manager);
+	World cradlands(*display.get_renderer_pointer(), resource_manager, button_mappings);
 
     Timer cap_timer;
     Timer move_timer;
@@ -54,6 +54,7 @@ int main(int argc, char** argv){
 	    
 	    /* Resolve all collisions */
 	    cradlands.resolve_collisions();
+
 	    /* Render to screen */
 	    display.clear();
 	    cradlands.render_world(*display.get_renderer_pointer());

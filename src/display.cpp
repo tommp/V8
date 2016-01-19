@@ -23,7 +23,7 @@ Display::Display(const std::string& settings_file_path){
 Display::Display(){
 	/* Init to standard settings as a fallback */
 	use_vsync = true;
-	use_fullscreen = true;
+	use_fullscreen = false;
 	width = SCREEN_WIDTH;
 	height = SCREEN_HEIGHT;
 	screen_width = 0;

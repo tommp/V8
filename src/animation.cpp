@@ -126,7 +126,7 @@ bool Animation_set::load_from_file(SDL_Renderer& ren, Resource_manager& resource
 		while (std::getline(animation_names, animation_name)){	
 			Animation_ptr new_animation = resource_manager.load_animation(ren, animation_name);
 			if (! new_animation) {
-				errorlogger("ERROR: Failed to load animation in Animation_set: ", animation_name.c_str());
+				errorlogger("ERROR: Failed to load animation in Animation_set, animation name was: ", animation_name.c_str());
 			}	
 			else{
 				animations.insert({animation_name, new_animation});

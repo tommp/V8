@@ -32,7 +32,7 @@ Animation_ptr Resource_manager::load_animation(SDL_Renderer& ren, const std::str
 	}
 }
 
-Animation_set_ptr Resource_manager::return_animation_set(SDL_Renderer& ren, const std::string& name){
+Animation_set_ptr Resource_manager::load_animation_set(SDL_Renderer& ren, const std::string& name){
 	Animation_set_ptr animation_set = std::make_shared<Animation_set>();
 
 	if (!animation_set->load_from_file(ren, *this, name)) {

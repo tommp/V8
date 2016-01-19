@@ -28,6 +28,8 @@ const unsigned int TILESIZE = 				32;
 const unsigned int SCREEN_FPS = 			60;
 const int SCREEN_TICKS_PER_FRAME =			1000 / SCREEN_FPS;
 
+
+/* World textures, the name as the key, path as the value */
 const std::unordered_map<std::string, std::string> WORLD_TEXTURES = {
 	{"simple", "../pixelart/Animations/simple.png"},
 	{"blob", "../pixelart/Animations/blob.png"},
@@ -41,6 +43,7 @@ const std::unordered_map<std::string, std::string> WORLD_TEXTURES = {
 	{"adv_right_loiter", "../pixelart/Animations/adventure_right.png"},
 };
 
+/* World animations, name as the key, texture name and animation text file separated by : as the value */
 const std::unordered_map<std::string, std::string> WORLD_ANIMATIONS = {
 	{"simple", "../pixelart/Animations/simple.txt"},
 	{"blob", "../pixelart/Animations/blob.txt"},

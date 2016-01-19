@@ -6,6 +6,7 @@
 /*---------------------------------------------*/
 #include "./actor.h"
 #include "./animation.h"
+#include "./events.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -19,10 +20,14 @@
 class Player : public Character{
 private:
 	int speed;
+	std::list<Character*> spawn;
+	Button_mappings* button_mappings;
 public:
-	Player(SDL_Renderer& ren, Resource_manager& manager);
+	Player(SDL_Renderer& ren, Resource_manager& manager, Button_mappings& map);
 	void render_frame(SDL_Renderer& ren, SDL_Rect* offset);
 	void update_position(float timedelta);
+	void influence_world(std::list<Character*>& characters);
+	void touch_character(Character& character);
 };
 /*=============================================*/
 
