@@ -1,32 +1,29 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef CONTACT_H
+#define CONTACT_H
 
 
 /*Included headers*/
 /*---------------------------------------------*/
 #include "./errorlogger.h"
-#include "./utility.h"
-#include "./timer.h"
-#include "./texture.h"
-#include "./display.h"
-#include "./state_handler.h"
-#include "./player.h"
-#include "./resource_manager.h"
-#include "./level.h"
-#include "./animation.h"
-#include "./world.h"
+#include "./actor.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
-#include <iostream>
 #include <SDL2/SDL.h>
-#include <string>
-#include <unistd.h>
+#include <forward_list>
+#include <list>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
+class Contact{
+	private:
+		Actor* a;
+		Actor* b;
+	public:
+		Contact(Actor* c_a, Actor* c_b);
+};
 /*=============================================*/
 
 #endif

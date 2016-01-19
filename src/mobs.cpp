@@ -41,10 +41,6 @@ Slime_blob::Slime_blob(SDL_Renderer& ren, Resource_manager& manager){
 	depth = TILESIZE;
 }
 
-void Slime_blob::influence_world(std::list<Character*>& characters){
-
-}
-
 void Slime_blob::touch_character(Character& character){
 	
 }

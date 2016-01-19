@@ -61,10 +61,6 @@ void Player::update_position(float timedelta){
 	}
 }
 
-void Player::influence_world(std::list<Character*>& characters){
-	characters.splice(characters.begin(), spawn);
-}
-
 void Player::touch_character(Character& character){
 
 }

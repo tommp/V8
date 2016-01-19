@@ -3,7 +3,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./actor.h"
+#include "./character.h"
 #include "./animation.h"
 /*---------------------------------------------*/
 
@@ -28,7 +28,6 @@ public:
 	Slime_blob(SDL_Renderer& ren, Resource_manager& manager);
 	void render_frame(SDL_Renderer& ren, SDL_Rect* offset);
 	void update_position(float timedelta);
-	void influence_world(std::list<Character*>& characters);
 	void touch_character(Character& character);
 };
 /*=============================================*/

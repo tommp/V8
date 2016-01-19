@@ -1,32 +1,40 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef BUTTON_MAPPINGS_H
+#define BUTTON_MAPPINGS_H
 
 
 /*Included headers*/
 /*---------------------------------------------*/
 #include "./errorlogger.h"
-#include "./utility.h"
-#include "./timer.h"
-#include "./texture.h"
-#include "./display.h"
-#include "./state_handler.h"
-#include "./player.h"
-#include "./resource_manager.h"
-#include "./level.h"
-#include "./animation.h"
-#include "./world.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
-#include <iostream>
 #include <SDL2/SDL.h>
-#include <string>
 #include <unistd.h>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
+class Button_mappings{
+	public:
+		/* Player 1 control */
+		SDL_Keycode up;
+		SDL_Keycode down;
+		SDL_Keycode left;
+		SDL_Keycode right;
+		SDL_Keycode jump;
+		SDL_Keycode interact;
+		SDL_Keycode menu;
+		SDL_Keycode a0;
+		SDL_Keycode a1;
+		SDL_Keycode a2;
+		SDL_Keycode a3;
+		SDL_Keycode a4;
+
+		/* Global commands */
+		SDL_Keycode quit;
+		Button_mappings();
+};
 /*=============================================*/
 
 #endif

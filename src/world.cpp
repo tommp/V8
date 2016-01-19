@@ -13,7 +13,7 @@ World::World(SDL_Renderer &ren, Resource_manager& manager, Button_mappings& map)
 	}
 }
 
-bool World::check_if_colliding(const Actor* a, const Actor* b)const{
+bool World::check_if_colliding(const Character* a, const Character* b)const{
 
 	if(!a || !b){
 		return false;
@@ -47,7 +47,7 @@ bool World::check_if_colliding(const Actor* a, const Actor* b)const{
 	return true;
 }
 
-bool World::check_if_colliding(const Actor* a, const SDL_Rect* b)const{
+bool World::check_if_colliding(const Character* a, const SDL_Rect* b)const{
 
 	if(! a || !b){
 		std::cout << "WARNING: NULLPTR PASSED TO COLLISION CHECK FOR CAMERA!" << std::endl;
@@ -266,9 +266,4 @@ bool World::add_player(Character* player){
 
 void World::resolve_collisions(){
 	contacts.clear();
-}
-
-Contact::Contact(Actor* c_a, Actor* c_b) {
-	a = c_a;
-	b = c_b;
 }

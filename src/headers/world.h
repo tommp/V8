@@ -4,12 +4,14 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./level.h"
-#include "./actor.h"
-#include "./player.h"
+
+#include "./errorlogger.h"
+#include "./button_mappings.h"
+#include "./contact.h"
 #include "./mobs.h"
+#include "./player.h"
 #include "./resource_manager.h"
-#include "./events.h"
+#include "./level.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -21,14 +23,6 @@
 
 /*Header content*/
 /*=============================================*/
-class Contact{
-private:
-	Actor* a;
-	Actor* b;
-public:
-	Contact(Actor* c_a, Actor* c_b);
-};
-
 class World {
 private:
 	Level* current_level;
@@ -38,8 +32,8 @@ private:
 	std::forward_list<Contact> contacts;
 public:
 	World(SDL_Renderer &ren, Resource_manager& manager, Button_mappings& map);
-	bool check_if_colliding(const Actor* a, const Actor* b)const;
-	bool check_if_colliding(const Actor* a, const SDL_Rect* b)const;
+	bool check_if_colliding(const Character* a, const Character* b)const;
+	bool check_if_colliding(const Character* a, const SDL_Rect* b)const;
 	void update_positions(float timedelta);
 
 	/* Sort group using insertion sort (since it will be nearly sorted most of the time) */

@@ -1,4 +1,4 @@
-#include "./headers/actor.h"
+#include "./headers/character.h"
 
 bool Character::operator<(const Character& b){
 	if (z < b.get_z() ){
