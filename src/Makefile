@@ -6,13 +6,14 @@ current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 program_CXX_SRCS := $(wildcard *.cpp)
 program_OBJS := ${program_CXX_SRCS:.cpp=.o}
 
-
+OPENGL_LIB = -lGLEW -lGL
 SDL_LIB = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx -Wl,-rpath=/usr/local/lib
 program_INCLUDE_DIRS := current_dir ./headers/
 program_LIBRARY_DIRS :=
 program_LIBRARIES :=  m
 
 LDFLAGS += $(SDL_LIB)
+LDFLAGS += $(OPENGL_LIB)
 CXXFLAGS += -Wall -g -std=c++11
 CPPFLAGS += $(foreach includedir,$(program_INCLUDE_DIRS),-I$(includedir))
 LDFLAGS += $(foreach librarydir,$(program_LIBRARY_DIRS),-L$(librarydir))
@@ -33,4 +34,6 @@ clean:
 	@- $(RM) $(program_OBJS)
 
 distclean: clean
+
+.PHONY: all clean
 

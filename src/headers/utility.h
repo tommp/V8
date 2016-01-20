@@ -9,7 +9,6 @@
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <SDL2/SDL.h>
-#include <GL/glew.h>
 #include <string>
 #include <unistd.h>
 #include <iostream>
@@ -20,12 +19,11 @@
 /*=============================================*/
 
 /* STATIC LINKAGE, CHANGE TO DYNAMIC LATER */
-#define GLEW_STATIC
 #define DISABLE_VSYNC 0
 
 const unsigned int SCREEN_HEIGHT =			320;
 const unsigned int SCREEN_WIDTH	=			640;
-const int RENDERING_SLACK = 		100;
+const int RENDERING_SLACK = 				100;
 
 
 const unsigned int TILESIZE = 				32;
@@ -68,15 +66,6 @@ const std::unordered_map<std::string, std::string> WORLD_ANIMATION_SETS = {
 
 /* Waits for user input and quits when detected */
 void wait_for_event();
-
-/* Read the contents of a file and store it in memory */
-char* file_read(const char* filename);
-
-/* Display compilation errors from the OpenGL shader compiler */
-void print_log(GLuint object);
-
-/* Compile the shader from file 'filename', with error handling */
-GLuint create_shader(const char* filename, GLenum type);
 /*=============================================*/
 
 #endif
