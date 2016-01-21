@@ -34,6 +34,7 @@ public:
 	void load_image(const char* path, GLuint image_id, GLuint image_format); //Fortmat SOIL_LOAD_RGBA
 	void store_as_binary(char* registerfile, char* contentfile);
 	void load_binary(char* registerfile, char* contentfile);
+	void save_image(std::string filename);
 };
 /*=============================================*/
 

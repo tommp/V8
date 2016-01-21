@@ -4,6 +4,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "./errorlogger.h"
+#include "./image_map.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -68,6 +69,9 @@ const std::unordered_map<std::string, std::string> WORLD_ANIMATION_SETS = {
 
 /* Waits for user input and quits when detected */
 void wait_for_event();
+
+/* Loads a binary image */
+void load_binary_image(std::string name, unsigned char* image, GLint* width, GLint* height);
 /*=============================================*/
 
 #endif

@@ -4,8 +4,6 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./image_map.h"
-
 #include "./errorlogger.h"
 #include "./utility.h"
 #include "./timer.h"

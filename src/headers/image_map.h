@@ -4,12 +4,12 @@
 #include <unordered_map>
 #include <string>
 
-const std::unordered_map<std::string, unsigned int> WORLD_TEXTURES = {
-	{"./images/LeafBush.png", 0},
-	{"./images/LeafBushSmall.png", 1},
-	{"./images/SharpBush.png", 2},
-	{"./images/simple.png", 3},
-	{"./images/tallBentBush.png", 4},
-	{"./images/tallBerryBush.png", 5},
+const std::unordered_map<std::string, unsigned int> ENGINE_IMAGES = {
+	{"LeafBush", 0},
+	{"LeafBushSmall", 1},
+	{"SharpBush", 2},
+	{"simple", 3},
+	{"tallBentBush", 4},
+	{"tallBerryBush", 5},
 };
 #endif

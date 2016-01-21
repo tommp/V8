@@ -71,3 +71,8 @@ void Image::load_binary(char* registerfile, char* contentfile){
 	registerf.close();
 	contentf.close();
 }
+
+void Image::save_image(std::string filename){
+	SOIL_save_image(filename.c_str(),SOIL_SAVE_TYPE_BMP, width, height, 4, image);
+
+}
