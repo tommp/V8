@@ -20,6 +20,8 @@
 
 /* STATIC LINKAGE, CHANGE TO DYNAMIC LATER */
 #define DISABLE_VSYNC 0
+#define IMAGE_DATA_PATH "./data/content.blue"
+#define IMAGE_DATA_INDEX_PATH "./data/register.blue"
 
 const unsigned int SCREEN_HEIGHT =			320;
 const unsigned int SCREEN_WIDTH	=			640;

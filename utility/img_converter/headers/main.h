@@ -4,19 +4,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./image_map.h"
-
-#include "./errorlogger.h"
-#include "./utility.h"
-#include "./timer.h"
-#include "./texture.h"
-#include "./display.h"
-#include "./state_handler.h"
-#include "./player.h"
-#include "./resource_manager.h"
-#include "./level.h"
-#include "./animation.h"
-#include "./world.h"
+#include "./image.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -25,10 +13,18 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <unistd.h>
+#include <vector>
+#include <glob.h>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
+#define IMAGES_DIR 		"./images/*"
+#define REGISTERFILE 	"../../data/register.blue"
+#define CONTENTFILE 	"../../data/content.blue"
+#define ID_FILE			"../../src/headers/image_map.h"
+
+std::vector<std::string> glob(const std::string& pat);
 /*=============================================*/
 
 #endif

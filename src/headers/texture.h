@@ -6,6 +6,7 @@
 /*---------------------------------------------*/
 #include "./errorlogger.h"
 #include "./utility.h"
+#include "./SOIL.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -22,7 +23,7 @@ class Texture
 {
     private:
         /*The actual hardware texture*/
-        SDL_Texture* texture;
+        GLuint texture;
 
         /*Image dimensions*/
         int width;
