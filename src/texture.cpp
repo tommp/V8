@@ -2,7 +2,7 @@
 
 Texture::Texture(){
 	/* Initialize to zero */
-	texture = NULL;
+	glGenTextures(1, &texture);
 	width = 0;
 	height = 0;
 }
@@ -12,48 +12,47 @@ Texture::~Texture(){
     free();
 }
 
-bool Texture::load_from_file( SDL_Renderer& ren, const std::string& name ){
+void Texture::free(){
+    /* Free texture if it exists */
+    if( texture != NULL )
+    {
+        glDeleteTextures(1, &texture);
+        texture = 0;
+        width = 0;
+        height = 0;
+    }
+}
+
+bool Texture::load_from_file(const std::string& name){
 	/* Get rid of preexisting texture */
 	if( texture != NULL ){
     	free();
 	}
 
-	/* The final texture */
-    SDL_Texture* newTexture = NULL;
-
-    if (WORLD_TEXTURES.find(name) == WORLD_TEXTURES.end()) {
-        std::cout << "ERROR: Texture not found!: " << name << std::endl;
-        errorlogger("ERROR: Texture not found!: ", name.c_str());
+    unsigned char* image;
+    if (!load_binary_image(name, image, &width, &height, &format)) {
+        errorlog("ERROR: Error propogation from load_binary_image(..) when loading keyname: ", name.c_str())
+        std::cout << "ERROR: Error propogation from load_binary_image(..) when loading keyname: " << name.c_str() << std::endl;
         return false;
     }
 
-    std::string path = WORLD_TEXTURES.find(name)->second;
+    /* Create and bind texture from image data */
+    glBindTexture(GL_TEXTURE_2D, texture); 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-	/* Create texture from path */
-    newTexture = IMG_LoadTexture( &ren, path.c_str() );;
-    if( newTexture == NULL ){
-    	SDLerrorLogger( "Unable to create texture!" );
-        printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
-    }
-    else{
-        /* Get image dimensions */
-        SDL_QueryTexture(newTexture, NULL, NULL, &width, &height);
+    free(image);
+	
+    if( texture == NULL ){
+    	errorLogger("ERROR: Unable to create texture from keyname: ", name.c_str());
+        std::cout << "ERROR: Unable to create texture from keyname: "<< name.c_str() << std::endl;
+        return false;
     }
 
-    /* Return */
-    texture = newTexture;
-    return ( texture != NULL );
-}
-
-void Texture::free(){
-	/* Free texture if it exists */
-    if( texture != NULL )
-    {
-        SDL_DestroyTexture( texture );
-        texture = NULL;
-        width = 0;
-        height = 0;
-    }
+    return true;
 }
 
 void Texture::render(SDL_Renderer& ren, int x, int y, SDL_Rect* clip){

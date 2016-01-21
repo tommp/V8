@@ -26,9 +26,9 @@ class Texture
         GLuint texture;
 
         /*Image dimensions*/
-        int width;
-        int height;
-
+        GLuint width;
+        GLuint height;
+        GLint format;
     public:
         /*Initializes variables*/
         Texture();
@@ -36,11 +36,11 @@ class Texture
         /*Deallocates memory*/
         ~Texture();
 
-        /*Loads image at specified path*/
-        bool load_from_file(SDL_Renderer& ren, const std::string& name);
-
         /*Deallocates texture*/
         void free();
+
+        /*Loads image at specified path*/
+        bool load_from_file(const std::string& name);
 
         /*Renders texture at given point*/
         void render(SDL_Renderer& ren, int x, int y, SDL_Rect* clip = NULL);

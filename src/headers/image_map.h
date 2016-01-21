@@ -6,10 +6,16 @@
 
 const std::unordered_map<std::string, unsigned int> ENGINE_IMAGES = {
 	{"LeafBush", 0},
-	{"LeafBushSmall", 1},
-	{"SharpBush", 2},
-	{"simple", 3},
-	{"tallBentBush", 4},
-	{"tallBerryBush", 5},
+	{"LeafBushSmall", 4108},
+	{"SharpBush", 8216},
+	{"adventure_down", 12324},
+	{"adventure_left", 22576},
+	{"adventure_right", 32828},
+	{"adventure_up", 43080},
+	{"blob", 53332},
+	{"simple", 61536},
+	{"tallBentBush", 71788},
+	{"tallBerryBush", 75896},
 };
+
 #endif
