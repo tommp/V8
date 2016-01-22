@@ -4,9 +4,9 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./actor.h"
-#include "./animation_set.h"
+#include "errorlogger.h"
+#include "actor.h"
+#include "animation_set.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

@@ -4,8 +4,8 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./actor.h"
+#include "errorlogger.h"
+#include "actor.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

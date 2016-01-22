@@ -1,4 +1,4 @@
-#include "./headers/animation.h"
+#include "headers/animation.h"
 
 Animation::Animation() {
 	current_frame_end = 0;
@@ -13,7 +13,7 @@ bool Animation::load_from_file(Resource_manager& resource_manager, const std::st
 		errorlogger("ERROR: Animation not found!: ", name.c_str());
 		return false;
 	}
-	GLuint datapos = WORLD_ANIMATIONS.find(name)->second;
+	GLuint datapos = WORLD_ANIMATIONS.find(name)->second.first;
 
 	std::ifstream contentf (ANIMATION_DATA_FILE_PATH, std::ios::binary);
 	if (!contentf.is_open()){
@@ -55,14 +55,14 @@ bool Animation::load_from_file(Resource_manager& resource_manager, const std::st
 	    glEnableVertexAttribArray(2);
 
 	    glBindBuffer(GL_ARRAY_BUFFER, 0);
-	    glBindVertexArray(0); // Unbind VAO
+	    glBindVertexArray(0); /* Unbind VAO */
 
 	    free(vertices);
 	}
 	
 	contentf.close();
 
-	texture = resource_manager.load_texture(name);
+	texture = resource_manager.load_texture(WORLD_ANIMATIONS.find(name)->second.second);
 	if(!texture) {
 		errorlogger("Unable to load texture from resource handler: ", name.c_str());
 		std::cout << "Unable to load texture from resource handler: " << name.c_str() << std::endl;
@@ -78,7 +78,7 @@ void Animation::reset_animation(){
 	current_frame_end = SDL_GetTicks() + frame_durations[current_frame];
 }
 
-void Animation::render_current(){
+void Animation::render_current(const glm::vec3& position){
 	if( SDL_GetTicks() > current_frame_end ){
 		if(going_forward) {
 			current_frame++;

@@ -1,4 +1,4 @@
-#include "./headers/shader.h"
+#include "headers/shader.h"
 
 Shader::Shader(const GLchar* vertex_shader_path, const GLchar* fragment_shader_path){
     /* create the shaders */

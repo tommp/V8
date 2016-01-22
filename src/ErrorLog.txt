@@ -1,0 +1,66 @@
+Date: Fri Jan 22 00:01:34 2016
+SDL_GL_CreateContext
+Error: Could not create GL context
+
+
+
+Date: Fri Jan 22 00:02:39 2016
+SDL_GL_CreateContext
+Error: Could not create GL context
+
+
+
+Date: Fri Jan 22 00:03:00 2016
+SDL_GL_CreateContext
+Error: Could not create GL context
+
+
+
+Date: Fri Jan 22 00:28:51 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 00:28:51 2016
+Error: ERROR: Failed to load display settings, restoring defaults.
+
+Date: Fri Jan 22 00:31:52 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 00:31:52 2016
+Error: ERROR: Failed to load display settings, restoring defaults.
+
+Date: Fri Jan 22 13:13:43 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 13:13:43 2016
+Error: ERROR: Failed to load display settings, restoring defaults.
+
+Date: Fri Jan 22 13:18:56 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 13:18:56 2016
+Error: ERROR: Failed to load display settings, restoring defaults.
+
+Date: Fri Jan 22 13:18:56 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 13:19:00 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 13:19:01 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 13:19:01 2016
+Error: ERROR: Failed to load display settings, restoring defaults.
+
+Date: Fri Jan 22 13:19:01 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 13:19:03 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 13:19:45 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Fri Jan 22 13:19:45 2016
+Error: ERROR: Failed to load display settings, restoring defaults.
+

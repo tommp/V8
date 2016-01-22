@@ -1,10 +1,32 @@
-#include "./headers/mobs.h"
+#include "headers/mobs.h"
 
-void Slime_blob::render_frame(){
-	animations->render_current(state);
+Cube::Cube(Resource_manager& manager){
+	std::string anim = "blob_movement";
+	state = {"blob"};
+	if ( !(animations = manager.load_animation_set(anim) ) ){
+		std::cout << "ERROR: Slime_blob constructor failed to load animation set: " << anim << std::endl;
+		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim.c_str());
+	}
+	speed = 50;
+	position[0] = (rand() + 20) % (10000 - 20);
+	position[1] = (rand() + 20) % (10000 - 20);
+	position[2] = 0;
+
+	acceleration = {0, 0, 0};
+	velocity = {0, 0, 0};
+
+	last_move = SDL_GetTicks();
+	move_duration = rand()%1000;
+	width = TILESIZE;
+	height = TILESIZE;
+	depth = TILESIZE;
 }
 
-void Slime_blob::update_position(float timedelta){
+void Cube::render_frame(){
+	animations->render_current(state, position);
+}
+
+void Cube::update_position(float timedelta){
 	if ( SDL_GetTicks() > last_move + move_duration && SDL_GetTicks() < last_move + (2*move_duration)) {
 		velocity[0] = 0;
 		velocity[1] = 0;
@@ -16,29 +38,13 @@ void Slime_blob::update_position(float timedelta){
 		move_duration = rand()%1000;
 	}
 
-	x += velocity[0] * speed * timedelta;
-	y += velocity[1] * speed * timedelta;
+	last_pos = position;
+
+	position[0] += velocity[0] * speed * timedelta;
+	position[0] += velocity[1] * speed * timedelta;
 
 }
 
-Slime_blob::Slime_blob(Resource_manager& manager){
-	std::string anim = "blob_movement";
-	state = {"blob"};
-	if ( !(animations = manager.load_animation_set(anim) ) ){
-		std::cout << "ERROR: Slime_blob constructor failed to load animation set: " << anim << std::endl;
-		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim.c_str());
-	}
-	speed = 50;
-	x = (rand() + 20) % (10000 - 20);
-	y = (rand() + 20) % (10000 - 20);
-	z = 0;
-	last_move = SDL_GetTicks();
-	move_duration = rand()%1000;
-	width = TILESIZE;
-	height = TILESIZE;
-	depth = TILESIZE;
-}
-
-void Slime_blob::touch_character(Character& character){
+void Cube::touch_character(Character& character){
 	
 }

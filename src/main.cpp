@@ -1,4 +1,4 @@
-#include "./headers/main.h"
+#include "headers/main.h"
 
 int main(int argc, char** argv){
 
@@ -72,6 +72,8 @@ int main(int argc, char** argv){
 	}
 	/*=======================================================*/
 
+	/* Store display setings */
+	display.save_settings();
     /*Always be sure to clean up*/
     SDL_Quit();
     return 0;

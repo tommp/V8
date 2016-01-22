@@ -4,8 +4,8 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./button_mappings.h"
+#include "errorlogger.h"
+#include "button_mappings.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

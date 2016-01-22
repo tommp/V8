@@ -1,57 +1,48 @@
-#include "./headers/player.h"
+#include "headers/player.h"
 
 Player::Player(Resource_manager& manager, Button_mappings& map){
 	button_mappings = &map;
-	std::string anim = "adventure_time";
-	state = {"adv_down"};
-	if ( !(animations = manager.load_animation_set(anim) ) ){
-		std::cout << "ERROR: Player constructor failed to load animation set: " << anim << std::endl;
-		errorlogger("ERROR: Player constructor failed to load animation set: ", anim.c_str());
-	}
 	speed = 300;
-	x = 2000;
-	y = 2000;
-	z = 0;
+	position[0] = 2000;
+	position[1] = 2000;
+	position[2] = 0;
 	width = TILESIZE;
 	height = TILESIZE*2;
 	depth = TILESIZE;
 }
 
-void Player::render_frame(){
-	animations->render_current(state);
+void Player::render_frame(const glm::vec3& position){
+	animations->render_current(state, position);
 }
 
 void Player::update_position(float timedelta){
-	int x_vec = 0;
-	int y_vec = 0;
-
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
 	if(current_key_states[button_mappings->up]){
-		y_vec -= 1;
+		velocity[1] -= 1;
 	}
 	if(current_key_states[button_mappings->left]){
-		x_vec -= 1;
+		velocity[0] -= 1;
 	}
 	if(current_key_states[button_mappings->down]){
-		y_vec += 1;
+		velocity[1] += 1;
 	}
 	if(current_key_states[button_mappings->right]){
-		x_vec += 1;	
+		velocity[0] += 1;	
 	}
 
-	x += x_vec * speed * timedelta;
-	y += y_vec * speed * timedelta;
+	position[0] += velocity[0] * speed * timedelta;
+	position[1] += velocity[1] * speed * timedelta;
 
-	if (x_vec > 0) {
+	if (velocity[0] > 0) {
 		state = {"adv_right"};
 	}
-	else if (x_vec < 0){
+	else if (velocity[0] < 0){
 		state = {"adv_left"};
 	}
-	else if (y_vec < 0){
+	else if (velocity[1] < 0){
 		state = {"adv_up"};
 	}
-	else if (y_vec > 0){
+	else if (velocity[1] > 0){
 		state = {"adv_down"};
 	}
 	else{

@@ -1,4 +1,4 @@
-#include "./headers/errorlogger.h"
+#include "headers/errorlogger.h"
 
 void SDLerrorLogger(const char *msg){
 	time_t current = time(0);

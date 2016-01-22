@@ -4,11 +4,11 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./frame.h"
-#include "./utility.h"
-#include "./texture.h"
-#include "./resource_manager.h"
+#include "glm.h"
+#include "errorlogger.h"
+#include "utility.h"
+#include "texture.h"
+#include "resource_manager.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -26,7 +26,7 @@
 
 /*Header content*/
 /*=============================================*/
-#define ANIMATION_DATA_FILE_PATH "../data/anim.boogie"
+#define ANIMATION_DATA_FILE_PATH "../data/content.boogie"
 
 class Resource_manager;
 
@@ -38,7 +38,6 @@ class Animation{
 		std::vector<GLuint> frame_durations;
 		GLuint set_size;
 
-
 		unsigned int current_frame;
 		unsigned int current_frame_end;
 		bool reverse_looping;
@@ -46,7 +45,7 @@ class Animation{
 	public:
 		Animation();
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
-		void render_current();
+		void render_current(const glm::vec3& position);
 		void reset_animation();
 };
 

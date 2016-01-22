@@ -1,4 +1,4 @@
-#include "./headers/state_handler.h"
+#include "headers/state_handler.h"
 
 State_handler::State_handler(Button_mappings* map){
 	mappings = map;

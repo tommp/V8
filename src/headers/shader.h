@@ -3,7 +3,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
+#include "errorlogger.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

@@ -1,4 +1,4 @@
-#include "./headers/button_mappings.h"
+#include "headers/button_mappings.h"
 
 Button_mappings::Button_mappings(){
 	up = SDL_SCANCODE_W;

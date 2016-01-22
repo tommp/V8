@@ -3,9 +3,9 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./character.h"
-#include "./animation.h"
-#include "./vector.h"
+#include "character.h"
+#include "animation.h"
+#include "glm.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -18,14 +18,17 @@
 
 /*Header content*/
 /*=============================================*/
-class Slime_blob: public Character{
+class Cube: public Character{
 private:
-	Vec3 velocity;
+	glm::vec3 last_pos;
+	glm::vec3 velocity;
+	glm::vec3 acceleration;
+
 	unsigned int speed;
 	unsigned int last_move;
 	unsigned int move_duration;
 public:
-	Slime_blob(Resource_manager& manager);
+	Cube(Resource_manager& manager);
 	void render_frame();
 	void update_position(float timedelta);
 	void touch_character(Character& character);

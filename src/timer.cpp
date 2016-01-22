@@ -1,4 +1,4 @@
-#include "./headers/timer.h"
+#include "headers/timer.h"
 
 Timer::Timer(){
 	start_ticks = 0;

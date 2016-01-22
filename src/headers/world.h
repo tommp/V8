@@ -4,13 +4,13 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./button_mappings.h"
-#include "./contact.h"
-#include "./mobs.h"
-#include "./player.h"
-#include "./resource_manager.h"
-#include "./level.h"
+#include "errorlogger.h"
+#include "button_mappings.h"
+#include "contact.h"
+#include "mobs.h"
+#include "player.h"
+#include "resource_manager.h"
+#include "level.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

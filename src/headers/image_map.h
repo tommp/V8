@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 
-const std::unordered_map<std::string, unsigned int> ENGINE_IMAGES = {
+const std::unordered_map<std::string, unsigned int> WORLD_IMAGES = {
 	{"LeafBush", 0},
 	{"LeafBushSmall", 4108},
 	{"SharpBush", 8216},

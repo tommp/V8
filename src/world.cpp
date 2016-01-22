@@ -1,4 +1,4 @@
-#include "./headers/world.h"
+#include "headers/world.h"
 
 World::World(Resource_manager& manager, Button_mappings& map){
 }

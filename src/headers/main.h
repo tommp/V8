@@ -4,17 +4,18 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./utility.h"
-#include "./timer.h"
-#include "./texture.h"
-#include "./display.h"
-#include "./state_handler.h"
-#include "./player.h"
-#include "./resource_manager.h"
-#include "./level.h"
-#include "./animation.h"
-#include "./world.h"
+#include "glm.h"
+#include "errorlogger.h"
+#include "utility.h"
+#include "timer.h"
+#include "texture.h"
+#include "display.h"
+#include "state_handler.h"
+#include "player.h"
+#include "resource_manager.h"
+#include "level.h"
+#include "animation.h"
+#include "world.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

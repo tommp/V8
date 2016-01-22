@@ -1,4 +1,4 @@
-#include "./headers/resource_manager.h"
+#include "headers/resource_manager.h"
 
 Texture_ptr Resource_manager::load_texture(const std::string& name){
 	if (textures.find(name) != textures.end()){

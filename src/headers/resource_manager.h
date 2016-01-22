@@ -4,11 +4,11 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./utility.h"
-#include "./texture.h"
-#include "./animation.h"
-#include "./animation_set.h"
+#include "errorlogger.h"
+#include "utility.h"
+#include "texture.h"
+#include "animation.h"
+#include "animation_set.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

@@ -1,4 +1,4 @@
-#include "./headers/level.h"
+#include "headers/level.h"
 
 Level::Level(int init_width, int init_height, int init_depth){
 	width = init_width;

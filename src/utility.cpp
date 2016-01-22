@@ -1,4 +1,4 @@
-#include "./headers/utility.h"
+#include "headers/utility.h"
 
 void waitForEvent(){
 	SDL_Event event;
@@ -30,13 +30,13 @@ bool load_binary_image(const std::string& name, unsigned char* image, GLuint* wi
 		return false;
 	}
 
-	if (ENGINE_IMAGES.find(name) == ENGINE_IMAGES.end()){
+	if (WORLD_IMAGES.find(name) == WORLD_IMAGES.end()){
 		errorlogger("ERROR: No image in image_map with keyname: ", name.c_str());
 		std::cout << "ERROR: No image in image_map with keyname: " << name.c_str() << std::endl;
 		return false;
 	}
 
-	GLuint datapos = ENGINE_IMAGES.find(name)->second;
+	GLuint datapos = WORLD_IMAGES.find(name)->second;
 
 	contentf.seekg(datapos);
 	contentf.read(reinterpret_cast<char *>(width), sizeof(GLuint));

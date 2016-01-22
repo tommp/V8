@@ -4,10 +4,12 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./utility.h"
-#include "./resource_manager.h"
-#include "./texture.h"
+#include "glm.h"
+#include "errorlogger.h"
+#include "utility.h"
+#include "resource_manager.h"
+#include "texture.h"
+#include "animation.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -24,6 +26,7 @@
 /*Header content*/
 /*=============================================*/
 class Resource_manager;
+class Animation;
 typedef std::shared_ptr<Animation> Animation_ptr;
 
 class Animation_set {
@@ -31,7 +34,7 @@ class Animation_set {
 		std::unordered_map<std::string, Animation_ptr> animations;
 	public:
 		Animation_set();
-		void render_current(const std::string& name);
+		void render_current(const std::string& name, const glm::vec3& position);
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
 };
 

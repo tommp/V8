@@ -1,12 +1,12 @@
-#include "./headers/animation_set.h"
+#include "headers/animation_set.h"
 
 Animation_set::Animation_set(){
 	/* Smile and wave boys! */
 }
 
-void Animation_set::render_current(const std::string& name){
+void Animation_set::render_current(const std::string& name, const glm::vec3& position){
 	if (animations.find(name) != animations.end()) {
-		animations[name]->render_current();
+		animations[name]->render_current(position);
 	}
 	else{
 		errorlogger("ERROR: No animation for current state in Animation_set: ", name.c_str());

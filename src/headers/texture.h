@@ -4,8 +4,8 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./utility.h"
+#include "errorlogger.h"
+#include "utility.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -29,6 +29,8 @@ class Texture
         /*Image dimensions*/
         GLuint width;
         GLuint height;
+
+        /* Image format */
         GLint format;
     public:
         /*Initializes variables*/

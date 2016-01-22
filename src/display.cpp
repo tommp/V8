@@ -1,4 +1,4 @@
-#include "./headers/display.h"
+#include "headers/display.h"
 
 Display::Display(){
 	/* Init to standard settings as a fallback */
@@ -10,8 +10,11 @@ Display::Display(){
 		height = SCREEN_HEIGHT;
 		screen_width = 0;
 		screen_height = 0;
+
 		errorlogger("ERROR: Failed to load display settings, restoring defaults.");
 		std::cout << "ERROR: Failed to load display settings, restoring defaults." << std::endl;
+		
+		save_settings();
 	}
 	
 	/* Initialize the window */
@@ -82,7 +85,7 @@ void Display::toggle_mouse(){
 bool Display::init_window(){
 
 	/* Set to enable opengl window context */
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OPENGL_MAJOR_VERSION);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OPENGL_MINOR_VERSION);
 
@@ -147,6 +150,19 @@ bool Display::disable_vsync(){
 bool Display::init_openGL(){
 	bool success = true;
 	GLenum error = GL_NO_ERROR;
+
+	/* Set this to true so GLEW knows to use a modern approach to retrieving 
+	function pointers and extensions*/
+    glewExperimental = GL_TRUE;
+
+    /* Initialize GLEW to setup the OpenGL Function pointers */
+    glewInit();
+
+    // Define the viewport dimensions
+    glViewport(0, 0, width, height);
+
+    /* Setup OpenGL options */
+    glEnable(GL_DEPTH_TEST);
 
 	/* Initialize Projection Matrix */
 	glMatrixMode(GL_PROJECTION);

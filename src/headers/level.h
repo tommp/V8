@@ -4,10 +4,11 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./errorlogger.h"
-#include "./utility.h"
-#include "./actor.h"
-#include "./tiles.h"
+#include "errorlogger.h"
+#include "utility.h"
+#include "actor.h"
+#include "tiles.h"
+#include "display.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
