@@ -1,10 +1,10 @@
 #include "./headers/player.h"
 
-Player::Player(SDL_Renderer& ren, Resource_manager& manager, Button_mappings& map){
+Player::Player(Resource_manager& manager, Button_mappings& map){
 	button_mappings = &map;
 	std::string anim = "adventure_time";
 	state = {"adv_down"};
-	if ( !(animations = manager.load_animation_set(ren, anim) ) ){
+	if ( !(animations = manager.load_animation_set(anim) ) ){
 		std::cout << "ERROR: Player constructor failed to load animation set: " << anim << std::endl;
 		errorlogger("ERROR: Player constructor failed to load animation set: ", anim.c_str());
 	}
@@ -17,8 +17,8 @@ Player::Player(SDL_Renderer& ren, Resource_manager& manager, Button_mappings& ma
 	depth = TILESIZE;
 }
 
-void Player::render_frame(SDL_Renderer &ren, SDL_Rect* offset){
-	animations->render_current(ren, (int)x - offset->x, (int)y - offset->y, state);
+void Player::render_frame(){
+	animations->render_current(state);
 }
 
 void Player::update_position(float timedelta){

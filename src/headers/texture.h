@@ -6,15 +6,16 @@
 /*---------------------------------------------*/
 #include "./errorlogger.h"
 #include "./utility.h"
-#include "./SOIL.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <SDL2/SDL.h>
+#include <GL/glew.h>
 #include <string>
 #include <SDL2/SDL_image.h>
 #include <memory>
+#include <cstdlib>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -37,13 +38,10 @@ class Texture
         ~Texture();
 
         /*Deallocates texture*/
-        void free();
+        void free_texture();
 
         /*Loads image at specified path*/
         bool load_from_file(const std::string& name);
-
-        /*Renders texture at given point*/
-        void render(SDL_Renderer& ren, int x, int y, SDL_Rect* clip = NULL);
 
         /*Gets image dimensions*/
         int get_width()const{return width;};

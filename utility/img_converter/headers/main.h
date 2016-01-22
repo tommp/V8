@@ -18,6 +18,7 @@
 #include <glob.h>
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 /*---------------------------------------------*/
 
 /*Header content*/

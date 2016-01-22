@@ -10,18 +10,19 @@
 /*---------------------------------------------*/
 #include <SDL2/SDL.h>
 #include <memory>
+#include <GL/glew.h>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
 class Actor{
 	protected:
-		float x;
-		float y;
-		float z;
-		float width;
-		float height;
-		float depth;
+		GLfloat x;
+		GLfloat y;
+		GLfloat z;
+		GLfloat width;
+		GLfloat height;
+		GLfloat depth;
 	public:
 		float get_x()const{return x;};
 		float get_y()const{return y;};

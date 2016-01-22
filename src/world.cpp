@@ -1,16 +1,6 @@
 #include "./headers/world.h"
 
-World::World(SDL_Renderer &ren, Resource_manager& manager, Button_mappings& map){
-	Character* new_player = new Player(ren, manager, map);
-	add_player(new_player);
-	current_level = new Level(10000, 10000, 10000);
-	if(!players.empty()){
-		current_level->center_camera(players.front());
-	}
-	for (int i = 0; i < 20000; i++) {
-		Character* mob = new Slime_blob(ren, manager);
-		add_character(mob);
-	}
+World::World(Resource_manager& manager, Button_mappings& map){
 }
 
 bool World::check_if_colliding(const Character* a, const Character* b)const{
@@ -171,40 +161,8 @@ void World::update_groups(){
 	}
 }
 
-void World::render_world(SDL_Renderer& ren){
-	update_groups();
-	sort_group(players);
-	sort_group(characters);
-	auto player_it = players.begin();
+void World::render_world(){
 
-	auto character_it = characters.begin();
-
-	/* Render level */
-	/* ====TODO==== */
-
-	bool players_done = false;
-	bool characters_done = false;
-
-	/* Render characters */
-	while( (!players_done) || (!characters_done)) {
-
-		/* Dangerous but clean, works as long as compiler optimizes correctly */
-		if ( (!players_done) && (**player_it < **character_it) ) {
-			(*player_it)->render_frame(ren, current_level->get_camera_pointer());
-			player_it++;
-
-			if (player_it == players.end()) {
-				players_done = true;
-			}
-		}
-		else if ( !characters_done ) {
-			(*character_it)->render_frame(ren, current_level->get_camera_pointer());
-			character_it++;
-			if (character_it == characters.end()) {
-				characters_done = true;
-			}
-		}
-	}
 }
 
 bool World::insert_character(Character* character){

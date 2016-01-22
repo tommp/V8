@@ -1,32 +1,28 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef QUATERNION_H
+#define QUATERNION_H
 
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "./state_handler.h"
-#include "./character.h"
-#include "./animation.h"
-#include "./world.h"
+#include "./errorlogger.h"
+#include "./utility.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
+#include <iostream>
 #include <SDL2/SDL.h>
+#include <GL/glew.h>
 #include <unistd.h>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
-class Player : public Character{
-private:
-	int speed;
-	Button_mappings* button_mappings;
-public:
-	Player(Resource_manager& manager, Button_mappings& map);
-	void render_frame();
-	void update_position(float timedelta);
-	void touch_character(Character& character);
+class Quaternion{
+	private:
+		GLfloat quat[4];
+	public:
+
 };
 /*=============================================*/
 

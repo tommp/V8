@@ -30,7 +30,7 @@ private:
 	std::forward_list<Character*> dormant_characters;
 	std::forward_list<Contact> contacts;
 public:
-	World(SDL_Renderer &ren, Resource_manager& manager, Button_mappings& map);
+	World(Resource_manager& manager, Button_mappings& map);
 	bool check_if_colliding(const Character* a, const Character* b)const;
 	bool check_if_colliding(const Character* a, const SDL_Rect* b)const;
 	void update_positions(float timedelta);
@@ -51,7 +51,7 @@ public:
 
 	void resolve_collisions();
 	void update_groups();
-	void render_world(SDL_Renderer& ren);
+	void render_world();
 };
 /*=============================================*/
 

@@ -30,9 +30,9 @@ class Resource_manager {
 		std::unordered_map<std::string, Texture_ptr> textures;
 		std::unordered_map<std::string, Animation_ptr> animations;
 	public:
-		Texture_ptr load_texture(SDL_Renderer& ren, const std::string& name);
-		Animation_ptr load_animation(SDL_Renderer& ren, const std::string& name);
-		Animation_set_ptr load_animation_set(SDL_Renderer& ren, const std::string& name);
+		Texture_ptr load_texture(const std::string& name);
+		Animation_ptr load_animation(const std::string& name);
+		Animation_set_ptr load_animation_set(const std::string& name);
 };
 /*=============================================*/
 

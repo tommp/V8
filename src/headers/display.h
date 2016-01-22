@@ -18,36 +18,41 @@
 
 /*Header content*/
 /*=============================================*/
+#define DISPLAY_SETTINGS_FILE_PATH "./data/display.conf"
+#define OPENGL_MAJOR_VERSION 2
+#define OPENGL_MINOR_VERSION 1
+
 class Display{
 	private:
-		SDL_Window* win;
-	    SDL_Renderer* ren;
-
-	    SDL_Texture* backbuffer;
+		SDL_Window* window;
+		SDL_GLContext gl_context;
 
 	    bool use_vsync;
 	    bool use_fullscreen;
-	    int width;
-	    int height;
-	    int screen_width;
-	    int screen_height;
+	    bool mouse_visible;
+
+	    GLint width;
+	    GLint height;
+	    GLint screen_width;
+	    GLint screen_height;
 	public:
 		Display();
-		Display(const std::string& settings_file_path);
-		int init_window();
-		int init_renderer();
-		int enable_fullscreen();
-		int enable_vsync();
-		int disable_vsync();
+		bool save_settings();
+		bool load_settings();
+		void toggle_mouse();
+		bool init_window();
+		bool init_openGL();
+		bool enable_fullscreen();
+		bool enable_vsync();
+		bool disable_vsync();
 
-		void clear(){SDL_RenderClear(ren);};
-		void present(){SDL_RenderPresent(ren);};
+		void clear(){glClear(GL_COLOR_BUFFER_BIT);};
+		void present(){SDL_GL_SwapWindow(window);};
 
-		SDL_Renderer* get_renderer_pointer(){return ren;};
-		int get_screen_width(){return screen_width;};
-		int get_screen_height(){return screen_height;};
-		int get_width(){return width;};
-		int get_height(){return height;};
+		GLuint get_screen_width(){return screen_width;};
+		GLuint get_screen_height(){return screen_height;};
+		GLuint get_width(){return width;};
+		GLuint get_height(){return height;};
 };
 /*=============================================*/
 

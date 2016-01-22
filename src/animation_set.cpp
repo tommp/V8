@@ -4,9 +4,9 @@ Animation_set::Animation_set(){
 	/* Smile and wave boys! */
 }
 
-void Animation_set::render_current(SDL_Renderer& ren, int x, int y, const std::string& name){
+void Animation_set::render_current(const std::string& name){
 	if (animations.find(name) != animations.end()) {
-		animations[name]->render_current(ren, x, y);
+		animations[name]->render_current();
 	}
 	else{
 		errorlogger("ERROR: No animation for current state in Animation_set: ", name.c_str());
@@ -15,7 +15,7 @@ void Animation_set::render_current(SDL_Renderer& ren, int x, int y, const std::s
 	
 }
 
-bool Animation_set::load_from_file(SDL_Renderer& ren, Resource_manager& resource_manager, const std::string& name){
+bool Animation_set::load_from_file(Resource_manager& resource_manager, const std::string& name){
 	if (WORLD_ANIMATION_SETS.find(name) == WORLD_ANIMATION_SETS.end()) {
 		std::cout << "ERROR: Animation_set not found!: " << name << std::endl;
 		errorlogger("ERROR: Animation_set not found!: ", name.c_str());
@@ -28,7 +28,7 @@ bool Animation_set::load_from_file(SDL_Renderer& ren, Resource_manager& resource
 	if(animation_names.is_open()){
 		std::string animation_name;
 		while (std::getline(animation_names, animation_name)){	
-			Animation_ptr new_animation = resource_manager.load_animation(ren, animation_name);
+			Animation_ptr new_animation = resource_manager.load_animation(animation_name);
 			if (! new_animation) {
 				errorlogger("ERROR: Failed to load animation in Animation_set, animation name was: ", animation_name.c_str());
 			}	

@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
 		it.replace(it.begin(), it.begin() + 9, "");
 		it.replace(it.end() - 4, it.end(), "");
 		image_header << "	{" << "\"" << it.c_str() << "\"" << ", " << id << "},\n";
+		free(image);
 	}
 	image_header << "};\n\n#endif\n";
 	return 0;

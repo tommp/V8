@@ -1,99 +1,177 @@
 #include "./headers/display.h"
 
-Display::Display(const std::string& settings_file_path){
-	/* Init to standard settings as a fallback */
-	use_vsync = true;
-	use_fullscreen = true;
-	width = SCREEN_WIDTH;
-	height = SCREEN_HEIGHT;
-	screen_width = 0;
-	screen_height = 0;
-
-	/* Read from file here */
-	/* Use settings external */
-	/* =================== */
-
-	/*Disables pesky screensavers while our wonderful graphics are beeing displayed*/
-	SDL_DisableScreenSaver();
-
-	init_window();
-	init_renderer();
-}
-
 Display::Display(){
 	/* Init to standard settings as a fallback */
-	use_vsync = true;
-	use_fullscreen = false;
-	width = SCREEN_WIDTH;
-	height = SCREEN_HEIGHT;
-	screen_width = 0;
-	screen_height = 0;
+	if (!load_settings()) {
+		mouse_visible = false;
+		use_vsync = true;
+		use_fullscreen = false;
+		width = SCREEN_WIDTH;
+		height = SCREEN_HEIGHT;
+		screen_width = 0;
+		screen_height = 0;
+		errorlogger("ERROR: Failed to load display settings, restoring defaults.");
+		std::cout << "ERROR: Failed to load display settings, restoring defaults." << std::endl;
+	}
+	
+	/* Initialize the window */
+	init_window();
+
+	/* Initialize opengl */
+	init_openGL();
 
 	/*Disables pesky screensavers while our wonderful graphics are beeing displayed*/
 	SDL_DisableScreenSaver();
-
-	init_window();
-	init_renderer();
 }
 
-int Display::init_window(){
-	/*Initializes a window to render graphics in*/
-	win = SDL_CreateWindow("Cradlands", 0, 0, width, height, 0);
-	if (win == nullptr){
-		SDLerrorLogger("SDL_CreateWindow");
-		std::cout<<"Failed to create SDL window, see errorlog for details."<<std::endl;
-		return 1;
+bool Display::save_settings(){
+	std::ofstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
+
+    if (!contentf.is_open()){
+        errorlogger("ERROR: Failed to open content file for display settings!");
+        std::cout << "ERROR: Failed to open content file for display settings!" << std::endl;
+        return false;
+    }
+
+    contentf.write(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
+    contentf.write(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
+    contentf.write(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
+
+    contentf.write(reinterpret_cast<char *>(&width), sizeof(GLint));
+    contentf.write(reinterpret_cast<char *>(&height), sizeof(GLint));
+    contentf.write(reinterpret_cast<char *>(&screen_height), sizeof(GLint));
+    contentf.write(reinterpret_cast<char *>(&screen_width), sizeof(GLint));
+
+    contentf.close();
+
+    return true;
+}
+
+bool Display::load_settings(){
+	std::ifstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
+
+    if (!contentf.is_open()){
+        errorlogger("ERROR: Failed to open content file for display settings!");
+        std::cout << "ERROR: Failed to open content file for display settings!" << std::endl;
+        return false;
+    }
+
+    contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
+    contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
+    contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
+
+    contentf.read(reinterpret_cast<char *>(&width), sizeof(GLuint));
+    contentf.read(reinterpret_cast<char *>(&height), sizeof(GLuint));
+    contentf.read(reinterpret_cast<char *>(&screen_height), sizeof(GLuint));
+    contentf.read(reinterpret_cast<char *>(&screen_width), sizeof(GLuint));
+
+    contentf.close();
+
+    return true;
+}
+
+void Display::toggle_mouse(){
+	if (mouse_visible) {
+		SDL_ShowCursor(0);
 	}
+	else{
+		SDL_ShowCursor(1);
+	}
+}
+
+bool Display::init_window(){
+
+	/* Set to enable opengl window context */
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OPENGL_MAJOR_VERSION);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OPENGL_MINOR_VERSION);
+
+	/*Initializes a window to render graphics in*/
+	window = SDL_CreateWindow("Cradlands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	if (window == nullptr){
+		SDLerrorLogger("SDL_CreateWindow");
+		std::cout<<"ERROR: Failed to create SDL window, see errorlog for details."<<std::endl;
+		return false;
+	}
+
+	/* Create opengl context */
+    gl_context = SDL_GL_CreateContext(window);
+    if(gl_context == NULL){
+    	SDLerrorLogger("SDL_GL_CreateContext");
+        std::cout << "ERROR: OpenGL context could not be created! SDL Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
 
 	if(use_fullscreen){
 		enable_fullscreen();
 	}
 
-	/* MAKE SMOOTH WHEN MENU IN PLACE */
-	SDL_ShowCursor(0);
-
-	return 0;
-}
-
-int Display::init_renderer(){
-	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (ren == nullptr){
-		SDLerrorLogger("SDL_CreateRenderer");
-		std::cout<<"Failed to create SDL renderer, see errorlog for details."<<std::endl;
-		return 1;
+	if (!mouse_visible) {
+		SDL_ShowCursor(0);
+	}
+	else{
+		SDL_ShowCursor(1);
 	}
 
-	/* Select the color for drawing to black */
-    SDL_SetRenderDrawColor(ren, 0, 255, 255, 255);
+	return true;
+}
 
-    /* Clear the entire screen to our selected color */
-    SDL_RenderClear(ren);
+bool Display::enable_fullscreen(){
+	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	SDL_GetWindowSize(window, &screen_width, &screen_height);
+	return true;
+}
 
-	if(!use_vsync){
-		disable_vsync();
+bool Display::enable_vsync(){
+	if ( !(SDL_GL_SetSwapInterval(1) < 0)){
+		return true;
+	}
+	else{
+		SDLerrorLogger("SDL_GL_SetSwapInterval");
+        std::cout << "ERROR: SDL_GL_SetSwapInterval could not enable vsync! SDL Error: " << SDL_GetError() << std::endl;
+		return false;
+	}
+}
+
+bool Display::disable_vsync(){
+	if ( !(SDL_GL_SetSwapInterval(0) < 0)){
+		return true;
+	}
+	else{
+		SDLerrorLogger("SDL_GL_SetSwapInterval");
+        std::cout << "ERROR: SDL_GL_SetSwapInterval could not disable vsync! SDL Error: " << SDL_GetError() << std::endl;
+		return false;
+	}
+}
+
+bool Display::init_openGL(){
+	bool success = true;
+	GLenum error = GL_NO_ERROR;
+
+	/* Initialize Projection Matrix */
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	error = glGetError();
+	if(error != GL_NO_ERROR){
+		std::cout <<"Error initializing OpenGL!" << error << std::endl;
+		success = false;
 	}
 
-	if(use_fullscreen){
-		int height_factor = screen_height / SCREEN_HEIGHT;
-		int width_factor = screen_width / SCREEN_WIDTH;
-		SDL_RenderSetScale(ren, height_factor, width_factor);
+	/* Initialize Modelview Matrix */
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	error = glGetError();
+	if( error != GL_NO_ERROR ){
+		std::cout <<"Error initializing OpenGL!" << error << std::endl;
+		success = false;
 	}
 
-	return 0;
-}
-
-int Display::enable_fullscreen(){
-	SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-	SDL_GetWindowSize(win, &screen_width, &screen_height);
-	return 0;
-}
-
-int Display::enable_vsync(){
-	SDL_GL_SetSwapInterval(1);
-	return 0;
-}
-
-int Display::disable_vsync(){
-	SDL_GL_SetSwapInterval(0);
-	return 0;
+	/* Initialize clear color */
+	glClearColor(0.f, 0.f, 0.f, 1.f);
+	error = glGetError();
+	if( error != GL_NO_ERROR ){
+		std::cout <<"Error initializing OpenGL!" << error << std::endl;
+		success = false;
+	}
+	return success;
 }

@@ -9,12 +9,12 @@ Texture::Texture(){
 
 Texture::~Texture(){
 	/* Deallocate */
-    free();
+    free_texture();
 }
 
-void Texture::free(){
+void Texture::free_texture(){
     /* Free texture if it exists */
-    if( texture != NULL )
+    if( texture != 0 )
     {
         glDeleteTextures(1, &texture);
         texture = 0;
@@ -25,13 +25,13 @@ void Texture::free(){
 
 bool Texture::load_from_file(const std::string& name){
 	/* Get rid of preexisting texture */
-	if( texture != NULL ){
-    	free();
+	if( texture != 0 ){
+    	free_texture();
 	}
 
-    unsigned char* image;
+    unsigned char* image = nullptr;
     if (!load_binary_image(name, image, &width, &height, &format)) {
-        errorlog("ERROR: Error propogation from load_binary_image(..) when loading keyname: ", name.c_str())
+        errorlogger("ERROR: Error propogation from load_binary_image(..) when loading keyname: ", name.c_str());
         std::cout << "ERROR: Error propogation from load_binary_image(..) when loading keyname: " << name.c_str() << std::endl;
         return false;
     }
@@ -46,26 +46,11 @@ bool Texture::load_from_file(const std::string& name){
 
     free(image);
 	
-    if( texture == NULL ){
-    	errorLogger("ERROR: Unable to create texture from keyname: ", name.c_str());
+    if( texture == 0 ){
+    	errorlogger("ERROR: Unable to create texture from keyname: ", name.c_str());
         std::cout << "ERROR: Unable to create texture from keyname: "<< name.c_str() << std::endl;
         return false;
     }
 
     return true;
-}
-
-void Texture::render(SDL_Renderer& ren, int x, int y, SDL_Rect* clip){
-	/* Set rendering space and render to screen */
-    SDL_Rect renderQuad = { x, y, width, height };
-
-    /* Set clip rendering dimensions */
-    if( clip != NULL )
-    {
-        renderQuad.w = clip->w;
-        renderQuad.h = clip->h;
-    }
-
-    /* Render to screen */
-    SDL_RenderCopy(&ren, texture, clip, &renderQuad );
 }

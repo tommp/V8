@@ -5,6 +5,7 @@
 /*---------------------------------------------*/
 #include "./character.h"
 #include "./animation.h"
+#include "./vector.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -19,14 +20,13 @@
 /*=============================================*/
 class Slime_blob: public Character{
 private:
-	int speed;
+	Vec3 velocity;
+	unsigned int speed;
 	unsigned int last_move;
 	unsigned int move_duration;
-	int vec_x;
-	int vec_y;
 public:
-	Slime_blob(SDL_Renderer& ren, Resource_manager& manager);
-	void render_frame(SDL_Renderer& ren, SDL_Rect* offset);
+	Slime_blob(Resource_manager& manager);
+	void render_frame();
 	void update_position(float timedelta);
 	void touch_character(Character& character);
 };

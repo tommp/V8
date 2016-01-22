@@ -31,8 +31,8 @@ class Animation_set {
 		std::unordered_map<std::string, Animation_ptr> animations;
 	public:
 		Animation_set();
-		void render_current(SDL_Renderer& ren, int x, int y, const std::string& name);
-		bool load_from_file(SDL_Renderer& ren, Resource_manager& resource_manager, const std::string& name);
+		void render_current(const std::string& name);
+		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
 };
 
 typedef std::shared_ptr<Animation_set> Animation_set_ptr;

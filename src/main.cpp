@@ -26,7 +26,7 @@ int main(int argc, char** argv){
 
 	State_handler state_handler(&button_mappings);
 
-	World cradlands(*display.get_renderer_pointer(), resource_manager, button_mappings);
+	World world(resource_manager, button_mappings);
 
     Timer cap_timer;
     Timer move_timer;
@@ -46,18 +46,18 @@ int main(int argc, char** argv){
 
 	    /* Update the position of all world objects */
 	    float timedelta = move_timer.get_ticks() / 1000.f;
-	    cradlands.update_positions(timedelta);
+	    world.update_positions(timedelta);
 	    move_timer.restart();
 
 	    /* Detect collisions */
-	    cradlands.detect_all_collisions();
+	    //world.detect_all_collisions();
 	    
 	    /* Resolve all collisions */
-	    cradlands.resolve_collisions();
+	    //cradlands.resolve_collisions();
 
 	    /* Render to screen */
 	    display.clear();
-	    cradlands.render_world(*display.get_renderer_pointer());
+	    world.render_world();
 	    display.present();
 
 #if DISABLE_VSYNC

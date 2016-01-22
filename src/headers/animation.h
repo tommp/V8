@@ -20,26 +20,33 @@
 #include <sstream>
 #include <memory>
 #include <unordered_map>
+#include <vector>
+#include <cstdlib>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
+#define ANIMATION_DATA_FILE_PATH "../data/anim.boogie"
+
 class Resource_manager;
 
 class Animation{
 	private:
 		Texture_ptr texture;
+		GLuint* VBO_set;
+		GLuint* VAO_set;
+		std::vector<GLuint> frame_durations;
+		GLuint set_size;
 
-		/* List of frames */
-		std::list<Frame> frames;
-		std::list<Frame>::iterator current_frame;
+
+		unsigned int current_frame;
 		unsigned int current_frame_end;
 		bool reverse_looping;
 		bool going_forward;
 	public:
 		Animation();
-		bool load_from_file(SDL_Renderer& ren, Resource_manager& resource_manager, const std::string& name);
-		void render_current(SDL_Renderer& ren, int x, int y);
+		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
+		void render_current();
 		void reset_animation();
 };
 
