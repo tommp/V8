@@ -6,6 +6,7 @@
 /*---------------------------------------------*/
 #include "glm.h"
 #include "errorlogger.h"
+#include "mesh.h"
 #include "utility.h"
 #include "texture.h"
 #include "resource_manager.h"
@@ -32,11 +33,8 @@ class Resource_manager;
 
 class Animation{
 	private:
-		Texture_ptr texture;
-		GLuint* VBO_set;
-		GLuint* VAO_set;
+		Mesh_ptr mesh;
 		std::vector<GLuint> frame_durations;
-		GLuint set_size;
 
 		unsigned int current_frame;
 		unsigned int current_frame_end;

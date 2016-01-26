@@ -48,3 +48,31 @@ bool load_binary_image(const std::string& name, unsigned char* image, GLuint* wi
 
 	return true;
 }
+
+bool load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices){
+	std::ifstream contentf (MESH_DATA_PATH, std::ios::binary);
+
+	if (!contentf.is_open()){
+		errorlogger("ERROR: Failed to open content file for mesh data!");
+		std::cout << "ERROR: Failed to open content file for mesh data!" << std::endl;
+		return false;
+	}
+
+	if (WORLD_MESHES.find(name) == WORLD_MESHES.end()){
+		errorlogger("ERROR: No image in mesh_map with keyname: ", name.c_str());
+		std::cout << "ERROR: No image in mesh_map with keyname: " << name.c_str() << std::endl;
+		return false;
+	}
+
+	GLuint datapos = WORLD_MESHES.find(name)->second;
+
+	contentf.seekg(datapos);
+
+	/* LOAD VERTICES AND INDICES FROM FILE HERE */
+
+	/* ======================================== */
+
+	contentf.close();
+
+	return true;
+}

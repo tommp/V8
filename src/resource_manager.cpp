@@ -6,7 +6,7 @@ Texture_ptr Resource_manager::load_texture(const std::string& name){
 	}
 	else{
 		Texture_ptr new_texture = std::make_shared<Texture>();
-		if ( !( new_texture->load_from_file(name) ) ){
+		if ( !(new_texture->load_from_file(name)) ){
 			std::cout << "ERROR: Resource manager failed to load new texture: " << name << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new texture: ", name.c_str());
 			return nullptr;
@@ -16,13 +16,29 @@ Texture_ptr Resource_manager::load_texture(const std::string& name){
 	}
 }
 
+Mesh_ptr Resource_manager::load_mesh(const std::string& name){
+	if (meshes.find(name) != meshes.end()){
+		return meshes[name];
+	}
+	else{
+		Mesh_ptr new_mesh = std::make_shared<Mesh>();
+		if ( !(new_mesh->load_from_file(name)) ){
+			std::cout << "ERROR: Resource manager failed to load new mesh: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new mesh: ", name.c_str());
+			return nullptr;
+		}
+		meshes.insert({name, new_mesh});
+		return new_mesh;
+	}
+}
+
 Animation_ptr Resource_manager::load_animation(const std::string& name){
 	if (animations.find(name) != animations.end()){
 		return animations[name];
 	}
 	else{
 		Animation_ptr new_animation = std::make_shared<Animation>();
-		if ( !(new_animation->load_from_file(*this, name) ) ){
+		if ( !(new_animation->load_from_file(*this, name)) ){
 			std::cout << "ERROR: Resource manager failed to load new animation: " << name << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new animation: ", name.c_str());
 			return nullptr;

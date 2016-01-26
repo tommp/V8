@@ -13,6 +13,7 @@ bool Animation::load_from_file(Resource_manager& resource_manager, const std::st
 		errorlogger("ERROR: Animation not found!: ", name.c_str());
 		return false;
 	}
+
 	GLuint datapos = WORLD_ANIMATIONS.find(name)->second.first;
 
 	std::ifstream contentf (ANIMATION_DATA_FILE_PATH, std::ios::binary);
@@ -23,49 +24,16 @@ bool Animation::load_from_file(Resource_manager& resource_manager, const std::st
 	}
 	contentf.seekg(datapos);
 
-	contentf.read(reinterpret_cast<char *>(&set_size), sizeof(GLuint));
-	glGenVertexArrays(set_size, VAO_set);
-    glGenBuffers(set_size, VBO_set);
+	/* READ ANIMATION DATA HERE */
 
-	for (unsigned int i = 0; i < set_size; i++){
-		GLfloat* vertices = nullptr;
-		GLuint vertex_set_size = 0;
-		GLuint frame_duration = 0;
-		contentf.read(reinterpret_cast<char *>(&vertex_set_size), sizeof(GLuint));
-		contentf.read(reinterpret_cast<char *>(&frame_duration), sizeof(GLuint));
-		contentf.read(reinterpret_cast<char *>(vertices), sizeof(GLfloat)*vertex_set_size);
-
-		frame_durations.push_back(frame_duration);
-
-	    glBindVertexArray(VAO_set[i]);
-
-	    glBindBuffer(GL_ARRAY_BUFFER, VBO_set[i]);
-	    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*vertex_set_size, vertices, GL_DYNAMIC_DRAW);
-
-	    /* Position attribute */
-	    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)0);
-	    glEnableVertexAttribArray(0);
-
-	    /* Colour */
-	    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	    glEnableVertexAttribArray(0);
-	    
-	    /* TexCoord attribute */
-	    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)(7 * sizeof(GLfloat)));
-	    glEnableVertexAttribArray(2);
-
-	    glBindBuffer(GL_ARRAY_BUFFER, 0);
-	    glBindVertexArray(0); /* Unbind VAO */
-
-	    free(vertices);
-	}
+	/* ======================== */
 	
 	contentf.close();
 
-	texture = resource_manager.load_texture(WORLD_ANIMATIONS.find(name)->second.second);
-	if(!texture) {
-		errorlogger("Unable to load texture from resource handler: ", name.c_str());
-		std::cout << "Unable to load texture from resource handler: " << name.c_str() << std::endl;
+	mesh = resource_manager.load_mesh(WORLD_ANIMATIONS.find(name)->second.second);
+	if(!mesh) {
+		errorlogger("Unable to load mesh from resource handler: ", name.c_str());
+		std::cout << "Unable to load mesh from resource handler: " << name.c_str() << std::endl;
 		return false;
 	}
 	current_frame = 0;
@@ -79,6 +47,7 @@ void Animation::reset_animation(){
 }
 
 void Animation::render_current(const glm::vec3& position){
+	/*
 	if( SDL_GetTicks() > current_frame_end ){
 		if(going_forward) {
 			current_frame++;
@@ -100,8 +69,10 @@ void Animation::render_current(const glm::vec3& position){
 		}
 		
 		current_frame_end = SDL_GetTicks() + frame_durations[current_frame];
-	}
+	}*/
 
 	/* RENDER HERE */
+	mesh->render_mesh(position);
+	/* =========== */
 
 }

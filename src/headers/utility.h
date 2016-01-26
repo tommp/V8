@@ -5,6 +5,8 @@
 /*---------------------------------------------*/
 #include "errorlogger.h"
 #include "image_map.h"
+#include "mesh_map.h"
+#include "vertex.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -15,12 +17,14 @@
 #include <unistd.h>
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
 #define DISABLE_VSYNC 0
 #define IMAGE_DATA_PATH "./data/content.blue"
+#define MESH_DATA_PATH "./data/content.red"
 
 const int RENDERING_SLACK = 				100;
 
@@ -44,6 +48,9 @@ void wait_for_event();
 
 /* Loads a binary image */
 bool load_binary_image(const std::string& name, unsigned char* image, GLuint* width, GLuint* height, GLint* format);
+
+/* Loads a binary mesh */
+bool load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
 /*=============================================*/
 
 #endif
