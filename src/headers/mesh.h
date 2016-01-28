@@ -31,9 +31,9 @@ class Mesh {
 		GLuint EBO;
 	public:
 		Mesh();
-		void render_mesh(const glm::vec3& position);
 		bool load_from_file(const std::string& name);
 		void free_mesh();
+		void render_mesh(const glm::vec3& position);
 };
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;

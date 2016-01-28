@@ -6,11 +6,12 @@ Mesh::Mesh(){
 	EBO = 0;
 }
 
-void Mesh::render_mesh(const glm::vec3& position){
-
-}
-
 bool Mesh::load_from_file(const std::string& name){
+
+	/* Get rid of preexisting mesh */
+	if( VBO != 0 ){
+		free_mesh();
+	}
 
 	vector<Vertex> vertices;
 	vector<GLuint> indices;
@@ -56,6 +57,10 @@ bool Mesh::load_from_file(const std::string& name){
 	glBindVertexArray(0); 
 
 	return true;
+}
+
+void Mesh::render_mesh(const glm::vec3& position){
+
 }
 
 void Mesh::free_mesh(){

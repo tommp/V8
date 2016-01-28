@@ -30,6 +30,7 @@ bool Texture::load_from_file(const std::string& name){
 	}
 
 	unsigned char* image = nullptr;
+	
 	if (!load_binary_image(name, image, &width, &height, &format)) {
 		errorlogger("ERROR: Error propogation from load_binary_image(..) when loading keyname: ", name.c_str());
 		std::cout << "ERROR: Error propogation from load_binary_image(..) when loading keyname: " << name.c_str() << std::endl;
