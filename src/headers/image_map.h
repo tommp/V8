@@ -4,18 +4,13 @@
 #include <unordered_map>
 #include <string>
 
-const std::unordered_map<std::string, unsigned int> WORLD_IMAGES = {
-	{"LeafBush", 0},
-	{"LeafBushSmall", 4108},
-	{"SharpBush", 8216},
-	{"adventure_down", 12324},
-	{"adventure_left", 22576},
-	{"adventure_right", 32828},
-	{"adventure_up", 43080},
-	{"blob", 53332},
-	{"simple", 61536},
-	{"tallBentBush", 71788},
-	{"tallBerryBush", 75896},
+const std::unordered_map<std::string, unsigned int> ENGINE_IMAGES = {
+	{"arm_dif", 0},
+	{"body_dif", 1048588},
+	{"glass_dif", 2097176},
+	{"hand_dif", 2113572},
+	{"helmet_dif", 3162160},
+	{"leg_dif", 4210748},
 };
 
 #endif

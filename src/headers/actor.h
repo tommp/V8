@@ -23,6 +23,8 @@ class Actor{
 		GLfloat height;
 		GLfloat depth;
 	public:
+		const glm::vec3* get_position()const {return &position;};
+
 		float get_x()const{return position[0];};
 		float get_y()const{return position[1];};
 		float get_z()const{return position[2];};

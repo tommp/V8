@@ -1,8 +1,8 @@
-#include "headers/mobs.h"
+#include "mobs.h"
 
 Cube::Cube(Resource_manager& manager){
-	std::string anim = "blob_movement";
-	state = {"blob"};
+	std::string anim = "cube_movement";
+	state = {"cube"};
 	if ( !(animations = manager.load_animation_set(anim) ) ){
 		std::cout << "ERROR: Slime_blob constructor failed to load animation set: " << anim << std::endl;
 		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim.c_str());
@@ -23,7 +23,7 @@ Cube::Cube(Resource_manager& manager){
 }
 
 void Cube::render_frame(){
-	animations->render_current(state, position);
+	//animations->render_current(state, const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate);
 }
 
 void Cube::update_position(float timedelta){

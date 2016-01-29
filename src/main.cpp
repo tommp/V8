@@ -1,4 +1,4 @@
-#include "headers/main.h"
+#include "main.h"
 
 int main(int argc, char** argv){
 
@@ -9,7 +9,7 @@ int main(int argc, char** argv){
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
 		SDLerrorLogger("SDL initialization");
 		std::cout<<"Failed to initialize SDL, see errorlog for details."<<std::endl;
-		return 1;
+		exit(EXIT_FAILURE);
 	}
 
 	/* Random seed to time */

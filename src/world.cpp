@@ -1,4 +1,4 @@
-#include "headers/world.h"
+#include "world.h"
 
 World::World(Resource_manager& manager, Button_mappings& map){
 }
@@ -37,31 +37,8 @@ bool World::check_if_colliding(const Character* a, const Character* b)const{
 	return true;
 }
 
-bool World::check_if_colliding(const Character* a, const SDL_Rect* b)const{
-
-	if(! a || !b){
-		std::cout << "WARNING: NULLPTR PASSED TO COLLISION CHECK FOR CAMERA!" << std::endl;
-		return false;
-	}
-
-	if( ( a->get_y() + a->get_height() ) <= (b->y - RENDERING_SLACK) ){
-		return false;
-	}
-
-	if( a->get_y() >= ( b->y + b->h + RENDERING_SLACK) ){
-		return false;
-	}
-
-	if( ( a->get_x() + a->get_width() ) <= (b->x - RENDERING_SLACK) ){
-		return false;
-	}
-
-	if( a->get_x() >= ( b->x + b->w  + RENDERING_SLACK) ){
-		return false;
-	}
-
-	/* If none of the sides from A are outside B */
-	return true;
+bool World::check_if_offscreen(const Character* a)const{
+	return false;
 }
 
 void World::update_positions(float timedelta){
@@ -143,14 +120,14 @@ void World::update_groups(){
 	auto before_it_dormant = dormant_characters.before_begin();
 
 	for (auto it = characters.begin(); it != characters.end(); it++){
-		if( !check_if_colliding(*it, current_level->get_camera_pointer())){
+		if( !check_if_offscreen(*it)){
 			add_dormant_character(*it);
 			it = characters.erase(it);
 		}
 	}
 
 	for (auto it = first_it_dormant; it != dormant_characters.end(); it++){
-		if(check_if_colliding(*it, current_level->get_camera_pointer())){
+		if(check_if_offscreen(*it)){
 			insert_character(*it);
 			dormant_characters.erase_after(before_it_dormant);
 			it = before_it_dormant;
@@ -162,7 +139,7 @@ void World::update_groups(){
 }
 
 void World::render_world(){
-
+	
 }
 
 bool World::insert_character(Character* character){
@@ -191,7 +168,7 @@ bool World::add_dormant_character(Character* character){
 
 bool World::add_character(Character* character){
 	if(character) {
-		if(check_if_colliding(character, current_level->get_camera_pointer())) {
+		if(check_if_offscreen(character)) {
 			return insert_character(character);
 		}
 		else{

@@ -9,6 +9,7 @@
 #include "actor.h"
 #include "tiles.h"
 #include "display.h"
+#include "camera.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -27,11 +28,12 @@ class Level {
 		int width;
 		int height;
 		int depth;
-		SDL_Rect camera;
+
+		Camera camera;
 		vector<vector<vector<Tile>>> level_tiles;
 
 	public:
-		Level( int init_width, int init_height, int init_depth );
+		Level(int init_width, int init_height, int init_depth, const glm::vec3& pos, const glm::vec3& targ, const glm::vec3& w_up);
 
 		int get_width()const { return width; };
 		int get_height()const { return height; };
@@ -39,7 +41,7 @@ class Level {
 
 		void center_camera(const Actor* target);
 
-		SDL_Rect* get_camera_pointer(){ return &camera; };
+		Camera* get_camera_pointer(){ return &camera; };
 
 		void load_level();
 		void unload_level();

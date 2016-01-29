@@ -25,7 +25,7 @@ private:
 	Button_mappings* button_mappings;
 public:
 	Player(Resource_manager& manager, Button_mappings& map);
-	void render_frame(const glm::vec3& position);
+	void render_frame();
 	void update_position(float timedelta);
 	void touch_character(Character& character);
 };

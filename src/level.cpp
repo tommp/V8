@@ -1,20 +1,20 @@
-#include "headers/level.h"
+#include "level.h"
 
-Level::Level(int init_width, int init_height, int init_depth){
+Level::Level(int init_width, int init_height, int init_depth, const glm::vec3& pos, const glm::vec3& targ, const glm::vec3& w_up){
 	width = init_width;
 	height = init_height;
 	depth = init_depth;
 
-	camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+	camera = Camera(pos, targ, w_up);
 }
 
 void Level::center_camera(const Actor* target) {
 	/* Center on the actor collision box */
 	if(target){
-		camera.x = ( target->get_x() + target->get_width() / 2 ) - camera.w / 2;
-		camera.y = ( target->get_y() + target->get_height() / 2 ) - camera.h / 2;
-
+		camera.set_position(target->get_position());
 		/* Keep the camera in bounds */
+		/*
+		glm::vec3* cam_pos = camera.get_position();
 		if( camera.x < 0 ) { 
 			camera.x = 0;
 		}
@@ -27,6 +27,7 @@ void Level::center_camera(const Actor* target) {
 		if( camera.y > height - camera.h ) {
 			camera.y = height - camera.h;
 		}
+		*/
 	}
 	else{
 		errorlogger("ERROR: Centering camera on nullptr in Level class!");

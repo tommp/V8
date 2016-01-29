@@ -4,6 +4,8 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "errorlogger.h"
+#include "utility.h"
+#include "shader.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -24,6 +26,8 @@ const unsigned int OPENGL_MINOR_VERSION =	1;
 const unsigned int SCREEN_HEIGHT =			320;
 const unsigned int SCREEN_WIDTH	=			640;
 
+const int RENDERING_SLACK = 				100;
+
 class Display{
 	private:
 		SDL_Window* window;
@@ -32,11 +36,14 @@ class Display{
 	    bool use_vsync;
 	    bool use_fullscreen;
 	    bool mouse_visible;
+	    bool ortographic;
 
 	    GLint width;
 	    GLint height;
 	    GLint screen_width;
 	    GLint screen_height;
+
+	    glm::mat4 projection;
 	public:
 		Display();
 		bool save_settings();
@@ -47,6 +54,9 @@ class Display{
 		bool enable_fullscreen();
 		bool enable_vsync();
 		bool disable_vsync();
+		void set_projection_matrix();
+
+		void upload_projection_matrix(const Shader_ptr program);
 
 		void clear(){glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);};
 		void present(){SDL_GL_SwapWindow(window);};

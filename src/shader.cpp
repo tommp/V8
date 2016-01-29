@@ -1,36 +1,10 @@
-#include "headers/shader.h"
+#include "shader.h"
 
-Shader::Shader(const GLchar* vertex_shader_path, const GLchar* fragment_shader_path){
-    /* create the shaders */
-	GLuint vertex_shader = create_shader(vertex_shader_path, GL_VERTEX_SHADER);
-	assert(vertex_shader);
-
-	GLuint fragment_shader = create_shader(fragment_shader_path, GL_FRAGMENT_SHADER);
-	assert(fragment_shader);
-
-	/* Create program */
-	program = glCreateProgram();
-
-	/* Attach the shaders */
-	glAttachShader(program, vertex_shader);
-	glAttachShader(program, fragment_shader);
-
-	/* Link the program */
-	GLint success;
-	glLinkProgram(program);
-	glGetProgramiv(program, GL_LINK_STATUS, &success);
-	if(!success)
-	{
-		print_log(program);
-	    assert(0);
-	}
-
-	/* Delete the linked shaders */
-	glDeleteShader(vertex_shader);
-	glDeleteShader(fragment_shader);
+Shader::Shader(){
+    program = 0;
 }
 
-char* Shader::load_from_file(const char* filename) {
+char* Shader::read_data_from_file(const char* filename) {
     SDL_RWops *rw = SDL_RWFromFile(filename, "rb");
     if (rw == NULL){
         return NULL;
@@ -60,7 +34,7 @@ char* Shader::load_from_file(const char* filename) {
 GLuint Shader::create_shader(const char* filename, GLenum type) {
 
     /* Load shader code from file */
-    const GLchar* source = load_from_file(filename);
+    const GLchar* source = read_data_from_file(filename);
     if (source == NULL) {
         SDLerrorLogger("Shader load_from_file(const char* filename)");
         std::cout << "Error opening " << filename << ": " << SDL_GetError() << std::endl;
@@ -86,6 +60,66 @@ GLuint Shader::create_shader(const char* filename, GLenum type) {
     }
     
     return res;
+}
+
+bool Shader::load_from_file(const std::string& name){
+
+    if (WORLD_SHADERS.find(name) == WORLD_SHADERS.end()) {
+        std::cout << "ERROR: Shader not found!: " << name << std::endl;
+        errorlogger("ERROR: Shader not found!: ", name.c_str());
+        return false;
+    }
+
+    const GLchar* vertex_shader_path = WORLD_SHADERS.find(name)->second.first.c_str();
+    const GLchar* fragment_shader_path = WORLD_SHADERS.find(name)->second.second.c_str();
+
+    /* create the shaders */
+    GLuint vertex_shader = create_shader(vertex_shader_path, GL_VERTEX_SHADER);
+    if(!vertex_shader) {
+        errorlogger("ERROR: Failed to create vertex shader: ", vertex_shader_path);
+        std::cout << "ERROR: Failed to create vertex shader: " << vertex_shader_path << std::endl;
+        return false;
+    }
+
+    GLuint fragment_shader = create_shader(fragment_shader_path, GL_FRAGMENT_SHADER);
+    if(!fragment_shader) {
+        errorlogger("ERROR: Failed to create fragment_shader: ", fragment_shader_path);
+        std::cout << "ERROR: Failed to create fragment shader: " << vertex_shader_path << std::endl;
+        return false;
+    }
+
+    /* Create program */
+    program = glCreateProgram();
+
+    /* Attach the shaders */
+    glAttachShader(program, vertex_shader);
+    glAttachShader(program, fragment_shader);
+
+    /* Link the program */
+    GLint success;
+    glLinkProgram(program);
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if(!success){
+        print_log(program);
+        return false;
+    }
+
+    /* Delete the linked shaders */
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+    return true;
+}
+
+void Shader::set_matrix4(const char* uniform, const glm::mat4& matrix){
+    GLint matrix_location = glGetUniformLocation(program, uniform);
+    use();
+    glUniformMatrix4fv(matrix_location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void Shader::set_vector4f(const char* uniform, const glm::vec4& vector){
+    GLint vector_location = glGetUniformLocation(program, uniform);
+    use();
+    glUniform4f(vector_location, vector[0], vector[1], vector[2], vector[3]);
 }
 
 void Shader::print_log(GLuint object) {

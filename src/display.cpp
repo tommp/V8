@@ -1,8 +1,9 @@
-#include "headers/display.h"
+#include "display.h"
 
 Display::Display(){
 	/* Init to standard settings as a fallback */
 	if (!load_settings()) {
+		ortographic = true;
 		mouse_visible = false;
 		use_vsync = true;
 		use_fullscreen = false;
@@ -16,61 +17,86 @@ Display::Display(){
 		
 		save_settings();
 	}
+
+	set_projection_matrix();
 	
 	/* Initialize the window */
-	init_window();
+	if(!init_window()){
+		std::cout << "ERROR: Failed to Initialize display!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize display!");
+		exit(EXIT_FAILURE);
+	}
 
 	/* Initialize opengl */
-	init_openGL();
+	if(!init_openGL()){
+		std::cout << "ERROR: Failed to Initialize display!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize display!");
+		exit(EXIT_FAILURE);
+	}
 
 	/*Disables pesky screensavers while our wonderful graphics are beeing displayed*/
 	SDL_DisableScreenSaver();
 }
 
+void Display::set_projection_matrix(){
+	if (ortographic) {
+		projection = glm::ortho(0.0f, (GLfloat)width, 0.0f, (GLfloat)height, 0.1f, 100.0f);
+	}
+	else{
+		projection = glm::perspective(45.0f, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
+	}
+}
+
+void Display::upload_projection_matrix(const Shader_ptr program){
+	program->set_matrix4("projection", projection);
+}
+
 bool Display::save_settings(){
 	std::ofstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
 
-    if (!contentf.is_open()){
-        errorlogger("ERROR: Failed to open content file for display settings!");
-        std::cout << "ERROR: Failed to open content file for display settings!" << std::endl;
-        return false;
-    }
+	if (!contentf.is_open()){
+		errorlogger("ERROR: Failed to open content file for display settings!");
+		std::cout << "ERROR: Failed to open content file for display settings!" << std::endl;
+		return false;
+	}
 
-    contentf.write(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
-    contentf.write(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
-    contentf.write(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
+	contentf.write(reinterpret_cast<char *>(&ortographic), sizeof(bool));
+	contentf.write(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
+	contentf.write(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
+	contentf.write(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
 
-    contentf.write(reinterpret_cast<char *>(&width), sizeof(GLint));
-    contentf.write(reinterpret_cast<char *>(&height), sizeof(GLint));
-    contentf.write(reinterpret_cast<char *>(&screen_height), sizeof(GLint));
-    contentf.write(reinterpret_cast<char *>(&screen_width), sizeof(GLint));
+	contentf.write(reinterpret_cast<char *>(&width), sizeof(GLint));
+	contentf.write(reinterpret_cast<char *>(&height), sizeof(GLint));
+	contentf.write(reinterpret_cast<char *>(&screen_height), sizeof(GLint));
+	contentf.write(reinterpret_cast<char *>(&screen_width), sizeof(GLint));
 
-    contentf.close();
+	contentf.close();
 
-    return true;
+	return true;
 }
 
 bool Display::load_settings(){
 	std::ifstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
 
-    if (!contentf.is_open()){
-        errorlogger("ERROR: Failed to open content file for display settings!");
-        std::cout << "ERROR: Failed to open content file for display settings!" << std::endl;
-        return false;
-    }
+	if (!contentf.is_open()){
+		errorlogger("ERROR: Failed to open content file for display settings!");
+		std::cout << "ERROR: Failed to open content file for display settings!" << std::endl;
+		return false;
+	}
 
-    contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
-    contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
-    contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
+	contentf.read(reinterpret_cast<char *>(&ortographic), sizeof(bool));
+	contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
+	contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
+	contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
 
-    contentf.read(reinterpret_cast<char *>(&width), sizeof(GLuint));
-    contentf.read(reinterpret_cast<char *>(&height), sizeof(GLuint));
-    contentf.read(reinterpret_cast<char *>(&screen_height), sizeof(GLuint));
-    contentf.read(reinterpret_cast<char *>(&screen_width), sizeof(GLuint));
+	contentf.read(reinterpret_cast<char *>(&width), sizeof(GLuint));
+	contentf.read(reinterpret_cast<char *>(&height), sizeof(GLuint));
+	contentf.read(reinterpret_cast<char *>(&screen_height), sizeof(GLuint));
+	contentf.read(reinterpret_cast<char *>(&screen_width), sizeof(GLuint));
 
-    contentf.close();
+	contentf.close();
 
-    return true;
+	return true;
 }
 
 void Display::toggle_mouse(){
@@ -98,12 +124,12 @@ bool Display::init_window(){
 	}
 
 	/* Create opengl context */
-    gl_context = SDL_GL_CreateContext(window);
-    if(gl_context == NULL){
-    	SDLerrorLogger("SDL_GL_CreateContext");
-        std::cout << "ERROR: OpenGL context could not be created! SDL Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
+	gl_context = SDL_GL_CreateContext(window);
+	if(gl_context == NULL){
+		SDLerrorLogger("SDL_GL_CreateContext");
+		std::cout << "ERROR: OpenGL context could not be created! SDL Error: " << SDL_GetError() << std::endl;
+		return false;
+	}
 
 	if(use_fullscreen){
 		enable_fullscreen();
@@ -131,7 +157,7 @@ bool Display::enable_vsync(){
 	}
 	else{
 		SDLerrorLogger("SDL_GL_SetSwapInterval");
-        std::cout << "ERROR: SDL_GL_SetSwapInterval could not enable vsync! SDL Error: " << SDL_GetError() << std::endl;
+		std::cout << "ERROR: SDL_GL_SetSwapInterval could not enable vsync! SDL Error: " << SDL_GetError() << std::endl;
 		return false;
 	}
 }
@@ -142,52 +168,33 @@ bool Display::disable_vsync(){
 	}
 	else{
 		SDLerrorLogger("SDL_GL_SetSwapInterval");
-        std::cout << "ERROR: SDL_GL_SetSwapInterval could not disable vsync! SDL Error: " << SDL_GetError() << std::endl;
+		std::cout << "ERROR: SDL_GL_SetSwapInterval could not disable vsync! SDL Error: " << SDL_GetError() << std::endl;
 		return false;
 	}
 }
 
 bool Display::init_openGL(){
-	bool success = true;
-	GLenum error = GL_NO_ERROR;
-
 	/* Set this to true so GLEW knows to use a modern approach to retrieving 
 	function pointers and extensions*/
-    glewExperimental = GL_TRUE;
+	glewExperimental = GL_TRUE;
 
-    /* Initialize GLEW to setup the OpenGL Function pointers */
-    glewInit();
+	/* Initialize GLEW to setup the OpenGL Function pointers */
+	glewInit();
 
-    // Define the viewport dimensions
-    glViewport(0, 0, width, height);
+	// Define the viewport dimensions
+	glViewport(0, 0, width, height);
 
-    /* Setup OpenGL options */
-    glEnable(GL_DEPTH_TEST);
-
-	/* Initialize Projection Matrix */
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	error = glGetError();
-	if(error != GL_NO_ERROR){
-		std::cout <<"Error initializing OpenGL!" << error << std::endl;
-		success = false;
-	}
-
-	/* Initialize Modelview Matrix */
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	error = glGetError();
-	if( error != GL_NO_ERROR ){
-		std::cout <<"Error initializing OpenGL!" << error << std::endl;
-		success = false;
-	}
+	/* Setup OpenGL options */
+	glEnable(GL_DEPTH_TEST);
 
 	/* Initialize clear color */
 	glClearColor(0.f, 0.f, 0.f, 1.f);
-	error = glGetError();
-	if( error != GL_NO_ERROR ){
-		std::cout <<"Error initializing OpenGL!" << error << std::endl;
-		success = false;
+
+	if(check_ogl_error()) {
+		std::cout << "ERROR: Failed to Initialize openGL in Display::init_openGL()!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize openGL in Display::init_openGL()!");
+		return false;
 	}
-	return success;
+
+	return true;
 }

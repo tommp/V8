@@ -4,7 +4,9 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "glm.h"
 #include "errorlogger.h"
+#include "shader.h"
 #include "utility.h"
 #include "texture.h"
 #include "mesh.h"
@@ -31,10 +33,12 @@ class Resource_manager {
 		std::unordered_map<std::string, Texture_ptr> textures;
 		std::unordered_map<std::string, Animation_ptr> animations;
 		std::unordered_map<std::string, Mesh_ptr> meshes;
+		std::unordered_map<std::string, Shader_ptr> shaders;
 	public:
 		Texture_ptr load_texture(const std::string& name);
 		Animation_ptr load_animation(const std::string& name);
 		Mesh_ptr load_mesh(const std::string& name);
+		Shader_ptr load_shader(const std::string& name);
 		Animation_set_ptr load_animation_set(const std::string& name);
 };
 /*=============================================*/

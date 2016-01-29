@@ -1,4 +1,4 @@
-#include "headers/texture.h"
+#include "texture.h"
 
 Texture::Texture(){
 	/* Initialize to zero */

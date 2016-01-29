@@ -19,7 +19,7 @@
 /*=============================================*/
 typedef struct Vertex {
     glm::vec3 position;
-    glm::vec3 color;
+    glm::vec4 color;
     glm::vec2 tex_coords;
     glm::vec3 normal;
 }Vertex;

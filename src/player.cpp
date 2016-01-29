@@ -1,4 +1,4 @@
-#include "headers/player.h"
+#include "player.h"
 
 Player::Player(Resource_manager& manager, Button_mappings& map){
 	button_mappings = &map;
@@ -11,8 +11,8 @@ Player::Player(Resource_manager& manager, Button_mappings& map){
 	depth = TILESIZE;
 }
 
-void Player::render_frame(const glm::vec3& position){
-	animations->render_current(state, position);
+void Player::render_frame(){
+	//animations->render_current(state, const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate);
 }
 
 void Player::update_position(float timedelta){

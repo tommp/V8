@@ -1,12 +1,12 @@
-#include "headers/animation_set.h"
+#include "animation_set.h"
 
 Animation_set::Animation_set(){
 	/* Smile and wave boys! */
 }
 
-void Animation_set::render_current(const std::string& name, const glm::vec3& position){
+void Animation_set::render_current(const std::string& name, const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate){
 	if (animations.find(name) != animations.end()) {
-		animations[name]->render_current(position);
+		animations[name]->render_current(position, size, color, rotate);
 	}
 	else{
 		errorlogger("ERROR: No animation for current state in Animation_set: ", name.c_str());
@@ -22,25 +22,16 @@ bool Animation_set::load_from_file(Resource_manager& resource_manager, const std
 		return false;
 	}
 	
-	std::string filename_txt = WORLD_ANIMATION_SETS.find(name)->second;
-	std::ifstream animation_names(filename_txt.c_str());
-
-	if(animation_names.is_open()){
-		std::string animation_name;
-		while (std::getline(animation_names, animation_name)){	
-			Animation_ptr new_animation = resource_manager.load_animation(animation_name);
-			if (! new_animation) {
-				errorlogger("ERROR: Failed to load animation in Animation_set, animation name was: ", animation_name.c_str());
+	for (auto it = WORLD_ANIMATION_SETS.find(name)->second.begin(); it != WORLD_ANIMATION_SETS.find(name)->second.end(); ++it) {
+		Animation_ptr new_animation = resource_manager.load_animation(*it);
+			if (!new_animation) {
+				errorlogger("ERROR: Failed to load animation in Animation_set, animation name was: ", (*it).c_str());
+				std::cout << "ERROR: Failed to load animation in Animation_set, animation name was: " << (*it).c_str() <<std::endl;
+				return false;
 			}	
 			else{
-				animations.insert({animation_name, new_animation});
+				animations.insert({(*it), new_animation});
 			}
-		}
-	}
-	else{
-		errorlogger("ERROR: Unable to open file in Animation_set::load_from_file: ", filename_txt.c_str());
-		std::cout << "ERROR: Unable to open file in Animation_set::load_from_file: " << filename_txt << std::endl;
-		return false;
 	}
 	return true;
 }

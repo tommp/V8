@@ -1,4 +1,20 @@
-#include "headers/resource_manager.h"
+#include "resource_manager.h"
+
+Shader_ptr Resource_manager::load_shader(const std::string& name){
+	if (shaders.find(name) != shaders.end()){
+		return shaders[name];
+	}
+	else{
+		Shader_ptr new_shader = std::make_shared<Shader>();
+		if ( !(new_shader->load_from_file(name)) ){
+			std::cout << "ERROR: Resource manager failed to load new shader: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new shader: ", name.c_str());
+			return nullptr;
+		}
+		shaders.insert({name, new_shader});
+		return new_shader;
+	}
+}
 
 Texture_ptr Resource_manager::load_texture(const std::string& name){
 	if (textures.find(name) != textures.end()){

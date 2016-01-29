@@ -32,7 +32,7 @@ private:
 public:
 	World(Resource_manager& manager, Button_mappings& map);
 	bool check_if_colliding(const Character* a, const Character* b)const;
-	bool check_if_colliding(const Character* a, const SDL_Rect* b)const;
+	bool check_if_offscreen(const Character* a)const;
 	void update_positions(float timedelta);
 
 	/* Sort group using insertion sort (since it will be nearly sorted most of the time) */

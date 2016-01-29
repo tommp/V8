@@ -6,9 +6,9 @@
 /*---------------------------------------------*/
 #include "glm.h"
 #include "errorlogger.h"
-#include "mesh.h"
 #include "utility.h"
 #include "texture.h"
+#include "frame.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
 
@@ -33,17 +33,17 @@ class Resource_manager;
 
 class Animation{
 	private:
-		Mesh_ptr mesh;
-		std::vector<GLuint> frame_durations;
+		std::vector<Frame> frames;
 
-		unsigned int current_frame;
-		unsigned int current_frame_end;
+		GLuint num_frames;
+		GLuint current_frame;
+		GLuint current_frame_end;
 		bool reverse_looping;
 		bool going_forward;
 	public:
 		Animation();
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
-		void render_current(const glm::vec3& position);
+		void render_current(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate);
 		void reset_animation();
 };
 

@@ -1,4 +1,4 @@
-#include "headers/animation.h"
+#include "animation.h"
 
 Animation::Animation() {
 	current_frame_end = 0;
@@ -25,33 +25,37 @@ bool Animation::load_from_file(Resource_manager& resource_manager, const std::st
 	contentf.seekg(datapos);
 
 	/* READ ANIMATION DATA HERE */
+	contentf.read(reinterpret_cast<char *>(num_frames), sizeof(GLuint));
+	contentf.read(reinterpret_cast<char *>(reverse_looping), sizeof(bool));
+	contentf.read(reinterpret_cast<char *>(num_frames), sizeof(GLuint));
+	
 
 	/* ======================== */
 	
 	contentf.close();
-
+	/*
 	mesh = resource_manager.load_mesh(WORLD_ANIMATIONS.find(name)->second.second);
 	if(!mesh) {
 		errorlogger("Unable to load mesh from resource handler: ", name.c_str());
 		std::cout << "Unable to load mesh from resource handler: " << name.c_str() << std::endl;
 		return false;
 	}
+	*/
 	current_frame = 0;
-	current_frame_end = SDL_GetTicks() + frame_durations[current_frame];
+	current_frame_end = SDL_GetTicks() + frames[current_frame].get_duration();
 	return true;
 }
 
 void Animation::reset_animation(){
 	current_frame = 0;
-	current_frame_end = SDL_GetTicks() + frame_durations[current_frame];
+	current_frame_end = SDL_GetTicks() + frames[current_frame].get_duration();
 }
 
-void Animation::render_current(const glm::vec3& position){
-	/*
+void Animation::render_current(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate){
 	if( SDL_GetTicks() > current_frame_end ){
 		if(going_forward) {
 			current_frame++;
-			if( current_frame == set_size-1) {
+			if( current_frame == num_frames-1) {
 				if(!reverse_looping){
 					current_frame = 0;
 				}
@@ -67,12 +71,11 @@ void Animation::render_current(const glm::vec3& position){
 				going_forward = true;
 			}
 		}
-		
-		current_frame_end = SDL_GetTicks() + frame_durations[current_frame];
-	}*/
+		current_frame_end = SDL_GetTicks() + frames[current_frame].get_duration();
+	}
 
 	/* RENDER HERE */
-	mesh->render_mesh(position);
+	frames[current_frame].render(position, size, color, rotate);
 	/* =========== */
 
 }
