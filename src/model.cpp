@@ -4,9 +4,9 @@ Model::Model(){
 	shader = nullptr;
 }
 
-void Model::render_model(const glm::vec3& position, const glm::vec3& size, GLfloat rotate)const{
+void Model::render_model(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const{
 	for (auto mesh : meshes) {
-		mesh->render_mesh(shader, position, size, rotate);
+		mesh->render_mesh(shader, position, size, direction);
 	}
 }
 

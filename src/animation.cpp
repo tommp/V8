@@ -53,20 +53,25 @@ bool Animation::load_from_file(Resource_manager& resource_manager, const std::st
 	return true;
 }
 
+void Animation::animate(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
+	update_state();
+	render_frame(position, size, direction);
+}
+
 void Animation::reset_animation(){
 	current_frame = 0;
 	current_frame_end = SDL_GetTicks() + frames[current_frame].get_duration();
 }
 
-void Animation::render_frame(const glm::vec3& position, const glm::vec3& size, GLfloat rotate)const{
-	frames[current_frame].render(position, size, rotate);
+void Animation::render_frame(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const{
+	frames[current_frame].render(position, size, direction);
 }
 
 void Animation::update_state(){
 	if( SDL_GetTicks() > current_frame_end ){
 		if(going_forward) {
 			current_frame++;
-			if( current_frame == num_frames-1) {
+			if( current_frame == num_frames) {
 				if(!reverse_looping){
 					current_frame = 0;
 				}

@@ -22,7 +22,6 @@ class Cube: public Character{
 private:
 	glm::vec3 last_pos;
 	glm::vec3 velocity;
-	glm::vec3 acceleration;
 
 	unsigned int speed;
 	unsigned int last_move;
@@ -30,7 +29,7 @@ private:
 public:
 	Cube(Resource_manager& manager);
 	~Cube();
-	void render_frame();
+	void render_frame()const;
 	void update_position(float timedelta);
 	void touch_character(Character& character);
 };

@@ -1,31 +1,30 @@
 #include "mobs.h"
 
 Cube::Cube(Resource_manager& manager){
-	std::string anim = "cube_movement";
-	state = {"cube"};
-	if ( !(animations = manager.load_animation_set(anim) ) ){
-		std::cout << "ERROR: Slime_blob constructor failed to load animation set: " << anim << std::endl;
-		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim.c_str());
+	std::string anim_set = "cube";
+	state = {"cube_walk"};
+	if ( !(animations = manager.load_animation_set(anim_set) ) ){
+		std::cout << "ERROR: Slime_blob constructor failed to load animation set: " << anim_set << std::endl;
+		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim_set.c_str());
 	}
-	speed = 50;
-	position[0] = (rand() + 20) % (10000 - 20);
-	position[1] = (rand() + 20) % (10000 - 20);
-	position[2] = 0;
+	speed = 30.0f;
+	position[0] = rand() % 2001;
+	position[1] = 0;
+	position[2] = rand() % 2001;
 
-	acceleration = {0, 0, 0};
-	velocity = {0, 0, 0};
+	velocity = {0.0f, 0.0f, 0.0f};
 
 	last_move = SDL_GetTicks();
 	move_duration = rand()%1000;
-	size = {TILESIZE, TILESIZE, TILESIZE};
+	size = {6.0f, 6.0f, 6.0f};
 }
 
 Cube::~Cube(){
 	
 }
 
-void Cube::render_frame(){
-	//animations->render_current(state, const glm::vec3& position, const glm::vec3& size, GLfloat rotate);
+void Cube::render_frame()const{
+	animations->render_current(state, position, size, direction);
 }
 
 void Cube::update_position(float timedelta){
@@ -35,15 +34,20 @@ void Cube::update_position(float timedelta){
 	}
 	else if(SDL_GetTicks() > last_move + (2*move_duration)){
 		velocity[0] = rand()%3 - 1;
-		velocity[1] = rand()%3 - 1;
+		velocity[2] = rand()%3 - 1;
 		last_move = SDL_GetTicks();
 		move_duration = rand()%1000;
+		if(glm::length(velocity)){
+			velocity = glm::normalize(velocity);
+			direction = velocity;
+			velocity *= speed;
+		}
 	}
 
 	last_pos = position;
 
-	position[0] += velocity[0] * speed * timedelta;
-	position[0] += velocity[1] * speed * timedelta;
+	position[0] += velocity[0] * timedelta;
+	position[2] += velocity[2] * timedelta;
 
 }
 

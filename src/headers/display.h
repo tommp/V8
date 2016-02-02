@@ -24,10 +24,9 @@
 
 const unsigned int OPENGL_MAJOR_VERSION =	3;
 const unsigned int OPENGL_MINOR_VERSION =	3;
-const unsigned int SCREEN_HEIGHT =			640;
-const unsigned int SCREEN_WIDTH	=			1280;
+const unsigned int SCREEN_HEIGHT =			320;
+const unsigned int SCREEN_WIDTH	=			640;
 
-const int RENDERING_SLACK = 				100;
 const glm::vec4 CLEARCOLOR = 				{1.0, 0.0, 1.0, 1.0};
 
 class Display{

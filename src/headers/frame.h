@@ -29,8 +29,8 @@ private:
 	GLuint frame_duration;
 public:
 	Frame(const Model_ptr frame_model, GLuint duration);
-	GLuint get_duration(){return frame_duration;};
-	void render(const glm::vec3& position, const glm::vec3& size, GLfloat rotate)const;
+	GLuint get_duration()const{return frame_duration;};
+	void render(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
 };
 /*=============================================*/
 

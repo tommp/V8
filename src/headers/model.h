@@ -32,7 +32,7 @@ class Model {
 		Shader_ptr shader;
 	public:
 		Model();
-		void render_model(const glm::vec3& position, const glm::vec3& size, GLfloat rotate)const;
+		void render_model(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
 		bool load_from_file(Resource_manager& manager, const std::string& name);
 };
 

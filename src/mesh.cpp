@@ -46,7 +46,7 @@ bool Mesh::load_from_file(const Resource_manager& resource_manager, const std::s
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 	
 	/* Color */
-	glDisableVertexAttribArray(1);
+	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, color));
 	
 	/* TexCoord attribute */
@@ -71,18 +71,19 @@ bool Mesh::load_from_file(const Resource_manager& resource_manager, const std::s
 	return true;
 }
 
-void Mesh::render_mesh(const Shader_ptr& shader, const glm::vec3& position, const glm::vec3& size, GLfloat rotate){
+void Mesh::render_mesh(const Shader_ptr& shader, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
 	glm::mat4 model;
-	model = glm::translate(model, {0.0f,0.0f,0.0f});  
-	
+	model = glm::translate(model, position);  
+
+	GLfloat dot = glm::dot(direction, MESH_DIRECTION);
+	GLfloat det =  MESH_DIRECTION.x*direction.z - MESH_DIRECTION.z*direction.x;
+	GLfloat rotation = -1 * glm::atan(det, dot);
+
     //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
-    //model = glm::rotate(model, rotate, glm::vec3(0.0f, 1.0f, 0.0f)); 
+    model = glm::rotate(model, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
     //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
 
-    //model = glm::scale(model, glm::vec3(size)); 
-  
-    
-    //model = glm::rotate(model, 20.0f, glm::vec3(1.0f, 0.3f, 0.5f));
+    model = glm::scale(model, glm::vec3(size)); 
 
     shader->use_shader_and_set_matrix4("model", model);
 

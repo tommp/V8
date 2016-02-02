@@ -3,10 +3,10 @@
 Display::Display(){
 	/* Init to standard settings as a fallback */
 	if (!load_settings()) {
-		ortographic = false;
+		ortographic = true;
 		mouse_visible = false;
 		use_vsync = true;
-		use_fullscreen = false;
+		use_fullscreen = true;
 		width = SCREEN_WIDTH;
 		height = SCREEN_HEIGHT;
 		screen_width = 0;
@@ -17,8 +17,6 @@ Display::Display(){
 		
 		save_settings();
 	}
-
-	update_projection_matrix();
 	
 	/* Initialize the window */
 	if(!init_window()){
@@ -34,6 +32,8 @@ Display::Display(){
 		exit(EXIT_FAILURE);
 	}
 
+	update_projection_matrix();
+
 	/*Disables pesky screensavers while our wonderful graphics are beeing displayed*/
 	SDL_DisableScreenSaver();
 	clear();
@@ -41,11 +41,10 @@ Display::Display(){
 
 void Display::update_projection_matrix(){
 	if (ortographic) {
-		/* TODO: FIND THE ERROR; NO WORKING!! */
-		projection = glm::ortho(0.0f, (GLfloat)SCREEN_WIDTH, 0.0f, (GLfloat)SCREEN_WIDTH, 0.1f, 100.0f);
+		projection = glm::ortho(0.0f, (GLfloat)width, 0.0f, (GLfloat)height, 0.1f, 3000.0f);
 	}
 	else{
-		projection = glm::perspective(45.0f, (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 0.1f, 100.0f);
+		projection = glm::perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 3000.0f);
 	}
 }
 

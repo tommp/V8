@@ -33,7 +33,7 @@ class Level {
 		vector<vector<vector<Tile>>> level_tiles;
 
 	public:
-		Level(int init_width, int init_height, int init_depth, const glm::vec3& pos, const glm::vec3& targ, const glm::vec3& w_up);
+		Level(int init_width, int init_height, int init_depth);
 
 		int get_width()const { return width; };
 		int get_height()const { return height; };

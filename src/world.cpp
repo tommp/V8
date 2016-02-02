@@ -2,9 +2,15 @@
 
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
-	current_level = std::make_shared<Level>(Level(10000, 10000, 1000, {0.f, 30.f, 30.f}, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f}));
+	current_level = std::make_shared<Level>(Level(2000, 2000, 200));
 	Character* player = new Player(init_manager);
 	add_player(player);
+
+
+	for (int i = 0; i < 200; i++) {
+		Character* cube = new Cube(init_manager);
+		insert_character(cube);
+	}
 }
 
 World::~World() {
@@ -155,6 +161,10 @@ void World::update_groups(){
 void World::render_world()const{
 	for (auto player : players) {
 		player->render_frame();
+	}
+
+	for (auto character : characters) {
+		character->render_frame();
 	}
 }
 

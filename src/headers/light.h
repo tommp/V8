@@ -1,24 +1,32 @@
-#ifndef GLM_H
-#define GLM_H
+#ifndef LIGHT_H
+#define LIGHT_H
 
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "glm.h"
+#include "errorlogger.h"
+#include "utility.h"
+#include "actor.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
-/* Must be before includes */
-#define GLM_FORCE_RADIANS
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/rotate_vector.hpp>
+#include <iostream>
+#include <SDL2/SDL.h>
+#include <GL/glew.h>
+#include <string>
+#include <unistd.h>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
+class Light : public Actor {
+private:
+	glm::vec3 color;
+public:
+
+};
 /*=============================================*/
 
 #endif

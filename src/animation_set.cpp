@@ -3,9 +3,9 @@
 Animation_set::Animation_set(){
 }
 
-void Animation_set::render_current(const std::string& name, const glm::vec3& position, const glm::vec3& size, GLfloat rotate)const{
+void Animation_set::render_current(const std::string& name, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const{
 	if (animations.find(name) != animations.end()) {
-		animations.find(name)->second->render_frame(position, size, rotate);
+		animations.find(name)->second->animate(position, size, direction);
 	}
 	else{
 		errorlogger("ERROR: No animation for current state in Animation_set: ", name.c_str());

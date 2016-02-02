@@ -35,7 +35,7 @@ class Animation_set {
 		std::unordered_map<std::string, Animation_ptr> animations;
 	public:
 		Animation_set();
-		void render_current(const std::string& name, const glm::vec3& position, const glm::vec3& size, GLfloat rotate)const;
+		void render_current(const std::string& name, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
 };
 

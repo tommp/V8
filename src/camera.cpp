@@ -1,8 +1,7 @@
 #include "camera.h"
 
 Camera::Camera(){
-	position = glm::vec3(30.0f, 30.0f, 30.0f);
-	init_position = glm::vec3(30.0f, 30.0f, 30.0f);
+	position = glm::vec3(0.0f, 30.0f, 30.0f);
 	target = glm::vec3(0.0f, 0.0f, 0.0f);
 	world_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -11,26 +10,24 @@ Camera::Camera(){
 	camera_up = glm::cross(camera_direction, right);
 
 	view = glm::lookAt(position, position - camera_direction, camera_up);
+	offset = {-(SCREEN_WIDTH / 2.0f), 10.0f, (SCREEN_HEIGHT / 2.0f)};
+
+	ortographic = true;
 }
 
-Camera::Camera(const glm::vec3& pos, const glm::vec3& targ, const glm::vec3& w_up){
-	position = pos;
-	init_position = pos;
-	target = targ;
-	world_up = w_up;
-
-	camera_direction = glm::normalize(position + target);
-	right = glm::normalize(glm::cross(world_up, camera_direction));
-	camera_up = glm::cross(camera_direction, right);
-	view = glm::lookAt(position, position - camera_direction, camera_up);
+void Camera::set_relative_position(const glm::vec3& pos){
+	if(!ortographic){
+		position =  pos;
+	}
+	else{
+		position = pos + offset;
+	}
+	
 }
 
 void Camera::update_view_matrix() {
-	std::cout << position.x << " : " << position.y << " : " << position.z << std::endl;
-	//camera_direction = glm::normalize(position + target);
-	//right = glm::normalize(glm::cross(world_up, camera_direction));
-	//camera_up = glm::cross(camera_direction, right);
-	view = glm::lookAt(position, position - camera_direction, camera_up);
+	//std::cout << position.x << " : " << position.y << " : " << position.z << std::endl;
+	view = glm::lookAt(position, position - camera_direction, world_up);
 }
 
 void Camera::upload_view_matrix(GLuint matrix_uniform_buffer){

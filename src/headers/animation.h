@@ -46,7 +46,8 @@ class Animation{
 	public:
 		Animation();
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
-		void render_frame(const glm::vec3& position, const glm::vec3& size, GLfloat rotate)const;
+		void render_frame(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
+		void animate(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction);
 		void reset_animation();
 		void update_state();
 		GLuint ret_frame(){return current_frame;};
