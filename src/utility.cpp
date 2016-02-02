@@ -30,13 +30,13 @@ bool load_binary_image(const std::string& name, unsigned char* image, GLuint* wi
 		return false;
 	}
 
-	if (WORLD_IMAGES.find(name) == WORLD_IMAGES.end()){
+	if (ENGINE_IMAGES.find(name) == ENGINE_IMAGES.end()){
 		errorlogger("ERROR: No image in image_map with keyname: ", name.c_str());
 		std::cout << "ERROR: No image in image_map with keyname: " << name.c_str() << std::endl;
 		return false;
 	}
 
-	GLuint datapos = WORLD_IMAGES.find(name)->second;
+	GLuint datapos = ENGINE_IMAGES.find(name)->second;
 
 	contentf.seekg(datapos);
 	contentf.read(reinterpret_cast<char *>(width), sizeof(GLuint));
@@ -58,18 +58,32 @@ bool load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, st
 		return false;
 	}
 
-	if (WORLD_MESHES.find(name) == WORLD_MESHES.end()){
+	if (ENGINE_MESHES.find(name) == ENGINE_MESHES.end()){
 		errorlogger("ERROR: No image in mesh_map with keyname: ", name.c_str());
 		std::cout << "ERROR: No image in mesh_map with keyname: " << name.c_str() << std::endl;
 		return false;
 	}
 
-	GLuint datapos = WORLD_MESHES.find(name)->second.first;
+	GLuint datapos = ENGINE_MESHES.find(name)->second.first;
 
 	contentf.seekg(datapos);
 
 	/* LOAD VERTICES AND INDICES FROM FILE HERE */
+	Vertex vertex;
+	GLuint index;
+	unsigned int vsize;
+	unsigned int isize;
 
+	contentf.read(reinterpret_cast<char *>(&vsize), sizeof(unsigned int));
+	contentf.read(reinterpret_cast<char *>(&isize), sizeof(unsigned int));
+	for (unsigned int i = 0; i < vsize; i++) {
+		contentf.read(reinterpret_cast<char *>(&vertex), sizeof(Vertex));
+		vertices.push_back(vertex);
+	}
+	for (unsigned int i = 0; i < isize; i++) {
+		contentf.read(reinterpret_cast<char *>(&index), sizeof(GLuint));
+		indices.push_back(index);
+	}
 	/* ======================================== */
 
 	contentf.close();

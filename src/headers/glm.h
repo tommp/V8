@@ -8,6 +8,7 @@
 
 /*Included dependencies*/
 /*---------------------------------------------*/
+/* Must be before includes */
 #define GLM_FORCE_RADIANS
 
 #include <glm/glm.hpp>

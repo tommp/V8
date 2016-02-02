@@ -3,7 +3,7 @@
 Display::Display(){
 	/* Init to standard settings as a fallback */
 	if (!load_settings()) {
-		ortographic = true;
+		ortographic = false;
 		mouse_visible = false;
 		use_vsync = true;
 		use_fullscreen = false;
@@ -18,37 +18,47 @@ Display::Display(){
 		save_settings();
 	}
 
-	set_projection_matrix();
+	update_projection_matrix();
 	
 	/* Initialize the window */
 	if(!init_window()){
-		std::cout << "ERROR: Failed to Initialize display!" << std::endl;
-		errorlogger("ERROR: Failed to Initialize display!");
+		std::cout << "ERROR: Failed to Initialize display window!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize display window!");
 		exit(EXIT_FAILURE);
 	}
 
 	/* Initialize opengl */
 	if(!init_openGL()){
-		std::cout << "ERROR: Failed to Initialize display!" << std::endl;
-		errorlogger("ERROR: Failed to Initialize display!");
+		std::cout << "ERROR: Failed to Initialize display openGL!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize display openGL!");
 		exit(EXIT_FAILURE);
 	}
 
 	/*Disables pesky screensavers while our wonderful graphics are beeing displayed*/
 	SDL_DisableScreenSaver();
+	clear();
 }
 
-void Display::set_projection_matrix(){
+void Display::update_projection_matrix(){
 	if (ortographic) {
-		projection = glm::ortho(0.0f, (GLfloat)width, 0.0f, (GLfloat)height, 0.1f, 100.0f);
+		/* TODO: FIND THE ERROR; NO WORKING!! */
+		projection = glm::ortho(0.0f, (GLfloat)SCREEN_WIDTH, 0.0f, (GLfloat)SCREEN_WIDTH, 0.1f, 100.0f);
 	}
 	else{
-		projection = glm::perspective(45.0f, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
+		projection = glm::perspective(45.0f, (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 0.1f, 100.0f);
 	}
 }
 
-void Display::upload_projection_matrix(const Shader_ptr program){
-	program->set_matrix4("projection", projection);
+void Display::upload_projection_matrix(GLuint matrix_uniform_buffer){
+	glBindBuffer(GL_UNIFORM_BUFFER, matrix_uniform_buffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
+
+	if(check_ogl_error()) {
+		std::cout << "ERROR: Failed to upload projection matix!" << std::endl;
+		errorlogger("ERROR: Failed to upload projection matix!");
+		exit(EXIT_FAILURE);
+	}
 }
 
 bool Display::save_settings(){
@@ -116,7 +126,7 @@ bool Display::init_window(){
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OPENGL_MINOR_VERSION);
 
 	/*Initializes a window to render graphics in*/
-	window = SDL_CreateWindow("Cradlands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("V8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if (window == nullptr){
 		SDLerrorLogger("SDL_CreateWindow");
 		std::cout<<"ERROR: Failed to create SDL window, see errorlog for details."<<std::endl;
@@ -133,6 +143,10 @@ bool Display::init_window(){
 
 	if(use_fullscreen){
 		enable_fullscreen();
+	}
+
+	if(use_vsync) {
+		enable_vsync();
 	}
 
 	if (!mouse_visible) {
@@ -179,22 +193,46 @@ bool Display::init_openGL(){
 	glewExperimental = GL_TRUE;
 
 	/* Initialize GLEW to setup the OpenGL Function pointers */
-	glewInit();
+	GLenum err = glewInit();
+	if (err){
+		std::cout << "ERROR: Failed to Initialize GLEW in Display::init_openGL()!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize GLEW in Display::init_openGL()!");
+		return false;
+	}
+	/* Discard all errors set by glewinit */
+	check_ogl_error();
 
-	// Define the viewport dimensions
+	/* Define the viewport dimensions
 	glViewport(0, 0, width, height);
+	if(check_ogl_error()) {
+		std::cout << "ERROR: Failed to Initialize viewport in Display::init_openGL(): " << glewGetErrorString(err) << std::endl;
+		errorlogger("ERROR: Failed to Initialize viewport in Display::init_openGL(): ", (const char*)glewGetErrorString(err));
+		return false;
+	}*/
 
 	/* Setup OpenGL options */
 	glEnable(GL_DEPTH_TEST);
+	if(check_ogl_error()) {
+		std::cout << "ERROR: Failed to Initialize depth testing in Display::init_openGL()!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize depth testing in Display::init_openGL()!");
+		return false;
+	}
 
 	/* Initialize clear color */
-	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glClearColor(CLEARCOLOR[0], CLEARCOLOR[1], CLEARCOLOR[2], CLEARCOLOR[3]);
+	if(check_ogl_error()) {
+		std::cout << "ERROR: Failed to Initialize clearcolour in Display::init_openGL()!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize clearcolour in Display::init_openGL()!");
+		return false;
+	}
 
 	if(check_ogl_error()) {
 		std::cout << "ERROR: Failed to Initialize openGL in Display::init_openGL()!" << std::endl;
 		errorlogger("ERROR: Failed to Initialize openGL in Display::init_openGL()!");
 		return false;
 	}
+
+	std::cout << "OpenGL initialized! Version: " << glGetString(GL_VERSION) << "\n\n\n\n\n" << std::endl;
 
 	return true;
 }

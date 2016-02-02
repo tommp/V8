@@ -10,6 +10,7 @@
 #include "errorlogger.h"
 #include "utility.h"
 #include "texture.h"
+#include "resource_manager.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -25,6 +26,8 @@
 /*=============================================*/
 using std::vector;
 
+class Resource_manager;
+
 class Mesh {
 	private:
 		GLuint VBO;
@@ -32,14 +35,12 @@ class Mesh {
 		GLuint EBO;
 
 		GLuint num_vertices;
-
-		Shader_ptr shader;
 	public:
 		Mesh();
-		Mesh(Shader_ptr init_shader);
-		bool load_from_file(const std::string& name);
+		~Mesh();
 		void free_mesh();
-		void render_mesh(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate);
+		bool load_from_file(const Resource_manager& resource_manager, const std::string& name);
+		void render_mesh(const Shader_ptr& shader, const glm::vec3& position, const glm::vec3& size, GLfloat rotate);
 };
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;

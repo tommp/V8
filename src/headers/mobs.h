@@ -3,9 +3,9 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "glm.h"
 #include "character.h"
 #include "animation.h"
-#include "glm.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -29,6 +29,7 @@ private:
 	unsigned int move_duration;
 public:
 	Cube(Resource_manager& manager);
+	~Cube();
 	void render_frame();
 	void update_position(float timedelta);
 	void touch_character(Character& character);

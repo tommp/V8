@@ -7,7 +7,7 @@
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
-#include "mesh.h"
+#include "model.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -20,13 +20,17 @@
 
 /*Header content*/
 /*=============================================*/
+class Model;
+typedef std::shared_ptr<Model> Model_ptr;
+
 class Frame{
 private:
-	Mesh_ptr mesh;
+	Model_ptr model;
 	GLuint frame_duration;
 public:
+	Frame(const Model_ptr frame_model, GLuint duration);
 	GLuint get_duration(){return frame_duration;};
-	void render(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate);
+	void render(const glm::vec3& position, const glm::vec3& size, GLfloat rotate)const;
 };
 /*=============================================*/
 

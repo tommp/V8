@@ -1,7 +1,7 @@
 #include "state_handler.h"
 
-State_handler::State_handler(Button_mappings* map){
-	mappings = map;
+State_handler::State_handler(const Resource_manager& init_manager){
+	manager = &init_manager;
 	game_running = true;
 	menu_open = false;
 	paused = false;
@@ -15,7 +15,7 @@ void State_handler::handle_events(){
 	            game_running = false;
 	        }
 	        else if( ehandler.type == SDL_KEYDOWN ){
-	        	if (ehandler.key.keysym.scancode == mappings->quit) {
+	        	if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", QUIT)) {
 	        		game_running = false;
 	        	}
 	        }

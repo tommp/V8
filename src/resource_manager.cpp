@@ -1,5 +1,40 @@
 #include "resource_manager.h"
 
+Resource_manager::Resource_manager(){
+
+	/* Initialize matrix uniform buffer */
+	GLuint uniform_buffer_matrices;
+	glGenBuffers(1, &uniform_buffer_matrices);
+	  
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_matrices);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 1, uniform_buffer_matrices, 0, 2 * sizeof(glm::mat4));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		errorlogger("ERROR: Failed to initialize matrix uniform buffer in resource manager!");
+		std::cout << "ERROR: Failed to initialize matrix uniform buffer in resource manager! " << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	uniform_buffers["matrices"] = uniform_buffer_matrices;
+
+	/* Initialize button mappings (TODO::read from settings later) */
+	button_mappings["player"] = Button_mappings();
+}
+
+GLuint Resource_manager::get_uniform_buffer(const std::string& name)const{
+	if(uniform_buffers.find(name) != uniform_buffers.end()){
+		return uniform_buffers.find(name)->second;
+	}
+	else{
+		errorlogger("ERROR: Uniform buffer not availiable; ", name.c_str());
+		std::cout << "ERROR: Uniform buffer not availiable; " << std::endl;
+		exit(EXIT_FAILURE);
+		return -1;
+	}
+};
+
 Shader_ptr Resource_manager::load_shader(const std::string& name){
 	if (shaders.find(name) != shaders.end()){
 		return shaders[name];
@@ -34,17 +69,33 @@ Texture_ptr Resource_manager::load_texture(const std::string& name){
 
 Mesh_ptr Resource_manager::load_mesh(const std::string& name){
 	if (meshes.find(name) != meshes.end()){
-		return meshes[name];
+		return meshes.find(name)->second;
 	}
 	else{
 		Mesh_ptr new_mesh = std::make_shared<Mesh>();
-		if ( !(new_mesh->load_from_file(name)) ){
+		if ( !(new_mesh->load_from_file(*this, name)) ){
 			std::cout << "ERROR: Resource manager failed to load new mesh: " << name << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new mesh: ", name.c_str());
 			return nullptr;
 		}
 		meshes.insert({name, new_mesh});
 		return new_mesh;
+	}
+}
+
+Model_ptr Resource_manager::load_model(const std::string& name){
+	if (models.find(name) != models.end()){
+		return models[name];
+	}
+	else{
+		Model_ptr new_model = std::make_shared<Model>();
+		if ( !(new_model->load_from_file(*this, name)) ){
+			std::cout << "ERROR: Resource manager failed to load new model: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new model: ", name.c_str());
+			return nullptr;
+		}
+		models.insert({name, new_model});
+		return new_model;
 	}
 }
 

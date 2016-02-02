@@ -43,15 +43,16 @@ GLuint Shader::create_shader(const char* filename, GLenum type) {
 
     /* Create the shader */
     GLuint res = glCreateShader(type);
-    const GLchar* sources[] = {"#version 120\n", source};
+    const GLchar* sources[] = {OPENGL_VERSION, source};
     glShaderSource(res, 2, sources, NULL);
 
     /* Delete the buffered source code */
     free((void*)source);
-    
+
     /* Compile the shader */
     GLint compile_ok = GL_FALSE;
     glCompileShader(res);
+
     glGetShaderiv(res, GL_COMPILE_STATUS, &compile_ok);
     if (compile_ok == GL_FALSE) {
         print_log(res);
@@ -84,7 +85,7 @@ bool Shader::load_from_file(const std::string& name){
     GLuint fragment_shader = create_shader(fragment_shader_path, GL_FRAGMENT_SHADER);
     if(!fragment_shader) {
         errorlogger("ERROR: Failed to create fragment_shader: ", fragment_shader_path);
-        std::cout << "ERROR: Failed to create fragment shader: " << vertex_shader_path << std::endl;
+        std::cout << "ERROR: Failed to create fragment shader: " << fragment_shader_path << std::endl;
         return false;
     }
 
@@ -107,18 +108,34 @@ bool Shader::load_from_file(const std::string& name){
     /* Delete the linked shaders */
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
+
+    if(check_ogl_error()){
+        errorlogger("ERROR: Failed to delete bound shaders in shader load_from_file()!");
+        std::cout << "Failed to delete bound shaders in shader load_from_file()" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    /* Bind the uniform buffer object for view and projection matrices */
+    GLuint uniform_block_index_matrices = glGetUniformBlockIndex(program, "Matrices");
+    glUniformBlockBinding(program, uniform_block_index_matrices, 1);
+    if(check_ogl_error()){
+        errorlogger("ERROR: Failed to bind matrix uniform buffer in shader load_from_file()!");
+        std::cout << "Failed to bind matrix uniform buffer in shader load_from_file()" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     return true;
 }
 
-void Shader::set_matrix4(const char* uniform, const glm::mat4& matrix){
-    GLint matrix_location = glGetUniformLocation(program, uniform);
+void Shader::use_shader_and_set_matrix4(const char* uniform, const glm::mat4& matrix){
     use();
+    GLint matrix_location = glGetUniformLocation(program, uniform);
     glUniformMatrix4fv(matrix_location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void Shader::set_vector4f(const char* uniform, const glm::vec4& vector){
-    GLint vector_location = glGetUniformLocation(program, uniform);
+void Shader::use_shader_and_set_vector4f(const char* uniform, const glm::vec4& vector){
     use();
+    GLint vector_location = glGetUniformLocation(program, uniform);
     glUniform4f(vector_location, vector[0], vector[1], vector[2], vector[3]);
 }
 
@@ -134,13 +151,14 @@ void Shader::print_log(GLuint object) {
         return;
     }
 
-    char* log = (char*)malloc(log_length);
+    char* logger= (char*)malloc(log_length);
     
     if (glIsShader(object))
-        glGetShaderInfoLog(object, log_length, NULL, log);
+        glGetShaderInfoLog(object, log_length, NULL, logger);
     else if (glIsProgram(object))
-        glGetProgramInfoLog(object, log_length, NULL, log);
+        glGetProgramInfoLog(object, log_length, NULL, logger);
     
-    errorlogger("Shader compilation ERROR: ", log);
-    free(log);
+    errorlogger("ERROR: Shader compilation failed: ", logger);
+    std::cout <<  "ERROR: Shader compilation failed: " << logger << std::endl;
+    free(logger);
 }

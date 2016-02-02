@@ -5,7 +5,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "errorlogger.h"
-#include "button_mappings.h"
+#include "resource_manager.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -21,13 +21,13 @@ private:
 	/* Main event handler */
 	SDL_Event ehandler;
 
-	Button_mappings* mappings;
+	const Resource_manager* manager;
 
 	bool game_running;
 	bool menu_open;
 	bool paused;
 public:
-	State_handler(Button_mappings* map);
+	State_handler(const Resource_manager& init_manager);
 	void handle_events();
 	bool game_is_running(){return game_running;};
 };

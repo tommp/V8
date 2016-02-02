@@ -17,13 +17,15 @@ Cube::Cube(Resource_manager& manager){
 
 	last_move = SDL_GetTicks();
 	move_duration = rand()%1000;
-	width = TILESIZE;
-	height = TILESIZE;
-	depth = TILESIZE;
+	size = {TILESIZE, TILESIZE, TILESIZE};
+}
+
+Cube::~Cube(){
+	
 }
 
 void Cube::render_frame(){
-	//animations->render_current(state, const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate);
+	//animations->render_current(state, const glm::vec3& position, const glm::vec3& size, GLfloat rotate);
 }
 
 void Cube::update_position(float timedelta){

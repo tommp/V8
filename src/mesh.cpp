@@ -4,17 +4,13 @@ Mesh::Mesh(){
 	VBO = 0;
 	VAO = 0;
 	EBO = 0;
-	shader = nullptr;
 }
 
-Mesh::Mesh(Shader_ptr init_shader){
-	VBO = 0;
-	VAO = 0;
-	EBO = 0;
-	shader = init_shader;
+Mesh::~Mesh(){
+	free_mesh();
 }
 
-bool Mesh::load_from_file(const std::string& name){
+bool Mesh::load_from_file(const Resource_manager& resource_manager, const std::string& name){
 
 	/* Get rid of preexisting mesh */
 	if( VBO != 0 ){
@@ -38,7 +34,6 @@ bool Mesh::load_from_file(const std::string& name){
   
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), 
 				 &vertices[0], GL_STATIC_DRAW);/* TODO::CHANGE STATIC DRAW?? */
 
@@ -51,15 +46,15 @@ bool Mesh::load_from_file(const std::string& name){
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 	
 	/* Color */
-	glEnableVertexAttribArray(1);
+	glDisableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, color));
 	
 	/* TexCoord attribute */
-	glEnableVertexAttribArray(2);
+	glDisableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tex_coords));
 
 	/* Normal attribute */
-	glEnableVertexAttribArray(3);
+	glDisableVertexAttribArray(3);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
 
 	/* Unbind */
@@ -76,22 +71,32 @@ bool Mesh::load_from_file(const std::string& name){
 	return true;
 }
 
-void Mesh::render_mesh(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate){
+void Mesh::render_mesh(const Shader_ptr& shader, const glm::vec3& position, const glm::vec3& size, GLfloat rotate){
 	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(position));  
+	model = glm::translate(model, {0.0f,0.0f,0.0f});  
+	
+    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
+    //model = glm::rotate(model, rotate, glm::vec3(0.0f, 1.0f, 0.0f)); 
+    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
 
-    model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
-    model = glm::rotate(model, rotate, glm::vec3(0.0f, 0.0f, 1.0f)); 
-    model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
-
-    model = glm::scale(model, glm::vec3(size)); 
+    //model = glm::scale(model, glm::vec3(size)); 
   
-    shader->set_matrix4("model", model);
-    shader->set_vector4f("color", color);
+    
+    //model = glm::rotate(model, 20.0f, glm::vec3(1.0f, 0.3f, 0.5f));
+
+    shader->use_shader_and_set_matrix4("model", model);
 
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+    glDrawElements(GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0);
+    //glDrawArrays(GL_TRIANGLES, 0, num_vertices);
     glBindVertexArray(0);
+    
+    /* Check for errors */
+	if(check_ogl_error()){
+		errorlogger("ERROR: Failed to render mesh!");
+		std::cout << "ERROR: Failed to render mesh!" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 }
 
 void Mesh::free_mesh(){

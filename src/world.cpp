@@ -1,6 +1,16 @@
 #include "world.h"
 
-World::World(Resource_manager& manager, Button_mappings& map){
+World::World(Resource_manager& init_manager){
+	manager = &init_manager;
+	current_level = std::make_shared<Level>(Level(10000, 10000, 1000, {0.f, 30.f, 30.f}, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f}));
+	Character* player = new Player(init_manager);
+	add_player(player);
+}
+
+World::~World() {
+	for (auto player : players) {
+		delete player;
+	}
 }
 
 bool World::check_if_colliding(const Character* a, const Character* b)const{
@@ -41,8 +51,8 @@ bool World::check_if_offscreen(const Character* a)const{
 	return false;
 }
 
-void World::update_positions(float timedelta){
-
+void World::update_positions(GLfloat timedelta){
+	
 	for (auto it = players.begin(); it != players.end(); it++) {
 		(*it)->update_position(timedelta);
 	}
@@ -53,6 +63,8 @@ void World::update_positions(float timedelta){
 	if(!players.empty()){
 		current_level->center_camera(players.front());
 	}
+	current_level->get_camera_pointer()->update_view_matrix();
+	current_level->get_camera_pointer()->upload_view_matrix(manager->get_uniform_buffer("matrices"));
 }
 
 void World::sort_group(std::list<Character*>& list){
@@ -138,8 +150,12 @@ void World::update_groups(){
 	}
 }
 
-void World::render_world(){
-	
+
+
+void World::render_world()const{
+	for (auto player : players) {
+		player->render_frame();
+	}
 }
 
 bool World::insert_character(Character* character){

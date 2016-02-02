@@ -5,9 +5,10 @@
 #include <string>
 #include <vector>
 
-const std::unordered_map<std::string, std::vector<std::string>> WORLD_ANIMATION_SETS = {
-	{"player_test", {"player_walk", "player_fire"}},
-	{"cube_test", {"cube_walk"}},
+/* Animation sets, name as the key, vector of animations as the value */
+const std::unordered_map<std::string, std::vector<std::string>> ENGINE_ANIMATION_SETS = {
+	{"player", {"player_test", }},
+	{"cube_test", {"cube_walk", }},
 };
 
 #endif

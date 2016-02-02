@@ -5,6 +5,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "errorlogger.h"
+#include "keys.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -16,8 +17,7 @@
 /*Header content*/
 /*=============================================*/
 class Button_mappings{
-	public:
-		/* Player 1 control */
+	private:
 		SDL_Keycode up;
 		SDL_Keycode down;
 		SDL_Keycode left;
@@ -31,8 +31,9 @@ class Button_mappings{
 		SDL_Keycode a3;
 		SDL_Keycode a4;
 
-		/* Global commands */
 		SDL_Keycode quit;
+	public:
+		SDL_Keycode get_key(const Key& key)const;
 		Button_mappings();
 };
 /*=============================================*/

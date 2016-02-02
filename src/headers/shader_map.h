@@ -5,7 +5,8 @@
 #include <string>
 
 const std::unordered_map<std::string, std::pair<std::string, std::string>> WORLD_SHADERS = {
-	{"test_shader", {"./data/shaders/vertex_base.vs", "./data/shaders/fragment_base.fs"}},
+	{"base_shader", {"../data/shaders/vertex_base.vs", "../data/shaders/fragment_base.fs"}},
+	{"test_shader", {"../data/shaders/vertex_test.vs", "../data/shaders/fragment_test.fs"}},
 };
 
 #endif

@@ -4,17 +4,18 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "animation_set_map.h"
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
 #include "resource_manager.h"
-#include "texture.h"
 #include "animation.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <SDL2/SDL.h>
+#include <string>
 #include <unistd.h>
 #include <list>
 #include <fstream>
@@ -34,7 +35,7 @@ class Animation_set {
 		std::unordered_map<std::string, Animation_ptr> animations;
 	public:
 		Animation_set();
-		void render_current(const std::string& name, const glm::vec3& position, const glm::vec3& size, const glm::vec4& color, GLfloat rotate);
+		void render_current(const std::string& name, const glm::vec3& position, const glm::vec3& size, GLfloat rotate)const;
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
 };
 

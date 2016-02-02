@@ -1,4 +1,4 @@
-program_EXECUTABLE := ./v
+program_EXECUTABLE := ../v
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))

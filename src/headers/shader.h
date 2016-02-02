@@ -6,6 +6,7 @@
 #include "glm.h"
 #include "errorlogger.h"
 #include "shader_map.h"
+#include "utility.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -25,6 +26,7 @@
 
 /* STATIC LINKAGE, CHANGE TO DYNAMIC LATER */
 #define GLEW_STATIC
+#define OPENGL_VERSION "#version 330 core\n"
 
 class Shader{
 private:
@@ -37,8 +39,8 @@ public:
 	GLuint create_shader(const char* filename, GLenum type);
 	void print_log(GLuint object);
 	void use(){glUseProgram(program);};
-	void set_matrix4(const char* uniform, const glm::mat4& matrix);
-    void set_vector4f(const char* uniform, const glm::vec4& vector);
+	void use_shader_and_set_matrix4(const char* uniform, const glm::mat4& matrix);
+    void use_shader_and_set_vector4f(const char* uniform, const glm::vec4& vector);
 };
 
 typedef std::shared_ptr<Shader> Shader_ptr;

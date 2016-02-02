@@ -5,7 +5,6 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "errorlogger.h"
-#include "button_mappings.h"
 #include "contact.h"
 #include "mobs.h"
 #include "player.h"
@@ -24,13 +23,15 @@
 /*=============================================*/
 class World {
 private:
-	Level* current_level;
+	Level_ptr current_level;
+	Resource_manager* manager;
 	std::list<Character*> players;
 	std::list<Character*> characters;
 	std::forward_list<Character*> dormant_characters;
 	std::forward_list<Contact> contacts;
 public:
-	World(Resource_manager& manager, Button_mappings& map);
+	World(Resource_manager& init_manager);
+	~World();
 	bool check_if_colliding(const Character* a, const Character* b)const;
 	bool check_if_offscreen(const Character* a)const;
 	void update_positions(float timedelta);
@@ -51,7 +52,7 @@ public:
 
 	void resolve_collisions();
 	void update_groups();
-	void render_world();
+	void render_world()const;
 };
 /*=============================================*/
 

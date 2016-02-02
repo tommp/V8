@@ -5,7 +5,7 @@ bool Character::operator<(const Character& b){
 		return true;
 	}
 	else if (this->position[2] == b.get_z()){
-		if ( (position[1]+height) < (b.get_y() + b.get_height() ) ){
+		if ( (position[1]+size[1]) < (b.get_y() + b.get_height() ) ){
 			return true;
 		}
 		return false;

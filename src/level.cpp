@@ -11,7 +11,8 @@ Level::Level(int init_width, int init_height, int init_depth, const glm::vec3& p
 void Level::center_camera(const Actor* target) {
 	/* Center on the actor collision box */
 	if(target){
-		camera.set_position(target->get_position());
+		camera.set_position(*target->get_position());
+		camera.set_target(*target->get_position());
 		/* Keep the camera in bounds */
 		/*
 		glm::vec3* cam_pos = camera.get_position();

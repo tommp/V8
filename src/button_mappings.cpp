@@ -15,3 +15,21 @@ Button_mappings::Button_mappings(){
 
 	quit = SDL_SCANCODE_ESCAPE;
 }
+
+SDL_Keycode Button_mappings::get_key(const Key& key)const{
+	switch(key){
+		case UP: return up;
+		case DOWN: return down;
+		case LEFT: return left;
+		case RIGHT: return right;
+		case JUMP: return jump;
+		case INTERACT: return interact;
+		case MENU: return menu;
+		case A0: return a0;
+		case A1: return a1;
+		case A2: return a2;
+		case A3: return a3;
+		case QUIT: return quit;
+		default: return menu;
+	}
+}
