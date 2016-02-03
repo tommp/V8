@@ -24,8 +24,8 @@
 
 const unsigned int OPENGL_MAJOR_VERSION =	3;
 const unsigned int OPENGL_MINOR_VERSION =	3;
-const unsigned int SCREEN_HEIGHT =			320;
-const unsigned int SCREEN_WIDTH	=			640;
+const unsigned int SCREEN_HEIGHT =			640;
+const unsigned int SCREEN_WIDTH	=			1280;
 
 const glm::vec4 CLEARCOLOR = 				{1.0, 0.0, 1.0, 1.0};
 
@@ -55,8 +55,8 @@ class Display{
 		bool enable_fullscreen();
 		bool enable_vsync();
 		bool disable_vsync();
-		void update_projection_matrix();
 
+		void update_projection_matrix();
 		void upload_projection_matrix(GLuint matrix_uniform_buffer);
 
 		void clear(){glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);};

@@ -1,7 +1,7 @@
 #include "texture.h"
 
 Texture::Texture(){
-	/* Initialize to zero */
+	/* Initialize */
 	glGenTextures(1, &texture);
 	width = 0;
 	height = 0;
@@ -40,7 +40,7 @@ bool Texture::load_from_file(const std::string& name){
 	/* Create and bind texture from image data */
 	glBindTexture(GL_TEXTURE_2D, texture); 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	glGenerateMipmap(GL_TEXTURE_2D);/* TODO: Remove this if using ortographic projection */
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

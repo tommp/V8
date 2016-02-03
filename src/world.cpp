@@ -2,7 +2,7 @@
 
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
-	current_level = std::make_shared<Level>(Level(2000, 2000, 200));
+	current_level = std::make_shared<Level>(Level(4000, 4000, 200));
 	Character* player = new Player(init_manager);
 	add_player(player);
 

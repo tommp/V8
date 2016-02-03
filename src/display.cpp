@@ -6,7 +6,7 @@ Display::Display(){
 		ortographic = true;
 		mouse_visible = false;
 		use_vsync = true;
-		use_fullscreen = true;
+		use_fullscreen = false;
 		width = SCREEN_WIDTH;
 		height = SCREEN_HEIGHT;
 		screen_width = 0;

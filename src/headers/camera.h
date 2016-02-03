@@ -22,6 +22,7 @@
 /*=============================================*/
 class Camera {
 private:
+	glm::vec3 init_position;
 	glm::vec3 position;
 	glm::vec3 target;
 	glm::vec3 world_up;
@@ -32,22 +33,31 @@ private:
 
 	glm::vec3 offset;
 	glm::mat4 view;
-	bool ortographic;
 public:
 	Camera();
 	const glm::mat4* get_view_matrix() {return &view;};
 	void update_view_matrix();
 	void upload_view_matrix(GLuint matrix_uniform_buffer);
+	void focus_target(const glm::vec3& focus_target);
 	void set_target(const glm::vec3& targ) {target = targ;};
-	void set_relative_position(const glm::vec3& pos);
+	void set_position(const glm::vec3& pos){position = pos;};
 	void set_world_up(const glm::vec3& w_up) {world_up = w_up;};
 
 	GLfloat get_x(){return position.x;};
 	GLfloat get_y(){return position.y;};
 	GLfloat get_z(){return position.z;};
-	void set_x(GLfloat newx){position[0] = newx;};
-	void set_y(GLfloat newy){position[1] = newy;};
-	void set_z(GLfloat newz){position[2] = newz;};
+	GLfloat get_ox(){return offset.x;};
+	GLfloat get_oy(){return offset.y;};
+	GLfloat get_oz(){return offset.z;};
+	GLfloat get_tx(){return target.x;};
+	GLfloat get_ty(){return target.y;};
+	GLfloat get_tz(){return target.z;};
+	void set_x(GLfloat newx){position[0] = newx + init_position[0] + offset[0];};
+	void set_y(GLfloat newy){position[1] = newy + init_position[1] + offset[1];};
+	void set_z(GLfloat newz){position[2] = newz + init_position[2] + offset[2];};
+	void set_tx(GLfloat newx){target[0] = newx + offset[0];};
+	void set_ty(GLfloat newy){target[1] = newy + offset[1];};
+	void set_tz(GLfloat newz){target[2] = newz + offset[2];};
 
 };
 /*=============================================*/

@@ -8,15 +8,15 @@ Cube::Cube(Resource_manager& manager){
 		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim_set.c_str());
 	}
 	speed = 30.0f;
-	position[0] = rand() % 2001;
+	position[0] = rand() % 4001;
 	position[1] = 0;
-	position[2] = rand() % 2001;
+	position[2] = rand() % 4001;
 
 	velocity = {0.0f, 0.0f, 0.0f};
 
 	last_move = SDL_GetTicks();
 	move_duration = rand()%1000;
-	size = {6.0f, 6.0f, 6.0f};
+	size = {20.0f, 20.0f, 20.0f};
 }
 
 Cube::~Cube(){

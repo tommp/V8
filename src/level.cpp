@@ -11,21 +11,24 @@ Level::Level(int init_width, int init_height, int init_depth){
 void Level::center_camera(const Actor* target) {
 	/* Center on the actor collision box */
 	if(target){
-		camera.set_relative_position(*target->get_position());
-		camera.set_target(*target->get_position());
+		camera.focus_target(*target->get_position());
 
 		/* Keep the camera in bounds */
-		if( camera.get_x() < 0.0f ) { 
-			camera.set_x(0.0f);
+		if( target->get_position()->x < (SCREEN_WIDTH/2.0f) ) { 
+			camera.set_x(SCREEN_WIDTH/2.0f);
+			camera.set_tx(SCREEN_WIDTH/2.0f);
 		}
-		if( camera.get_z() - SCREEN_HEIGHT  < 0.0f ) {
-			camera.set_z(SCREEN_HEIGHT);
+		if( target->get_position()->z < (SCREEN_HEIGHT/2.0f) ) {
+			camera.set_z(SCREEN_HEIGHT/2.0f);
+			camera.set_tz(SCREEN_HEIGHT/2.0f);
 		}
-		if( camera.get_x() + SCREEN_WIDTH  > width) {
-			camera.set_x(width - SCREEN_WIDTH);
+		if( (target->get_position()->x + (SCREEN_WIDTH/2.0f)) > width) {
+			camera.set_x(width - (SCREEN_WIDTH/2.0f));
+			camera.set_tx(width - (SCREEN_WIDTH/2.0f));
 		}
-		if( camera.get_z() > height) {
-			camera.set_z(height);
+		if( (target->get_position()->z + (SCREEN_HEIGHT/2.0f)) > height) {
+			camera.set_z(height - (SCREEN_HEIGHT/2.0f));
+			camera.set_tz(height - (SCREEN_HEIGHT/2.0f));
 		}
 		
 	}
