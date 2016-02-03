@@ -9,6 +9,7 @@
 #include "actor.h"
 #include "tiles.h"
 #include "display.h"
+#include "light.h"
 #include "camera.h"
 /*---------------------------------------------*/
 
@@ -31,6 +32,7 @@ class Level {
 
 		Camera camera;
 		vector<vector<vector<Tile>>> level_tiles;
+		vector<Light> lights;
 
 	public:
 		Level(int init_width, int init_height, int init_depth);

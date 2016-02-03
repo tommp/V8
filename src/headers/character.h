@@ -20,6 +20,7 @@ class Character: public Actor{
 	protected:
 		Animation_set_ptr animations;
 		std::string state;
+		glm::vec3 collision_ellipse;
 	public:
 		virtual ~Character(){};
 		virtual void update_position(float timedelta) = 0;
