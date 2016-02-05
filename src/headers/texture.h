@@ -31,25 +31,19 @@ class Texture
         /*Image dimensions*/
         GLuint width;
         GLuint height;
+        GLuint channels;
 
         /* Image format */
         GLint format;
     public:
-        /*Initializes variables*/
         Texture();
-
-        /*Deallocates memory*/
         ~Texture();
-
-        /*Deallocates texture*/
         void free_texture();
         void use(const std::string& uniform_name, GLuint texture_unit, const Shader_ptr& shader);
 
-        /*Loads image at specified path*/
         bool load_from_file(const std::string& name);
-        bool load_binary_image(const std::string& name, unsigned char* image);
+        unsigned char* load_binary_image(const std::string& name);
 
-        /*Gets image dimensions*/
         int get_width()const{return width;};
         int get_height()const{return height;};
 };

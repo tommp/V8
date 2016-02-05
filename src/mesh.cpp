@@ -32,8 +32,8 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 	/* LOAD VERTICES AND INDICES FROM FILE HERE */
 	Vertex vertex;
 	GLuint index;
-	unsigned int vsize;
-	unsigned int isize;
+	unsigned int vsize = 0;
+	unsigned int isize = 0;
 
 	contentf.read(reinterpret_cast<char *>(&vsize), sizeof(unsigned int));
 	contentf.read(reinterpret_cast<char *>(&isize), sizeof(unsigned int));
@@ -68,7 +68,7 @@ bool Mesh::load_from_file(Resource_manager& resource_manager, const std::string&
 		return false;
 	}
 
-	//material = resource_manager.load_material(ENGINE_MESHES.find(name)->second.second);
+	material = resource_manager.load_material(ENGINE_MESHES.find(name)->second.second);
 
 	num_vertices = vertices.size();
 
@@ -90,11 +90,11 @@ bool Mesh::load_from_file(Resource_manager& resource_manager, const std::string&
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 	
 	/* Normal attribute */
-	glDisableVertexAttribArray(3);
+	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
 
 	/* TexCoord attribute */
-	glDisableVertexAttribArray(2);
+	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tex_coords));
 
 	/* Unbind */
@@ -127,7 +127,7 @@ void Mesh::render_mesh(const Shader_ptr& shader, const glm::vec3& position, cons
 
     shader->use_shader_and_set_matrix4("model", model);
 
-    //material->use(shader);
+    material->use(shader);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0);

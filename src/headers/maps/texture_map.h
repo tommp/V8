@@ -5,17 +5,11 @@
 #include <string>
 
 const std::unordered_map<std::string, unsigned int> ENGINE_TEXTURES = {
-	{"arm_dif", 0},
-	{"body_dif", 1048588},
-	{"glass_dif", 2097176},
-	{"hand_dif", 2113572},
-	{"helmet_dif", 3162160},
-	{"leg_dif", 4210748},
-	{"nskinbl", 5259336},
-	{"nskinbr", 5521492},
-	{"nskingr", 5783648},
-	{"nskinrd", 6045804},
-	{"nskinwh", 6307960},
+	{"nskinbl", 0},
+	{"nskinbr", 786448},
+	{"nskingr", 1572896},
+	{"nskinrd", 2359344},
+	{"nskinwh", 3145792},
 };
 
 #endif

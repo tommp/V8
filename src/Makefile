@@ -11,7 +11,7 @@ OPENGL_LIB = -lGLEW -lGL
 SDL_LIB = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx -Wl,-rpath=/usr/local/lib
 program_INCLUDE_DIRS := $(current_path)/headers/ $(current_path)/headers/maps/
 program_LIBRARY_DIRS :=
-program_LIBRARIES :=  m
+program_LIBRARIES := m 
 
 LDFLAGS += $(SDL_LIB)
 LDFLAGS += $(OPENGL_LIB)
