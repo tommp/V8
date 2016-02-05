@@ -10,7 +10,49 @@ Mesh::~Mesh(){
 	free_mesh();
 }
 
-bool Mesh::load_from_file(const Resource_manager& resource_manager, const std::string& name){
+bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices){
+	std::ifstream contentf (MESH_DATA_PATH, std::ios::binary);
+
+	if (!contentf.is_open()){
+		errorlogger("ERROR: Failed to open content file for mesh data!");
+		std::cout << "ERROR: Failed to open content file for mesh data!" << std::endl;
+		return false;
+	}
+
+	if (ENGINE_MESHES.find(name) == ENGINE_MESHES.end()){
+		errorlogger("ERROR: No image in mesh_map with keyname: ", name.c_str());
+		std::cout << "ERROR: No image in mesh_map with keyname: " << name << std::endl;
+		return false;
+	}
+
+	GLuint datapos = ENGINE_MESHES.find(name)->second.first;
+
+	contentf.seekg(datapos);
+
+	/* LOAD VERTICES AND INDICES FROM FILE HERE */
+	Vertex vertex;
+	GLuint index;
+	unsigned int vsize;
+	unsigned int isize;
+
+	contentf.read(reinterpret_cast<char *>(&vsize), sizeof(unsigned int));
+	contentf.read(reinterpret_cast<char *>(&isize), sizeof(unsigned int));
+	for (unsigned int i = 0; i < vsize; i++) {
+		contentf.read(reinterpret_cast<char *>(&vertex), sizeof(Vertex));
+		vertices.push_back(vertex);
+	}
+	for (unsigned int i = 0; i < isize; i++) {
+		contentf.read(reinterpret_cast<char *>(&index), sizeof(GLuint));
+		indices.push_back(index);
+	}
+	/* ======================================== */
+
+	contentf.close();
+
+	return true;
+}
+
+bool Mesh::load_from_file(Resource_manager& resource_manager, const std::string& name){
 
 	/* Get rid of preexisting mesh */
 	if( VBO != 0 ){
@@ -25,6 +67,8 @@ bool Mesh::load_from_file(const Resource_manager& resource_manager, const std::s
 		std::cout << "ERROR: Error propogation from load_binary_mesh(..) when loading keyname: " << name.c_str() << std::endl;
 		return false;
 	}
+
+	//material = resource_manager.load_material(ENGINE_MESHES.find(name)->second.second);
 
 	num_vertices = vertices.size();
 
@@ -45,17 +89,13 @@ bool Mesh::load_from_file(const Resource_manager& resource_manager, const std::s
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 	
-	/* Color */
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, color));
-	
+	/* Normal attribute */
+	glDisableVertexAttribArray(3);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
+
 	/* TexCoord attribute */
 	glDisableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tex_coords));
-
-	/* Normal attribute */
-	glDisableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
 
 	/* Unbind */
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -86,6 +126,8 @@ void Mesh::render_mesh(const Shader_ptr& shader, const glm::vec3& position, cons
     model = glm::scale(model, glm::vec3(size)); 
 
     shader->use_shader_and_set_matrix4("model", model);
+
+    //material->use(shader);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0);

@@ -1,10 +1,10 @@
-#ifndef IMAGE_MAP_H
-#define IMAGE_MAP_H
+#ifndef TEXTURE_MAP_H
+#define TEXTURE_MAP_H
 
 #include <unordered_map>
 #include <string>
 
-const std::unordered_map<std::string, unsigned int> ENGINE_IMAGES = {
+const std::unordered_map<std::string, unsigned int> ENGINE_TEXTURES = {
 	{"arm_dif", 0},
 	{"body_dif", 1048588},
 	{"glass_dif", 2097176},

@@ -6,8 +6,10 @@
 /*---------------------------------------------*/
 #include "vertex.h"
 #include "shader.h"
+#include "mesh_map.h"
 #include "glm.h"
 #include "errorlogger.h"
+#include "material.h"
 #include "utility.h"
 #include "texture.h"
 #include "resource_manager.h"
@@ -30,6 +32,8 @@ using std::vector;
 const glm::vec3 MESH_DIRECTION = {0.0f, 0.0f, -1.0f};
 
 class Resource_manager;
+class Material;
+typedef std::shared_ptr<Material> Material_ptr;
 
 class Mesh {
 	private:
@@ -38,12 +42,23 @@ class Mesh {
 		GLuint EBO;
 
 		GLuint num_vertices;
+
+		Material_ptr material;
 	public:
 		Mesh();
 		~Mesh();
 		void free_mesh();
-		bool load_from_file(const Resource_manager& resource_manager, const std::string& name);
-		void render_mesh(const Shader_ptr& shader, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction);
+
+		bool load_binary_mesh(const std::string& name, 
+							std::vector<Vertex>& vertices, 
+							std::vector<GLuint>& indices);
+
+		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
+		
+		void render_mesh(const Shader_ptr& shader, 
+							const glm::vec3& position, 
+							const glm::vec3& size, 
+							const glm::vec3& direction);
 };
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;

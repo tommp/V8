@@ -4,8 +4,6 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "errorlogger.h"
-#include "image_map.h"
-#include "mesh_map.h"
 #include "vertex.h"
 /*---------------------------------------------*/
 

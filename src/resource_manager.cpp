@@ -67,6 +67,22 @@ Texture_ptr Resource_manager::load_texture(const std::string& name){
 	}
 }
 
+Material_ptr Resource_manager::load_material(const std::string& name){
+	if (materials.find(name) != materials.end()){
+		return materials[name];
+	}
+	else{
+		Material_ptr new_material = std::make_shared<Material>();
+		if ( !(new_material->load_from_file(*this, name)) ){
+			std::cout << "ERROR: Resource manager failed to load new material: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new material: ", name.c_str());
+			return nullptr;
+		}
+		materials.insert({name, new_material});
+		return new_material;
+	}
+}
+
 Mesh_ptr Resource_manager::load_mesh(const std::string& name){
 	if (meshes.find(name) != meshes.end()){
 		return meshes.find(name)->second;

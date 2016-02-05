@@ -6,11 +6,12 @@ World::World(Resource_manager& init_manager){
 	Character* player = new Player(init_manager);
 	add_player(player);
 
-
+	
 	for (int i = 0; i < 200; i++) {
 		Character* cube = new Cube(init_manager);
 		insert_character(cube);
 	}
+	
 }
 
 World::~World() {
