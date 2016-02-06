@@ -41,7 +41,7 @@ class Level {
 		int get_height()const { return height; };
 		int get_depth()const { return depth; };
 
-		void center_camera(const Actor* target);
+		void center_camera(const Actor_ptr target);
 		void render_level();
 		Camera* get_camera_pointer(){ return &camera; };
 

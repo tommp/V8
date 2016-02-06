@@ -8,7 +8,7 @@ Level::Level(int init_width, int init_height, int init_depth){
 	camera = Camera();
 }
 
-void Level::center_camera(const Actor* target) {
+void Level::center_camera(const Actor_ptr target) {
 	/* Center on the actor collision box */
 	if(target){
 		camera.focus_target(*target->get_position());

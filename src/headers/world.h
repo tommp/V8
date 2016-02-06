@@ -6,6 +6,8 @@
 /*---------------------------------------------*/
 #include "errorlogger.h"
 #include "contact.h"
+#include "character.h"
+#include "light.h"
 #include "mobs.h"
 #include "player.h"
 #include "resource_manager.h"
@@ -25,30 +27,30 @@ class World {
 private:
 	Level_ptr current_level;
 	Resource_manager* manager;
-	std::list<Character*> players;
-	std::list<Character*> characters;
-	std::forward_list<Character*> dormant_characters;
+	std::list<Character_ptr> players;
+	std::list<Character_ptr> characters;
+	std::forward_list<Character_ptr> dormant_characters;
 	std::forward_list<Contact> contacts;
+	std::forward_list<Light> contacts;
 public:
 	World(Resource_manager& init_manager);
 	~World();
-	bool check_if_colliding(const Character* a, const Character* b)const;
-	bool check_if_offscreen(const Character* a)const;
+	bool check_if_colliding(const Character_ptr& a, const Character_ptr& b)const;
+	bool check_if_offscreen(const Character_ptr& a)const;
 	void update_positions(float timedelta);
 
-	/* Sort group using insertion sort (since it will be nearly sorted most of the time) */
-	void sort_group(std::list<Character*>& list);
-
 	void detect_all_collisions();
-	void detect_collisions(const std::list<Character*>& a);
-	void detect_collisions(const std::list<Character*>& a, const std::list<Character*>& b);
+	void detect_collisions(const std::list<Character_ptr>& a);
+	void detect_collisions(const std::list<Character_ptr>& a, const std::list<Character_ptr>& b);
 
-	bool insert_player(Character* player);
-	bool add_player(Character* player);
+	bool insert_player(const Character_ptr& player);
+	bool add_player(const Character_ptr& player);
 	
-	bool insert_character(Character* character);
-	bool add_dormant_character(Character* character);
-	bool add_character(Character* character);
+	bool insert_character(const Character_ptr& character);
+	bool add_dormant_character(const Character_ptr& character);
+	bool add_character(const Character_ptr& character);
+
+	void render_lights();
 
 	void resolve_collisions();
 	void update_groups();

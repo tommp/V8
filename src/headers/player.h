@@ -33,6 +33,8 @@ public:
 	void update_position(GLfloat timedelta);
 	void touch_character(Character& character);
 };
+
+typedef std::shared_ptr<Player> Player_ptr;
 /*=============================================*/
 
 #endif

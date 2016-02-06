@@ -33,6 +33,8 @@ public:
 	void update_position(float timedelta);
 	void touch_character(Character& character);
 };
+
+typedef std::shared_ptr<Cube> Cube_ptr;
 /*=============================================*/
 
 #endif

@@ -3,24 +3,21 @@
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
 	current_level = std::make_shared<Level>(Level(4000, 4000, 200));
-	Character* player = new Player(init_manager);
+	Character_ptr player = std::make_shared<Player>(init_manager);
 	add_player(player);
 
 	
 	for (int i = 0; i < 200; i++) {
-		Character* cube = new Cube(init_manager);
+		Character_ptr cube = std::make_shared<Cube>(init_manager);
 		insert_character(cube);
 	}
 	
 }
 
 World::~World() {
-	for (auto player : players) {
-		delete player;
-	}
 }
 
-bool World::check_if_colliding(const Character* a, const Character* b)const{
+bool World::check_if_colliding(const Character_ptr& a, const Character_ptr& b)const{
 
 	if(!a || !b){
 		return false;
@@ -54,7 +51,7 @@ bool World::check_if_colliding(const Character* a, const Character* b)const{
 	return true;
 }
 
-bool World::check_if_offscreen(const Character* a)const{
+bool World::check_if_offscreen(const Character_ptr& a)const{
 	return false;
 }
 
@@ -74,21 +71,6 @@ void World::update_positions(GLfloat timedelta){
 	current_level->get_camera_pointer()->upload_view_matrix(manager->get_uniform_buffer("matrices"));
 }
 
-void World::sort_group(std::list<Character*>& list){
-	for (auto it = list.begin(); it != list.end(); it++) {
-		auto it2 = it;
-		Character* temp;
-
-		while( ( it2 != list.begin() ) && ( (**it2) < (**std::prev(it2)) ) ){
-			temp = *it2;
-			auto prev = std::prev(it2);
-			(*it2) = (*prev);
-			(*prev) = temp;
-			it2--;
-		}
-	}
-}
-
 
 void World::detect_all_collisions() {
 	if (!players.empty()){
@@ -101,7 +83,7 @@ void World::detect_all_collisions() {
 	}
 }
 
-void World::detect_collisions(const std::list<Character*>& a){
+void World::detect_collisions(const std::list<Character_ptr>& a){
 	if (!a.empty()) {
 		for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 			for (auto it_a_2 = it_a; it_a_2 != a.end(); it_a_2++) {
@@ -121,7 +103,7 @@ void World::detect_collisions(const std::list<Character*>& a){
 	}
 }
 
-void World::detect_collisions(const std::list<Character*>& a, const std::list<Character*>& b){
+void World::detect_collisions(const std::list<Character_ptr>& a, const std::list<Character_ptr>& b){
 	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
 		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
 			if(check_if_colliding( *(it_a), *(it_b) )){
@@ -169,7 +151,7 @@ void World::render_world()const{
 	}
 }
 
-bool World::insert_character(Character* character){
+bool World::insert_character(const Character_ptr& character){
 	if (character){
 		characters.push_back(character);
 		return true;
@@ -181,7 +163,7 @@ bool World::insert_character(Character* character){
 	}
 }
 
-bool World::add_dormant_character(Character* character){
+bool World::add_dormant_character(const Character_ptr& character){
 	if(character){
 		dormant_characters.push_front(character);
 		return true;
@@ -193,7 +175,7 @@ bool World::add_dormant_character(Character* character){
 	}
 }
 
-bool World::add_character(Character* character){
+bool World::add_character(const Character_ptr& character){
 	if(character) {
 		if(check_if_offscreen(character)) {
 			return insert_character(character);
@@ -209,7 +191,7 @@ bool World::add_character(Character* character){
 	}
 }
 
-bool World::insert_player(Character* player){
+bool World::insert_player(const Character_ptr& player){
 	if (player){
 		players.push_back(player);	
 		return true;
@@ -222,7 +204,7 @@ bool World::insert_player(Character* player){
 }
 
 
-bool World::add_player(Character* player){
+bool World::add_player(const Character_ptr& player){
 	return insert_player(player);
 }
 

@@ -19,10 +19,10 @@
 /*=============================================*/
 class Contact{
 	private:
-		Actor* a;
-		Actor* b;
+		Actor_ptr a;
+		Actor_ptr b;
 	public:
-		Contact(Actor* c_a, Actor* c_b);
+		Contact(Actor_ptr c_a, Actor_ptr c_b);
 };
 /*=============================================*/
 
