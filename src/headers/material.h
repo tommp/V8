@@ -24,14 +24,15 @@ class Resource_manager;
 
 class Material{
 private:
+	Shader_ptr shader;
 	Texture_ptr diffuse;
 	Texture_ptr specular;
-	Texture_ptr emissive;
 	GLuint shininess;
 public:
 	Material();
+	Shader_ptr get_shader()const{return shader;};
 	bool load_from_file(Resource_manager& manager, const std::string& name);
-	void use(const Shader_ptr& shader);
+	void use();
 };
 
 typedef std::shared_ptr<Material> Material_ptr;

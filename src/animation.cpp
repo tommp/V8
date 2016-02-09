@@ -70,7 +70,7 @@ void Animation::render_frame(const glm::vec3& position, const glm::vec3& size, c
 void Animation::update_state(){
 	if( SDL_GetTicks() > current_frame_end ){
 		if(going_forward) {
-			current_frame++;
+			++current_frame;
 			if( current_frame == num_frames) {
 				if(!reverse_looping){
 					current_frame = 0;

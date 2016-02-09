@@ -1,7 +1,6 @@
 #include "resource_manager.h"
 
 Resource_manager::Resource_manager(){
-
 	/* Initialize matrix uniform buffer */
 	GLuint uniform_buffer_matrices;
 	glGenBuffers(1, &uniform_buffer_matrices);
@@ -21,6 +20,20 @@ Resource_manager::Resource_manager(){
 
 	/* Initialize button mappings (TODO::read from settings later) */
 	button_mappings["player"] = Button_mappings();
+
+	/* Final inits */
+	g_buffer.load_framebuffer(display.get_screen_width(), display.get_screen_height());
+	display.update_projection_matrix();
+    display.upload_projection_matrix(uniform_buffers["matrices"]);
+}
+
+void Resource_manager::use_g_buffer(bool use){
+	if(use){
+		g_buffer.use();
+	}
+	else{
+		g_buffer.disable();
+	}
 }
 
 GLuint Resource_manager::get_uniform_buffer(const std::string& name)const{
@@ -29,7 +42,7 @@ GLuint Resource_manager::get_uniform_buffer(const std::string& name)const{
 	}
 	else{
 		errorlogger("ERROR: Uniform buffer not availiable; ", name.c_str());
-		std::cout << "ERROR: Uniform buffer not availiable; " << std::endl;
+		std::cout << "ERROR: Uniform buffer not availiable, file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 		exit(EXIT_FAILURE);
 		return -1;
 	}
@@ -42,7 +55,7 @@ Shader_ptr Resource_manager::load_shader(const std::string& name){
 	else{
 		Shader_ptr new_shader = std::make_shared<Shader>();
 		if ( !(new_shader->load_from_file(name)) ){
-			std::cout << "ERROR: Resource manager failed to load new shader: " << name << std::endl;
+			std::cout << "ERROR: Resource manager failed to load new shader: " << name << " , file: " << __FILE__ << ", line:" << __LINE__ << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new shader: ", name.c_str());
 			return nullptr;
 		}
@@ -58,7 +71,7 @@ Texture_ptr Resource_manager::load_texture(const std::string& name){
 	else{
 		Texture_ptr new_texture = std::make_shared<Texture>();
 		if ( !(new_texture->load_from_file(name)) ){
-			std::cout << "ERROR: Resource manager failed to load new texture: " << name << std::endl;
+			std::cout << "ERROR: Resource manager failed to load new texture: " << name << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new texture: ", name.c_str());
 			return nullptr;
 		}
@@ -74,7 +87,7 @@ Material_ptr Resource_manager::load_material(const std::string& name){
 	else{
 		Material_ptr new_material = std::make_shared<Material>();
 		if ( !(new_material->load_from_file(*this, name)) ){
-			std::cout << "ERROR: Resource manager failed to load new material: " << name << std::endl;
+			std::cout << "ERROR: Resource manager failed to load new material: " << name << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new material: ", name.c_str());
 			return nullptr;
 		}
@@ -90,7 +103,7 @@ Mesh_ptr Resource_manager::load_mesh(const std::string& name){
 	else{
 		Mesh_ptr new_mesh = std::make_shared<Mesh>();
 		if ( !(new_mesh->load_from_file(*this, name)) ){
-			std::cout << "ERROR: Resource manager failed to load new mesh: " << name << std::endl;
+			std::cout << "ERROR: Resource manager failed to load new mesh: " << name << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new mesh: ", name.c_str());
 			return nullptr;
 		}
@@ -106,7 +119,7 @@ Model_ptr Resource_manager::load_model(const std::string& name){
 	else{
 		Model_ptr new_model = std::make_shared<Model>();
 		if ( !(new_model->load_from_file(*this, name)) ){
-			std::cout << "ERROR: Resource manager failed to load new model: " << name << std::endl;
+			std::cout << "ERROR: Resource manager failed to load new model: " << name << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new model: ", name.c_str());
 			return nullptr;
 		}
@@ -122,7 +135,7 @@ Animation_ptr Resource_manager::load_animation(const std::string& name){
 	else{
 		Animation_ptr new_animation = std::make_shared<Animation>();
 		if ( !(new_animation->load_from_file(*this, name)) ){
-			std::cout << "ERROR: Resource manager failed to load new animation: " << name << std::endl;
+			std::cout << "ERROR: Resource manager failed to load new animation: " << name << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new animation: ", name.c_str());
 			return nullptr;
 		}
@@ -135,7 +148,7 @@ Animation_set_ptr Resource_manager::load_animation_set(const std::string& name){
 	Animation_set_ptr animation_set = std::make_shared<Animation_set>();
 
 	if (!animation_set->load_from_file(*this, name)) {
-		std::cout << "ERROR: Resource manager failed to load new animation: " << name << std::endl;
+		std::cout << "ERROR: Resource manager failed to load new animation: " << name << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 		errorlogger("ERROR: Resource manager failed to load new animation: ", name.c_str());
 		return nullptr;
 	}

@@ -1,6 +1,6 @@
 #include "contact.h"
 
-Contact::Contact(Actor* c_a, Actor* c_b) {
+Contact::Contact(Actor_ptr c_a, Actor_ptr c_b) {
 	a = c_a;
 	b = c_b;
 }

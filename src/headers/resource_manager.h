@@ -9,7 +9,9 @@
 #include "keys.h"
 #include "button_mappings.h"
 #include "shader.h"
+#include "framebuffer.h"
 #include "utility.h"
+#include "display.h"
 #include "texture.h"
 #include "material.h"
 #include "mesh.h"
@@ -23,6 +25,7 @@
 #include <SDL2/SDL.h>
 #include <unistd.h>
 #include <unordered_map>
+#include <array>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -40,6 +43,10 @@ typedef std::shared_ptr<Material> Material_ptr;
 
 class Resource_manager {
 	private:
+
+		Display display;
+		G_Framebuffer g_buffer;
+
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 		std::unordered_map<std::string, Button_mappings> button_mappings;
 
@@ -51,9 +58,13 @@ class Resource_manager {
 		std::unordered_map<std::string, Shader_ptr> shaders;
 	public:
 		Resource_manager();
+		void clear_display(){display.clear();};
+		void present_display(){display.present();};
 
 		GLuint get_uniform_buffer(const std::string& name)const;
 		SDL_Keycode get_button_map_key(const std::string& map_name, const Key& key)const{return button_mappings.find(map_name)->second.get_key(key);};
+		void use_g_buffer(bool use);
+		void bind_g_data(const Shader_ptr& shader){g_buffer.bind_buffer_data(shader);};
 
 		Texture_ptr load_texture(const std::string& name);
 		Material_ptr load_material(const std::string& name);

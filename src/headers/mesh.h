@@ -55,10 +55,9 @@ class Mesh {
 
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
 		
-		void render_mesh(const Shader_ptr& shader, 
-							const glm::vec3& position, 
-							const glm::vec3& size, 
-							const glm::vec3& direction);
+		void render_mesh(const glm::vec3& position, 
+						const glm::vec3& size, 
+						const glm::vec3& direction);
 };
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;

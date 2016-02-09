@@ -42,6 +42,8 @@ const char* gl_error_string(GLenum err);
 
 /* Check for openGL errors and print them to file if detected */
 int check_ogl_error();
+
+void print_framebuffer_error_in_fucking_english();
 /*=============================================*/
 
 #endif

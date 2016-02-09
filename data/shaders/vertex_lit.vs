@@ -23,6 +23,5 @@ void main()
     //Optimize this later
     frag_normal = mat3(transpose(inverse(model))) * normal;  
 
-    //Hacky d0ne this m8
-    frag_tex_coord = vec2(tex_coord.x, 1.0 - tex_coord.y);
+    frag_tex_coord = vec2(tex_coord.x, tex_coord.y);
 } 

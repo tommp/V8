@@ -27,8 +27,8 @@ void Texture::use(const std::string& uniform_name, GLuint texture_unit, const Sh
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(glGetUniformLocation(shader->get_program(), uniform_name.c_str()), texture_unit);
     if(check_ogl_error()) {
-		std::cout << "ERROR: Failed to bind texture from when using: " << uniform_name << std::endl;
-		errorlogger("ERROR: Failed to bind texture from when using: ", uniform_name.c_str());
+		std::cout << "ERROR: Failed to bind texture when using: " << uniform_name << std::endl;
+		errorlogger("ERROR: Failed to bind texture when using: ", uniform_name.c_str());
 	}
 }
 

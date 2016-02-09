@@ -8,6 +8,7 @@
 #include "errorlogger.h"
 #include "utility.h"
 #include "actor.h"
+#include "shader.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -30,22 +31,22 @@ enum Light_type{
 class Light : public Actor {
 protected:
 	Light_type type;
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
 public:
-	virtual void render(const Shader_ptr& shader) = 0;
+	virtual void render_light();
 
 };
 
 struct Directional_light : public Light {
 private:
-	vec3 direction;
+	glm::vec3 direction;
 };
 
 class Point_light : public Light {
 private:
-	vec3 position;
+	glm::vec3 position;
 	
 	float constant;
 	float linear;
@@ -55,8 +56,8 @@ private:
 
 class Spot_light : public Light{
 private:
-	vec3 position;
-	vec3 direction;
+	glm::vec3 position;
+	glm::vec3 direction;
 
 	float cut_off;
 	float outer_cut_off;
@@ -65,6 +66,7 @@ private:
 	float linear;
 	float quadratic;     
 };
+typedef std::shared_ptr<Light> Light_ptr;
 /*=============================================*/
 
 #endif

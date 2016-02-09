@@ -18,11 +18,7 @@ int main(int argc, char** argv){
 
 	/* MAIN VARS */
 	/* ====================================== */
-	Display display;
-
 	Resource_manager resource_manager;
-
-	Button_mappings button_mappings;
 
 	State_handler state_handler(resource_manager);
 
@@ -30,8 +26,6 @@ int main(int argc, char** argv){
 
     Timer cap_timer;
     Timer move_timer;
-    display.update_projection_matrix();
-    display.upload_projection_matrix(resource_manager.get_uniform_buffer("matrices"));
     /* ====================================== */
 
 	/* Main loop */
@@ -58,12 +52,10 @@ int main(int argc, char** argv){
 	    world.resolve_collisions();
 
 	    /* Render to screen */
-	    display.clear();
 	    world.render_world();
-	    display.present();
 	    if(check_ogl_error()){
-			errorlogger("ERROR: Failed to render mesh!");
-			std::cout << "ERROR: Failed to render mesh!" << std::endl;
+			errorlogger("ERROR: Failed to render world!");
+			std::cout << "ERROR: Failed to render world!" << std::endl;
 			exit(EXIT_FAILURE);
 		}
 
@@ -80,7 +72,7 @@ int main(int argc, char** argv){
 	/*=======================================================*/
 
 	/* Store display setings */
-	display.save_settings();
+	//display.save_settings();
     /*Always be sure to clean up*/
     SDL_Quit();
     return 0;

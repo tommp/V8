@@ -2,16 +2,36 @@
 
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
+	light_shader = init_manager.load_shader("light_shader");
 	current_level = std::make_shared<Level>(Level(4000, 4000, 200));
 	Character_ptr player = std::make_shared<Player>(init_manager);
 	add_player(player);
 
 	
-	for (int i = 0; i < 200; i++) {
+	for (int i = 0; i < 200; ++i) {
 		Character_ptr cube = std::make_shared<Cube>(init_manager);
 		insert_character(cube);
 	}
-	
+
+	GLfloat quad_vertices[] = {
+		// Positions        // Texture Coords
+		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	};
+
+	GLuint quad_VBO;
+	glGenVertexArrays(1, &quad_VAO);
+	glGenBuffers(1, &quad_VBO);
+	glBindVertexArray(quad_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quad_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertices), &quad_vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glBindVertexArray(0);
 }
 
 World::~World() {
@@ -57,10 +77,10 @@ bool World::check_if_offscreen(const Character_ptr& a)const{
 
 void World::update_positions(GLfloat timedelta){
 	
-	for (auto it = players.begin(); it != players.end(); it++) {
+	for (auto it = players.begin(); it != players.end(); ++it) {
 		(*it)->update_position(timedelta);
 	}
-	for (auto it = characters.begin(); it != characters.end(); it++) {
+	for (auto it = characters.begin(); it != characters.end(); ++it) {
 		(*it)->update_position(timedelta);
 	}
 
@@ -85,8 +105,8 @@ void World::detect_all_collisions() {
 
 void World::detect_collisions(const std::list<Character_ptr>& a){
 	if (!a.empty()) {
-		for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-			for (auto it_a_2 = it_a; it_a_2 != a.end(); it_a_2++) {
+		for (auto it_a = a.begin(); it_a != a.end(); ++it_a) {
+			for (auto it_a_2 = it_a; it_a_2 != a.end(); ++it_a_2) {
 				if(check_if_colliding( *(it_a), *(it_a_2) )){
 					if (it_a == it_a_2) {
 						continue;
@@ -104,8 +124,8 @@ void World::detect_collisions(const std::list<Character_ptr>& a){
 }
 
 void World::detect_collisions(const std::list<Character_ptr>& a, const std::list<Character_ptr>& b){
-	for (auto it_a = a.begin(); it_a != a.end(); it_a++) {
-		for (auto it_b = b.begin(); it_b != b.end(); it_b++) {
+	for (auto it_a = a.begin(); it_a != a.end(); ++it_a) {
+		for (auto it_b = b.begin(); it_b != b.end(); ++it_b) {
 			if(check_if_colliding( *(it_a), *(it_b) )){
 				contacts.emplace_front( *(it_a), *(it_b) );
 			}
@@ -120,28 +140,34 @@ void World::update_groups(){
 	auto first_it_dormant = dormant_characters.begin();
 	auto before_it_dormant = dormant_characters.before_begin();
 
-	for (auto it = characters.begin(); it != characters.end(); it++){
+	for (auto it = characters.begin(); it != characters.end(); ++it){
 		if( !check_if_offscreen(*it)){
 			add_dormant_character(*it);
 			it = characters.erase(it);
 		}
 	}
 
-	for (auto it = first_it_dormant; it != dormant_characters.end(); it++){
+	for (auto it = first_it_dormant; it != dormant_characters.end(); ++it){
 		if(check_if_offscreen(*it)){
 			insert_character(*it);
 			dormant_characters.erase_after(before_it_dormant);
 			it = before_it_dormant;
 		}
 		else{
-			before_it_dormant++;
+			++before_it_dormant;
 		}
 	}
 }
 
+void World::render_quad()const{
+	glBindVertexArray(quad_VAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
 
-
-void World::render_world()const{
+void World::render_geometry()const{
+	manager->use_g_buffer(true);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	for (auto player : players) {
 		player->render_frame();
 	}
@@ -149,6 +175,37 @@ void World::render_world()const{
 	for (auto character : characters) {
 		character->render_frame();
 	}
+	manager->use_g_buffer(false);
+
+	if(check_ogl_error()){
+		errorlogger("ERROR: Failed to render geometry!");
+		std::cout << "ERROR: Failed torender geometry! File: " << __FILE__ << ", line: " << __LINE__ << std::endl;
+		exit(EXIT_FAILURE);
+	}
+}
+
+void World::render_lights()const{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	light_shader->use();
+	manager->bind_g_data(light_shader);
+
+	for (auto light : lights) {
+		light->render_light();
+	}
+	render_quad();
+
+	if(check_ogl_error()){
+		errorlogger("ERROR: Failed to render lights!");
+		std::cout << "ERROR: Failed to render lights! File: " << __FILE__ << ", line: " << __LINE__ << std::endl;
+		exit(EXIT_FAILURE);
+	}
+}
+
+
+void World::render_world()const{
+	render_geometry();
+	render_lights();
+	manager->present_display();
 }
 
 bool World::insert_character(const Character_ptr& character){

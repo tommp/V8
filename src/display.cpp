@@ -9,8 +9,8 @@ Display::Display(){
 		use_fullscreen = false;
 		width = SCREEN_WIDTH;
 		height = SCREEN_HEIGHT;
-		screen_width = 0;
-		screen_height = 0;
+		screen_width = SCREEN_WIDTH;
+		screen_height = SCREEN_HEIGHT;
 
 		errorlogger("ERROR: Failed to load display settings, restoring defaults.");
 		std::cout << "ERROR: Failed to load display settings, restoring defaults." << std::endl;
@@ -211,6 +211,7 @@ bool Display::init_openGL(){
 
 	/* Setup OpenGL options */
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 	if(check_ogl_error()) {
 		std::cout << "ERROR: Failed to Initialize depth testing in Display::init_openGL()!" << std::endl;
 		errorlogger("ERROR: Failed to Initialize depth testing in Display::init_openGL()!");

@@ -37,11 +37,11 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 
 	contentf.read(reinterpret_cast<char *>(&vsize), sizeof(unsigned int));
 	contentf.read(reinterpret_cast<char *>(&isize), sizeof(unsigned int));
-	for (unsigned int i = 0; i < vsize; i++) {
+	for (unsigned int i = 0; i < vsize; ++i) {
 		contentf.read(reinterpret_cast<char *>(&vertex), sizeof(Vertex));
 		vertices.push_back(vertex);
 	}
-	for (unsigned int i = 0; i < isize; i++) {
+	for (unsigned int i = 0; i < isize; ++i) {
 		contentf.read(reinterpret_cast<char *>(&index), sizeof(GLuint));
 		indices.push_back(index);
 	}
@@ -104,14 +104,14 @@ bool Mesh::load_from_file(Resource_manager& resource_manager, const std::string&
 	/* Check for errors */
 	if(check_ogl_error()){
 		errorlogger("ERROR: Failed to load mesh from file with name: ", name.c_str());
-		std::cout << "ERROR: Failed to load mesh from file with name: " << name << std::endl;
+		std::cout << "ERROR: Failed to load mesh from file with name: " << name << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	return true;
 }
 
-void Mesh::render_mesh(const Shader_ptr& shader, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
+void Mesh::render_mesh(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
 	glm::mat4 model;
 	model = glm::translate(model, position);  
 
@@ -125,9 +125,9 @@ void Mesh::render_mesh(const Shader_ptr& shader, const glm::vec3& position, cons
 
     model = glm::scale(model, glm::vec3(size)); 
 
-    shader->use_shader_and_set_matrix4("model", model);
+    material->get_shader()->use_shader_and_set_matrix4("model", model);
 
-    material->use(shader);
+    material->use();
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0);
@@ -137,7 +137,7 @@ void Mesh::render_mesh(const Shader_ptr& shader, const glm::vec3& position, cons
     /* Check for errors */
 	if(check_ogl_error()){
 		errorlogger("ERROR: Failed to render mesh!");
-		std::cout << "ERROR: Failed to render mesh!" << std::endl;
+		std::cout << "ERROR: Failed to render mesh!" << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }
@@ -150,7 +150,7 @@ void Mesh::free_mesh(){
 	/* Check for errors */
 	if(check_ogl_error()){
 		errorlogger("ERROR: Failed to free mesh!");
-		std::cout << "ERROR: Failed to free mesh!" << std::endl;
+		std::cout << "ERROR: Failed to free mesh!" << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }

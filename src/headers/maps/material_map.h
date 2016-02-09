@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-const std::unordered_map<std::string, std::vector<std::string>> ENGINE_MATERIALS = {
-	{"DefaultMaterial", {"", "", ""}},
-	{"Material0", {"nskingr", "", ""}},
+const std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> ENGINE_MATERIALS = {
+	{"DefaultMaterial", {"geometry_shader", {"nskinbl", "nskinbl"}}},
+	{"Material0", {"geometry_shader", {"nskinbl", "nskinbl"}}},
 };
 
 #endif

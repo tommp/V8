@@ -1,12 +1,11 @@
 //Static for now, until engine shader compilation is more flexible 
-#define NR_DIRECTIONAL_LIGHTS 1
-#define NR_POINT_LIGHTS 50
-#define NR_SPOT_LIGHTS 10
+#define MAX_NR_DIRECTIONAL_LIGHTS 1
+#define MAX_NR_POINT_LIGHTS 50
+#define MAX_NR_SPOT_LIGHTS 10
 
 struct Material {
 	sampler2D diffuse;
 	sampler2D specular;
-	sampler2D emissive;
 	float shininess;
 }; 
 
@@ -55,13 +54,17 @@ out vec4 color;
 uniform Material material;
 
 uniform vec3 view_position;
-uniform Directional_light directional_lights[NR_DIRECTIONAL_LIGHTS];
-uniform Point_light point_lights[NR_POINT_LIGHTS];
-uniform Spot_light spot_lights[NR_SPOT_LIGHTS];
+uniform Directional_light directional_lights[MAX_NR_DIRECTIONAL_LIGHTS];
+uniform Point_light point_lights[MAX_NR_POINT_LIGHTS];
+uniform Spot_light spot_lights[MAX_NR_SPOT_LIGHTS];
 
-// Function prototypes
-vec3 CalcDirectional_light(Directional_light light, vec3 frag_normal, vec3 view_direction);
-vec3 CalcPoint_light(Point_light light, vec3 frag_normal, vec3 frag_position, vec3 view_direction);
+uniform int num_dir_lights;
+uniform int num_point_lights;
+uniform int num_spot_lights;
+
+vec3 calc_directional_light(Directional_light light, vec3 frag_normal, vec3 view_direction);
+vec3 calc_point_light(Point_light light, vec3 frag_normal, vec3 frag_position, vec3 view_direction);
+vec3 calc_spot_light(Spot_light light, vec3 frag_normal, vec3 frag_position, vec3 view_direction);
 
 void main()
 {    
@@ -70,22 +73,22 @@ void main()
 	vec3 view_direction = frag_normalize(view_position - frag_position);
 	vec3 result = vec3(0.0f, 0.0f, 0.0f);
 
-	// Phase 1: Directional lights
-	for(int i = 0; i < NR_DIRECTIONAL_LIGHTS; i++){
-		vec3 result += calc_directional_light(Directional_light, norm, view_direction);
+	for(int i = 0; i < MAX_NR_DIRECTIONAL_LIGHTS; i++){
+		result += calc_directional_light(directional_lights[i], norm, view_direction);
 	}
-	// Phase 2: Point lights
-	for(int i = 0; i < NR_POINT_LIGHTS; i++)
+
+	for(int i = 0; i < MAX_NR_POINT_LIGHTS; i++){
 		result += calc_point_light(point_lights[i], norm, frag_position, view_direction);    
-	// Phase 3: Spot light
-	for(int i = 0; i < NR_SPOT_LIGHTS; i++)
-		result += calc_spot_light(spot_lights[i], norm, frag_position, view_direction);  
-	// result += CalcSpotLight(spotLight, norm, frag_position, view_direction);    
+	}
+
+	for(int i = 0; i < MAX_NR_SPOT_LIGHTS; i++){
+		result += calc_spot_light(spot_lights[i], norm, frag_position, view_direction);     
+	}
 	
 	color = vec4(result, 1.0);
 }
 
-// Calculates the color when using a directional light.
+
 vec3 calc_cirectional_light(Directional_light light, vec3 frag_normal, vec3 view_direction)
 {
 	vec3 light_direction = frag_normalize(-light.direction);
@@ -101,7 +104,6 @@ vec3 calc_cirectional_light(Directional_light light, vec3 frag_normal, vec3 view
 	return (ambient + diffuse + specular);
 }
 
-// Calculates the color when using a point light.
 vec3 calc_point_light(Point_light light, vec3 frag_normal, vec3 frag_position, vec3 view_direction)
 {
 	vec3 light_direction = frag_normalize(light.position - frag_position);
@@ -124,7 +126,6 @@ vec3 calc_point_light(Point_light light, vec3 frag_normal, vec3 frag_position, v
 	return (ambient + diffuse + specular);
 }
 
-// Calculates the color when using a spot light.
 vec3 calc_spot_light(Spot_light light, vec3 frag_normal, vec3 frag_position, vec3 view_direction)
 {
 	vec3 light_direction = normalize(light.position - frag_position); 
