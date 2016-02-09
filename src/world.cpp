@@ -2,36 +2,26 @@
 
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
-	light_shader = init_manager.load_shader("light_shader");
 	current_level = std::make_shared<Level>(Level(4000, 4000, 200));
 	Character_ptr player = std::make_shared<Player>(init_manager);
 	add_player(player);
 
 	
-	for (int i = 0; i < 200; ++i) {
+	for (int i = 0; i < 50; ++i) {
 		Character_ptr cube = std::make_shared<Cube>(init_manager);
 		insert_character(cube);
 	}
-
-	GLfloat quad_vertices[] = {
-		// Positions        // Texture Coords
-		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-	};
-
-	GLuint quad_VBO;
-	glGenVertexArrays(1, &quad_VAO);
-	glGenBuffers(1, &quad_VBO);
-	glBindVertexArray(quad_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertices), &quad_vertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glBindVertexArray(0);
+	
+	for (int i = 0; i < 7; ++i){
+		Light_ptr point_light = std::make_shared<Point_light>();
+		add_light(point_light);
+	}
+	for (int i = 0; i < 7; ++i){
+		Light_ptr spot_light = std::make_shared<Spot_light>();
+		add_light(spot_light);
+	}
+	Light_ptr dir_light = std::make_shared<Directional_light>();
+	add_light(dir_light);
 }
 
 World::~World() {
@@ -75,7 +65,7 @@ bool World::check_if_offscreen(const Character_ptr& a)const{
 	return false;
 }
 
-void World::update_positions(GLfloat timedelta){
+void World::update_positions(GLfloat timedelta, Renderer& renderer){
 	
 	for (auto it = players.begin(); it != players.end(); ++it) {
 		(*it)->update_position(timedelta);
@@ -85,10 +75,8 @@ void World::update_positions(GLfloat timedelta){
 	}
 
 	if(!players.empty()){
-		current_level->center_camera(players.front());
+		renderer.center_camera(players.front(), current_level->get_width(), current_level->get_height());
 	}
-	current_level->get_camera_pointer()->update_view_matrix();
-	current_level->get_camera_pointer()->upload_view_matrix(manager->get_uniform_buffer("matrices"));
 }
 
 
@@ -159,53 +147,66 @@ void World::update_groups(){
 	}
 }
 
-void World::render_quad()const{
-	glBindVertexArray(quad_VAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-}
+void World::render_geometry(Renderer& renderer){
+	renderer.setup_geometry_rendering();
 
-void World::render_geometry()const{
-	manager->use_g_buffer(true);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	for (auto player : players) {
-		player->render_frame();
+		player->render_frame(renderer);
 	}
 
 	for (auto character : characters) {
-		character->render_frame();
+		character->render_frame(renderer);
 	}
-	manager->use_g_buffer(false);
+
+	renderer.detach_geometry_rendering();
 
 	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
 		errorlogger("ERROR: Failed to render geometry!");
-		std::cout << "ERROR: Failed torender geometry! File: " << __FILE__ << ", line: " << __LINE__ << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }
 
-void World::render_lights()const{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	light_shader->use();
-	manager->bind_g_data(light_shader);
+void World::render_lights(const Renderer& renderer)const{
+	renderer.setup_light_rendering();
 
+	GLuint point_count = 0;
+	GLuint dir_count = 0;
+	GLuint spot_count = 0;
+	
 	for (auto light : lights) {
-		light->render_light();
+		switch(light->get_type()){
+			case 0:
+				light->render_light(renderer, dir_count);
+				++dir_count;
+				break;
+			case 1:
+				light->render_light(renderer, point_count);
+				++point_count;
+				break;
+			case 2:
+				light->render_light(renderer, spot_count);
+				++spot_count;
+				break;
+			default:
+				std::cout << "DOFIJNFDFIO" << std::endl;
+				continue;
+		}
 	}
-	render_quad();
 
+	renderer.detach_light_rendering();
 	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");
-		std::cout << "ERROR: Failed to render lights! File: " << __FILE__ << ", line: " << __LINE__ << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }
 
 
-void World::render_world()const{
-	render_geometry();
-	render_lights();
-	manager->present_display();
+void World::render_world(Renderer& renderer){
+	render_geometry(renderer);
+	render_lights(renderer);
+	renderer.present_display();
 }
 
 bool World::insert_character(const Character_ptr& character){
@@ -214,8 +215,8 @@ bool World::insert_character(const Character_ptr& character){
 		return true;
 	}
 	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null Character in world" << std::endl;
 		errorlogger("ERROR: Cannot add null Character in world");
-		std::cout << "ERROR: Cannot add null Character in world" << std::endl;
 		return false;
 	}
 }
@@ -226,8 +227,8 @@ bool World::add_dormant_character(const Character_ptr& character){
 		return true;
 	}
 	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null character in world" << std::endl;
 		errorlogger("ERROR: Cannot add null character in world");
-		std::cout << "ERROR: Cannot add null character in world" << std::endl;
 		return false;
 	}
 }
@@ -242,8 +243,8 @@ bool World::add_character(const Character_ptr& character){
 		}
 	}
 	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null character in world" << std::endl;
 		errorlogger("ERROR: Cannot add null character in world");
-		std::cout << "ERROR: Cannot add null character in world" << std::endl;
 		return false;
 	}
 }
@@ -254,8 +255,20 @@ bool World::insert_player(const Character_ptr& player){
 		return true;
 	}
 	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null player in World" << std::endl;
 		errorlogger("ERROR: Cannot add null player in World");
-		std::cout << "ERROR: Cannot add null player in World" << std::endl;
+		return false;
+	}
+}
+
+bool World::add_light(const Light_ptr& light){
+	if (light){
+		lights.push_front(light);	
+		return true;
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null light in World" << std::endl;
+		errorlogger("ERROR: Cannot add null light in World");
 		return false;
 	}
 }

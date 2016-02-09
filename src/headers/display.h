@@ -1,12 +1,11 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef DISPLAY_H
+#define DISPLAY_H
 
 /*Included headers*/
 /*---------------------------------------------*/
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
-#include "shader.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

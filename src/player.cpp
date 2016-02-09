@@ -6,14 +6,14 @@ Player::Player(Resource_manager& init_manager){
 	state = "player_test";
 	manager = &init_manager;
 	speed = 800.0f;
-	position = {0.0f, -100.0f, 0.0f};
-	size = {22.0f, 34.0f, 22.0f};
+	position = {0.0f, 0.0f, 0.0f};
+	size = {2.0f, 2.0f, 2.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 	velocity = {0.0f, 0.0f, 0.0f};
 }
 
-void Player::render_frame()const{
-	animations->render_current(state, position, size, direction);
+void Player::render_frame(const Renderer& renderer)const{
+	animations->render_current(renderer, state, position, size, direction);
 }
 
 void Player::update_position(GLfloat timedelta){

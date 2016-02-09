@@ -8,8 +8,8 @@
 
 /* World animations, name as the key, file index and model names as the value */
 const std::unordered_map<std::string, std::pair<GLuint, std::vector<std::string>>> ENGINE_ANIMATIONS = {
-	{"cube_walk", {0, {"cube", }}},
-	{"player_test", {5, {"ninja", }}},
+	{"cube_walk", {0, {"portalturret", }}},
+	{"player_test", {5, {"lightning_obj", }}},
 };
 
 #endif

@@ -36,8 +36,8 @@ GLuint Shader::create_shader(const char* filename, GLenum type) {
     /* Load shader code from file */
     const GLchar* source = read_data_from_file(filename);
     if (source == NULL) {
+        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Could not open shader source file with name: " << filename << ": " << SDL_GetError() << std::endl;
         SDLerrorLogger("Shader load_from_file(const char* filename)");
-        std::cout << "Error opening " << filename << ": " << SDL_GetError() << std::endl;
         return 0;
     }
 
@@ -77,15 +77,15 @@ bool Shader::load_from_file(const std::string& name){
     /* create the shaders */
     GLuint vertex_shader = create_shader(vertex_shader_path, GL_VERTEX_SHADER);
     if(!vertex_shader) {
+        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to create vertex shader: " << vertex_shader_path << std::endl;
         errorlogger("ERROR: Failed to create vertex shader: ", vertex_shader_path);
-        std::cout << "ERROR: Failed to create vertex shader: " << vertex_shader_path << std::endl;
         return false;
     }
 
     GLuint fragment_shader = create_shader(fragment_shader_path, GL_FRAGMENT_SHADER);
     if(!fragment_shader) {
+        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to create fragment shader: " << fragment_shader_path << std::endl;
         errorlogger("ERROR: Failed to create fragment_shader: ", fragment_shader_path);
-        std::cout << "ERROR: Failed to create fragment shader: " << fragment_shader_path << std::endl;
         return false;
     }
 
@@ -110,8 +110,8 @@ bool Shader::load_from_file(const std::string& name){
     glDeleteShader(fragment_shader);
 
     if(check_ogl_error()){
+        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to delete bound shaders in shader load_from_file()" << std::endl;
         errorlogger("ERROR: Failed to delete bound shaders in shader load_from_file()!");
-        std::cout << "Failed to delete bound shaders in shader load_from_file()" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -119,8 +119,8 @@ bool Shader::load_from_file(const std::string& name){
     GLuint uniform_block_index_matrices = glGetUniformBlockIndex(program, "Matrices");
     glUniformBlockBinding(program, uniform_block_index_matrices, 1);
     if(check_ogl_error()){
+        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind matrix uniform buffer in shader load_from_file()" << std::endl;
         errorlogger("ERROR: Failed to bind matrix uniform buffer in shader load_from_file()!");
-        std::cout << "Failed to bind matrix uniform buffer in shader load_from_file()" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -146,8 +146,8 @@ void Shader::print_log(GLuint object) {
     } else if (glIsProgram(object)) {
         glGetProgramiv(object, GL_INFO_LOG_LENGTH, &log_length);
     } else {
+        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Argument to print_log(GLuint object), not a shader or a program!" << std::endl;
         errorlogger("ERROR: Argument to print_log(GLuint object), not a shader or a program!");
-        std::cout << "ERROR: Argument to print_log(GLuint object), not a shader or a program!" << std::endl;
         return;
     }
 
@@ -158,7 +158,7 @@ void Shader::print_log(GLuint object) {
     else if (glIsProgram(object))
         glGetProgramInfoLog(object, log_length, NULL, logger);
     
+    std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Shader compilation failed: " << logger << std::endl;
     errorlogger("ERROR: Shader compilation failed: ", logger);
-    std::cout <<  "ERROR: Shader compilation failed: " << logger << std::endl;
     free(logger);
 }

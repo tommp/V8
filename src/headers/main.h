@@ -4,12 +4,14 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "renderer.h"
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
 #include "timer.h"
 #include "display.h"
 #include "state_handler.h"
+#include "camera.h"
 #include "resource_manager.h"
 #include "world.h"
 /*---------------------------------------------*/

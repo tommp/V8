@@ -18,6 +18,9 @@
 
 /*Header content*/
 /*=============================================*/
+class Animation;
+class Character;
+
 class Cube: public Character{
 private:
 	glm::vec3 last_pos;
@@ -29,7 +32,7 @@ private:
 public:
 	Cube(Resource_manager& manager);
 	~Cube();
-	void render_frame()const;
+	void render_frame(const Renderer& renderer)const;
 	void update_position(float timedelta);
 	void touch_character(Character& character);
 };

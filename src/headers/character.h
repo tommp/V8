@@ -6,6 +6,7 @@
 /*---------------------------------------------*/
 #include "errorlogger.h"
 #include "actor.h"
+#include "renderer.h"
 #include "animation_set.h"
 /*---------------------------------------------*/
 
@@ -16,6 +17,11 @@
 
 /*Header content*/
 /*=============================================*/
+class Renderer;
+class Animation_set;
+
+typedef std::shared_ptr<Animation_set> Animation_set_ptr;
+
 class Character: public Actor{
 	protected:
 		Animation_set_ptr animations;
@@ -24,7 +30,7 @@ class Character: public Actor{
 	public:
 		virtual ~Character(){};
 		virtual void update_position(float timedelta) = 0;
-		virtual void render_frame()const = 0;
+		virtual void render_frame(const Renderer& renderer)const = 0;
 		virtual void touch_character(Character& character) = 0;
 		bool operator<(const Character& b);
 };

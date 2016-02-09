@@ -17,6 +17,10 @@
 
 /*Header content*/
 /*=============================================*/
+class Actor;
+
+typedef std::shared_ptr<Actor> Actor_ptr;
+
 class Contact{
 	private:
 		Actor_ptr a;

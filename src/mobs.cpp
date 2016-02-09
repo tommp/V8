@@ -4,7 +4,7 @@ Cube::Cube(Resource_manager& manager){
 	std::string anim_set = "cube";
 	state = {"cube_walk"};
 	if ( !(animations = manager.load_animation_set(anim_set) ) ){
-		std::cout << "ERROR: Slime_blob constructor failed to load animation set: " << anim_set << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Slime_blob constructor failed to load animation set: " << anim_set << std::endl;
 		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim_set.c_str());
 	}
 	speed = 30.0f;
@@ -16,15 +16,15 @@ Cube::Cube(Resource_manager& manager){
 
 	last_move = SDL_GetTicks();
 	move_duration = rand()%1000;
-	size = {20.0f, 20.0f, 20.0f};
+	size = {2.0f, 2.0f, 2.0f};
 }
 
 Cube::~Cube(){
 	
 }
 
-void Cube::render_frame()const{
-	animations->render_current(state, position, size, direction);
+void Cube::render_frame(const Renderer& renderer)const{
+	animations->render_current(renderer, state, position, size, direction);
 }
 
 void Cube::update_position(float timedelta){

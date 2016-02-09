@@ -21,18 +21,21 @@
 /*Header content*/
 /*=============================================*/
 class Resource_manager;
+class Texture;
+class Shader;
+
+typedef std::shared_ptr<Texture> Texture_ptr;
+typedef std::shared_ptr<Shader> Shader_ptr;
 
 class Material{
 private:
-	Shader_ptr shader;
 	Texture_ptr diffuse;
 	Texture_ptr specular;
 	GLuint shininess;
 public:
 	Material();
-	Shader_ptr get_shader()const{return shader;};
 	bool load_from_file(Resource_manager& manager, const std::string& name);
-	void use();
+	void use(const Shader_ptr& shader);
 };
 
 typedef std::shared_ptr<Material> Material_ptr;

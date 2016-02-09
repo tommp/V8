@@ -27,7 +27,7 @@ void Texture::use(const std::string& uniform_name, GLuint texture_unit, const Sh
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(glGetUniformLocation(shader->get_program(), uniform_name.c_str()), texture_unit);
     if(check_ogl_error()) {
-		std::cout << "ERROR: Failed to bind texture when using: " << uniform_name << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind texture when using: " << uniform_name << ", with texture: " << name << std::endl;
 		errorlogger("ERROR: Failed to bind texture when using: ", uniform_name.c_str());
 	}
 }
@@ -36,14 +36,14 @@ unsigned char* Texture::load_binary_image(const std::string& name){
 	std::ifstream contentf (IMAGE_DATA_PATH, std::ios::binary);
 
 	if (!contentf.is_open()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for image data!" << std::endl;
 		errorlogger("ERROR: Failed to open content file for image data!");
-		std::cout << "ERROR: Failed to open content file for image data!" << std::endl;
 		return nullptr;
 	}
 
 	if (ENGINE_TEXTURES.find(name) == ENGINE_TEXTURES.end()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: No image in image_map with keyname: " << name << std::endl;
 		errorlogger("ERROR: No image in image_map with keyname: ", name.c_str());
-		std::cout << "ERROR: No image in image_map with keyname: " << name << std::endl;
 		return nullptr;
 	}
 
@@ -70,11 +70,12 @@ bool Texture::load_from_file(const std::string& name){
 		free_texture();
 	}
 
+	this->name = name;
 	unsigned char* image_data = load_binary_image(name);
 	
 	if (!image_data) {
-		errorlogger("ERROR: Error propogation from load_binary_image(..) when loading keyname: ", name.c_str());
-		std::cout << "ERROR: Error propogation from load_binary_image(..) when loading keyname: " << name.c_str() << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid image data for texture when loading keyname: " << name.c_str() << std::endl;
+		errorlogger("ERROR: Invalid image data for texture when loading keyname: ", name.c_str());
 		return false;
 	}
 	/* Create and bind texture from image data */
@@ -93,7 +94,7 @@ bool Texture::load_from_file(const std::string& name){
 	delete[](image_data);
 
 	if(check_ogl_error()) {
-		std::cout << "ERROR: Failed to create and bind texture from image data! Keyname: " << name << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to create and bind texture from image data! Keyname: " << name << std::endl;
 		errorlogger("ERROR: Failed to create and bind texture from image data! Keyname: ", name.c_str());
 		return false;
 	}

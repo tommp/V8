@@ -27,9 +27,6 @@ class World {
 private:
 	Level_ptr current_level;
 	Resource_manager* manager;
-	Shader_ptr light_shader;
-
-	GLuint quad_VAO;
 
 	std::list<Character_ptr> players;
 	std::list<Character_ptr> characters;
@@ -41,7 +38,7 @@ public:
 	~World();
 	bool check_if_colliding(const Character_ptr& a, const Character_ptr& b)const;
 	bool check_if_offscreen(const Character_ptr& a)const;
-	void update_positions(float timedelta);
+	void update_positions(float timedelta, Renderer& renderer);
 	void resolve_collisions();
 	void update_groups();
 
@@ -56,10 +53,11 @@ public:
 	bool add_dormant_character(const Character_ptr& character);
 	bool add_character(const Character_ptr& character);
 
-	void render_quad()const;
-	void render_world()const;
-	void render_geometry()const;
-	void render_lights()const;
+	bool add_light(const Light_ptr& light);
+
+	void render_world(Renderer& renderer);
+	void render_geometry(Renderer& renderer);
+	void render_lights(const Renderer& renderer)const;
 };
 /*=============================================*/
 

@@ -7,8 +7,8 @@ int main(int argc, char** argv){
 
 	/*Initializes SDL */
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "Failed to initialize SDL, see errorlog for details."<<std::endl;
 		SDLerrorLogger("SDL initialization");
-		std::cout<<"Failed to initialize SDL, see errorlog for details."<<std::endl;
 		exit(EXIT_FAILURE);
 	}
 
@@ -18,9 +18,13 @@ int main(int argc, char** argv){
 
 	/* MAIN VARS */
 	/* ====================================== */
+    Display display;
+
 	Resource_manager resource_manager;
 
 	State_handler state_handler(resource_manager);
+	
+	Renderer renderer(display, resource_manager);
 
 	World world(resource_manager);
 
@@ -42,7 +46,7 @@ int main(int argc, char** argv){
 
 	    /* Update the position of all world objects */
 	    float timedelta = move_timer.get_ticks() / 1000.f;
-	    world.update_positions(timedelta);
+	    world.update_positions(timedelta, renderer);
 	    move_timer.restart();
 
 	    /* Detect collisions */
@@ -52,10 +56,10 @@ int main(int argc, char** argv){
 	    world.resolve_collisions();
 
 	    /* Render to screen */
-	    world.render_world();
+	    world.render_world(renderer);
 	    if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render world!" << std::endl;
 			errorlogger("ERROR: Failed to render world!");
-			std::cout << "ERROR: Failed to render world!" << std::endl;
 			exit(EXIT_FAILURE);
 		}
 

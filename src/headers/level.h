@@ -6,11 +6,7 @@
 /*---------------------------------------------*/
 #include "errorlogger.h"
 #include "utility.h"
-#include "actor.h"
 #include "tiles.h"
-#include "display.h"
-#include "light.h"
-#include "camera.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -24,26 +20,23 @@
 /*=============================================*/
 using std::vector;
 
+class Tile;
+
 class Level {
 	private:
-		int width;
-		int height;
-		int depth;
+		GLuint width;
+		GLuint height;
+		GLuint depth;
 
-		Camera camera;
 		vector<vector<vector<Tile>>> level_tiles;
-		vector<Light> lights;
-
 	public:
 		Level(int init_width, int init_height, int init_depth);
 
-		int get_width()const { return width; };
-		int get_height()const { return height; };
-		int get_depth()const { return depth; };
+		GLuint get_width()const { return width; };
+		GLuint get_height()const { return height; };
+		GLuint get_depth()const { return depth; };
 
-		void center_camera(const Actor_ptr target);
 		void render_level();
-		Camera* get_camera_pointer(){ return &camera; };
 
 		void load_level();
 		void unload_level();

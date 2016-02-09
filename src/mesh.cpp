@@ -14,14 +14,14 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 	std::ifstream contentf (MESH_DATA_PATH, std::ios::binary);
 
 	if (!contentf.is_open()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for mesh data!" << std::endl;
 		errorlogger("ERROR: Failed to open content file for mesh data!");
-		std::cout << "ERROR: Failed to open content file for mesh data!" << std::endl;
 		return false;
 	}
 
 	if (ENGINE_MESHES.find(name) == ENGINE_MESHES.end()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: No image in mesh_map with keyname: " << name << std::endl;
 		errorlogger("ERROR: No image in mesh_map with keyname: ", name.c_str());
-		std::cout << "ERROR: No image in mesh_map with keyname: " << name << std::endl;
 		return false;
 	}
 
@@ -29,7 +29,6 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 
 	contentf.seekg(datapos);
 
-	/* LOAD VERTICES AND INDICES FROM FILE HERE */
 	Vertex vertex;
 	GLuint index;
 	unsigned int vsize = 0;
@@ -45,7 +44,6 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 		contentf.read(reinterpret_cast<char *>(&index), sizeof(GLuint));
 		indices.push_back(index);
 	}
-	/* ======================================== */
 
 	contentf.close();
 
@@ -63,8 +61,8 @@ bool Mesh::load_from_file(Resource_manager& resource_manager, const std::string&
 	vector<GLuint> indices;
 
 	if (!load_binary_mesh(name, vertices, indices)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Error propogation from load_binary_mesh(..) when loading keyname: " << name.c_str() << std::endl;
 		errorlogger("ERROR: Error propogation from load_binary_mesh(..) when loading keyname: ", name.c_str());
-		std::cout << "ERROR: Error propogation from load_binary_mesh(..) when loading keyname: " << name.c_str() << std::endl;
 		return false;
 	}
 
@@ -103,43 +101,16 @@ bool Mesh::load_from_file(Resource_manager& resource_manager, const std::string&
 
 	/* Check for errors */
 	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load mesh from file with name: " << name << std::endl;
 		errorlogger("ERROR: Failed to load mesh from file with name: ", name.c_str());
-		std::cout << "ERROR: Failed to load mesh from file with name: " << name << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	return true;
 }
 
-void Mesh::render_mesh(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
-	glm::mat4 model;
-	model = glm::translate(model, position);  
-
-	GLfloat dot = glm::dot(direction, MESH_DIRECTION);
-	GLfloat det =  MESH_DIRECTION.x*direction.z - MESH_DIRECTION.z*direction.x;
-	GLfloat rotation = -1 * glm::atan(det, dot);
-
-    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
-    model = glm::rotate(model, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
-    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
-
-    model = glm::scale(model, glm::vec3(size)); 
-
-    material->get_shader()->use_shader_and_set_matrix4("model", model);
-
-    material->use();
-
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0);
-    //glDrawArrays(GL_TRIANGLES, 0, num_vertices);
-    glBindVertexArray(0);
-    
-    /* Check for errors */
-	if(check_ogl_error()){
-		errorlogger("ERROR: Failed to render mesh!");
-		std::cout << "ERROR: Failed to render mesh!" << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
-		exit(EXIT_FAILURE);
-	}
+void Mesh::render_mesh(const Renderer& renderer, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
+	renderer.render_geometry(VAO, num_vertices, material, position, size, direction);
 }
 
 void Mesh::free_mesh(){
@@ -149,8 +120,8 @@ void Mesh::free_mesh(){
 
 	/* Check for errors */
 	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to free mesh!" << std::endl;
 		errorlogger("ERROR: Failed to free mesh!");
-		std::cout << "ERROR: Failed to free mesh!" << " , file: "  << __FILE__ << ", line:" << __LINE__ << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }

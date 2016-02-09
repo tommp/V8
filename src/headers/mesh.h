@@ -4,14 +4,13 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "vertex.h"
-#include "shader.h"
 #include "mesh_map.h"
 #include "glm.h"
-#include "errorlogger.h"
-#include "material.h"
+#include "vertex.h"
 #include "utility.h"
-#include "texture.h"
+#include "errorlogger.h"
+#include "renderer.h"
+#include "material.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
 
@@ -29,10 +28,12 @@
 /*=============================================*/
 using std::vector;
 
-const glm::vec3 MESH_DIRECTION = {0.0f, 0.0f, -1.0f};
+const glm::vec3 MESH_DIRECTION = {0.0f, 0.0f, 1.0f};
 
 class Resource_manager;
 class Material;
+class Renderer;
+
 typedef std::shared_ptr<Material> Material_ptr;
 
 class Mesh {
@@ -55,7 +56,8 @@ class Mesh {
 
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
 		
-		void render_mesh(const glm::vec3& position, 
+		void render_mesh(const Renderer& renderer,
+						const glm::vec3& position, 
 						const glm::vec3& size, 
 						const glm::vec3& direction);
 };

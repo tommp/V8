@@ -6,7 +6,7 @@
 /*---------------------------------------------*/
 #include "model_map.h"
 #include "errorlogger.h"
-#include "shader.h"
+#include "renderer.h"
 #include "mesh.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
@@ -24,6 +24,8 @@
 /*=============================================*/
 class Resource_manager;
 class Mesh;
+class Renderer;
+
 typedef std::shared_ptr<Mesh> Mesh_ptr;
 
 class Model {
@@ -31,7 +33,7 @@ class Model {
 		std::vector<Mesh_ptr> meshes;
 	public:
 		Model();
-		void render_model(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
+		void render_model(const Renderer& renderer, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
 		bool load_from_file(Resource_manager& manager, const std::string& name);
 };
 

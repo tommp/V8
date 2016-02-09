@@ -25,6 +25,7 @@
 class Texture
 {
     private:
+        std::string name;
         /*The actual hardware texture*/
         GLuint texture;
 
