@@ -35,12 +35,13 @@ enum Light_type{
 
 class Light : public Actor {
 	protected:
+		GLuint clip_VAO;
 		Light_type type;
 		glm::vec3 ambient;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
 	public:
-		virtual void render_light(const Renderer& renderer, GLuint light_number)const = 0;
+		virtual void render_light(const Renderer& renderer)const = 0;
 		Light_type get_type(){return type;};
 };
 
@@ -49,19 +50,22 @@ class Directional_light : public Light {
 		glm::vec3 direction;
 	public:
 		Directional_light();
-		void render_light(const Renderer& renderer, GLuint light_number)const;
+		bool init_light_quad();
+		bool render_light_quad()const;
+		void render_light(const Renderer& renderer)const;
 };
 
 class Point_light : public Light {
 	private:
 		glm::vec3 position;
 		
-		float constant;
-		float linear;
-		float quadratic;
+		GLfloat linear;
+		GLfloat quadratic;
 	public:
 		Point_light();
-		void render_light(const Renderer& renderer, GLuint light_number)const;
+		bool init_light_quad();
+		bool render_light_quad()const;
+		void render_light(const Renderer& renderer)const;
 	
 };
 
@@ -70,15 +74,16 @@ class Spot_light : public Light{
 		glm::vec3 position;
 		glm::vec3 direction;
 
-		float cut_off;
-		float outer_cut_off;
+		GLfloat cut_off;
+		GLfloat outer_cut_off;
 	  
-		float constant;
-		float linear;
-		float quadratic;
+		GLfloat linear;
+		GLfloat quadratic;
 	public:
 		Spot_light();
-		void render_light(const Renderer& renderer, GLuint light_number)const;  
+		bool init_light_quad();
+		bool render_light_quad()const;
+		void render_light(const Renderer& renderer)const;  
 };
 
 typedef std::shared_ptr<Light> Light_ptr;

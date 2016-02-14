@@ -12,16 +12,14 @@ World::World(Resource_manager& init_manager){
 		insert_character(cube);
 	}
 	
-	for (int i = 0; i < 7; ++i){
+	
+	for (int i = 0; i < 50; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
-		add_light(point_light);
+		add_point_light(point_light);
 	}
-	for (int i = 0; i < 7; ++i){
-		Light_ptr spot_light = std::make_shared<Spot_light>();
-		add_light(spot_light);
-	}
+
 	Light_ptr dir_light = std::make_shared<Directional_light>();
-	add_light(dir_light);
+	add_dir_light(dir_light);
 }
 
 World::~World() {
@@ -169,29 +167,19 @@ void World::render_geometry(Renderer& renderer){
 
 void World::render_lights(const Renderer& renderer)const{
 	renderer.setup_light_rendering();
+	renderer.bind_g_data(renderer.get_light_shader(2));
+	renderer.upload_view_position(renderer.get_light_shader_program(2));
 
-	GLuint point_count = 0;
-	GLuint dir_count = 0;
-	GLuint spot_count = 0;
 	
-	for (auto light : lights) {
-		switch(light->get_type()){
-			case 0:
-				light->render_light(renderer, dir_count);
-				++dir_count;
-				break;
-			case 1:
-				light->render_light(renderer, point_count);
-				++point_count;
-				break;
-			case 2:
-				light->render_light(renderer, spot_count);
-				++spot_count;
-				break;
-			default:
-				std::cout << "DOFIJNFDFIO" << std::endl;
-				continue;
-		}
+	for (auto light : dir_lights) {
+		light->render_light(renderer);
+	}
+	
+	renderer.bind_g_data(renderer.get_light_shader(0));
+	renderer.upload_view_position(renderer.get_light_shader_program(0));
+
+	for (auto light : point_lights) {
+		light->render_light(renderer);
 	}
 
 	renderer.detach_light_rendering();
@@ -261,14 +249,38 @@ bool World::insert_player(const Character_ptr& player){
 	}
 }
 
-bool World::add_light(const Light_ptr& light){
+bool World::add_dir_light(const Light_ptr& light){
 	if (light){
-		lights.push_front(light);	
+		dir_lights.push_front(light);	
 		return true;
 	}
 	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null light in World" << std::endl;
-		errorlogger("ERROR: Cannot add null light in World");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null directional light in World" << std::endl;
+		errorlogger("ERROR: Cannot add null directional light in World");
+		return false;
+	}
+}
+
+bool World::add_point_light(const Light_ptr& light){
+	if (light){
+		point_lights.push_front(light);	
+		return true;
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null point light in World" << std::endl;
+		errorlogger("ERROR: Cannot add null point light in World");
+		return false;
+	}
+}
+
+bool World::add_spot_light(const Light_ptr& light){
+	if (light){
+		spot_lights.push_front(light);	
+		return true;
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null point light in World" << std::endl;
+		errorlogger("ERROR: Cannot add null point light in World");
 		return false;
 	}
 }

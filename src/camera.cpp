@@ -1,8 +1,8 @@
 #include "camera.h"
 
 Camera::Camera(){
-	init_position = glm::vec3(0.0f, 300.0f, 200.0f);
-	position = glm::vec3(0.0f, 300.0f, 200.0f);
+	init_position = glm::vec3(0.0f, 300.0f, 400.0f);
+	position = glm::vec3(0.0f, 300.0f, 400.0f);
 	target = glm::vec3(0.0f, 0.0f, 0.0f);
 	world_up = glm::vec3(0.0f, 1.0f, 0.0f);
 	offset = {-640.0f, 0.0f, 320.0f};

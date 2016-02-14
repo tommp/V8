@@ -6,7 +6,6 @@
 /*---------------------------------------------*/
 #include "errorlogger.h"
 #include "utility.h"
-#include "tiles.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -27,8 +26,6 @@ class Level {
 		GLuint width;
 		GLuint height;
 		GLuint depth;
-
-		vector<vector<vector<Tile>>> level_tiles;
 	public:
 		Level(int init_width, int init_height, int init_depth);
 

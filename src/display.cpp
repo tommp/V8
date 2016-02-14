@@ -236,3 +236,7 @@ bool Display::init_openGL(){
 
 	return true;
 }
+
+void Display::present(){
+	SDL_GL_SwapWindow(window);
+};

@@ -32,7 +32,10 @@ private:
 	std::list<Character_ptr> characters;
 	std::forward_list<Character_ptr> dormant_characters;
 	std::forward_list<Contact> contacts;
-	std::forward_list<Light_ptr> lights;
+	
+	std::forward_list<Light_ptr> dir_lights;
+	std::forward_list<Light_ptr> point_lights;
+	std::forward_list<Light_ptr> spot_lights;
 public:
 	World(Resource_manager& init_manager);
 	~World();
@@ -53,7 +56,10 @@ public:
 	bool add_dormant_character(const Character_ptr& character);
 	bool add_character(const Character_ptr& character);
 
-	bool add_light(const Light_ptr& light);
+	bool add_dir_light(const Light_ptr& light);
+	bool add_point_light(const Light_ptr& light);
+	bool add_spot_light(const Light_ptr& light);
+
 
 	void render_world(Renderer& renderer);
 	void render_geometry(Renderer& renderer);

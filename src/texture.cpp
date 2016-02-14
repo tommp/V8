@@ -2,6 +2,7 @@
 
 Texture::Texture(){
 	/* Initialize */
+	texture = 0;
 	width = 0;
 	height = 0;
 }

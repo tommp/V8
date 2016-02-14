@@ -59,7 +59,7 @@ class Display{
 		void upload_projection_matrix(GLuint matrix_uniform_buffer);
 
 		void clear(){glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);};
-		void present(){SDL_GL_SwapWindow(window);};
+		void present();
 
 		GLuint get_screen_width(){return screen_width;};
 		GLuint get_screen_height(){return screen_height;};

@@ -39,8 +39,8 @@ public:
 	GLuint create_shader(const char* filename, GLenum type);
 	void print_log(GLuint object);
 	void use(){glUseProgram(program);};
-	void use_shader_and_set_matrix4(const char* uniform, const glm::mat4& matrix);
-    void use_shader_and_set_vector4f(const char* uniform, const glm::vec4& vector);
+	void set_matrix4(const char* uniform, const glm::mat4& matrix);
+    void set_vector4f(const char* uniform, const glm::vec4& vector);
 };
 
 typedef std::shared_ptr<Shader> Shader_ptr;

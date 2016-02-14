@@ -12,15 +12,9 @@ Renderer::Renderer(){
 Renderer::Renderer(Display& display, Resource_manager& resource_manager){
 	this->display = &display;
 
-	if (!init_matrix_uniform_buffer()) {
+	if (!init_uniform_buffers()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize unform buffers!" << std::endl;
 		errorlogger("ERROR: Failed to initialize unform buffers");
-		exit(EXIT_FAILURE);
-	}
-	
-	if(!init_light_quad()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize geometry quad in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to initialize geometry quad in renderer!");
 		exit(EXIT_FAILURE);
 	}
 
@@ -35,13 +29,19 @@ Renderer::Renderer(Display& display, Resource_manager& resource_manager){
 		errorlogger("ERROR: Failed to initialize g_framebuffer in renderer!");
 		exit(EXIT_FAILURE);
 	}
+
+	if (!upload_light_data(uniform_buffers["light_data"])) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload light data in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to upload light data in renderer!");
+		exit(EXIT_FAILURE);
+	}
 	
 	/* Set projection matrix */
     display.update_projection_matrix();
     display.upload_projection_matrix(uniform_buffers["matrices"]);
 }
 
-bool Renderer::init_matrix_uniform_buffer(){
+bool Renderer::init_uniform_buffers(){
 	GLuint uniform_buffer_matrices;
 	glGenBuffers(1, &uniform_buffer_matrices);
 	  
@@ -58,65 +58,45 @@ bool Renderer::init_matrix_uniform_buffer(){
 	}
 
 	uniform_buffers["matrices"] = uniform_buffer_matrices;
-	return true;
-}
 
-bool Renderer::init_light_quad(){
-	GLfloat quad_vertices[] = {
-		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-	};
+	GLuint uniform_buffer_light_data;
+	glGenBuffers(1, &uniform_buffer_light_data);
+	  
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_light_data);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec2), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 2, uniform_buffer_light_data, 0, sizeof(glm::vec2));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	GLuint quad_VBO;
-	glGenVertexArrays(1, &quad_VAO);
-	glGenBuffers(1, &quad_VBO);
-	glBindVertexArray(quad_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_VBO);
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind geometry VAO in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to geometry VAO in renderer!");
-		glDeleteBuffers(1, &quad_VBO);
-		glDeleteVertexArrays(1, &quad_VAO);
-		return false;
-	}
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertices), &quad_vertices, GL_STATIC_DRAW);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to buffer vertex data for geometry VAO in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to buffer vertex data for geometry VAO in renderer!");
-		glDeleteBuffers(1, &quad_VBO);
-		glDeleteVertexArrays(1, &quad_VAO);
-		return false;
-	}
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to set vertex attributes for geometry VAO in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to set vertex attributes for geometry VAO in renderer!");
-		glDeleteBuffers(1, &quad_VBO);
-		glDeleteVertexArrays(1, &quad_VAO);
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize liht data uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize light data uniform buffer in renderer!");
+		glDeleteBuffers(1, &uniform_buffer_matrices);
 		return false;
 	}
 
+	uniform_buffers["light_data"] = uniform_buffer_light_data;
 	return true;
 }
 
 bool Renderer::init_shaders(Resource_manager& resource_manager){
-	light_shader = resource_manager.load_shader("light_shader");
-	if (!light_shader) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load light shader in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to load light shader in renderer");
+	dir_light_shader = resource_manager.load_shader("dir_light_shader");
+	if (dir_light_shader == nullptr) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load directional light shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load directional light shader in renderer");
 		return false;
 	}
 
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to set uniform values for g_buffer textures in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to set uniform values for g_buffer textures in renderer!");
+	point_light_shader = resource_manager.load_shader("point_light_shader");
+	if (point_light_shader == nullptr) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load point light shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load point light shader in renderer");
+		return false;
+	}
+
+	spot_light_shader = resource_manager.load_shader("spot_light_shader");
+	if (spot_light_shader == nullptr) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load spot light shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load spot light shader in renderer");
 		return false;
 	}
 
@@ -130,7 +110,7 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 }
 
 bool Renderer::init_framebuffer(){
-	light_shader->use();
+	//dir_light_shader->use();
 	if (!display) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Display not initialized, cannon initialize g buffer!" << std::endl;
 		errorlogger("ERROR: Display not initialized, cannon initialize g buffer!");
@@ -212,6 +192,31 @@ bool Renderer::init_framebuffer(){
 	return true;
 }
 
+GLuint Renderer::get_light_shader_program(GLuint shader_num)const{
+	if(shader_num == 0){
+		return point_light_shader->get_program();
+	}
+	else if(shader_num == 1){
+		return spot_light_shader->get_program();
+	}
+	else {
+		return dir_light_shader->get_program();
+	}
+	
+}
+
+Shader_ptr Renderer::get_light_shader(GLuint shader_num)const{
+	if(shader_num == 0){
+		return point_light_shader;
+	}
+	else if(shader_num == 1){
+		return spot_light_shader;
+	}
+	else {
+		return dir_light_shader;
+	}
+}
+
 bool Renderer::set_clear_color_black(){
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	if(check_ogl_error()){
@@ -242,11 +247,12 @@ bool Renderer::use_default_buffer()const{
 	return true;
 }
 
-bool Renderer::bind_g_data()const{
-	light_shader->use();
+bool Renderer::bind_g_data(const Shader_ptr& current_shader)const{
+	current_shader->use();
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_position);
-	glUniform1i(glGetUniformLocation(light_shader->get_program(), "g_position"), 0);
+	glUniform1i(glGetUniformLocation(current_shader->get_program(), "g_position"), 0);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_position buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_position buffer!");
@@ -255,7 +261,7 @@ bool Renderer::bind_g_data()const{
 
 	glActiveTexture(GL_TEXTURE0 + 1);
 	glBindTexture(GL_TEXTURE_2D, g_normal);
-	glUniform1i(glGetUniformLocation(light_shader->get_program(), "g_normal"), 1);
+	glUniform1i(glGetUniformLocation(current_shader->get_program(), "g_normal"), 1);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_normal buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_normal buffer!");
@@ -264,7 +270,7 @@ bool Renderer::bind_g_data()const{
 	
 	glActiveTexture(GL_TEXTURE0 + 2);
 	glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
-	glUniform1i(glGetUniformLocation(light_shader->get_program(), "g_albedo_spec"), 2);
+	glUniform1i(glGetUniformLocation(current_shader->get_program(), "g_albedo_spec"), 2);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_albedo_spec buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_albedo_spec buffer!");
@@ -334,7 +340,13 @@ bool Renderer::render_geometry(GLuint VAO,
     model = glm::scale(model, glm::vec3(size)); 
 
     /* Set model matrix */
-    geometry_shader->use_shader_and_set_matrix4("model", model);
+    geometry_shader->set_matrix4("model", model);
+
+    if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix!" << std::endl;
+		errorlogger("ERROR: Failed to set model matrix!");
+		return false;
+	}
 
     material->use(geometry_shader);
     
@@ -352,22 +364,19 @@ bool Renderer::render_geometry(GLuint VAO,
 	return true;
 }
 
-bool Renderer::render_light_quad()const{
-	glBindVertexArray(quad_VAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
-    return true;
-}
-
 void Renderer::setup_light_rendering()const{
+	glEnable(GL_BLEND);
+   	glBlendEquation(GL_FUNC_ADD);
+   	glBlendFunc(GL_ONE, GL_ONE);
 	use_default_buffer();
 	clear_display();
-	bind_g_data();
-	glUniform3fv(glGetUniformLocation(light_shader->get_program(), "view_position"), 1, (float*)camera.get_position_pointer());
+}
+
+void Renderer::upload_view_position(GLuint shader_program)const{
+	glUniform3fv(glGetUniformLocation(shader_program, "view_position"), 1, (float*)camera.get_position_pointer());
 }
 
 void Renderer::detach_light_rendering()const{
-	render_light_quad();
 	unbind_g_data();
 }
 
@@ -375,13 +384,45 @@ void Renderer::setup_geometry_rendering(){
 	update_view_matrix();
 	upload_view_matrix(uniform_buffers.find("matrices")->second);
 	use_g_buffer();
+	glDepthMask(GL_TRUE);
 	clear_display();
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	geometry_shader->use();
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup geometry rendering!" << std::endl;
+		errorlogger("ERROR: Failed to setup geometry rendering!");
+		exit(EXIT_FAILURE);
+	}
 }
 
 void Renderer::detach_geometry_rendering()const{
-	use_default_buffer();
+	glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;
+		errorlogger("ERROR: Failed to detach geometry rendering!");
+		exit(EXIT_FAILURE);
+	}
 }
 
 void Renderer::center_camera(const Actor_ptr& target, GLuint bound_width, GLuint bound_height) {
-		camera.center_camera(target, bound_width, bound_height);
+	camera.center_camera(target, bound_width, bound_height);
+}
+
+bool Renderer::upload_light_data(GLuint light_data_uniform_buffer)const{
+	glm::vec2 screen_size;
+	screen_size.x = display->get_screen_width();
+	screen_size.y = display->get_screen_height();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, light_data_uniform_buffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec2), glm::value_ptr(screen_size));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload light data vector: " << light_data_uniform_buffer << std::endl;
+		errorlogger("ERROR: Failed to upload light data vector!");
+		return false;
 	}
+	return true;
+}

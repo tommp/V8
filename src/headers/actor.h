@@ -20,6 +20,7 @@ class Actor{
 	protected:
 		glm::vec3 position;
 		glm::vec3 size;
+		glm::vec3 scale;
 		glm::vec3 direction;
 	public:
 		const glm::vec3* get_position()const {return &position;};

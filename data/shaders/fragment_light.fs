@@ -1,6 +1,6 @@
 #define MAX_NR_DIRECTIONAL_LIGHTS 1
-#define MAX_NR_POINT_LIGHTS 7
-#define MAX_NR_SPOT_LIGHTS 7
+#define MAX_NR_POINT_LIGHTS 15
+#define MAX_NR_SPOT_LIGHTS 1
 
 struct Directional_light {
 	vec3 direction;

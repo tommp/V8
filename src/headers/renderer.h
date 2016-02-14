@@ -50,8 +50,9 @@ class Renderer{
 
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
-		GLuint quad_VAO;
-		Shader_ptr light_shader;
+		Shader_ptr dir_light_shader;
+		Shader_ptr point_light_shader;
+		Shader_ptr spot_light_shader;
 		Shader_ptr geometry_shader;
 	public:
 		Renderer();
@@ -60,14 +61,14 @@ class Renderer{
 		GLuint get_uniform_buffer(const std::string& name)const;
 		bool use_g_buffer()const;
 		bool use_default_buffer()const;
-		bool bind_g_data()const;
+		bool bind_g_data(const Shader_ptr& current_shader)const;
 		bool unbind_g_data()const;
 		bool set_clear_color_black();
 
-		GLuint get_light_shader()const{return light_shader->get_program();};
+		GLuint get_light_shader_program(GLuint shader_num)const;
+		Shader_ptr get_light_shader(GLuint shader_num)const;
 
-		bool init_matrix_uniform_buffer();
-		bool init_light_quad();
+		bool init_uniform_buffers();
 		bool init_framebuffer();
 		bool init_shaders(Resource_manager& resource_manager);
 
@@ -86,12 +87,14 @@ class Renderer{
 
 		void setup_light_rendering()const;
 		bool render_light()const;
-		bool render_light_quad()const;
 		void detach_light_rendering()const;
 
 		void center_camera(const Actor_ptr& target, GLuint bound_width, GLuint bound_height);
 		void upload_view_matrix(GLuint uniform_matrix_buffer)const{camera.upload_view_matrix(uniform_matrix_buffer);};
 		void update_view_matrix(){camera.update_view_matrix();};
+		void upload_view_position(GLuint shader_program)const;
+
+		bool upload_light_data(GLuint light_data_uniform_buffer)const;
 };
 /*=============================================*/
 
