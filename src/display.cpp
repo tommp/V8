@@ -3,7 +3,7 @@
 Display::Display(){
 	/* Init to standard settings as a fallback */
 	if (!load_settings()) {
-		ortographic = true;
+		ortographic = false;
 		mouse_visible = false;
 		use_vsync = true;
 		use_fullscreen = false;

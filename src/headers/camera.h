@@ -41,6 +41,8 @@ class Camera {
 
 		glm::vec3 offset;
 		glm::mat4 view;
+
+		bool ortographic;
 	public:
 		Camera();
 		const glm::mat4* get_view_matrix() {return &view;};

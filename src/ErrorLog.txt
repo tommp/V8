@@ -35432,3 +35432,117 @@ Error: ERROR: glError: Invalid Value
 Date: Sun Feb 14 01:22:24 2016
 Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
 
+Date: Sun Feb 14 01:24:15 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Sun Feb 14 01:24:16 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Sun Feb 14 01:24:16 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Sun Feb 14 01:44:39 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Sun Feb 14 01:44:39 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Sun Feb 14 01:44:39 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Sun Feb 14 12:25:29 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Sun Feb 14 12:25:29 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Sun Feb 14 12:25:29 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Sun Feb 14 13:02:50 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Sun Feb 14 13:02:50 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Sun Feb 14 13:02:50 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Mon Feb 15 14:34:18 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Mon Feb 15 14:34:18 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Mon Feb 15 14:34:18 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Mon Feb 15 14:42:49 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Mon Feb 15 14:42:49 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Mon Feb 15 14:42:49 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Mon Feb 15 14:43:24 2016
+Error: ERROR: Failed to open content file for display settings!
+
+Date: Mon Feb 15 14:43:24 2016
+Error: ERROR: Failed to load display settings, restoring defaults.
+
+Date: Mon Feb 15 14:43:24 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Mon Feb 15 14:43:24 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Mon Feb 15 14:43:24 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Mon Feb 15 14:46:21 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Mon Feb 15 14:46:21 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Mon Feb 15 14:46:21 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Mon Feb 15 14:46:50 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Mon Feb 15 14:46:50 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Mon Feb 15 14:46:50 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Mon Feb 15 14:52:41 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Mon Feb 15 14:52:41 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Mon Feb 15 14:52:41 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Mon Feb 15 14:53:14 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Mon Feb 15 14:53:14 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Mon Feb 15 14:53:14 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+
+Date: Mon Feb 15 15:56:30 2016
+Error: ERROR: glError: Invalid Enum
+
+Date: Mon Feb 15 15:56:30 2016
+Error: ERROR: glError: Invalid Value
+
+Date: Mon Feb 15 15:56:30 2016
+Error: ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: geometry_shader
+

@@ -5,7 +5,7 @@ Camera::Camera(){
 	position = glm::vec3(0.0f, 300.0f, 400.0f);
 	target = glm::vec3(0.0f, 0.0f, 0.0f);
 	world_up = glm::vec3(0.0f, 1.0f, 0.0f);
-	offset = {-640.0f, 0.0f, 320.0f};
+	offset = {0.0f,0.0f,0.0f};//{-640.0f, 0.0f, 320.0f};
 
 	camera_direction = glm::normalize( position - target);
 	right = glm::normalize(glm::cross(world_up, camera_direction));

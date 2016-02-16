@@ -41,7 +41,7 @@ Point_light::Point_light(){
 	specular.z = (rand()%1000) / 1000.0f;
 
 	linear = 0.00014f;
-	quadratic = 0.001f;
+	quadratic = 0.0001f;
 
 	GLfloat C = glm::max(ambient.x + diffuse.x + specular.x, glm::max(
 						ambient.y + diffuse.y + specular.y,
