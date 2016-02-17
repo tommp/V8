@@ -9,8 +9,8 @@ bool Renderer::init_settings(){
 		mouse_visible = false;
 		use_vsync = true;
 		use_fullscreen = false;
-		window_size.x = SCREEN_WIDTH;
-		window_size.y = SCREEN_HEIGHT;
+		window_size.x = (GLfloat)SCREEN_WIDTH;
+		window_size.y = (GLfloat)SCREEN_HEIGHT;
 
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load display settings, restoring defaults." << std::endl;
 		errorlogger("ERROR: Failed to load display settings, restoring defaults.");

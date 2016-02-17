@@ -248,7 +248,8 @@ void Directional_light::render_light(const Renderer& renderer)const{
 
 	GLuint program = renderer.get_light_shader_program(DIRECTIONAL);
 	if (!program) {
-		//ERROR
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get shader program when rendering directional light!" << std::endl;
+		errorlogger("ERROR: Failed to get shader program when rendering directional light!");
 	}
 
 	glUniform3fv(glGetUniformLocation(program, "dir_light.direction"), 1, (float*)&(direction));
@@ -275,7 +276,8 @@ void Point_light::render_light(const Renderer& renderer)const{
 
 	GLuint program = renderer.get_light_shader_program(POINT);
 	if (!program) {
-		//ERROR
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get shader program when rendering directional light!" << std::endl;
+		errorlogger("ERROR: Failed to get shader program when rendering directional light!");
 	}
 
 	glUniform3fv(glGetUniformLocation(program, "point_light.position"), 1, (float*)&(position));
@@ -305,7 +307,8 @@ void Spot_light::render_light(const Renderer& renderer)const{
 
 	GLuint program = renderer.get_light_shader_program(SPOT);
 	if (!program) {
-		//ERROR
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get shader program when rendering directional light!" << std::endl;
+		errorlogger("ERROR: Failed to get shader program when rendering directional light!");
 	}
 
 	glUniform3fv(glGetUniformLocation(program, "spot_light.position"), 1, (float*)&(position));
