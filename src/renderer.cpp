@@ -258,7 +258,9 @@ GLuint Renderer::get_light_shader_program(Light_type light_type)const{
 	else if(light_type == SPOT){
 		return spot_light_shader->get_program();
 	}
-	//TODO::ERROR
+
+	std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Invalid light type in get_shader_program()!" << std::endl;
+	errorlogger("ERROR: Invalid light type in get_shader_program()!");
 	return 0;
 }
 
@@ -272,7 +274,9 @@ Shader_ptr Renderer::get_light_shader(Light_type light_type)const{
 	else if(light_type == SPOT) {
 		return spot_light_shader;
 	}
-	//TODO::ERROR
+
+	std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Invalid light type in get_light_shader()!" << std::endl;
+	errorlogger("ERROR: Invalid light type in get_light_shader()!");
 	return nullptr;
 }
 
@@ -306,6 +310,28 @@ bool Renderer::use_default_buffer()const{
 	return true;
 }
 
+bool Renderer::use_light_shader(Light_type light_type)const{
+	if(light_type == DIRECTIONAL) {
+		dir_light_shader->use();
+		return true;
+	}
+
+	else if(light_type == POINT) {
+		point_light_shader->use();
+		return true;
+	}
+
+	else if(light_type == SPOT) {
+		spot_light_shader->use();
+		return true;
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid light type when binding light shader!" << std::endl;
+		errorlogger("ERROR: Invalid light type when binding light shader!");
+		return false;
+	}
+}
+
 bool Renderer::bind_g_data(Light_type light_type)const{
 	GLuint program;
 	if(light_type == DIRECTIONAL) {
@@ -323,7 +349,8 @@ bool Renderer::bind_g_data(Light_type light_type)const{
 		program = spot_light_shader->get_program();
 	}
 	else{
-		//TODO::ERROR
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid light type when binding light shader!" << std::endl;
+		errorlogger("ERROR: Invalid light type when binding light shader!");
 		return false;
 	}
 
@@ -395,6 +422,14 @@ GLuint Renderer::get_uniform_buffer(const std::string& name)const{
 	}
 };
 
+bool Renderer::render_geometry(std::vector<const std::vector<Character_ptr>*> targets)const{
+	for (auto target_vector : targets) {
+		for (auto character : (*target_vector)){
+			character.render_frame(*this);
+		}
+	}
+}
+
 bool Renderer::render_geometry(GLuint VAO, 
 							GLuint num_vertices,
 							const Material_ptr& material, 
@@ -448,12 +483,17 @@ void Renderer::setup_light_rendering()const{
 	clear();
 }
 
+void Renderer::second_setup_light_rendering(Light_type light_type, const glm::vec3& position)const{
+	use_light_shader(light_type);
+	upload_view_position(get_light_shader_program(light_type), 
+								position);
+}
+
 void Renderer::upload_view_position(GLuint shader_program, const glm::vec3& position)const{
 	glUniform3fv(glGetUniformLocation(shader_program, "view_position"), 1, (float*)&position);
 }
 
 void Renderer::detach_light_rendering()const{
-	unbind_g_data();
 }
 
 void Renderer::setup_geometry_rendering(const Camera_ptr& camera){

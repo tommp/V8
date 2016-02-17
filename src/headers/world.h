@@ -5,6 +5,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "errorlogger.h"
+#include "enum_light_type.h"
 #include "contact.h"
 #include "character.h"
 #include "light.h"

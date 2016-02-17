@@ -9,7 +9,7 @@ World::World(Resource_manager& init_manager){
 	add_player(player);
 
 	
-	for (int i = 0; i < 50; ++i) {
+	for (int i = 0; i < 20; ++i) {
 		Character_ptr cube = std::make_shared<Cube>(init_manager);
 		insert_character(cube);
 	}
@@ -169,17 +169,15 @@ void World::render_geometry(Renderer& renderer){
 
 void World::render_lights(const Renderer& renderer)const{
 	renderer.setup_light_rendering();
-	renderer.upload_view_position(renderer.get_light_shader_program(DIRECTIONAL), 
-								camera->get_position_refrence());
 
-	
+	renderer.second_setup_light_rendering(DIRECTIONAL, camera->get_position_refrence());
+	renderer.bind_g_data(DIRECTIONAL);
 	for (auto light : dir_lights) {
 		light->render_light(renderer);
 	}
 	
-	renderer.upload_view_position(renderer.get_light_shader_program(POINT), 
-								camera->get_position_refrence());
-
+	renderer.second_setup_light_rendering(POINT, camera->get_position_refrence());
+	renderer.bind_g_data(POINT);
 	for (auto light : point_lights) {
 		light->render_light(renderer);
 	}

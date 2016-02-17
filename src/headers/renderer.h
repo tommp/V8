@@ -84,6 +84,7 @@ class Renderer{
 
 		bool use_g_buffer()const;
 		bool use_default_buffer()const;
+		bool use_light_shader(Light_type light_type)const;
 		bool bind_g_data(Light_type light_type)const;
 		bool unbind_g_data()const;
 		bool set_clear_color_black();
@@ -101,9 +102,11 @@ class Renderer{
 							const glm::vec3& position, 
 							const glm::vec3& size, 
 							const glm::vec3& direction)const;
+		bool render_geometry(std::vector<const std::vector<Character_ptr>*> targets)const;
 		void detach_geometry_rendering()const;
 
 		void setup_light_rendering()const;
+		void second_setup_light_rendering(Light_type light_type, const glm::vec3& position)const;
 		bool render_light()const;
 		void detach_light_rendering()const;
 
