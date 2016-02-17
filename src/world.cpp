@@ -2,12 +2,14 @@
 
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
+
+	camera = std::make_shared<Camera>();
 	current_level = std::make_shared<Level>(Level(4000, 4000, 200));
 	Character_ptr player = std::make_shared<Player>(init_manager);
 	add_player(player);
 
 	
-	for (int i = 0; i < 50; ++i) {
+	for (int i = 0; i < 20; ++i) {
 		Character_ptr cube = std::make_shared<Cube>(init_manager);
 		insert_character(cube);
 	}
@@ -73,7 +75,7 @@ void World::update_positions(GLfloat timedelta, Renderer& renderer){
 	}
 
 	if(!players.empty()){
-		renderer.center_camera(players.front(), current_level->get_width(), current_level->get_height());
+		camera->center_camera(players.front());
 	}
 }
 
@@ -146,7 +148,7 @@ void World::update_groups(){
 }
 
 void World::render_geometry(Renderer& renderer){
-	renderer.setup_geometry_rendering();
+	renderer.setup_geometry_rendering(camera);
 
 	for (auto player : players) {
 		player->render_frame(renderer);
@@ -167,17 +169,15 @@ void World::render_geometry(Renderer& renderer){
 
 void World::render_lights(const Renderer& renderer)const{
 	renderer.setup_light_rendering();
-	renderer.bind_g_data(renderer.get_light_shader(2));
-	renderer.upload_view_position(renderer.get_light_shader_program(2));
 
-	
+	renderer.second_setup_light_rendering(DIRECTIONAL, camera->get_position_refrence());
+	renderer.bind_g_data(DIRECTIONAL);
 	for (auto light : dir_lights) {
 		light->render_light(renderer);
 	}
 	
-	renderer.bind_g_data(renderer.get_light_shader(0));
-	renderer.upload_view_position(renderer.get_light_shader_program(0));
-
+	renderer.second_setup_light_rendering(POINT, camera->get_position_refrence());
+	renderer.bind_g_data(POINT);
 	for (auto light : point_lights) {
 		light->render_light(renderer);
 	}
@@ -194,7 +194,7 @@ void World::render_lights(const Renderer& renderer)const{
 void World::render_world(Renderer& renderer){
 	render_geometry(renderer);
 	render_lights(renderer);
-	renderer.present_display();
+	renderer.present();
 }
 
 bool World::insert_character(const Character_ptr& character){

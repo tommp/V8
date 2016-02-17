@@ -8,7 +8,6 @@
 #include "errorlogger.h"
 #include "utility.h"
 #include "actor.h"
-#include "display.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -45,15 +44,14 @@ class Camera {
 		bool ortographic;
 	public:
 		Camera();
-		const glm::mat4* get_view_matrix() {return &view;};
-		void update_view_matrix();
-		void upload_view_matrix(GLuint matrix_uniform_buffer)const;
 		void focus_target(const glm::vec3& focus_target);
 		void set_target(const glm::vec3& targ) {target = targ;};
 		void set_position(const glm::vec3& pos){position = pos;};
 		void set_world_up(const glm::vec3& w_up) {world_up = w_up;};
-		void center_camera(const Actor_ptr& target, GLuint bound_width, GLuint bound_height);
-		const glm::vec3* get_position_pointer()const{return &position;};
+		void center_camera(const Actor_ptr& target);
+		const glm::vec3& get_position_refrence()const{return position;};
+		const glm::vec3& get_up_dir_refrence()const{return camera_up;};
+		const glm::vec3& get_target_refrence()const{return target;};
 
 		GLfloat get_x(){return position.x;};
 		GLfloat get_y(){return position.y;};
@@ -72,6 +70,8 @@ class Camera {
 		void set_tz(GLfloat newz){target[2] = newz + offset[2];};
 
 };
+
+typedef std::shared_ptr<Camera> Camera_ptr;
 /*=============================================*/
 
 #endif

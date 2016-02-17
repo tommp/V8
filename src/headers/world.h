@@ -5,6 +5,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "errorlogger.h"
+#include "enum_light_type.h"
 #include "contact.h"
 #include "character.h"
 #include "light.h"
@@ -27,6 +28,8 @@ class World {
 private:
 	Level_ptr current_level;
 	Resource_manager* manager;
+
+	Camera_ptr camera;
 
 	std::list<Character_ptr> players;
 	std::list<Character_ptr> characters;

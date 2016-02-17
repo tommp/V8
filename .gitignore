@@ -28,8 +28,8 @@
 *.app
 
 #Misc
-Errorlog.txt
-src/Errorlog.txt
+ErrorLog.txt
+src/ErrorLog.txt
 v
 utility/
 pixelart/
