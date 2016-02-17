@@ -27,12 +27,6 @@ class Shader;
 class Actor;
 class Renderer;
 
-enum Light_type{
-	DIRECTIONAL = 0,
-	POINT = 1,
-	SPOT = 2
-};
-
 class Light : public Actor {
 	protected:
 		GLuint clip_VAO;

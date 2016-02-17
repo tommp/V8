@@ -28,6 +28,8 @@ private:
 	Level_ptr current_level;
 	Resource_manager* manager;
 
+	Camera_ptr camera;
+
 	std::list<Character_ptr> players;
 	std::list<Character_ptr> characters;
 	std::forward_list<Character_ptr> dormant_characters;

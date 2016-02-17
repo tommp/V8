@@ -18,13 +18,11 @@ int main(int argc, char** argv){
 
 	/* MAIN VARS */
 	/* ====================================== */
-    Display display;
-
 	Resource_manager resource_manager;
 
+	Renderer renderer(resource_manager);
+
 	State_handler state_handler(resource_manager);
-	
-	Renderer renderer(display, resource_manager);
 
 	World world(resource_manager);
 

@@ -6,6 +6,7 @@
 /*---------------------------------------------*/
 #include "errorlogger.h"
 #include "utility.h"
+#include "enum_light_type.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

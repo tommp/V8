@@ -1,26 +1,57 @@
 #include "renderer.h"
 
 Renderer::Renderer(){
-	display = nullptr;
+};
+
+bool Renderer::init_settings(){
+	if (!load_settings()) {
+		ortographic = false;
+		mouse_visible = false;
+		use_vsync = true;
+		use_fullscreen = false;
+		window_size.x = SCREEN_WIDTH;
+		window_size.y = SCREEN_HEIGHT;
+
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load display settings, restoring defaults." << std::endl;
+		errorlogger("ERROR: Failed to load display settings, restoring defaults.");
+
+		save_settings();
+		return false;
+	}
+	SDL_DisableScreenSaver();
+	clear();
+	return true;
+}
+
+Renderer::Renderer(Resource_manager& resource_manager){
 	g_buffer = 0;
 	g_position = 0;
 	g_normal = 0;
 	g_albedo_spec = 0;
 	g_rbo_depth = 0;
-};
 
-Renderer::Renderer(Display& display, Resource_manager& resource_manager){
-	this->display = &display;
+	if(!init_settings()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize display settings! Reset to default." << std::endl;
+		errorlogger("ERROR: Failed to Initialize display settings!");
+	}
+
+	/* Initialize the window */
+	if(!init_window()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize display window!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize display window!");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Initialize opengl */
+	if(!init_openGL()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize display openGL!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize display openGL!");
+		exit(EXIT_FAILURE);
+	}
 
 	if (!init_uniform_buffers()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize unform buffers!" << std::endl;
 		errorlogger("ERROR: Failed to initialize unform buffers");
-		exit(EXIT_FAILURE);
-	}
-
-	if(!init_shaders(resource_manager)) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize shaders in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to initialize shaders in renderer!");
 		exit(EXIT_FAILURE);
 	}
 
@@ -30,15 +61,21 @@ Renderer::Renderer(Display& display, Resource_manager& resource_manager){
 		exit(EXIT_FAILURE);
 	}
 
-	if (!upload_light_data(uniform_buffers["light_data"])) {
+	if(!init_shaders(resource_manager)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize shaders in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to initialize shaders in renderer!");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!upload_light_data()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload light data in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to upload light data in renderer!");
 		exit(EXIT_FAILURE);
 	}
 	
 	/* Set projection matrix */
-    display.update_projection_matrix();
-    display.upload_projection_matrix(uniform_buffers["matrices"]);
+    update_projection_matrix();
+    upload_projection_matrix();
 }
 
 bool Renderer::init_uniform_buffers(){
@@ -86,6 +123,13 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
+	if(!bind_g_data(DIRECTIONAL)){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind g_data in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to bind g_data in renderer");
+		return false;
+	}
+
+
 	point_light_shader = resource_manager.load_shader("point_light_shader");
 	if (point_light_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load point light shader in renderer!" << std::endl;
@@ -93,10 +137,22 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
+	if(!bind_g_data(POINT)){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind g_data in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to bind g_data in renderer");
+		return false;
+	}
+
 	spot_light_shader = resource_manager.load_shader("spot_light_shader");
 	if (spot_light_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load spot light shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load spot light shader in renderer");
+		return false;
+	}
+
+	if(!bind_g_data(SPOT)){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind g_data in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to bind g_data in renderer");
 		return false;
 	}
 
@@ -111,9 +167,9 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 
 bool Renderer::init_framebuffer(){
 	//dir_light_shader->use();
-	if (!display) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Display not initialized, cannon initialize g buffer!" << std::endl;
-		errorlogger("ERROR: Display not initialized, cannon initialize g buffer!");
+	if ((window_size.x <= 0) || (window_size.y <= 0)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Display not initialized, cannot initialize g buffer!" << std::endl;
+		errorlogger("ERROR: Display not initialized, cannot initialize g buffer!");
 		return false;
 	}
 
@@ -123,7 +179,7 @@ bool Renderer::init_framebuffer(){
 	// - Position color buffer
 	glGenTextures(1, &g_position);
 	glBindTexture(GL_TEXTURE_2D, g_position);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, display->get_screen_width(), display->get_screen_height(), 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_position, 0);
@@ -136,7 +192,7 @@ bool Renderer::init_framebuffer(){
 	// - Normal color buffer
 	glGenTextures(1, &g_normal);
 	glBindTexture(GL_TEXTURE_2D, g_normal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, display->get_screen_width(), display->get_screen_height(), 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_normal, 0);
@@ -150,7 +206,7 @@ bool Renderer::init_framebuffer(){
 	// - Color + Specular color buffer
 	glGenTextures(1, &g_albedo_spec);
 	glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, display->get_screen_width(), display->get_screen_height(), 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, g_albedo_spec, 0);
@@ -167,7 +223,7 @@ bool Renderer::init_framebuffer(){
 
 	glGenRenderbuffers(1, &g_rbo_depth);
 	glBindRenderbuffer(GL_RENDERBUFFER, g_rbo_depth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, display->get_screen_width(), display->get_screen_height());
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, window_size.x, window_size.y);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, g_rbo_depth);
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize g_rbo_depth buffer in g_buffer!" << std::endl;
@@ -192,29 +248,32 @@ bool Renderer::init_framebuffer(){
 	return true;
 }
 
-GLuint Renderer::get_light_shader_program(GLuint shader_num)const{
-	if(shader_num == 0){
-		return point_light_shader->get_program();
-	}
-	else if(shader_num == 1){
-		return spot_light_shader->get_program();
-	}
-	else {
+GLuint Renderer::get_light_shader_program(Light_type light_type)const{
+	if(light_type ==  DIRECTIONAL){
 		return dir_light_shader->get_program();
 	}
-	
+	else if(light_type == POINT){
+		return point_light_shader->get_program();
+	}
+	else if(light_type == SPOT){
+		return spot_light_shader->get_program();
+	}
+	//TODO::ERROR
+	return 0;
 }
 
-Shader_ptr Renderer::get_light_shader(GLuint shader_num)const{
-	if(shader_num == 0){
-		return point_light_shader;
-	}
-	else if(shader_num == 1){
-		return spot_light_shader;
-	}
-	else {
+Shader_ptr Renderer::get_light_shader(Light_type light_type)const{
+	if(light_type ==  DIRECTIONAL){
 		return dir_light_shader;
 	}
+	else if(light_type == POINT){
+		return point_light_shader;
+	}
+	else if(light_type == SPOT) {
+		return spot_light_shader;
+	}
+	//TODO::ERROR
+	return nullptr;
 }
 
 bool Renderer::set_clear_color_black(){
@@ -247,12 +306,30 @@ bool Renderer::use_default_buffer()const{
 	return true;
 }
 
-bool Renderer::bind_g_data(const Shader_ptr& current_shader)const{
-	current_shader->use();
+bool Renderer::bind_g_data(Light_type light_type)const{
+	GLuint program;
+	if(light_type == DIRECTIONAL) {
+		dir_light_shader->use();
+		program = dir_light_shader->get_program();
+	}
+
+	else if(light_type == POINT) {
+		point_light_shader->use();
+		program = point_light_shader->get_program();
+	}
+
+	else if(light_type == SPOT) {
+		spot_light_shader->use();
+		program = spot_light_shader->get_program();
+	}
+	else{
+		//TODO::ERROR
+		return false;
+	}
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_position);
-	glUniform1i(glGetUniformLocation(current_shader->get_program(), "g_position"), 0);
+	glUniform1i(glGetUniformLocation(program, "g_position"), 0);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_position buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_position buffer!");
@@ -261,7 +338,7 @@ bool Renderer::bind_g_data(const Shader_ptr& current_shader)const{
 
 	glActiveTexture(GL_TEXTURE0 + 1);
 	glBindTexture(GL_TEXTURE_2D, g_normal);
-	glUniform1i(glGetUniformLocation(current_shader->get_program(), "g_normal"), 1);
+	glUniform1i(glGetUniformLocation(program, "g_normal"), 1);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_normal buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_normal buffer!");
@@ -270,7 +347,7 @@ bool Renderer::bind_g_data(const Shader_ptr& current_shader)const{
 	
 	glActiveTexture(GL_TEXTURE0 + 2);
 	glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
-	glUniform1i(glGetUniformLocation(current_shader->get_program(), "g_albedo_spec"), 2);
+	glUniform1i(glGetUniformLocation(program, "g_albedo_spec"), 2);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_albedo_spec buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_albedo_spec buffer!");
@@ -280,7 +357,6 @@ bool Renderer::bind_g_data(const Shader_ptr& current_shader)const{
 }
 
 bool Renderer::unbind_g_data()const{
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	if(check_ogl_error()) {
@@ -369,23 +445,25 @@ void Renderer::setup_light_rendering()const{
    	glBlendEquation(GL_FUNC_ADD);
    	glBlendFunc(GL_ONE, GL_ONE);
 	use_default_buffer();
-	clear_display();
+	clear();
 }
 
-void Renderer::upload_view_position(GLuint shader_program)const{
-	glUniform3fv(glGetUniformLocation(shader_program, "view_position"), 1, (float*)camera.get_position_pointer());
+void Renderer::upload_view_position(GLuint shader_program, const glm::vec3& position)const{
+	glUniform3fv(glGetUniformLocation(shader_program, "view_position"), 1, (float*)&position);
 }
 
 void Renderer::detach_light_rendering()const{
 	unbind_g_data();
 }
 
-void Renderer::setup_geometry_rendering(){
-	update_view_matrix();
-	upload_view_matrix(uniform_buffers.find("matrices")->second);
+void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
+	update_view_matrix(camera->get_position_refrence(), 
+						camera->get_target_refrence(), 
+						camera->get_up_dir_refrence());
+	upload_view_matrix();
 	use_g_buffer();
 	glDepthMask(GL_TRUE);
-	clear_display();
+	clear();
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	geometry_shader->use();
@@ -406,23 +484,245 @@ void Renderer::detach_geometry_rendering()const{
 	}
 }
 
-void Renderer::center_camera(const Actor_ptr& target, GLuint bound_width, GLuint bound_height) {
-	camera.center_camera(target, bound_width, bound_height);
-}
-
-bool Renderer::upload_light_data(GLuint light_data_uniform_buffer)const{
-	glm::vec2 screen_size;
-	screen_size.x = display->get_screen_width();
-	screen_size.y = display->get_screen_height();
-
-	glBindBuffer(GL_UNIFORM_BUFFER, light_data_uniform_buffer);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec2), glm::value_ptr(screen_size));
+bool Renderer::upload_light_data()const{
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("light_data")->second);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec2), glm::value_ptr(window_size));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
 
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload light data vector: " << light_data_uniform_buffer << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload light data vector!" << std::endl;
 		errorlogger("ERROR: Failed to upload light data vector!");
 		return false;
 	}
 	return true;
+}
+
+//DISPFUNCS
+
+void Renderer::update_projection_matrix(){
+	if (ortographic) {
+		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, 0.1f, 3000.0f);
+	}
+	else{
+		projection = glm::perspective(45.0f, window_size.x / window_size.y, 0.1f, 3000.0f);
+	}
+}
+
+void Renderer::upload_projection_matrix()const{
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("matrices")->second);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
+
+	if(check_ogl_error()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload projection matix!" << std::endl;
+		errorlogger("ERROR: Failed to upload projection matix!");
+		exit(EXIT_FAILURE);
+	}
+}
+
+bool Renderer::save_settings(){
+	std::ofstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
+
+	if (!contentf.is_open()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for display settings!" << std::endl;
+		errorlogger("ERROR: Failed to open content file for display settings!");
+		return false;
+	}
+
+	contentf.write(reinterpret_cast<char *>(&ortographic), sizeof(bool));
+	contentf.write(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
+	contentf.write(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
+	contentf.write(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
+
+	contentf.write(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
+
+	contentf.close();
+
+	return true;
+}
+
+bool Renderer::load_settings(){
+	std::ifstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
+
+	if (!contentf.is_open()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for display settings!" << std::endl;
+		errorlogger("ERROR: Failed to open content file for display settings!");
+		return false;
+	}
+
+	contentf.read(reinterpret_cast<char *>(&ortographic), sizeof(bool));
+	contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
+	contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
+	contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
+
+	contentf.read(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
+	contentf.read(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
+
+	contentf.close();
+
+	return true;
+}
+
+void Renderer::toggle_mouse()const{
+	if (mouse_visible) {
+		SDL_ShowCursor(0);
+	}
+	else{
+		SDL_ShowCursor(1);
+	}
+}
+
+bool Renderer::init_window(){
+	/* Set to enable opengl window context */
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OPENGL_MAJOR_VERSION);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OPENGL_MINOR_VERSION);
+
+	/*Initializes a window to render graphics in*/
+	window = SDL_CreateWindow("V8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_size.x, window_size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	if (window == nullptr){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to create SDL window, see errorlog for details."<<std::endl;
+		SDLerrorLogger("SDL_CreateWindow");
+		return false;
+	}
+
+	/* Create opengl context */
+	gl_context = SDL_GL_CreateContext(window);
+	if(gl_context == NULL){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: OpenGL context could not be created! SDL Error: " << SDL_GetError() << std::endl;
+		SDLerrorLogger("SDL_GL_CreateContext");
+		return false;
+	}
+
+	if(use_fullscreen){
+		enable_fullscreen();
+	}
+
+	if(use_vsync) {
+		enable_vsync();
+	}
+
+	if (!mouse_visible) {
+		SDL_ShowCursor(0);
+	}
+	else{
+		SDL_ShowCursor(1);
+	}
+
+	return true;
+}
+
+bool Renderer::enable_fullscreen(){
+	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	GLint width;
+	GLint height;
+	SDL_GetWindowSize(window, &width, &height);
+	window_size.x = (GLfloat) width;
+	window_size.y = (GLfloat) height;
+	update_projection_matrix();
+	upload_projection_matrix();
+	return true;
+}
+
+bool Renderer::enable_vsync(){
+	if ( !(SDL_GL_SetSwapInterval(1) < 0)){
+		return true;
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: SDL_GL_SetSwapInterval could not enable vsync! SDL Error: " << SDL_GetError() << std::endl;
+		SDLerrorLogger("SDL_GL_SetSwapInterval");
+		return false;
+	}
+}
+
+bool Renderer::disable_vsync(){
+	if ( !(SDL_GL_SetSwapInterval(0) < 0)){
+		return true;
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: SDL_GL_SetSwapInterval could not disable vsync! SDL Error: " << SDL_GetError() << std::endl;
+		SDLerrorLogger("SDL_GL_SetSwapInterval");
+		return false;
+	}
+}
+
+bool Renderer::init_openGL(){
+	/* Set this to true so GLEW knows to use a modern approach to retrieving 
+	function pointers and extensions*/
+	glewExperimental = GL_TRUE;
+
+	/* Initialize GLEW to setup the OpenGL Function pointers */
+	GLenum err = glewInit();
+	if (err){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize GLEW in Display::init_openGL()!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize GLEW in Display::init_openGL()!");
+		return false;
+	}
+	/* Discard all errors set by glewinit */
+	check_ogl_error();
+
+	/* Define the viewport dimensions
+	glViewport(0, 0, width, height);
+	if(check_ogl_error()) {
+		std::cout << "ERROR: Failed to Initialize viewport in Display::init_openGL(): " << glewGetErrorString(err) << std::endl;
+		errorlogger("ERROR: Failed to Initialize viewport in Display::init_openGL(): ", (const char*)glewGetErrorString(err));
+		return false;
+	}*/
+
+	/* Setup OpenGL options */
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	if(check_ogl_error()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize depth testing in Display::init_openGL()!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize depth testing in Display::init_openGL()!");
+		return false;
+	}
+
+	/* Initialize clear color */
+	glClearColor(CLEARCOLOR[0], CLEARCOLOR[1], CLEARCOLOR[2], CLEARCOLOR[3]);
+	if(check_ogl_error()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize clearcolour in Display::init_openGL()!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize clearcolour in Display::init_openGL()!");
+		return false;
+	}
+
+	if(check_ogl_error()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize openGL in Display::init_openGL()!" << std::endl;
+		errorlogger("ERROR: Failed to Initialize openGL in Display::init_openGL()!");
+		return false;
+	}
+
+	std::cout << "OpenGL initialized! Version: " << glGetString(GL_VERSION) << "\n\n\n\n\n" << std::endl;
+
+	return true;
+}
+
+void Renderer::clear()const{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::present()const{
+	SDL_GL_SwapWindow(window);
+}
+
+//CAMFUNCS
+
+void Renderer::update_view_matrix(const glm::vec3& position, const glm::vec3& target, const glm::vec3& camera_up) {
+	/*std::cout << "POS: " << position.x << " : " << position.y << " : " << position.z << std::endl;
+	std::cout << "TARG: " << target.x << " : " << target.y << " : " << target.z << std::endl;
+	std::cout << "CAM: " << camera_up.x << " : " << camera_up.y << " : " << camera_up.z << std::endl;*/
+	view = glm::lookAt(position, target, camera_up);
+}
+
+void Renderer::upload_view_matrix()const{
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("matrices")->second);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload view matrix!" << std::endl;
+		errorlogger("ERROR: Failed to upload view matrix!");
+		exit(EXIT_FAILURE);
+	}
 }
