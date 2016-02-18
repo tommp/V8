@@ -9,16 +9,17 @@ current_path := $(abspath ../$(current_dir))
 program_CXX_SRCS := $(wildcard *.cpp)
 program_OBJS := ${program_CXX_SRCS:.cpp=.o}
 
-OPENGL_LIB = -lGLEW -lGL
-SDL_LIB = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx -Wl,-rpath=/usr/local/lib
-program_INCLUDE_DIRS := $(current_path)/headers/ $(current_path)/headers/maps/
-program_LIBRARY_DIRS :=
-program_LIBRARIES := m 
+OPENGL_LIB := GLEW GL
+SDL_LIB :=  SDL2 SDL2_image SDL2_mixer SDL2_gfx 
+BULLET_LIB := BulletDynamics BulletCollision LinearMath
 
-LDFLAGS += $(SDL_LIB)
-LDFLAGS += $(OPENGL_LIB)
+program_INCLUDE_DIRS := $(current_path)/headers/ $(current_path)/headers/maps/ 
+program_LIBRARY_DIRS := /usr/local/lib lib/static/ 
+program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) m 
+
 CXXFLAGS += -Wall -g -std=c++11
 CPPFLAGS += $(foreach includedir,$(program_INCLUDE_DIRS),-I$(includedir))
+LDFLAGS += -Wl,-rpath=/usr/local/lib
 LDFLAGS += $(foreach librarydir,$(program_LIBRARY_DIRS),-L$(librarydir))
 LDFLAGS += $(foreach library,$(program_LIBRARIES),-l$(library))
 
