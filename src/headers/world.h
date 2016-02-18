@@ -20,6 +20,7 @@
 #include <SDL2/SDL.h>
 #include <forward_list>
 #include <list>
+#include <vector>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -30,6 +31,8 @@ private:
 	Resource_manager* manager;
 
 	Camera_ptr camera;
+
+	std::vector<const std::list<Character_ptr>*> rendering_targets;
 
 	std::list<Character_ptr> players;
 	std::list<Character_ptr> characters;

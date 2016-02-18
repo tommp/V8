@@ -6,7 +6,7 @@ Directional_light::Directional_light(){
 	size = {1.0f, 1.0f, 1.0f};
 	ambient = {0.2f, 0.2f, 0.2f};
 	diffuse = {0.01f, 0.01f, 0.01f};
-	specular = {0.01f, 0.01f, 0.01f};
+	specular = {0.0f, 0.0f, 0.0f};
 
 	scale = {1.0f, 1.0f, 1.0f};
 		

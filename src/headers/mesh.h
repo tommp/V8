@@ -60,6 +60,7 @@ class Mesh {
 						const glm::vec3& position, 
 						const glm::vec3& size, 
 						const glm::vec3& direction);
+		GLuint get_vbo()const{return VBO;};
 };
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;

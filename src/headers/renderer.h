@@ -22,6 +22,7 @@
 #include <string>
 #include <unordered_map>
 #include <unistd.h>
+#include <list>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -60,7 +61,6 @@ class Renderer{
 	    glm::mat4 view;
 
 		GLuint g_buffer;
-
 		GLuint g_position;
 		GLuint g_normal;
 		GLuint g_albedo_spec;
@@ -102,11 +102,11 @@ class Renderer{
 							const glm::vec3& position, 
 							const glm::vec3& size, 
 							const glm::vec3& direction)const;
-		bool render_geometry(std::vector<const std::vector<Character_ptr>*> targets)const;
+		bool render_geometry(std::vector<const std::list<Character_ptr>*> targets, 
+										const Camera_ptr& camera);
 		void detach_geometry_rendering()const;
 
-		void setup_light_rendering()const;
-		void second_setup_light_rendering(Light_type light_type, const glm::vec3& position)const;
+		void setup_light_rendering(Light_type light_type, const glm::vec3& position)const;
 		bool render_light()const;
 		void detach_light_rendering()const;
 

@@ -4,7 +4,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "renderer.h"
+#include "btBulletDynamicsCommon.h"
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
@@ -13,6 +13,7 @@
 #include "camera.h"
 #include "resource_manager.h"
 #include "world.h"
+#include "renderer.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

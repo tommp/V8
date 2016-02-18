@@ -14,7 +14,7 @@ const std::unordered_map<std::string, std::vector<std::string>> ENGINE_MATERIALS
 	{"Material__6", {"c001_16", ""}},
 	{"Material__2", {"c001_02", ""}},
 	{"Material__25", {"w001_00", ""}},
-	{"Model001_Material001", {"Turret_01", ""}},
+	{"Model001_Material001", {"Turret_01", "Turret_01"}},
 	{"Material.001_BrickRound0105_5_SPEC.png", {"BrickRound0105_5_SPEC", ""}},
 };
 
