@@ -422,13 +422,57 @@ GLuint Renderer::get_uniform_buffer(const std::string& name)const{
 	}
 };
 
-bool Renderer::render_geometry(std::vector<const std::vector<Character_ptr>*> targets)const{
-	for (auto target_vector : targets) {
-		for (auto character : (*target_vector)){
-			character.render_frame(*this);
-		}
+void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
+	update_view_matrix(camera->get_position_refrence(), 
+						camera->get_target_refrence(), 
+						camera->get_up_dir_refrence());
+	upload_view_matrix();
+	use_g_buffer();
+	glDepthMask(GL_TRUE);
+	clear();
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	geometry_shader->use();
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup geometry rendering!" << std::endl;
+		errorlogger("ERROR: Failed to setup geometry rendering!");
+		exit(EXIT_FAILURE);
 	}
 }
+
+bool Renderer::render_geometry(std::vector<const std::list<Character_ptr>*> targets, const Camera_ptr& camera){
+	setup_geometry_rendering(camera);
+	for (auto target_vector : targets) {
+		for (auto character : (*target_vector)){
+			character->render_frame(*this);
+		}
+	}
+	detach_geometry_rendering();
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!" << std::endl;
+		errorlogger("ERROR: Failed to render geometry!");
+		exit(EXIT_FAILURE);
+	}
+	return true;
+}
+
+void Renderer::detach_geometry_rendering()const{
+	glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+   	glBlendEquation(GL_FUNC_ADD);
+   	glBlendFunc(GL_ONE, GL_ONE);
+	use_default_buffer();
+	clear();
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;
+		errorlogger("ERROR: Failed to detach geometry rendering!");
+		exit(EXIT_FAILURE);
+	}
+
+}
+
+
 
 bool Renderer::render_geometry(GLuint VAO, 
 							GLuint num_vertices,
@@ -475,53 +519,15 @@ bool Renderer::render_geometry(GLuint VAO,
 	return true;
 }
 
-void Renderer::setup_light_rendering()const{
-	glEnable(GL_BLEND);
-   	glBlendEquation(GL_FUNC_ADD);
-   	glBlendFunc(GL_ONE, GL_ONE);
-	use_default_buffer();
-	clear();
-}
-
-void Renderer::second_setup_light_rendering(Light_type light_type, const glm::vec3& position)const{
+void Renderer::setup_light_rendering(Light_type light_type, const glm::vec3& position)const{
 	use_light_shader(light_type);
 	upload_view_position(get_light_shader_program(light_type), 
 								position);
+	bind_g_data(light_type);
 }
 
 void Renderer::upload_view_position(GLuint shader_program, const glm::vec3& position)const{
 	glUniform3fv(glGetUniformLocation(shader_program, "view_position"), 1, (float*)&position);
-}
-
-void Renderer::detach_light_rendering()const{
-}
-
-void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
-	update_view_matrix(camera->get_position_refrence(), 
-						camera->get_target_refrence(), 
-						camera->get_up_dir_refrence());
-	upload_view_matrix();
-	use_g_buffer();
-	glDepthMask(GL_TRUE);
-	clear();
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	geometry_shader->use();
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup geometry rendering!" << std::endl;
-		errorlogger("ERROR: Failed to setup geometry rendering!");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void Renderer::detach_geometry_rendering()const{
-	glDepthMask(GL_FALSE);
-    glDisable(GL_DEPTH_TEST);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;
-		errorlogger("ERROR: Failed to detach geometry rendering!");
-		exit(EXIT_FAILURE);
-	}
 }
 
 bool Renderer::upload_light_data()const{

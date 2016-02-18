@@ -1,5 +1,8 @@
 #include "world.h"
 
+World::~World() {
+}
+
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
 
@@ -8,23 +11,23 @@ World::World(Resource_manager& init_manager){
 	Character_ptr player = std::make_shared<Player>(init_manager);
 	add_player(player);
 
-	
-	for (int i = 0; i < 20; ++i) {
+	for (int i = 0; i < 200; ++i) {
 		Character_ptr cube = std::make_shared<Cube>(init_manager);
 		insert_character(cube);
 	}
 	
-	
+	/*
 	for (int i = 0; i < 50; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_point_light(point_light);
-	}
+	}*/
+
+	rendering_targets.push_back(&players);
+	rendering_targets.push_back(&characters);
+
 
 	Light_ptr dir_light = std::make_shared<Directional_light>();
 	add_dir_light(dir_light);
-}
-
-World::~World() {
 }
 
 bool World::check_if_colliding(const Character_ptr& a, const Character_ptr& b)const{
@@ -148,18 +151,7 @@ void World::update_groups(){
 }
 
 void World::render_geometry(Renderer& renderer){
-	renderer.setup_geometry_rendering(camera);
-
-	for (auto player : players) {
-		player->render_frame(renderer);
-	}
-
-	for (auto character : characters) {
-		character->render_frame(renderer);
-	}
-
-	renderer.detach_geometry_rendering();
-
+	renderer.render_geometry(rendering_targets, camera);
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
 		errorlogger("ERROR: Failed to render geometry!");
@@ -168,21 +160,17 @@ void World::render_geometry(Renderer& renderer){
 }
 
 void World::render_lights(const Renderer& renderer)const{
-	renderer.setup_light_rendering();
+	renderer.setup_light_rendering(DIRECTIONAL, camera->get_position_refrence());
 
-	renderer.second_setup_light_rendering(DIRECTIONAL, camera->get_position_refrence());
-	renderer.bind_g_data(DIRECTIONAL);
 	for (auto light : dir_lights) {
 		light->render_light(renderer);
 	}
 	
-	renderer.second_setup_light_rendering(POINT, camera->get_position_refrence());
-	renderer.bind_g_data(POINT);
+	renderer.setup_light_rendering(POINT, camera->get_position_refrence());
 	for (auto light : point_lights) {
 		light->render_light(renderer);
 	}
 
-	renderer.detach_light_rendering();
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");

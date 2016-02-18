@@ -19,6 +19,7 @@
 class Actor{
 	protected:
 		glm::vec3 position;
+		glm::vec3 collision_elipsoid;
 		glm::vec3 size;
 		glm::vec3 scale;
 		glm::vec3 direction;
