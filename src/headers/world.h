@@ -4,6 +4,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "btBulletDynamicsCommon.h"
 #include "errorlogger.h"
 #include "enum_light_type.h"
 #include "contact.h"
@@ -25,40 +26,52 @@
 
 /*Header content*/
 /*=============================================*/
+class btDiscreteDynamicsWorld;
+
 class World {
 private:
+	Camera_ptr camera;
 	Level_ptr current_level;
 	Resource_manager* manager;
 
-	Camera_ptr camera;
+	/* ==================== Physics stuff ===================== */
+	btDiscreteDynamicsWorld* physics_world;
+	btBroadphaseInterface* broadphase;
+	btDefaultCollisionConfiguration* collisionConfiguration;
+	btCollisionDispatcher* dispatcher;
+	btSequentialImpulseConstraintSolver* solver;
+
+	glm::vec3 gravity;
+	/* ======================================================== */
 
 	std::vector<const std::list<Character_ptr>*> rendering_targets;
 
 	std::list<Character_ptr> players;
 	std::list<Character_ptr> characters;
 	std::forward_list<Character_ptr> dormant_characters;
-	std::forward_list<Contact> contacts;
-	
+
 	std::forward_list<Light_ptr> dir_lights;
 	std::forward_list<Light_ptr> point_lights;
 	std::forward_list<Light_ptr> spot_lights;
 public:
 	World(Resource_manager& init_manager);
 	~World();
+
+	bool init_physics();
+	void set_gravity(const glm::vec3& gravity);
+	void update_gravity();
+	void add_to_physics_world(btRigidBody* character)const{physics_world->addRigidBody(character);};
+	void remove_from_physics_world(btRigidBody* character)const{physics_world->removeRigidBody(character);};
+	
 	bool check_if_colliding(const Character_ptr& a, const Character_ptr& b)const;
+	void resolve_collisions();
 	bool check_if_offscreen(const Character_ptr& a)const;
 	void update_positions(float timedelta, Renderer& renderer);
-	void resolve_collisions();
 	void update_groups();
 
-	void detect_all_collisions();
-	void detect_collisions(const std::list<Character_ptr>& a);
-	void detect_collisions(const std::list<Character_ptr>& a, const std::list<Character_ptr>& b);
-
-	bool insert_player(const Character_ptr& player);
 	bool add_player(const Character_ptr& player);
 	
-	bool insert_character(const Character_ptr& character);
+	bool add_active_character(const Character_ptr& character);
 	bool add_dormant_character(const Character_ptr& character);
 	bool add_character(const Character_ptr& character);
 

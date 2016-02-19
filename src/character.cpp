@@ -1,5 +1,17 @@
 #include "character.h"
 
+Character::Character(){
+	motion_state = nullptr;
+	collision_shape = nullptr;
+	collision_body = nullptr;
+}
+
+Character::~Character(){
+	delete motion_state;
+	delete collision_shape;
+	delete collision_body;
+}
+
 bool Character::operator<(const Character& b){
 	if (position[2] < b.get_z() ){
 		return true;
@@ -14,3 +26,4 @@ bool Character::operator<(const Character& b){
 		return false;
 	}
 }
+

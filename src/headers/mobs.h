@@ -20,6 +20,7 @@
 /*=============================================*/
 class Animation;
 class Character;
+class btRigidBody;
 
 class Cube: public Character{
 private:
