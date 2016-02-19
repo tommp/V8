@@ -17,6 +17,17 @@ Cube::Cube(Resource_manager& manager){
 	last_move = SDL_GetTicks();
 	move_duration = rand()%1000;
 	size = {2.0f, 2.0f, 2.0f};
+
+	/* Physics */
+	mass = 10;
+	fall_inertia = {0, 0, 0};
+	collision_shape = new btSphereShape(30);
+	collision_shape->calculateLocalInertia(mass, fall_inertia);
+	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
+														btVector3(position.x, position.y, position.z)));
+	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, 
+															btVector3(0, 0, 0));
+	collision_body = new btRigidBody(collision_body_CI);
 }
 
 Cube::~Cube(){
@@ -28,6 +39,13 @@ void Cube::render_frame(const Renderer& renderer)const{
 }
 
 void Cube::update_position(float timedelta){
+	btTransform transform;
+    motion_state->getWorldTransform(transform);
+
+    position[0] = transform.getOrigin().getX();
+    position[1] = transform.getOrigin().getY();
+    position[2] = transform.getOrigin().getZ();
+
 	if ( SDL_GetTicks() > last_move + move_duration && SDL_GetTicks() < last_move + (2*move_duration)) {
 		velocity[0] = 0;
 		velocity[1] = 0;
@@ -46,8 +64,7 @@ void Cube::update_position(float timedelta){
 
 	last_pos = position;
 
-	position[0] += velocity[0] * timedelta;
-	position[2] += velocity[2] * timedelta;
+	collision_body->applyCentralForce(btVector3(velocity.x,velocity.y,velocity.z));
 
 }
 

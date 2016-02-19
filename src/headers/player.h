@@ -23,6 +23,7 @@
 class Animation;
 class Resource_manager;
 class Character;
+class btRigidBody;
 
 class Player : public Character{
 private:

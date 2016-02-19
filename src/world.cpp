@@ -1,26 +1,38 @@
 #include "world.h"
 
 World::~World() {
+	delete physics_world;
+	delete broadphase;
+	delete collisionConfiguration;
+	delete dispatcher;
+	delete solver;
 }
 
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
+
+	if (!init_physics()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize physics!"<< std::endl;
+		errorlogger("ERROR: Failed initialize physics!");
+    	exit(EXIT_FAILURE);
+	}
 
 	camera = std::make_shared<Camera>();
 	current_level = std::make_shared<Level>(Level(4000, 4000, 200));
 	Character_ptr player = std::make_shared<Player>(init_manager);
 	add_player(player);
 
-	for (int i = 0; i < 200; ++i) {
+
+	for (int i = 0; i < 50; ++i) {
 		Character_ptr cube = std::make_shared<Cube>(init_manager);
-		insert_character(cube);
+		add_active_character(cube);
 	}
 	
-	/*
+	
 	for (int i = 0; i < 50; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_point_light(point_light);
-	}*/
+	}
 
 	rendering_targets.push_back(&players);
 	rendering_targets.push_back(&characters);
@@ -28,6 +40,56 @@ World::World(Resource_manager& init_manager){
 
 	Light_ptr dir_light = std::make_shared<Directional_light>();
 	add_dir_light(dir_light);
+}
+
+void World::set_gravity(const glm::vec3& gravity){
+	this->gravity = gravity;
+}
+
+void World::update_gravity(){
+	physics_world->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
+}
+
+bool World::init_physics(){
+	broadphase = new btDbvtBroadphase();
+	if (!broadphase){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize broadphase for physics!"<< std::endl;
+		errorlogger("ERROR: Failed initialize broadphase for physics!");
+		return false;
+	}
+
+	collisionConfiguration = new btDefaultCollisionConfiguration();
+	if(!collisionConfiguration){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize collision configuration for physics!"<< std::endl;
+		errorlogger("ERROR: Failed initialize collision configuration for physics!");
+		return false;
+	}
+
+	dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	if (!dispatcher){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize dispatcher for physics!"<< std::endl;
+		errorlogger("ERROR: Failed initialize dispatcher for physics!");
+		return false;
+	}
+
+	solver = new btSequentialImpulseConstraintSolver;
+	if (!solver){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize constraint solver for physics!"<< std::endl;
+		errorlogger("ERROR: Failed initialize constraint solver for physics!");
+		return false;
+	}
+
+	physics_world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+	if (!physics_world){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize world for physics!"<< std::endl;
+		errorlogger("ERROR: Failed initialize world for physics!");
+		return false;
+	}
+
+	gravity = {0.0f, -10.0f, 0.0f};
+	update_gravity();
+
+	return true;
 }
 
 bool World::check_if_colliding(const Character_ptr& a, const Character_ptr& b)const{
@@ -77,53 +139,10 @@ void World::update_positions(GLfloat timedelta, Renderer& renderer){
 		(*it)->update_position(timedelta);
 	}
 
+	physics_world->stepSimulation(timedelta, 7);
+
 	if(!players.empty()){
 		camera->center_camera(players.front());
-	}
-}
-
-
-void World::detect_all_collisions() {
-	if (!players.empty()){
-		detect_collisions(players);
-		detect_collisions(players, characters);
-	}
-
-	if (!characters.empty()){
-		detect_collisions(characters);
-	}
-}
-
-void World::detect_collisions(const std::list<Character_ptr>& a){
-	if (!a.empty()) {
-		for (auto it_a = a.begin(); it_a != a.end(); ++it_a) {
-			for (auto it_a_2 = it_a; it_a_2 != a.end(); ++it_a_2) {
-				if(check_if_colliding( *(it_a), *(it_a_2) )){
-					if (it_a == it_a_2) {
-						continue;
-					}
-					else{
-						contacts.emplace_front( *(it_a), *(it_a_2) );
-					}
-				}
-				else{
-					continue;
-				}
-			}
-		}
-	}
-}
-
-void World::detect_collisions(const std::list<Character_ptr>& a, const std::list<Character_ptr>& b){
-	for (auto it_a = a.begin(); it_a != a.end(); ++it_a) {
-		for (auto it_b = b.begin(); it_b != b.end(); ++it_b) {
-			if(check_if_colliding( *(it_a), *(it_b) )){
-				contacts.emplace_front( *(it_a), *(it_b) );
-			}
-			else{
-				continue;
-			}
-		}
 	}
 }
 
@@ -134,13 +153,15 @@ void World::update_groups(){
 	for (auto it = characters.begin(); it != characters.end(); ++it){
 		if( !check_if_offscreen(*it)){
 			add_dormant_character(*it);
+			remove_from_physics_world((*it)->get_collision_body());
 			it = characters.erase(it);
 		}
 	}
 
 	for (auto it = first_it_dormant; it != dormant_characters.end(); ++it){
 		if(check_if_offscreen(*it)){
-			insert_character(*it);
+			add_active_character(*it);
+			add_to_physics_world((*it)->get_collision_body());
 			dormant_characters.erase_after(before_it_dormant);
 			it = before_it_dormant;
 		}
@@ -185,9 +206,10 @@ void World::render_world(Renderer& renderer){
 	renderer.present();
 }
 
-bool World::insert_character(const Character_ptr& character){
+bool World::add_active_character(const Character_ptr& character){
 	if (character){
 		characters.push_back(character);
+		add_to_physics_world(character->get_collision_body());
 		return true;
 	}
 	else{
@@ -212,7 +234,7 @@ bool World::add_dormant_character(const Character_ptr& character){
 bool World::add_character(const Character_ptr& character){
 	if(character) {
 		if(check_if_offscreen(character)) {
-			return insert_character(character);
+			return add_active_character(character);
 		}
 		else{
 			return add_dormant_character(character);
@@ -225,9 +247,10 @@ bool World::add_character(const Character_ptr& character){
 	}
 }
 
-bool World::insert_player(const Character_ptr& player){
+bool World::add_player(const Character_ptr& player){
 	if (player){
 		players.push_back(player);	
+		add_to_physics_world(player->get_collision_body());
 		return true;
 	}
 	else{
@@ -273,11 +296,5 @@ bool World::add_spot_light(const Light_ptr& light){
 	}
 }
 
-
-bool World::add_player(const Character_ptr& player){
-	return insert_player(player);
-}
-
 void World::resolve_collisions(){
-	contacts.clear();
 }
