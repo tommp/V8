@@ -27,7 +27,7 @@
 
 /*Header content*/
 /*=============================================*/
-#define DISPLAY_SETTINGS_FILE_PATH "../data/display.conf"
+#define DISPLAY_SETTINGS_FILE_PATH "./data/display.conf"
 
 const unsigned int OPENGL_MAJOR_VERSION =	3;
 const unsigned int OPENGL_MINOR_VERSION =	3;

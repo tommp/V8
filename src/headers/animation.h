@@ -29,7 +29,7 @@
 
 /*Header content*/
 /*=============================================*/
-#define ANIMATION_DATA_FILE_PATH "../data/content.sark"
+#define ANIMATION_DATA_FILE_PATH "./data/content.sark"
 
 class Resource_manager;
 class Frame;
