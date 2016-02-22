@@ -12,9 +12,10 @@ program_OBJS := ${program_CXX_SRCS:.cpp=.o}
 OPENGL_LIB := GLEW GL
 SDL_LIB :=  SDL2 SDL2_image SDL2_mixer SDL2_gfx 
 BULLET_LIB := BulletDynamics BulletCollision LinearMath
+ROCKET_LIB := RocketCore
 
-program_INCLUDE_DIRS := $(current_path)/headers/ $(current_path)/headers/maps/ 
-program_LIBRARY_DIRS := /usr/local/lib lib/static/ 
+program_INCLUDE_DIRS := $(current_path)/headers/ $(current_path)/headers/maps/ $(current_path)/headersRocket/ $(current_path)/headers/Bullet3D/
+program_LIBRARY_DIRS := /usr/local/lib /usr/local/lib/dynamic/
 program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) m 
 
 CXXFLAGS += -Wall -g -std=c++11
