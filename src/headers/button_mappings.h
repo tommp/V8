@@ -29,7 +29,6 @@ class Button_mappings{
 		SDL_Keycode a1;
 		SDL_Keycode a2;
 		SDL_Keycode a3;
-		SDL_Keycode a4;
 
 		SDL_Keycode quit;
 	public:
