@@ -6,15 +6,17 @@ World::~World() {
 	delete collisionConfiguration;
 	delete dispatcher;
 	delete solver;
+	delete mousepicker;
 }
 
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
+	mousepicker = new Mousepicker();
 
 	if (!init_physics()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize physics!"<< std::endl;
 		errorlogger("ERROR: Failed initialize physics!");
-    	exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	camera = std::make_shared<Camera>();
@@ -140,6 +142,9 @@ void World::update_positions(GLfloat timedelta, Renderer& renderer){
 	}
 
 	physics_world->stepSimulation(timedelta, 7);
+
+	mousepicker->calculate_ray(2000.0f, renderer);
+	mousepicker->check_for_intersection(physics_world);
 
 	if(!players.empty()){
 		camera->center_camera(players.front());

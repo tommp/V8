@@ -89,6 +89,9 @@ class Renderer{
 		bool unbind_g_data()const;
 		bool set_clear_color_black();
 
+		glm::mat4 get_projection_matrix()const{return projection;};
+		glm::mat4 get_view_matrix()const{return view;};
+
 		GLuint get_uniform_buffer(const std::string& name)const;
 		GLuint get_light_shader_program(Light_type light_type)const;
 		GLuint get_window_width()const{return window_size.x;};

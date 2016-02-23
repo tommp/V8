@@ -6,7 +6,7 @@ Renderer::Renderer(){
 bool Renderer::init_settings(){
 	if (!load_settings()) {
 		ortographic = false;
-		mouse_visible = false;
+		mouse_visible = true;
 		use_vsync = true;
 		use_fullscreen = false;
 		window_size.x = (GLfloat)SCREEN_WIDTH;

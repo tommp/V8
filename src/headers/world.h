@@ -8,6 +8,7 @@
 #include "errorlogger.h"
 #include "enum_light_type.h"
 #include "contact.h"
+#include "mousepicker.h"
 #include "character.h"
 #include "light.h"
 #include "mobs.h"
@@ -33,6 +34,8 @@ private:
 	Camera_ptr camera;
 	Level_ptr current_level;
 	Resource_manager* manager;
+	Mousepicker* mousepicker;
+
 
 	/* ==================== Physics stuff ===================== */
 	btDiscreteDynamicsWorld* physics_world;
