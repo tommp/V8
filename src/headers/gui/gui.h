@@ -19,12 +19,6 @@
 class GUI{
 private:
 	std::vector<Widget_ptr> widgets;
-
-	btDiscreteDynamicsWorld* physics_world;
-	btBroadphaseInterface* broadphase;
-	btDefaultCollisionConfiguration* collisionConfiguration;
-	btCollisionDispatcher* dispatcher;
-	btSequentialImpulseConstraintSolver* solver;
 public:
 	virtual GUI();
 	bool init_physics();

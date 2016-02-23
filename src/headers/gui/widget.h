@@ -24,10 +24,6 @@ protected:
 
 	GLuint VBO;
 	GLuint VAO;
-
-	btRigidBody* collision_body;
-	btCollisionShape* collision_shape;
-	btDefaultMotionState* motion_state;
 public:
 	virtual bool on_hover() = 0;
 	virtual bool on_click() = 0;

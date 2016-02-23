@@ -22,7 +22,8 @@ void Mousepicker::calculate_ray(GLfloat length, const Renderer& renderer){
 
 	ray_end = trans * ray_end_s; 
 	ray_end /= ray_end.w;
-	ray_end *= length;
+
+	ray_end = (ray_end - ray_start) * length;
 
 	std::cout << ray_start.x << ":" << ray_start.y << std::endl;
 	std::cout << ray_end.x << ":" << ray_end.y << std::endl;
