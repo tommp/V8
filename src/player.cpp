@@ -35,6 +35,8 @@ void Player::update_position(GLfloat timedelta){
     position[1] = transform.getOrigin().getY();
     position[2] = transform.getOrigin().getZ();
 
+    //std::cout <<"player: " << position[0] << ":" << position[1] << ":" << position[2] << std::endl;
+
 	velocity = {0.0f, 0.0f, 0.0f};
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
 	if(current_key_states[manager->get_button_map_key("player", UP)]){

@@ -25,16 +25,19 @@ World::World(Resource_manager& init_manager){
 	add_player(player);
 
 
-	for (int i = 0; i < 50; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		Character_ptr cube = std::make_shared<Cube>(init_manager);
 		add_active_character(cube);
 	}
 	
 	
-	for (int i = 0; i < 50; ++i) {
+	for (int i = 0; i < 20; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_point_light(point_light);
 	}
+
+	Character_ptr prop = std::make_shared<Prop>(init_manager);
+	add_active_character(prop);
 
 	rendering_targets.push_back(&players);
 	rendering_targets.push_back(&characters);

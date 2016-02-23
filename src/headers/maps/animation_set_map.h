@@ -9,6 +9,7 @@
 const std::unordered_map<std::string, std::vector<std::string>> ENGINE_ANIMATION_SETS = {
 	{"player", {"player_test", }},
 	{"cube", {"cube_walk", }},
+	{"floor", {"prop", }},
 };
 
 #endif

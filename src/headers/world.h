@@ -13,6 +13,7 @@
 #include "light.h"
 #include "mobs.h"
 #include "player.h"
+#include "prop.h"
 #include "resource_manager.h"
 #include "level.h"
 /*---------------------------------------------*/

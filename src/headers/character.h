@@ -31,10 +31,10 @@ class Character: public Actor{
 
 		btRigidBody* collision_body;
 		btCollisionShape* collision_shape;
-        btDefaultMotionState* motion_state;
-        
-        btScalar mass;
-        btVector3 fall_inertia;
+		btDefaultMotionState* motion_state;
+		
+		btScalar mass;
+		btVector3 fall_inertia;
 
 	public:
 		Character();

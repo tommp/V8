@@ -12,9 +12,8 @@ program_OBJS := ${program_CXX_SRCS:.cpp=.o}
 OPENGL_LIB := GLEW GL
 SDL_LIB :=  SDL2 SDL2_image SDL2_mixer SDL2_gfx 
 BULLET_LIB := BulletDynamics BulletCollision LinearMath
-ROCKET_LIB := RocketCore
 
-program_INCLUDE_DIRS := $(current_path)/headers/ $(current_path)/headers/maps/ $(current_path)/rocket_includes/ $(current_path)/headers/bullet3_includes $(current_path)/headers/glm_includes
+program_INCLUDE_DIRS := $(current_path)/headers/ $(current_path)/headers/maps/ $(current_path)/headers/bullet3_includes $(current_path)/headers/glm_includes
 program_LIBRARY_DIRS := /usr/local/lib 
 program_RUNTIME_LIBRARY_DIRS := $(current_path)/lib
 program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) m 

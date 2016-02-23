@@ -4,8 +4,8 @@ Directional_light::Directional_light(){
 	type = DIRECTIONAL;
 	direction = {1.0f, -1.0f, 1.0f};
 	size = {1.0f, 1.0f, 1.0f};
-	ambient = {0.2f, 0.2f, 0.2f};
-	diffuse = {0.01f, 0.01f, 0.01f};
+	ambient = {0.1f, 0.1f, 0.1f};
+	diffuse = {0.03f, 0.03f, 0.03f};
 	specular = {0.0f, 0.0f, 0.0f};
 
 	scale = {1.0f, 1.0f, 1.0f};
@@ -19,9 +19,10 @@ Directional_light::Directional_light(){
 
 Point_light::Point_light(){
 	type = POINT;
-	position = {0.0f, 10.0f, 0.0f};
+	position = {0.0f, 0.0f, 0.0f};
 	size = {1.0f, 1.0f, 1.0f};
 	position.x = rand() % 4001;
+	position.y = (rand() % 40) + 100;
 	position.z = rand() % 4001;
 
 	ambient = {0.0f, 0.0f, 0.0f};
