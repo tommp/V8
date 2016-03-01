@@ -38,3 +38,6 @@ data/display.conf
 v8
 utility/
 pixelart/
+projects/*
+!projects/projects.txt
+!projects/engine

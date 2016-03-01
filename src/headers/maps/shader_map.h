@@ -5,15 +5,15 @@
 #include <string>
 
 const std::unordered_map<std::string, std::pair<std::string, std::string>> WORLD_SHADERS = {
-	{"base_shader", {"./src/shaders/vertex_base.vs", "./src/shaders/fragment_base.fs"}},
-	{"test_shader", {"./src/shaders/vertex_test.vs", "./src/shaders/fragment_test.fs"}},
-	{"lit_shader", {"./src/shaders/vertex_lit.vs", "./src/shaders/fragment_lit.fs"}},
-	{"unlit_shader", {"./src/shaders/vertex_unlit.vs", "./src/shaders/fragment_unlit.fs"}},
-	{"geometry_shader", {"./src/shaders/vertex_geometry.vs", "./src/shaders/fragment_geometry.fs"}},
-	{"light_shader", {"./src/shaders/vertex_light.vs", "../src/shaders/fragment_light.fs"}},
-	{"point_light_shader", {"./src/shaders/vertex_point_light.vs", "./src/shaders/fragment_point_light.fs"}},
-	{"spot_light_shader", {"./src/shaders/vertex_spot_light.vs", "./src/shaders/fragment_spot_light.fs"}},
-	{"dir_light_shader", {"./src/shaders/vertex_dir_light.vs", "./src/shaders/fragment_dir_light.fs"}},
+	{"base_shader", {"vertex_base.vs", "fragment_base.fs"}},
+	{"test_shader", {"vertex_test.vs", "fragment_test.fs"}},
+	{"lit_shader", {"vertex_lit.vs", "fragment_lit.fs"}},
+	{"unlit_shader", {"vertex_unlit.vs", "fragment_unlit.fs"}},
+	{"geometry_shader", {"vertex_geometry.vs", "fragment_geometry.fs"}},
+	{"light_shader", {"vertex_light.vs", "fragment_light.fs"}},
+	{"point_light_shader", {"vertex_point_light.vs", "fragment_point_light.fs"}},
+	{"spot_light_shader", {"vertex_spot_light.vs", "fragment_spot_light.fs"}},
+	{"dir_light_shader", {"vertex_dir_light.vs", "fragment_dir_light.fs"}},
 };
 
 #endif

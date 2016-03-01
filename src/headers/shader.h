@@ -3,6 +3,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "paths.h"
 #include "glm.h"
 #include "errorlogger.h"
 #include "shader_map.h"

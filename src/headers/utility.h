@@ -3,6 +3,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "paths.h"
 #include "errorlogger.h"
 #include "vertex.h"
 /*---------------------------------------------*/
@@ -21,8 +22,6 @@
 /*Header content*/
 /*=============================================*/
 #define DISABLE_VSYNC 0
-#define IMAGE_DATA_PATH "./data/content.blue"
-#define MESH_DATA_PATH "./data/content.boogie"
 
 const unsigned int TILESIZE = 				32;
 const unsigned int SCREEN_FPS = 			60;

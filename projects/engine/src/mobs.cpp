@@ -19,7 +19,7 @@ Cube::Cube(Resource_manager& manager){
 	size = {2.0f, 2.0f, 2.0f};
 
 	/* Physics */
-	mass = 10;
+	mass = 100;
 	fall_inertia = {0, 0, 0};
 	collision_shape = new btSphereShape(30);
 	collision_shape->calculateLocalInertia(mass, fall_inertia);
@@ -64,7 +64,7 @@ void Cube::update_position(float timedelta){
 
 	last_pos = position;
 
-	collision_body->applyCentralForce(btVector3(velocity.x,velocity.y,velocity.z));
+	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
 
 }
 

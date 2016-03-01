@@ -4,6 +4,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "paths.h"
 #include "animation_map.h"
 #include "glm.h"
 #include "errorlogger.h"
@@ -29,7 +30,6 @@
 
 /*Header content*/
 /*=============================================*/
-#define ANIMATION_DATA_FILE_PATH "./data/content.sark"
 
 class Resource_manager;
 class Frame;

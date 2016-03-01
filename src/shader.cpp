@@ -70,9 +70,11 @@ bool Shader::load_from_file(const std::string& name){
         errorlogger("ERROR: Shader not found!: ", name.c_str());
         return false;
     }
-
-    const GLchar* vertex_shader_path = WORLD_SHADERS.find(name)->second.first.c_str();
-    const GLchar* fragment_shader_path = WORLD_SHADERS.find(name)->second.second.c_str();
+    std::string vertex_path = SHADER_PATH + WORLD_SHADERS.find(name)->second.first;
+    std::string fragment_path = SHADER_PATH + WORLD_SHADERS.find(name)->second.second;
+    
+    const GLchar* vertex_shader_path = vertex_path.c_str();
+    const GLchar* fragment_shader_path = fragment_path.c_str();
 
     /* create the shaders */
     GLuint vertex_shader = create_shader(vertex_shader_path, GL_VERTEX_SHADER);

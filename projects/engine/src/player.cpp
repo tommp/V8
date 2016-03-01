@@ -5,14 +5,14 @@ Player::Player(Resource_manager& init_manager){
 	animations->load_from_file(init_manager, "player");
 	state = "player_test";
 	manager = &init_manager;
-	speed = 800.0f;
+	speed = 400.0f;
 	position = {0.0f, 0.0f, 0.0f};
 	size = {2.0f, 2.0f, 2.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 	velocity = {0.0f, 0.0f, 0.0f};
 
 	/* Physics */
-	mass = 10;
+	mass = 100;
 	fall_inertia = {0, 0, 0};
 	collision_shape = new btSphereShape(30);
 	collision_shape->calculateLocalInertia(mass, fall_inertia);
@@ -52,13 +52,21 @@ void Player::update_position(GLfloat timedelta){
 		velocity[0] += 1;
 
 	}
+	if(current_key_states[manager->get_button_map_key("player", JUMP)]){
+		velocity[1] += 1;
+
+	}
+	if(current_key_states[manager->get_button_map_key("player", INTERACT)]){
+		velocity[1] -= 1;
+
+	}
 	if(glm::length(velocity)) {
 		velocity = glm::normalize(velocity);
 		direction = velocity;
 		velocity *= speed;
 	}
 
-	collision_body->applyCentralForce(btVector3(velocity.x,velocity.y,velocity.z));
+	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
 }
 
 void Player::touch_character(Character& character){
