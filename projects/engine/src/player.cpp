@@ -27,7 +27,7 @@ void Player::render_frame(const Renderer& renderer)const{
 	animations->render_current(renderer, state, position, size, direction);
 }
 
-void Player::update_position(GLfloat timedelta){
+bool Player::update_position(GLfloat timedelta){
 	btTransform transform;
     motion_state->getWorldTransform(transform);
 
@@ -67,8 +67,9 @@ void Player::update_position(GLfloat timedelta){
 	}
 
 	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
+	return true;
 }
 
-void Player::touch_character(Character& character){
-
+bool Player::touch_character(Character& character){
+	return true;
 }

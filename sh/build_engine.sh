@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ..
+
 #Clone repos
 git clone https://github.com/bulletphysics/bullet3.git
 git clone https://github.com/g-truc/glm.git

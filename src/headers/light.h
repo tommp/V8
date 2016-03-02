@@ -81,7 +81,7 @@ class Spot_light : public Light{
 };
 
 typedef std::shared_ptr<Light> Light_ptr;
-typedef std::shared_ptr<Point_light> Pont_light_ptr;
+typedef std::shared_ptr<Point_light> Point_light_ptr;
 typedef std::shared_ptr<Spot_light> Spot_light_ptr;
 typedef std::shared_ptr<Directional_light> Directional_light_ptr;
 /*=============================================*/

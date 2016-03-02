@@ -772,3 +772,33 @@ void Renderer::upload_view_matrix()const{
 		exit(EXIT_FAILURE);
 	}
 }
+
+bool Renderer::render_dir_lights(const std::forward_list<Light_ptr>& dir_lights, 
+									const glm::vec3& position)const{
+	setup_light_rendering(DIRECTIONAL, position);
+
+	for (auto light : dir_lights) {
+		light->render_light(*this);
+	}
+	return true;
+}
+
+bool Renderer::render_point_lights(const std::forward_list<Light_ptr>& point_lights, 
+									const glm::vec3& position)const{
+	setup_light_rendering(POINT, position);
+
+	for (auto light : point_lights) {
+		light->render_light(*this);
+	}
+	return true;
+}
+
+bool Renderer::render_spot_lights(const std::forward_list<Light_ptr>& spot_lights, 
+									const glm::vec3& position)const{
+	setup_light_rendering(SPOT, position);
+
+	for (auto light : spot_lights) {
+		light->render_light(*this);
+	}
+	return true;
+}

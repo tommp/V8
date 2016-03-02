@@ -38,7 +38,7 @@ void Cube::render_frame(const Renderer& renderer)const{
 	animations->render_current(renderer, state, position, size, direction);
 }
 
-void Cube::update_position(float timedelta){
+bool Cube::update_position(float timedelta){
 	btTransform transform;
     motion_state->getWorldTransform(transform);
 
@@ -65,9 +65,9 @@ void Cube::update_position(float timedelta){
 	last_pos = position;
 
 	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
-
+	return true;
 }
 
-void Cube::touch_character(Character& character){
-	
+bool Cube::touch_character(Character& character){
+	return true;
 }

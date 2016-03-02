@@ -34,8 +34,8 @@ private:
 public:
 	Player(Resource_manager& init_manager);
 	void render_frame(const Renderer& renderer)const;
-	void update_position(GLfloat timedelta);
-	void touch_character(Character& character);
+	bool update_position(GLfloat timedelta);
+	bool touch_character(Character& character);
 };
 
 typedef std::shared_ptr<Player> Player_ptr;

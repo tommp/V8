@@ -17,7 +17,7 @@ void Camera::focus_target(const glm::vec3& focus_target){
 	target = focus_target + offset;
 }
 
-void Camera::center_camera(const Actor_ptr& target) {
+bool Camera::center_camera(const Actor_ptr& target) {
 	/* Center on the actor collision box */
 	if(target){
 		focus_target(*target->get_position());
@@ -39,10 +39,11 @@ void Camera::center_camera(const Actor_ptr& target) {
 			set_z(bound_height - (screen_height/2.0f));
 			set_tz(bound_height - (screen_height/2.0f));
 		}*/
-		
+		return true;
 	}
 	else{
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Centering camera on nullptr!" << std::endl;
 		errorlogger("ERROR: Centering camera on nullptr!");
+		return false;
 	}
 }

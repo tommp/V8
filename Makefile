@@ -16,7 +16,7 @@ OPENGL_LIB := GLEW GL
 SDL_LIB :=  SDL2 SDL2_image SDL2_mixer SDL2_gfx 
 BULLET_LIB := BulletDynamics BulletCollision LinearMath
 
-program_INCLUDE_DIRS := $(current_path)/src/headers/ $(current_path)/src/headers/maps/ $(current_path)/src/headers/bullet3_includes $(current_path)/src/headers/glm_includes
+program_INCLUDE_DIRS := $(current_path)/projects/$(game_EXECUTABLE)/src/headers/ $(current_path)/src/headers/ $(current_path)/src/headers/maps/ $(current_path)/src/headers/bullet3_includes $(current_path)/src/headers/glm_includes
 program_LIBRARY_DIRS := /usr/local/lib 
 program_RUNTIME_LIBRARY_DIRS := $(current_path)/src/lib
 program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) m 

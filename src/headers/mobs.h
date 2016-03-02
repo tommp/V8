@@ -34,8 +34,8 @@ public:
 	Cube(Resource_manager& manager);
 	~Cube();
 	void render_frame(const Renderer& renderer)const;
-	void update_position(float timedelta);
-	void touch_character(Character& character);
+	bool update_position(float timedelta);
+	bool touch_character(Character& character);
 };
 
 typedef std::shared_ptr<Cube> Cube_ptr;

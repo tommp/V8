@@ -10,6 +10,7 @@
 #include "utility.h"
 #include "camera.h"
 #include "enum_light_type.h"
+#include "light.h"
 #include "character.h"
 #include "material.h"
 #include "resource_manager.h"
@@ -24,6 +25,7 @@
 #include <unordered_map>
 #include <unistd.h>
 #include <list>
+#include <forward_list>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -40,7 +42,9 @@ class Material;
 class Character;
 class Camera;
 class Resource_manager;
+class Light;
 
+typedef std::shared_ptr<Light> Light_ptr;
 typedef std::shared_ptr<Material> Material_ptr;
 typedef std::shared_ptr<Character> Character_ptr;
 
@@ -107,6 +111,15 @@ class Renderer{
 							const glm::vec3& direction)const;
 		bool render_geometry(std::vector<const std::list<Character_ptr>*> targets, 
 										const Camera_ptr& camera);
+
+		bool render_dir_lights(const std::forward_list<Light_ptr>& dir_lights, 
+								const glm::vec3& position)const;
+		bool render_point_lights(const std::forward_list<Light_ptr>& point_lights, 
+								const glm::vec3& position)const;
+		bool render_spot_lights(const std::forward_list<Light_ptr>& spot_lights, 
+								const glm::vec3& position)const;
+
+
 		void detach_geometry_rendering()const;
 
 		void setup_light_rendering(Light_type light_type, const glm::vec3& position)const;

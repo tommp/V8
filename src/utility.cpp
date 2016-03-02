@@ -16,8 +16,7 @@ void waitForEvent(){
 				
 			default:
 				break;
-		} 
-			
+		} 	
 	}
 }
 

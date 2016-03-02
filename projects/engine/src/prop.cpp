@@ -35,9 +35,10 @@ void Prop::render_frame(const Renderer& renderer)const{
 	animations->render_current(renderer, state, position, size, direction);
 }
 
-void Prop::update_position(float timedelta){
+bool Prop::update_position(float timedelta){
+	return true;
 }
 
-void Prop::touch_character(Character& character){
-	
+bool Prop::touch_character(Character& character){
+	return true;
 }

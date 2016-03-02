@@ -39,9 +39,9 @@ class Character: public Actor{
 	public:
 		Character();
 		virtual ~Character();
-		virtual void update_position(float timedelta) = 0;
+		virtual bool update_position(float timedelta) = 0;
 		virtual void render_frame(const Renderer& renderer)const = 0;
-		virtual void touch_character(Character& character) = 0;
+		virtual bool touch_character(Character& character) = 0;
 
 		btRigidBody* get_collision_body()const{return collision_body;};
 		bool operator<(const Character& b);
