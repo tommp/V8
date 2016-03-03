@@ -14,6 +14,10 @@ int main(int argc, char** argv){
 
 	/* Random seed to time */
 	srand (time(NULL));
+
+	std::cout << "Converting images..." << std::endl;
+	convert_all_images();
+	std::cout << "Images converted!" << std::endl;
 	/* ====================================== */
 
 	/* MAIN VARS */

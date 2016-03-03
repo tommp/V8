@@ -33,30 +33,22 @@ void Texture::use(const std::string& uniform_name, GLuint texture_unit, const Sh
 	}
 }
 
-unsigned char* Texture::load_binary_image(const std::string& name){
-	std::ifstream contentf (IMAGE_DATA_PATH, std::ios::binary);
+unsigned char* Texture::load_binary_texture(const std::string& name){
+	std::string texture_path = TEXTURE_DATA_PATH + name;
 
+	std::ifstream contentf (texture_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for image data!" << std::endl;
-		errorlogger("ERROR: Failed to open content file for image data!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for texture data!" << std::endl;
+		errorlogger("ERROR: Failed to open content file for texture data!");
 		return nullptr;
 	}
 
-	if (ENGINE_TEXTURES.find(name) == ENGINE_TEXTURES.end()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: No image in image_map with keyname: " << name << std::endl;
-		errorlogger("ERROR: No image in image_map with keyname: ", name.c_str());
-		return nullptr;
-	}
-
-	GLuint datapos = ENGINE_TEXTURES.find(name)->second;
-
-	contentf.seekg(datapos);
 	contentf.read(reinterpret_cast<char *>(&width), sizeof(GLuint));
 	contentf.read(reinterpret_cast<char *>(&height), sizeof(GLuint));
 	contentf.read(reinterpret_cast<char *>(&channels), sizeof(GLuint));
 	contentf.read(reinterpret_cast<char *>(&format), sizeof(GLint));
 
-	/* DANGER: Fix this later */
+	/* TODO::DANGER: Fix this later */
 	unsigned char* image = new unsigned char[width * height * channels];
 
 	contentf.read(reinterpret_cast<char *>(image), sizeof(unsigned char) * width * height * channels);
@@ -72,9 +64,9 @@ bool Texture::load_from_file(const std::string& name){
 	}
 
 	this->name = name;
-	unsigned char* image_data = load_binary_image(name);
+	unsigned char* texture_data = load_binary_texture(name);
 	
-	if (!image_data) {
+	if (!texture_data) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid image data for texture when loading keyname: " << name.c_str() << std::endl;
 		errorlogger("ERROR: Invalid image data for texture when loading keyname: ", name.c_str());
 		return false;
@@ -88,11 +80,11 @@ bool Texture::load_from_file(const std::string& name){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
-	//glGenerateMipmap(GL_TEXTURE_2D);/* TODO: Remove this if using ortographic projection */
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	delete[](image_data);
+	delete[](texture_data);
 
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to create and bind texture from image data! Keyname: " << name << std::endl;

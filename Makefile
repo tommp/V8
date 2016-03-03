@@ -15,11 +15,12 @@ program_OBJS := ${program_CXX_SRCS:.cpp=.o}
 OPENGL_LIB := GLEW GL
 SDL_LIB :=  SDL2 SDL2_image SDL2_mixer SDL2_gfx 
 BULLET_LIB := BulletDynamics BulletCollision LinearMath
+SOIL_LIB := SOIL
 
-program_INCLUDE_DIRS := $(current_path)/projects/$(game_EXECUTABLE)/src/headers/ $(current_path)/src/headers/ $(current_path)/src/headers/maps/ $(current_path)/src/headers/bullet3_includes $(current_path)/src/headers/glm_includes
-program_LIBRARY_DIRS := /usr/local/lib 
-program_RUNTIME_LIBRARY_DIRS := $(current_path)/src/lib
-program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) m 
+program_INCLUDE_DIRS := $(current_path)/projects/$(game_EXECUTABLE)/src/headers/ $(current_path)/src/headers/ $(current_path)/src/headers/maps/ $(current_path)/src/headers/bullet3_includes $(current_path)/src/headers/glm_includes $(current_path)/src/headers/assimp_includes $(current_path)
+program_LIBRARY_DIRS := /usr/local/lib $(current_path)/src/lib/static
+program_RUNTIME_LIBRARY_DIRS := $(current_path)/src/lib/dynamic
+program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) m $(SOIL_LIB)
 
 CXXFLAGS += -Wall -g -std=c++11
 CPPFLAGS += $(foreach includedir,$(program_INCLUDE_DIRS),-I$(includedir))
@@ -35,7 +36,7 @@ $(program_OBJS):%.o:%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ $(CPPFLAGS)
 
 $(engine_EXECUTABLE): $(program_OBJS)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $(LDFLAGS) -o $(engine_EXECUTABLE) $(program_OBJS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -o $(engine_EXECUTABLE) $(program_OBJS) $(LDFLAGS)
 
 game: $(game_EXECUTABLE)
 
