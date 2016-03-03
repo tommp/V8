@@ -10,29 +10,32 @@ Mesh::~Mesh(){
 	free_mesh();
 }
 
-bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices){
-	std::ifstream contentf (MESH_DATA_PATH, std::ios::binary);
+bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::string& material_name){
+	std::string mesh_path = MESH_DATA_PATH + name + ".mesh";
 
+	std::ifstream contentf (mesh_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for mesh data!" << std::endl;
 		errorlogger("ERROR: Failed to open content file for mesh data!");
 		return false;
 	}
 
-	if (ENGINE_MESHES.find(name) == ENGINE_MESHES.end()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: No image in mesh_map with keyname: " << name << std::endl;
-		errorlogger("ERROR: No image in mesh_map with keyname: ", name.c_str());
-		return false;
-	}
-
-	GLuint datapos = ENGINE_MESHES.find(name)->second.first;
-
-	contentf.seekg(datapos);
-
 	Vertex vertex;
 	GLuint index;
 	unsigned int vsize = 0;
 	unsigned int isize = 0;
+	unsigned int mat_name_size = 0;
+	char material_char_name[500];
+
+	contentf.read(reinterpret_cast<char *>(&mat_name_size), sizeof(unsigned int));
+	if (mat_name_size > 500) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Material name to long!" << std::endl;
+		errorlogger("ERROR: Material name to long!");
+		return false;
+	}
+	for (unsigned int i = 0; i < mat_name_size; ++i) {
+		contentf.read(reinterpret_cast<char *>(&(material_char_name[i])), sizeof(char));
+	}
 
 	contentf.read(reinterpret_cast<char *>(&vsize), sizeof(unsigned int));
 	contentf.read(reinterpret_cast<char *>(&isize), sizeof(unsigned int));
@@ -47,26 +50,34 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 
 	contentf.close();
 
+	material_name = material_char_name;
+
 	return true;
 }
 
-bool Mesh::load_from_file(Resource_manager& resource_manager, const std::string& name){
+bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 
 	/* Get rid of preexisting mesh */
 	if( VBO != 0 ){
 		free_mesh();
 	}
 
-	vector<Vertex> vertices;
-	vector<GLuint> indices;
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+	std::string material_name;
 
-	if (!load_binary_mesh(name, vertices, indices)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Error propogation from load_binary_mesh(..) when loading keyname: " << name.c_str() << std::endl;
+	if (!load_binary_mesh(name, vertices, indices, material_name)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Error propogation from load_binary_mesh(..) when loading keyname: " << name << std::endl;
 		errorlogger("ERROR: Error propogation from load_binary_mesh(..) when loading keyname: ", name.c_str());
 		return false;
 	}
 
-	material = resource_manager.load_material(ENGINE_MESHES.find(name)->second.second);
+	material = manager.load_material(material_name);
+	if (!material){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load material in mesh with material name: " << material_name << std::endl;
+		errorlogger("ERROR: Failed to load material in mesh with material name: ", material_name.c_str());
+		return false;
+	}
 
 	num_vertices = vertices.size();
 

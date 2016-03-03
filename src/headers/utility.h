@@ -39,6 +39,14 @@ std::vector<std::string> &split(const std::string &s, char delim, std::vector<st
 
 std::vector<std::string> split(const std::string &s, char delim);
 
+bool convert_all_models();
+
+bool convert_model_file();
+
+bool store_binary_model();
+
+bool store_binary_mesh();
+
 bool convert_all_images();
 
 bool convert_image_file(const std::string& source_path, const std::string& target_path);

@@ -28,6 +28,22 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 
+bool convert_all_models(){
+	return true;
+}
+
+bool convert_model_file(){
+	return true;
+}
+
+bool store_binary_model(){
+	return true;
+}
+
+bool store_binary_mesh(){
+	return true;
+}
+
 bool convert_all_images(){
 	std::string source_path_mask = IMAGE_DATA_PATH;
 	source_path_mask += "*";
@@ -53,7 +69,7 @@ bool convert_all_images(){
 			errorlogger("ERROR: Failed to convert image: ", sources[i].c_str());
 		}
 	}
-	return false;
+	return true;
 }
 
 bool convert_image_file(const std::string& source_path, const std::string& target_path){

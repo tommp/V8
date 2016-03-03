@@ -5,7 +5,8 @@
 #define DISPLAY_SETTINGS_FILE_PATH "assets/config/display.co"
 #define IMAGE_DATA_PATH "assets/raw_images/"
 #define TEXTURE_DATA_PATH "assets/textures/"
-#define MESH_DATA_PATH "assets/models/"
+#define MESH_DATA_PATH "assets/meshes/"
+#define MODEL_DATA_PATH "assets/models/"
 #define SHADER_PATH "src/shaders/"
 
 #endif

@@ -26,7 +26,6 @@
 
 /*Header content*/
 /*=============================================*/
-using std::vector;
 
 const glm::vec3 MESH_DIRECTION = {0.0f, 0.0f, 1.0f};
 
@@ -52,9 +51,10 @@ class Mesh {
 
 		bool load_binary_mesh(const std::string& name, 
 							std::vector<Vertex>& vertices, 
-							std::vector<GLuint>& indices);
+							std::vector<GLuint>& indices,
+							std::string& material);
 
-		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
+		bool load_from_file(Resource_manager& manager, const std::string& name);
 		
 		void render_mesh(const Renderer& renderer,
 						const glm::vec3& position, 

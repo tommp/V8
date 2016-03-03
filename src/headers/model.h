@@ -34,6 +34,7 @@ class Model {
 	public:
 		Model();
 		void render_model(const Renderer& renderer, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
+		bool load_binary_model(const std::string& name, std::vector<std::string>& meshes);
 		bool load_from_file(Resource_manager& manager, const std::string& name);
 };
 

@@ -34,7 +34,7 @@ void Texture::use(const std::string& uniform_name, GLuint texture_unit, const Sh
 }
 
 unsigned char* Texture::load_binary_texture(const std::string& name){
-	std::string texture_path = TEXTURE_DATA_PATH + name;
+	std::string texture_path = TEXTURE_DATA_PATH + name + ".tex";
 
 	std::ifstream contentf (texture_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
