@@ -16,7 +16,7 @@ Cube::Cube(Resource_manager& manager){
 
 	last_move = SDL_GetTicks();
 	move_duration = rand()%1000;
-	size = {50.0f, 50.0f, 50.0f};
+	size = {2.0f, 2.0f, 2.0f};
 
 	/* Physics */
 	mass = 100;

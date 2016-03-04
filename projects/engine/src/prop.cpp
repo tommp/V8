@@ -8,11 +8,11 @@ Prop::Prop(Resource_manager& manager){
 		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim_set.c_str());
 	}
 
-	position[0] = 0;
+	position[0] = 10000.0f;
 	position[1] = -10.0f;
-	position[2] = 0;
+	position[2] = 10000.0f;
 
-	size = {2000.0f, 10.0f, 2000.0f};
+	size = {20000.0f, 10.0f, 20000.0f};
 
 	btVector3 box_size = {size.x*1000, size.y, size.z*1000};
 	/* Physics */

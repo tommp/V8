@@ -23,7 +23,6 @@ bool write_string_to_binary_file(std::ofstream& fstream, const std::string& stri
 std::string read_string_from_binary_file(std::ifstream& fstream){
 	GLuint string_length;
 	fstream.read(reinterpret_cast<char *>(&string_length), sizeof(GLuint));
-
 	if (string_length == 0) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Empty string input!" << std::endl;
 		errorlogger("ERROR: Empty string input!");
@@ -38,6 +37,8 @@ std::string read_string_from_binary_file(std::ifstream& fstream){
 	for (int i = 0; i < string_length; ++i) {
 		fstream.read(reinterpret_cast<char *>(&(string[i])), sizeof(char));
 	}
+
+	string[string_length] = '\0';
 
 	std::string result = string;
 	return result;
@@ -309,7 +310,8 @@ bool convert_model_file(const std::string& source_path, const std::string& targe
 	return true;
 }
 
-void process_node(aiNode* node, const aiScene* scene, 
+void process_node(aiNode* node, 
+					const aiScene* scene, 
 					std::vector<std::string>& mesh_names, 
 					const std::string& modelname){
 	for(GLuint i = 0; i < node->mNumMeshes; i++) {
@@ -333,9 +335,8 @@ std::string process_mesh(aiMesh* mesh,
 	std::string diffuse_name;
 	std::string specular_name;
 
-	/* TODO:: Stupid needs fix Lolznuubmuch!!? */
-	char true_bool = 1;
-	char false_bool = 0;
+	GLuint true_bool = 1;
+	GLuint false_bool = 0;
 
 	for(GLuint i = 0; i < mesh->mNumVertices; i++) {
 		Vertex vertex;
@@ -345,20 +346,6 @@ std::string process_mesh(aiMesh* mesh,
 		pos_vector.y = mesh->mVertices[i].y;
 		pos_vector.z = mesh->mVertices[i].z;
 		vertex.position = pos_vector;
-
-		/*
-		if(mesh->mColors[0]){
-			glm::vec4 color_vec;
-			color_vec.x = mesh->mColors[0][i].r;
-			color_vec.y = mesh->mColors[0][i].g;
-			color_vec.z = mesh->mColors[0][i].b;
-			color_vec.w = mesh->mColors[0][i].a;
-			vertex.color = color_vec;
-		}
-		else{
-			vertex.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-		}
-		*/
 
 		glm::vec3 norm_vector;
 		if (mesh->mNormals) {
@@ -378,6 +365,7 @@ std::string process_mesh(aiMesh* mesh,
 		else{
 			vertex.tex_coords = glm::vec2(0.0f, 0.0f);
 		}
+
 		vertices.push_back(vertex);
 	}
 	
@@ -396,8 +384,8 @@ std::string process_mesh(aiMesh* mesh,
 		new_material->Get(AI_MATKEY_NAME,name);
 
 		material_name = name.data;
-		std::string diffuse_name = load_material_texture(new_material, aiTextureType_DIFFUSE, "texture_diffuse");
-		std::string specular_name = load_material_texture(new_material, aiTextureType_SPECULAR, "texture_specular");
+		diffuse_name = load_material_texture(new_material, aiTextureType_DIFFUSE, "texture_diffuse");
+		specular_name = load_material_texture(new_material, aiTextureType_SPECULAR, "texture_specular");
 
 	}
 
@@ -423,19 +411,19 @@ std::string process_mesh(aiMesh* mesh,
 	}
 
 	if (!diffuse_name.empty()){
-		contentf.write(reinterpret_cast<const char *>(&true_bool), sizeof(char));
+		contentf.write(reinterpret_cast<const char *>(&true_bool), sizeof(GLuint));
 		write_string_to_binary_file(contentf, diffuse_name);
 	}
 	else{
-		contentf.write(reinterpret_cast<const char *>(&false_bool), sizeof(char));
+		contentf.write(reinterpret_cast<const char *>(&false_bool), sizeof(GLuint));
 	}
 
 	if (!specular_name.empty()){
-		contentf.write(reinterpret_cast<const char *>(&true_bool), sizeof(char));
+		contentf.write(reinterpret_cast<const char *>(&true_bool), sizeof(GLuint));
 		write_string_to_binary_file(contentf, specular_name);
 	}
 	else{
-		contentf.write(reinterpret_cast<const char *>(&false_bool), sizeof(char));
+		contentf.write(reinterpret_cast<const char *>(&false_bool), sizeof(GLuint));
 	}
 
 	contentf.close();
@@ -491,7 +479,6 @@ std::vector<std::string> load_material_textures(aiMaterial* mat,
 												const std::string& typeName){
 	std::vector<std::string> textures;
 	for(GLuint i = 0; i < mat->GetTextureCount(type); i++) {
-		
 		aiString str;
 		mat->GetTexture(type, i, &str);
 
@@ -508,14 +495,15 @@ std::string load_material_texture(aiMaterial* mat,
 									const std::string& typeName){
 	std::string texture;
 	if(mat->GetTextureCount(type) >= 1){
-		
 		aiString str;
 		mat->GetTexture(type, 0, &str);
 
 		std::string temp (str.data);
-
+		
 		if (temp.empty()){
-			texture = "";
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to convert aistring to string!" << std::endl;
+			errorlogger("ERROR: Failed to convert aistring to string!");
+			exit(EXIT_FAILURE);
 		}
 		else{
 			char token = '/';
@@ -524,10 +512,8 @@ std::string load_material_texture(aiMaterial* mat,
 			}
 			std::string filename = split(temp, token).back();
 			std::string tex_name = split(filename, '.')[0];
-
 			texture = tex_name;
 		}
 	}
-
 	return texture;
 }

@@ -25,9 +25,10 @@ bool Material::load_from_file(Resource_manager& manager, const std::string& name
 		return false;
 	}
 
-	char has_diffuse;
-	char has_specular;
-	contentf.read(reinterpret_cast<char *>(&has_diffuse), sizeof(char));
+	GLuint has_diffuse;
+	GLuint has_specular;
+
+	contentf.read(reinterpret_cast<char *>(&has_diffuse), sizeof(GLuint));
 
 	if (has_diffuse != 0) {
 		diffuse = manager.load_texture(read_string_from_binary_file(contentf));
@@ -36,7 +37,7 @@ bool Material::load_from_file(Resource_manager& manager, const std::string& name
 		diffuse = nullptr;
 	}
 
-	contentf.read(reinterpret_cast<char *>(&has_specular), sizeof(char));
+	contentf.read(reinterpret_cast<char *>(&has_specular), sizeof(GLuint));
 
 	if (has_specular != 0){
 		specular = manager.load_texture(read_string_from_binary_file(contentf));

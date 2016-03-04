@@ -22,8 +22,8 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 
 	Vertex vertex;
 	GLuint index;
-	GLuint vsize = 0;
-	GLuint isize = 0;
+	GLuint vsize;
+	GLuint isize;
 	char has_material;
 
 	contentf.read(reinterpret_cast<char *>(&has_material), sizeof(char));
