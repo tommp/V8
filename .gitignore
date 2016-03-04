@@ -42,13 +42,14 @@ projects/*
 !projects/projects.txt
 !projects/engine
 
-!assets/materials/*
-!assets/models/*
-!assets/meshes/*
-!assets/config/*
-!assets/textures/*
-!assets/raw_images/*
-!assets/raw_models/*
+assets/materials/*
+assets/models/*
+assets/meshes/*
+assets/config/*
+assets/textures/*
+assets/raw_images/*
+assets/raw_models/*
+assets/dump/*
 
 !assets/materials/engine_base*
 !assets/models/engine_base*
