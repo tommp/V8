@@ -4,7 +4,6 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "mesh_map.h"
 #include "glm.h"
 #include "vertex.h"
 #include "utility.h"

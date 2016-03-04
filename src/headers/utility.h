@@ -7,6 +7,9 @@
 #include "paths.h"
 #include "errorlogger.h"
 #include "vertex.h"
+#include "Importer.hpp"
+#include "scene.h"
+#include "postprocess.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -33,6 +36,9 @@ const int SCREEN_TICKS_PER_FRAME =			1000 / SCREEN_FPS;
 /* Waits for user input and quits when detected */
 void wait_for_event();
 
+bool write_string_to_binary_file(std::ofstream& fstream, const std::string& string);
+std::string read_string_from_binary_file(std::ifstream& fstream);
+
 std::vector<std::string> glob(const std::string& path);
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
@@ -41,11 +47,23 @@ std::vector<std::string> split(const std::string &s, char delim);
 
 bool convert_all_models();
 
-bool convert_model_file();
+bool convert_model_file(const std::string& source_path, const std::string& target_path);
 
-bool store_binary_model();
+void process_node(aiNode* node, const aiScene* scene, 
+					std::vector<std::string>& mesh_names, 
+					const std::string& modelname);
 
-bool store_binary_mesh();
+std::string process_mesh(aiMesh* mesh, const aiScene* scene, 
+							const std::string modelname, 
+							GLuint meshnumber);
+
+std::vector<std::string> load_material_textures(aiMaterial* mat, 
+												aiTextureType type, 
+												const std::string& typeName);
+
+std::string load_material_texture(aiMaterial* mat, 
+									aiTextureType type, 
+									const std::string& typeName);
 
 bool convert_all_images();
 

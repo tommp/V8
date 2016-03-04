@@ -16,11 +16,12 @@ OPENGL_LIB := GLEW GL
 SDL_LIB :=  SDL2 SDL2_image SDL2_mixer SDL2_gfx 
 BULLET_LIB := BulletDynamics BulletCollision LinearMath
 SOIL_LIB := SOIL
+ASSIMP_LIB := assimp
 
 program_INCLUDE_DIRS := $(current_path)/projects/$(game_EXECUTABLE)/src/headers/ $(current_path)/src/headers/ $(current_path)/src/headers/maps/ $(current_path)/src/headers/bullet3_includes $(current_path)/src/headers/glm_includes $(current_path)/src/headers/assimp_includes $(current_path)
 program_LIBRARY_DIRS := /usr/local/lib $(current_path)/src/lib/static
 program_RUNTIME_LIBRARY_DIRS := $(current_path)/src/lib/dynamic
-program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) m $(SOIL_LIB)
+program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) $(SOIL_LIB) $(ASSIMP_LIB) m 
 
 CXXFLAGS += -Wall -g -std=c++11
 CPPFLAGS += $(foreach includedir,$(program_INCLUDE_DIRS),-I$(includedir))

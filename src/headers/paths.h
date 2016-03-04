@@ -7,6 +7,11 @@
 #define TEXTURE_DATA_PATH "assets/textures/"
 #define MESH_DATA_PATH "assets/meshes/"
 #define MODEL_DATA_PATH "assets/models/"
+#define RAW_MODEL_DATA_PATH "assets/raw_models/"
+#define MATERIAL_DATA_PATH "assets/materials/"
 #define SHADER_PATH "src/shaders/"
+
+#define MAX_FILENAME_LENGTH 500
+#define REBUILD_ASSETS
 
 #endif

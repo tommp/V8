@@ -22,35 +22,27 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 
 	Vertex vertex;
 	GLuint index;
-	unsigned int vsize = 0;
-	unsigned int isize = 0;
-	unsigned int mat_name_size = 0;
-	char material_char_name[500];
+	GLuint vsize = 0;
+	GLuint isize = 0;
+	char has_material;
 
-	contentf.read(reinterpret_cast<char *>(&mat_name_size), sizeof(unsigned int));
-	if (mat_name_size > 500) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Material name to long!" << std::endl;
-		errorlogger("ERROR: Material name to long!");
-		return false;
-	}
-	for (unsigned int i = 0; i < mat_name_size; ++i) {
-		contentf.read(reinterpret_cast<char *>(&(material_char_name[i])), sizeof(char));
+	contentf.read(reinterpret_cast<char *>(&has_material), sizeof(char));
+	if (has_material){
+		material_name = read_string_from_binary_file(contentf);
 	}
 
-	contentf.read(reinterpret_cast<char *>(&vsize), sizeof(unsigned int));
-	contentf.read(reinterpret_cast<char *>(&isize), sizeof(unsigned int));
-	for (unsigned int i = 0; i < vsize; ++i) {
+	contentf.read(reinterpret_cast<char *>(&vsize), sizeof(GLuint));
+	contentf.read(reinterpret_cast<char *>(&isize), sizeof(GLuint));
+	for (GLuint i = 0; i < vsize; ++i) {
 		contentf.read(reinterpret_cast<char *>(&vertex), sizeof(Vertex));
 		vertices.push_back(vertex);
 	}
-	for (unsigned int i = 0; i < isize; ++i) {
+	for (GLuint i = 0; i < isize; ++i) {
 		contentf.read(reinterpret_cast<char *>(&index), sizeof(GLuint));
 		indices.push_back(index);
 	}
 
 	contentf.close();
-
-	material_name = material_char_name;
 
 	return true;
 }

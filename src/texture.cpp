@@ -38,8 +38,8 @@ unsigned char* Texture::load_binary_texture(const std::string& name){
 
 	std::ifstream contentf (texture_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for texture data!" << std::endl;
-		errorlogger("ERROR: Failed to open content file for texture data!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for texture data: " << texture_path << std::endl;
+		errorlogger("ERROR: Failed to open content file for texture data: ", texture_path.c_str());
 		return nullptr;
 	}
 

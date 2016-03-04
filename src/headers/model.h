@@ -4,7 +4,6 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "model_map.h"
 #include "errorlogger.h"
 #include "renderer.h"
 #include "mesh.h"

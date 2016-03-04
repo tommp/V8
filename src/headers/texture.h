@@ -7,7 +7,6 @@
 #include "errorlogger.h"
 #include "utility.h"
 #include "shader.h"
-#include "texture_map.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

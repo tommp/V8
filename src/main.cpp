@@ -19,6 +19,7 @@ int main(int argc, char** argv){
 	}
 	std::cout << "SDL initialized!" << std::endl;
 	std::cout << "=======================================\n" << std::endl;
+#ifdef REBUILD_ASSETS
 	std::cout << "Converting images..." << std::endl;
 	if (!convert_all_images()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to convert images."<<std::endl;
@@ -34,6 +35,7 @@ int main(int argc, char** argv){
 		exit(EXIT_FAILURE);
 	}
 	std::cout << "Models converted!" << std::endl;
+#endif
 	/* ====================================== */
 
 	/* MAIN VARS */

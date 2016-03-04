@@ -4,7 +4,6 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "material_map.h"
 #include "texture.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/

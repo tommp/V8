@@ -14,31 +14,17 @@ bool Model::load_binary_model(const std::string& name, std::vector<std::string>&
 
 	std::ifstream contentf (model_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for model data!" << std::endl;
-		errorlogger("ERROR: Failed to open content file for model data!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for model data: " << model_path << std::endl;
+		errorlogger("ERROR: Failed to open content file for model data: ", model_path.c_str());
 		return false;
 	}
 
-	unsigned int num_meshes = 0;
-	unsigned int mesh_name_size = 0;
-	char mesh_name[500];
-	std::string mesh;
+	GLuint num_meshes = 0;
 
-	contentf.read(reinterpret_cast<char *>(&num_meshes), sizeof(unsigned int));
+	contentf.read(reinterpret_cast<char *>(&num_meshes), sizeof(GLuint));
 
-	for (unsigned int i = 0; i < num_meshes; ++i) {
-		contentf.read(reinterpret_cast<char *>(&mesh_name_size), sizeof(unsigned int));
-		if (mesh_name_size > 500) {
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Mesh name to long!" << std::endl;
-			errorlogger("ERROR: Mesh name to long!");
-			return false;
-		}
-
-		for (unsigned int j = 0; j < mesh_name_size; ++j) {
-			contentf.read(reinterpret_cast<char *>(&(mesh_name[j])), sizeof(char));
-		}
-
-		mesh = mesh_name;
+	for (GLuint i = 0; i < num_meshes; ++i) {
+		std::string mesh = read_string_from_binary_file(contentf);
 		meshes.push_back(mesh);
 	}
 
