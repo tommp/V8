@@ -3,9 +3,13 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "SOIL.h"
 #include "paths.h"
 #include "errorlogger.h"
 #include "vertex.h"
+#include "Importer.hpp"
+#include "scene.h"
+#include "postprocess.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -13,10 +17,12 @@
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <string>
+#include <sstream>
 #include <unistd.h>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <glob.h>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -30,11 +36,45 @@ const int SCREEN_TICKS_PER_FRAME =			1000 / SCREEN_FPS;
 /* Waits for user input and quits when detected */
 void wait_for_event();
 
-/* Loads a binary image */
-bool load_binary_image(const std::string& name, unsigned char* image, GLuint* width, GLuint* height, GLint* format);
+bool write_string_to_binary_file(std::ofstream& fstream, const std::string& string);
+std::string read_string_from_binary_file(std::ifstream& fstream);
 
-/* Loads a binary mesh */
-bool load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
+std::vector<std::string> glob(const std::string& path);
+
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
+
+std::vector<std::string> split(const std::string &s, char delim);
+
+bool convert_all_models();
+
+bool convert_model_file(const std::string& source_path, const std::string& target_path);
+
+void process_node(aiNode* node, const aiScene* scene, 
+					std::vector<std::string>& mesh_names, 
+					const std::string& modelname);
+
+std::string process_mesh(aiMesh* mesh, const aiScene* scene, 
+							const std::string modelname, 
+							GLuint meshnumber);
+
+std::vector<std::string> load_material_textures(aiMaterial* mat, 
+												aiTextureType type, 
+												const std::string& typeName);
+
+std::string load_material_texture(aiMaterial* mat, 
+									aiTextureType type, 
+									const std::string& typeName);
+
+bool convert_all_images();
+
+bool convert_image_file(const std::string& source_path, const std::string& target_path);
+
+bool store_binary_texture(const std::string& path, 
+							unsigned char* image, 
+							GLuint width, 
+							GLuint height, 
+							GLuint channels, 
+							GLint format);
 
 /* Print a verbose error message */
 const char* gl_error_string(GLenum err);

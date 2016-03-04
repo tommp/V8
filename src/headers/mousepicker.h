@@ -29,6 +29,8 @@ public:
 	void calculate_ray(GLfloat length, const Renderer& renderer);
 	void check_for_intersection(const btDiscreteDynamicsWorld* physics_world);
 };
+
+typedef std::shared_ptr<Mousepicker> Mousepicker_ptr;
 /*=============================================*/
 
 #endif

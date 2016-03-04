@@ -32,7 +32,6 @@ private:
 	Resource_manager* manager;
 
 	std::list<Character_ptr> players;
-
 public:
 	World(Resource_manager& init_manager);
 	~World();

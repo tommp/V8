@@ -11,7 +11,7 @@ const std::unordered_map<std::string, std::pair<GLuint, std::vector<std::string>
 	{"cube_walk", {0, {"portalturret", }}},
 	{"player_test", {5, {"portalturret", }}},
 	{"player_walk", {10, {"portalturret", }}},
-	{"prop", {15, {"brick_box", }}},
+	{"prop", {15, {"engine_base_floor", }}},
 };
 
 #endif

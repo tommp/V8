@@ -16,22 +16,31 @@ void Material::use(const Shader_ptr& shader){
 }
 
 bool Material::load_from_file(Resource_manager& manager, const std::string& name){
+	std::string model_path = MATERIAL_DATA_PATH + name + ".mat";
 
-	if (ENGINE_MATERIALS.find(name) == ENGINE_MATERIALS.end()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Material not found (missing in material map)!: " << name << std::endl;
-		errorlogger("ERROR: Material not found (missing in material map)!: ", name.c_str());
+	std::ifstream contentf (model_path.c_str(), std::ios::binary);
+	if (!contentf.is_open()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for material data: " << model_path << std::endl;
+		errorlogger("ERROR: Failed to open content file for material data: ", model_path.c_str());
 		return false;
 	}
 
-	if (ENGINE_MATERIALS.find(name)->second[0] != "") {
-		diffuse = manager.load_texture(ENGINE_MATERIALS.find(name)->second[0]);
+	GLuint has_diffuse;
+	GLuint has_specular;
+
+	contentf.read(reinterpret_cast<char *>(&has_diffuse), sizeof(GLuint));
+
+	if (has_diffuse != 0) {
+		diffuse = manager.load_texture(read_string_from_binary_file(contentf));
 	}
 	else{
 		diffuse = nullptr;
 	}
 
-	if (ENGINE_MATERIALS.find(name)->second[1] != "") {
-		specular = manager.load_texture(ENGINE_MATERIALS.find(name)->second[1]);
+	contentf.read(reinterpret_cast<char *>(&has_specular), sizeof(GLuint));
+
+	if (has_specular != 0){
+		specular = manager.load_texture(read_string_from_binary_file(contentf));
 	}
 	else{
 		specular = nullptr;

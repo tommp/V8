@@ -4,16 +4,38 @@ int main(int argc, char** argv){
 
 	/* INITIAL SETUP */
 	/* ====================================== */
+	std::cout << "\n\nV8 Engine version xx \n" << std::endl;
+	std::cout << "Performing initial setup...." << std::endl;
+	std::cout << "=======================================\n" << std::endl;
 
-	/*Initializes SDL */
+	/* Random seed to time */
+	srand (time(NULL));
+
+	std::cout << "Initializing SDL...\n" << std::endl;
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "Failed to initialize SDL, see errorlog for details."<<std::endl;
 		SDLerrorLogger("SDL initialization");
 		exit(EXIT_FAILURE);
 	}
-
-	/* Random seed to time */
-	srand (time(NULL));
+	std::cout << "SDL initialized!" << std::endl;
+	std::cout << "=======================================\n" << std::endl;
+#ifdef REBUILD_ASSETS
+	std::cout << "Converting images..." << std::endl;
+	if (!convert_all_images()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to convert images."<<std::endl;
+		errorlogger("ERROR: Failed to convert images.");
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "Images converted!" << std::endl;
+	std::cout << "=======================================\n" << std::endl;
+	std::cout << "Converting models..." << std::endl;
+	if (!convert_all_models()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to convert models."<<std::endl;
+		errorlogger("ERROR: Failed to convert models.");
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "Models converted!" << std::endl;
+#endif
 	/* ====================================== */
 
 	/* MAIN VARS */

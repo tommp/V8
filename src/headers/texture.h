@@ -7,7 +7,6 @@
 #include "errorlogger.h"
 #include "utility.h"
 #include "shader.h"
-#include "texture_map.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -43,7 +42,7 @@ class Texture
         void use(const std::string& uniform_name, GLuint texture_unit, const Shader_ptr& shader);
 
         bool load_from_file(const std::string& name);
-        unsigned char* load_binary_image(const std::string& name);
+        unsigned char* load_binary_texture(const std::string& name);
 
         int get_width()const{return width;};
         int get_height()const{return height;};

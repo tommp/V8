@@ -53,7 +53,7 @@ class Level {
 		GLuint depth;
 
 		Camera_ptr camera;
-		Mousepicker* mousepicker;
+		Mousepicker_ptr mousepicker;
 
 		/* ==================== Physics stuff ===================== */
 		btDiscreteDynamicsWorld* physics_world;

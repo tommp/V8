@@ -5,8 +5,25 @@ cd ..
 #Clone repos
 git clone https://github.com/bulletphysics/bullet3.git
 git clone https://github.com/g-truc/glm.git
+git clone https://github.com/assimp/assimp.git
 
 mkdir src/lib
+
+#Make assimp shared libs
+cd assimp
+cmake CMakeLists.txt -G 'Unix Makefiles'
+make
+
+#Move shared libs to engine lib folder
+cd lib
+find ./ -type f -iname "*.so*" -print0 | xargs -0 -Ilibfiles mv libfiles ../../src/lib/
+
+
+#Move header files to include dir
+cd ../include
+mv assimp ../src/headers/assimp_includes
+cd ../..
+
 
 #Move header files to include dir
 cd glm
@@ -37,6 +54,7 @@ cd ..
 #Delete repos
 rm -rf bullet3
 rm -rf glm
+rm -rf assimp
 
 #Build engine
 cd src

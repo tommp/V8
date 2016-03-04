@@ -1,13 +1,13 @@
 #include "level.h"
 
 Level::Level(Resource_manager& init_manager){
-	mousepicker = new Mousepicker();
+	mousepicker = std::make_shared<Mousepicker>();
 
 	camera = std::make_shared<Camera>();
 
 	if (!init_physics()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize physics!"<< std::endl;
-		errorlogger("ERROR: Failed initialize physics!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to initialize physics!"<< std::endl;
+		errorlogger("ERROR: Failed to initialize physics!");
 		exit(EXIT_FAILURE);
 	}
 
@@ -35,7 +35,6 @@ Level::~Level(){
 	delete collisionConfiguration;
 	delete dispatcher;
 	delete solver;
-	delete mousepicker;
 }
 
 bool Level::add_dir_light(const Light_ptr& light){
