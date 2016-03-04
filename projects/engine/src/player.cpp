@@ -7,7 +7,7 @@ Player::Player(Resource_manager& init_manager){
 	manager = &init_manager;
 	speed = 400.0f;
 	position = {0.0f, 0.0f, 0.0f};
-	size = {2.0f, 2.0f, 2.0f};
+	size = {50.0f, 50.0f, 50.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 	velocity = {0.0f, 0.0f, 0.0f};
 

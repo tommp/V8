@@ -1,4 +1,4 @@
-# Blender MTL File: 'base_floor.blend'
+# Blender MTL File: 'engine_base_floor.blend'
 # Material Count: 1
 
 newmtl engine_base_material
@@ -10,3 +10,4 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd /home/tommp/V8/assets/raw_images/base_diffuse.png
+map_Ks /home/tommp/V8/assets/raw_images/base_specular.png
