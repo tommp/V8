@@ -25,6 +25,7 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 	GLuint vsize;
 	GLuint isize;
 	char has_material;
+	char has_animation;
 
 	contentf.read(reinterpret_cast<char *>(&has_material), sizeof(char));
 	if (has_material){
@@ -40,6 +41,15 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 	for (GLuint i = 0; i < isize; ++i) {
 		contentf.read(reinterpret_cast<char *>(&index), sizeof(GLuint));
 		indices.push_back(index);
+	}
+
+	contentf.read(reinterpret_cast<char *>(&has_animation), sizeof(char));
+	if (has_animation) {
+		for (GLuint i = 0; i < 4; ++i) {
+			for (GLuint j = 0; j < 4; ++j) {
+				contentf.read(reinterpret_cast<char *>(&(root_inverse_transform[i][j])), sizeof(float));
+			}
+		}
 	}
 
 	contentf.close();

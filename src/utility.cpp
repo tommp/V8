@@ -78,9 +78,18 @@ std::vector<std::string> split(const std::string &s, char delim) {
 }
 
 bool convert_all_models(){
+	std::vector<std::string> sources;
 	std::string source_path_mask = RAW_MODEL_DATA_PATH;
 	source_path_mask += "*";
-	std::vector<std::string> sources = glob(source_path_mask.c_str());
+	std::vector<std::string> filetypes = {".obj", ".3ds", ".ms3d", ".b3d", "md5mesh"};
+	for (auto suffix : filetypes) {
+		std::string true_path = source_path_mask + suffix;
+		std::vector<std::string> files = glob(true_path.c_str());
+
+		for (auto source : files) {
+			sources.push_back(source);
+		}
+	}
 	std::vector<std::string> targets;
 	for (auto path : sources) {
 		char token = '/';
@@ -262,7 +271,7 @@ bool convert_model_file(const std::string& source_path, const std::string& targe
 	std::string filename = split(target_path, '/').back();
 	std::string modelname = split(filename, '.')[0];
 
-	process_node(scene->mRootNode, scene, mesh_names, modelname);
+	process_node(scene->mRootNode, scene, mesh_names, modelname, 0);
 
 	std::ofstream contentf (target_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
@@ -288,15 +297,17 @@ bool convert_model_file(const std::string& source_path, const std::string& targe
 void process_node(aiNode* node, 
 					const aiScene* scene, 
 					std::vector<std::string>& mesh_names, 
-					const std::string& modelname){
+					const std::string& modelname,
+					GLuint meshnumber){
 	for(GLuint i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]]; 
-		mesh_names.push_back(process_mesh(mesh, scene, modelname, i));	
+		mesh_names.push_back(process_mesh(mesh, scene, modelname, meshnumber));	
+		++meshnumber;
 
 	}
 
 	for(GLuint i = 0; i < node->mNumChildren; i++) {
-		process_node(node->mChildren[i], scene, mesh_names, modelname);
+		process_node(node->mChildren[i], scene, mesh_names, modelname, ++meshnumber);
 	}
 }
 
@@ -421,8 +432,61 @@ std::string process_mesh(aiMesh* mesh,
 	for (auto index : indices) {
 		contentf.write(reinterpret_cast<const char *>(&index), sizeof(GLuint));
 	}
+
+	if (scene->HasAnimations()){
+		contentf.write(reinterpret_cast<const char *>(&true_bool), sizeof(char));
+		aiMatrix4x4 root_trans = scene->mRootNode->mTransformation;
+		root_trans.Inverse();
+		for (GLuint i = 0; i < 4; ++i){
+			for (GLuint j = 0; j < 4; ++j) {
+				contentf.write(reinterpret_cast<const char *>(&(root_trans[i][j])), sizeof(float));
+			}
+		}
+
+		//map unordered_map<std::string, GLuint> bonemap;
+	}
+	else{
+		contentf.write(reinterpret_cast<const char *>(&false_bool), sizeof(char));
+	}
 	
 	return meshname;
+}
+
+void load_mesh_bones(const aiMesh* mesh, 
+						std::unordered_map<std::string, GLuint>& bone_map,
+						std::vector<Vertex>& vertices,
+						std::vector<Bone>& bone_info, 
+						GLuint& num_bones){
+	for (GLuint i = 0 ; i < mesh->mNumBones; ++i) { 
+        GLuint bone_index = 0; 
+        std::string bone_name(mesh->mBones[i]->mName.data);
+
+        if (bone_map.find(bone_name) == bone_map.end()) {
+            bone_index = num_bones;
+            ++num_bones; 
+            Bone bi; 
+            bone_info.push_back(bi);
+            bone_map[bone_name] = bone_index;
+        }
+        else {
+            bone_index = bone_map[bone_name];
+        }
+
+        aiMatrix4x4 offset_aimatrix = mesh->mBones[i]->mOffsetMatrix;
+        glm::mat4 offsetmatrix;
+
+        /*TODO::Properly convert here */
+
+        bone_info[bone_index].offset = offsetmatrix;
+
+        for (GLuint j = 0 ; j < mesh->mBones[i]->mNumWeights; ++j) {
+        	/* TODO::Make sure this gets the right vertex id */
+            GLuint vertex_id = mesh.BaseVertex + mesh->mBones[i]->mWeights[j].mVertexId;
+            GLfloat Weight = mesh->mBones[i]->mWeights[j].mWeight; 
+            add_bone_index(vertices[vertex_id], bone_index);
+            add_bone_weight(vertices[vertex_id], weight;
+        }
+    }
 }
 
 std::vector<std::string> load_material_textures(aiMaterial* mat, 

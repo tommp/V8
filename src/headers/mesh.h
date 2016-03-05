@@ -26,7 +26,13 @@
 /*Header content*/
 /*=============================================*/
 
-const glm::vec3 MESH_DIRECTION = {0.0f, 0.0f, 1.0f};
+struct Bone {
+	std::string name;
+	glm::mat4 offset;
+}
+
+/* TODO:: Hack, fix by passing mesh init dir later */
+const glm::vec3 MESH_DIRECTION = {0.0f, 1.0f, -1.0f};
 
 class Resource_manager;
 class Material;
@@ -41,6 +47,10 @@ class Mesh {
 		GLuint EBO;
 
 		GLuint num_vertices;
+		GLuint num_bones;
+
+		/* Inverse transform of the root bone transformation used in animation */
+		glm::mat4 root_inverse_transform;
 
 		Material_ptr material;
 	public:

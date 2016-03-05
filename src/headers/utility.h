@@ -51,7 +51,8 @@ bool convert_model_file(const std::string& source_path, const std::string& targe
 
 void process_node(aiNode* node, const aiScene* scene, 
 					std::vector<std::string>& mesh_names, 
-					const std::string& modelname);
+					const std::string& modelname, 
+					GLuint meshnumber);
 
 std::string process_mesh(aiMesh* mesh, const aiScene* scene, 
 							const std::string modelname, 

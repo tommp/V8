@@ -34,7 +34,8 @@ bool Material::load_from_file(Resource_manager& manager, const std::string& name
 		diffuse = manager.load_texture(read_string_from_binary_file(contentf));
 	}
 	else{
-		diffuse = nullptr;
+		std::cout << "No diffuse texture, using base" << std::endl;
+		diffuse = manager.load_texture("engine_base_diffuse");
 	}
 
 	contentf.read(reinterpret_cast<char *>(&has_specular), sizeof(GLuint));
@@ -43,7 +44,8 @@ bool Material::load_from_file(Resource_manager& manager, const std::string& name
 		specular = manager.load_texture(read_string_from_binary_file(contentf));
 	}
 	else{
-		specular = nullptr;
+		std::cout << "No specular texture, using base" << std::endl;
+		diffuse = manager.load_texture("engine_base_specular");
 	}
 
 	return true;
