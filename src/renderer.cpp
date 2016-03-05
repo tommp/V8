@@ -333,20 +333,17 @@ bool Renderer::use_light_shader(Light_type light_type)const{
 }
 
 bool Renderer::bind_g_data(Light_type light_type)const{
-	GLuint program;
+	Shader_ptr current_shader;
 	if(light_type == DIRECTIONAL) {
-		dir_light_shader->use();
-		program = dir_light_shader->get_program();
+		current_shader = dir_light_shader;
 	}
 
 	else if(light_type == POINT) {
-		point_light_shader->use();
-		program = point_light_shader->get_program();
+		current_shader = point_light_shader;
 	}
 
 	else if(light_type == SPOT) {
-		spot_light_shader->use();
-		program = spot_light_shader->get_program();
+		current_shader = spot_light_shader;
 	}
 	else{
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid light type when binding light shader!" << std::endl;
@@ -354,9 +351,11 @@ bool Renderer::bind_g_data(Light_type light_type)const{
 		return false;
 	}
 
+	current_shader->use();
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_position);
-	glUniform1i(glGetUniformLocation(program, "g_position"), 0);
+	glUniform1i(current_shader->load_uniform_location("g_position"), 0);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_position buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_position buffer!");
@@ -365,7 +364,7 @@ bool Renderer::bind_g_data(Light_type light_type)const{
 
 	glActiveTexture(GL_TEXTURE0 + 1);
 	glBindTexture(GL_TEXTURE_2D, g_normal);
-	glUniform1i(glGetUniformLocation(program, "g_normal"), 1);
+	glUniform1i(current_shader->load_uniform_location("g_normal"), 1);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_normal buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_normal buffer!");
@@ -374,7 +373,7 @@ bool Renderer::bind_g_data(Light_type light_type)const{
 	
 	glActiveTexture(GL_TEXTURE0 + 2);
 	glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
-	glUniform1i(glGetUniformLocation(program, "g_albedo_spec"), 2);
+	glUniform1i(current_shader->load_uniform_location("g_albedo_spec"), 2);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_albedo_spec buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_albedo_spec buffer!");
@@ -521,13 +520,13 @@ bool Renderer::render_geometry(GLuint VAO,
 
 void Renderer::setup_light_rendering(Light_type light_type, const glm::vec3& position)const{
 	use_light_shader(light_type);
-	upload_view_position(get_light_shader_program(light_type), 
+	upload_view_position(*(get_light_shader(light_type).get()), 
 								position);
 	bind_g_data(light_type);
 }
 
-void Renderer::upload_view_position(GLuint shader_program, const glm::vec3& position)const{
-	glUniform3fv(glGetUniformLocation(shader_program, "view_position"), 1, (float*)&position);
+void Renderer::upload_view_position(Shader& shader, const glm::vec3& position)const{
+	glUniform3fv(shader.load_uniform_location("view_position"), 1, (float*)&position);
 }
 
 bool Renderer::upload_light_data()const{

@@ -26,7 +26,7 @@ void Texture::free_texture(){
 void Texture::use(const std::string& uniform_name, GLuint texture_unit, const Shader_ptr& shader){
     glActiveTexture(GL_TEXTURE0 + texture_unit);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glUniform1i(glGetUniformLocation(shader->get_program(), uniform_name.c_str()), texture_unit);
+    glUniform1i(shader->load_uniform_location(uniform_name.c_str()), texture_unit);
     if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind texture when using: " << uniform_name << ", with texture: " << name << std::endl;
 		errorlogger("ERROR: Failed to bind texture when using: ", uniform_name.c_str());

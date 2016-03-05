@@ -126,7 +126,7 @@ class Renderer{
 		bool render_light()const;
 		void detach_light_rendering()const;
 
-		void upload_view_position(GLuint shader_program, const glm::vec3& position)const;
+		void upload_view_position(Shader& shader, const glm::vec3& position)const;
 
 		void upload_view_matrix()const;
 		void update_view_matrix(const glm::vec3& position, 
