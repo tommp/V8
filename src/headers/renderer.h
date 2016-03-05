@@ -70,12 +70,16 @@ class Renderer{
 		GLuint g_albedo_spec;
 		GLuint g_rbo_depth;
 
+		GLuint shadow_buffer;
+		GLuint shadow_map;
+
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
 		Shader_ptr spot_light_shader;
 		Shader_ptr geometry_shader;
+		Shader_ptr shadow_shader;
 	public:
 		Renderer();
 		Renderer(Resource_manager& resource_manager);
@@ -83,10 +87,11 @@ class Renderer{
 		bool init_openGL();
 		bool init_settings();
 		bool init_uniform_buffers();
-		bool init_framebuffer();
+		bool init_framebuffers();
 		bool init_shaders(Resource_manager& resource_manager);
 
 		bool use_g_buffer()const;
+		bool use_shadow_buffer()const;
 		bool use_default_buffer()const;
 		bool use_light_shader(Light_type light_type)const;
 		bool bind_g_data(Light_type light_type)const;
@@ -112,18 +117,13 @@ class Renderer{
 		bool render_geometry(std::vector<const std::list<Character_ptr>*> targets, 
 										const Camera_ptr& camera);
 
-		bool render_dir_lights(const std::forward_list<Light_ptr>& dir_lights, 
-								const glm::vec3& position)const;
-		bool render_point_lights(const std::forward_list<Light_ptr>& point_lights, 
-								const glm::vec3& position)const;
-		bool render_spot_lights(const std::forward_list<Light_ptr>& spot_lights, 
-								const glm::vec3& position)const;
-
-
 		void detach_geometry_rendering()const;
 
 		void setup_light_rendering(Light_type light_type, const glm::vec3& position)const;
-		bool render_light()const;
+		bool render_lights(Light_type light_type, 
+									std::vector<const std::list<Character_ptr>*> targets, 
+									const std::forward_list<Light_ptr>& lights, 
+									const glm::vec3& position)const;
 		void detach_light_rendering()const;
 
 		void upload_view_position(Shader& shader, const glm::vec3& position)const;

@@ -55,7 +55,7 @@ Renderer::Renderer(Resource_manager& resource_manager){
 		exit(EXIT_FAILURE);
 	}
 
-	if(!init_framebuffer()) {
+	if(!init_framebuffers()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize g_framebuffer in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to initialize g_framebuffer in renderer!");
 		exit(EXIT_FAILURE);
@@ -162,10 +162,17 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		errorlogger("ERROR: Failed to load geometry shader in renderer");
 		return false;
 	}
+
+	shadow_shader = resource_manager.load_shader("shadow_shader");
+	if (!geometry_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load shadow shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load shadow shader in renderer");
+		return false;
+	}
 	return true;
 }
 
-bool Renderer::init_framebuffer(){
+bool Renderer::init_framebuffers(){
 	//dir_light_shader->use();
 	if ((window_size.x <= 0) || (window_size.y <= 0)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Display not initialized, cannot initialize g buffer!" << std::endl;
@@ -175,8 +182,7 @@ bool Renderer::init_framebuffer(){
 
 	glGenFramebuffers(1, &g_buffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
-	  
-	// - Position color buffer
+
 	glGenTextures(1, &g_position);
 	glBindTexture(GL_TEXTURE_2D, g_position);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -189,7 +195,7 @@ bool Renderer::init_framebuffer(){
 		glDeleteTextures(1, &g_position);
 		return false;
 	}
-	// - Normal color buffer
+
 	glGenTextures(1, &g_normal);
 	glBindTexture(GL_TEXTURE_2D, g_normal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -203,7 +209,6 @@ bool Renderer::init_framebuffer(){
 		return false;
 	}
 
-	// - Color + Specular color buffer
 	glGenTextures(1, &g_albedo_spec);
 	glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -217,7 +222,6 @@ bool Renderer::init_framebuffer(){
 		return false;
 	}
 
-	// - Tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
 	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, attachments);
 
@@ -234,7 +238,35 @@ bool Renderer::init_framebuffer(){
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
 		print_framebuffer_error_in_fucking_english();
-		errorlogger( "ERROR: Framebuffer not complete!");
+		errorlogger( "ERROR: G-framebuffer not complete!");
+		return false;
+	}
+
+	glGenFramebuffers(1, &shadow_buffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadow_buffer);
+
+	glGenTextures(1, &shadow_map);
+	glBindTexture(GL_TEXTURE_2D, shadow_map);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+	             window_size.x, window_size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize shadow_map buffer in shadow_buffer!" << std::endl;
+		errorlogger("ERROR: Failed to initialize shadow_map buffer in shadow_buffer!");
+		glDeleteRenderbuffers(1, &shadow_map);
+		return false;
+	}
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_map, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
+		print_framebuffer_error_in_fucking_english();
+		errorlogger( "ERROR: Shadow framebuffer not complete!");
 		return false;
 	}
 
@@ -295,6 +327,16 @@ bool Renderer::use_g_buffer()const{
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind g_buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_buffer!");
+		return false;
+	}
+	return true;
+}
+
+bool Renderer::use_shadow_buffer()const{
+	glBindFramebuffer(GL_FRAMEBUFFER, shadow_buffer);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind shadow_buffer!" << std::endl;
+		errorlogger("ERROR: Failed to bind shadow_buffer!");
 		return false;
 	}
 	return true;
@@ -379,7 +421,12 @@ bool Renderer::bind_g_data(Light_type light_type)const{
 		errorlogger("ERROR: Failed to bind g_albedo_spec buffer!");
 		return false;
 	}
+
 	return true;
+}
+
+bool Renderer::bind_shadow_data()const{
+
 }
 
 bool Renderer::unbind_g_data()const{
@@ -421,24 +468,6 @@ GLuint Renderer::get_uniform_buffer(const std::string& name)const{
 	}
 };
 
-void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
-	update_view_matrix(camera->get_position_refrence(), 
-						camera->get_target_refrence(), 
-						camera->get_up_dir_refrence());
-	upload_view_matrix();
-	use_g_buffer();
-	glDepthMask(GL_TRUE);
-	clear();
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	geometry_shader->use();
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup geometry rendering!" << std::endl;
-		errorlogger("ERROR: Failed to setup geometry rendering!");
-		exit(EXIT_FAILURE);
-	}
-}
-
 bool Renderer::render_geometry(std::vector<const std::list<Character_ptr>*> targets, const Camera_ptr& camera){
 	setup_geometry_rendering(camera);
 	for (auto target_vector : targets) {
@@ -446,7 +475,7 @@ bool Renderer::render_geometry(std::vector<const std::list<Character_ptr>*> targ
 			character->render_frame(*this);
 		}
 	}
-	detach_geometry_rendering();
+
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!" << std::endl;
 		errorlogger("ERROR: Failed to render geometry!");
@@ -454,24 +483,6 @@ bool Renderer::render_geometry(std::vector<const std::list<Character_ptr>*> targ
 	}
 	return true;
 }
-
-void Renderer::detach_geometry_rendering()const{
-	glDepthMask(GL_FALSE);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-   	glBlendEquation(GL_FUNC_ADD);
-   	glBlendFunc(GL_ONE, GL_ONE);
-	use_default_buffer();
-	clear();
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;
-		errorlogger("ERROR: Failed to detach geometry rendering!");
-		exit(EXIT_FAILURE);
-	}
-
-}
-
-
 
 bool Renderer::render_geometry(GLuint VAO, 
 							GLuint num_vertices,
@@ -516,13 +527,6 @@ bool Renderer::render_geometry(GLuint VAO,
 		return false;
 	}
 	return true;
-}
-
-void Renderer::setup_light_rendering(Light_type light_type, const glm::vec3& position)const{
-	use_light_shader(light_type);
-	upload_view_position(*(get_light_shader(light_type).get()), 
-								position);
-	bind_g_data(light_type);
 }
 
 void Renderer::upload_view_position(Shader& shader, const glm::vec3& position)const{
@@ -772,32 +776,71 @@ void Renderer::upload_view_matrix()const{
 	}
 }
 
-bool Renderer::render_dir_lights(const std::forward_list<Light_ptr>& dir_lights, 
+bool Renderer::render_lights(Light_type light_type, 
+									std::vector<const std::list<Character_ptr>*> targets, 
+									const std::forward_list<Light_ptr>& lights, 
 									const glm::vec3& position)const{
-	setup_light_rendering(DIRECTIONAL, position);
+	
+	for (auto light : lights) {
+		shadow_shader->use();
+		//glm::mat4 view = glm::lookAt(position, target, camera_up); view here
+		//Upload projection here
+		use_shadow_buffer();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, shadow_map);
+		glUniform1i(current_shader->load_uniform_location("shadow_map"), 0);
+		if(check_ogl_error()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind shadow_map buffer!" << std::endl;
+			errorlogger("ERROR: Failed to bind shadow_map buffer!");
+			return false;
+		}
 
-	for (auto light : dir_lights) {
+		for (auto target_vector : targets) {
+			for (auto character : (*target_vector)){
+				character->render_frame(*this);
+			}
+		}
+
+		glDepthMask(GL_FALSE);
+	    glDisable(GL_DEPTH_TEST);
+	    glEnable(GL_BLEND);
+	   	glBlendEquation(GL_FUNC_ADD);
+	   	glBlendFunc(GL_ONE, GL_ONE);
+		use_default_buffer();
+		clear();
+
+		setup_light_rendering(light_type, position);
 		light->render_light(*this);
+		if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render light!" << std::endl;
+			errorlogger("ERROR: Failed to render light!");
+			exit(EXIT_FAILURE);
+		}
 	}
 	return true;
 }
 
-bool Renderer::render_point_lights(const std::forward_list<Light_ptr>& point_lights, 
-									const glm::vec3& position)const{
-	setup_light_rendering(POINT, position);
-
-	for (auto light : point_lights) {
-		light->render_light(*this);
-	}
-	return true;
+void Renderer::setup_light_rendering(Light_type light_type, const glm::vec3& position)const{
+	use_light_shader(light_type);
+	upload_view_position(*(get_light_shader(light_type).get()), 
+								position);
+	bind_g_data(light_type);
 }
 
-bool Renderer::render_spot_lights(const std::forward_list<Light_ptr>& spot_lights, 
-									const glm::vec3& position)const{
-	setup_light_rendering(SPOT, position);
-
-	for (auto light : spot_lights) {
-		light->render_light(*this);
+void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
+	update_view_matrix(camera->get_position_refrence(), 
+						camera->get_target_refrence(), 
+						camera->get_up_dir_refrence());
+	upload_view_matrix();
+	use_g_buffer();
+	glDepthMask(GL_TRUE);
+	clear();
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	geometry_shader->use();
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup geometry rendering!" << std::endl;
+		errorlogger("ERROR: Failed to setup geometry rendering!");
+		exit(EXIT_FAILURE);
 	}
-	return true;
 }

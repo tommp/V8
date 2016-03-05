@@ -220,9 +220,9 @@ void Level::render_geometry(Renderer& renderer){
 }
 
 void Level::render_lights(const Renderer& renderer)const{
-	renderer.render_dir_lights(dir_lights, camera->get_position_refrence());
-	renderer.render_point_lights(point_lights, camera->get_position_refrence());
-	renderer.render_spot_lights(spot_lights, camera->get_position_refrence());
+	renderer.render_lights(DIRECTIONAL, rendering_targets, dir_lights, camera->get_position_refrence());
+	renderer.render_lights(POINT, rendering_targets, point_lights, camera->get_position_refrence());
+	renderer.render_lights(SPOT, rendering_targets, spot_lights, camera->get_position_refrence());
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");
