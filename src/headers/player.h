@@ -5,7 +5,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "keys.h"
-#include "character.h"
+#include "object.h"
 #include "animation.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
@@ -22,11 +22,12 @@
 /*=============================================*/
 class Animation;
 class Resource_manager;
-class Character;
+class Object;
 class btRigidBody;
 
-class Player : public Character{
+class Player : public Object{
 private:
+	Animation_set_ptr animations;
 	glm::vec3 velocity;
 	glm::vec3 init_direction;
 	GLfloat speed;
@@ -35,7 +36,7 @@ public:
 	Player(Resource_manager& init_manager);
 	void render_frame(const Renderer& renderer)const;
 	bool update_position(GLfloat timedelta);
-	bool touch_character(Character& character);
+	bool touch_object(Object& Object);
 };
 
 typedef std::shared_ptr<Player> Player_ptr;

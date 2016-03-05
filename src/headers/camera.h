@@ -21,11 +21,7 @@
 
 /*Header content*/
 /*=============================================*/
-class Character;
 class Actor;
-
-typedef std::shared_ptr<Character> Character_ptr;
-typedef std::shared_ptr<Actor> Actor_ptr;
 
 class Camera {
 	private:

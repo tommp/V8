@@ -7,7 +7,7 @@
 #include "errorlogger.h"
 #include "enum_light_type.h"
 #include "contact.h"
-#include "character.h"
+#include "object.h"
 #include "light.h"
 #include "player.h"
 #include "resource_manager.h"
@@ -31,12 +31,12 @@ private:
 	Level_ptr current_level;
 	Resource_manager* manager;
 
-	std::list<Character_ptr> players;
+	std::list<Object_ptr> players;
 public:
 	World(Resource_manager& init_manager);
 	~World();
 
-	bool add_player(const Character_ptr& player);
+	bool add_player(const Object_ptr& player);
 	bool add_players_to_physics_world();
 
 	void render_world(Renderer& renderer);

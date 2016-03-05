@@ -68,6 +68,6 @@ bool Cube::update_position(float timedelta){
 	return true;
 }
 
-bool Cube::touch_character(Character& character){
+bool Cube::touch_object(Object& object){
 	return true;
 }

@@ -70,6 +70,6 @@ bool Player::update_position(GLfloat timedelta){
 	return true;
 }
 
-bool Player::touch_character(Character& character){
+bool Player::touch_object(Object& object){
 	return true;
 }

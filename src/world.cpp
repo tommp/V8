@@ -6,7 +6,7 @@ World::~World() {
 World::World(Resource_manager& init_manager){
 	manager = &init_manager;
 
-	Character_ptr player = std::make_shared<Player>(init_manager);
+	Object_ptr player = std::make_shared<Player>(init_manager);
 	if (!add_player(player)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Could not add player to world" << std::endl;
 		errorlogger("ERROR: Could not add player to world");
@@ -54,7 +54,7 @@ void World::render_world(Renderer& renderer){
 	renderer.present();
 }
 
-bool World::add_player(const Character_ptr& player){
+bool World::add_player(const Object_ptr& player){
 	if (player){
 		players.push_back(player);	
 		return true;

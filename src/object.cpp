@@ -1,18 +1,18 @@
-#include "character.h"
+#include "object.h"
 
-Character::Character(){
+Object::Object(){
 	motion_state = nullptr;
 	collision_shape = nullptr;
 	collision_body = nullptr;
 }
 
-Character::~Character(){
+Object::~Object(){
 	delete motion_state;
 	delete collision_shape;
 	delete collision_body;
 }
 
-bool Character::operator<(const Character& b){
+bool Object::operator<(const Object& b){
 	if (position[2] < b.get_z() ){
 		return true;
 	}

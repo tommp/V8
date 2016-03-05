@@ -12,8 +12,8 @@ Level::Level(Resource_manager& init_manager){
 	}
 
 	for (int i = 0; i < 10; ++i) {
-		Character_ptr cube = std::make_shared<Cube>(init_manager);
-		add_active_character(cube);
+		Object_ptr cube = std::make_shared<Cube>(init_manager);
+		add_active_object(cube);
 	}
 	
 	for (int i = 0; i < 20; ++i) {
@@ -24,9 +24,9 @@ Level::Level(Resource_manager& init_manager){
 	Light_ptr dir_light = std::make_shared<Directional_light>();
 	add_dir_light(dir_light);
 
-	Character_ptr prop = std::make_shared<Prop>(init_manager);
-	add_active_character(prop);
-	rendering_targets.push_back(&characters);
+	Object_ptr prop = std::make_shared<Prop>(init_manager);
+	add_active_object(prop);
+	rendering_targets.push_back(&objects);
 }
 
 Level::~Level(){
@@ -73,64 +73,64 @@ bool Level::add_spot_light(const Light_ptr& light){
 	}
 }
 
-bool Level::add_active_character(const Character_ptr& character){
-	if (character){
-		characters.push_back(character);
-		add_to_physics_world(character->get_collision_body());
+bool Level::add_active_object(const Object_ptr& object){
+	if (object){
+		objects.push_back(object);
+		add_to_physics_world(object->get_collision_body());
 		return true;
 	}
 	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null Character in world" << std::endl;
-		errorlogger("ERROR: Cannot add null Character in world");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null object to level" << std::endl;
+		errorlogger("ERROR: Cannot add null object to level");
 		return false;
 	}
 }
 
-bool Level::add_dormant_character(const Character_ptr& character){
-	if(character){
-		dormant_characters.push_front(character);
+bool Level::add_dormant_object(const Object_ptr& object){
+	if(object){
+		dormant_objects.push_front(object);
 		return true;
 	}
 	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null character in world" << std::endl;
-		errorlogger("ERROR: Cannot add null character in world");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null object to level" << std::endl;
+		errorlogger("ERROR: Cannot add null object to level");
 		return false;
 	}
 }
 
-bool Level::add_character(const Character_ptr& character){
-	if(character) {
-		if(check_if_offscreen(character)) {
-			return add_active_character(character);
+bool Level::add_object(const Object_ptr& object){
+	if(object) {
+		if(check_if_offscreen(object)) {
+			return add_active_object(object);
 		}
 		else{
-			return add_dormant_character(character);
+			return add_dormant_object(object);
 		}
 	}
 	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null character in world" << std::endl;
-		errorlogger("ERROR: Cannot add null character in world");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null object to level" << std::endl;
+		errorlogger("ERROR: Cannot add null object to level");
 		return false;
 	}
 }
 
 void Level::update_groups(){
-	auto first_it_dormant = dormant_characters.begin();
-	auto before_it_dormant = dormant_characters.before_begin();
+	auto first_it_dormant = dormant_objects.begin();
+	auto before_it_dormant = dormant_objects.before_begin();
 
-	for (auto it = characters.begin(); it != characters.end(); ++it){
+	for (auto it = objects.begin(); it != objects.end(); ++it){
 		if( !check_if_offscreen(*it)){
-			add_dormant_character(*it);
+			add_dormant_object(*it);
 			remove_from_physics_world((*it)->get_collision_body());
-			it = characters.erase(it);
+			it = objects.erase(it);
 		}
 	}
 
-	for (auto it = first_it_dormant; it != dormant_characters.end(); ++it){
+	for (auto it = first_it_dormant; it != dormant_objects.end(); ++it){
 		if(check_if_offscreen(*it)){
-			add_active_character(*it);
+			add_active_object(*it);
 			add_to_physics_world((*it)->get_collision_body());
-			dormant_characters.erase_after(before_it_dormant);
+			dormant_objects.erase_after(before_it_dormant);
 			it = before_it_dormant;
 		}
 		else{
@@ -189,15 +189,15 @@ void Level::update_gravity(){
 	physics_world->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 }
 
-bool Level::check_if_offscreen(const Character_ptr& a)const{
+bool Level::check_if_offscreen(const Object_ptr& a)const{
 	return false;
 }
 
 bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
-	for (auto it = characters.begin(); it != characters.end(); ++it) {
+	for (auto it = objects.begin(); it != objects.end(); ++it) {
 		if (!(*it)->update_position(timedelta)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update character position!"<< std::endl;
-			errorlogger("ERROR: Failed to update character position!");
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
+			errorlogger("ERROR: Failed to update object position!");
 			return false;
 		}
 	}
@@ -235,23 +235,23 @@ void Level::render_level(Renderer& renderer){
 	render_lights(renderer);
 }
 
-bool Level::add_to_physics_world(btRigidBody* character)const{
-	if (!character) {
+bool Level::add_to_physics_world(btRigidBody* object)const{
+	if (!object) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add nullptr to physics world!" << std::endl;
 		errorlogger("ERROR: Cannot add nullptr to physics world!");
 		return false;
 	}
-	physics_world->addRigidBody(character);
+	physics_world->addRigidBody(object);
 	return true;
 }
 
-bool Level::remove_from_physics_world(btRigidBody* character)const{
-	if (!character) {
+bool Level::remove_from_physics_world(btRigidBody* object)const{
+	if (!object) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot remove nullptr from physics world!" << std::endl;
 		errorlogger("ERROR: Cannot remove nullptr from physics world!");
 		return false;
 	}
-	physics_world->removeRigidBody(character);
+	physics_world->removeRigidBody(object);
 	return true;
 }
 

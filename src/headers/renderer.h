@@ -11,7 +11,7 @@
 #include "camera.h"
 #include "enum_light_type.h"
 #include "light.h"
-#include "character.h"
+#include "object.h"
 #include "material.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
@@ -39,14 +39,14 @@ const unsigned int SCREEN_WIDTH	=			1280;
 const glm::vec4 CLEARCOLOR = 				{0.0, 0.0, 0.0, 1.0};
 
 class Material;
-class Character;
+class Object;
 class Camera;
 class Resource_manager;
 class Light;
 
 typedef std::shared_ptr<Light> Light_ptr;
 typedef std::shared_ptr<Material> Material_ptr;
-typedef std::shared_ptr<Character> Character_ptr;
+typedef std::shared_ptr<Object> Object_ptr;
 
 class Renderer{
 	private:
@@ -109,7 +109,7 @@ class Renderer{
 							const glm::vec3& position, 
 							const glm::vec3& size, 
 							const glm::vec3& direction)const;
-		bool render_geometry(std::vector<const std::list<Character_ptr>*> targets, 
+		bool render_geometry(std::vector<const std::list<Object_ptr>*> targets, 
 										const Camera_ptr& camera);
 
 		bool render_dir_lights(const std::forward_list<Light_ptr>& dir_lights, 

@@ -39,6 +39,6 @@ bool Prop::update_position(float timedelta){
 	return true;
 }
 
-bool Prop::touch_character(Character& character){
+bool Prop::touch_object(Object& object){
 	return true;
 }

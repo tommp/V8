@@ -439,11 +439,11 @@ void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
 	}
 }
 
-bool Renderer::render_geometry(std::vector<const std::list<Character_ptr>*> targets, const Camera_ptr& camera){
+bool Renderer::render_geometry(std::vector<const std::list<Object_ptr>*> targets, const Camera_ptr& camera){
 	setup_geometry_rendering(camera);
 	for (auto target_vector : targets) {
-		for (auto character : (*target_vector)){
-			character->render_frame(*this);
+		for (auto object : (*target_vector)){
+			object->render_frame(*this);
 		}
 	}
 	detach_geometry_rendering();
