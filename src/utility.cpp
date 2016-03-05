@@ -94,12 +94,6 @@ bool convert_all_models(){
 		targets.push_back(new_target);
 	}
 
-	if(sources.size() != targets.size()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to convert models, size error in vectors!" << std::endl;
-		errorlogger("ERROR: Failed to convert models, size error in vectors!");
-		return false;
-	}
-	
 	for(GLuint i = 0; i < sources.size(); ++i) {
 		if (!convert_model_file(sources[i], targets[i])){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to convert model: " << sources[i] << std::endl;
@@ -120,12 +114,6 @@ bool convert_all_images(){
 		std::vector<std::string> file_tokens = split(filename, '.');
 		std::string new_target = (TEXTURE_DATA_PATH + file_tokens[0] + ".tex");
 		targets.push_back(new_target);
-	}
-
-	if(sources.size() != targets.size()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to convert images, size error in vectors!" << std::endl;
-		errorlogger("ERROR: Failed to convert images, size error in vectors!");
-		return false;
 	}
 	
 	for(GLuint i = 0; i < sources.size(); ++i) {
@@ -259,11 +247,6 @@ int check_ogl_error(){
 	return retCode;
 }
 
-
-
-
-//===============================
-
 bool convert_model_file(const std::string& source_path, const std::string& target_path){
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(source_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
@@ -280,14 +263,6 @@ bool convert_model_file(const std::string& source_path, const std::string& targe
 	std::string modelname = split(filename, '.')[0];
 
 	process_node(scene->mRootNode, scene, mesh_names, modelname);
-
-	/*
-	1. Open model file
-	2. Write mesh count
-	loop:
-		1. Write mesh name length
-		2. Write mesh name
-	*/
 
 	std::ofstream contentf (target_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
@@ -391,16 +366,6 @@ std::string process_mesh(aiMesh* mesh,
 
 	std::string meshname = modelname + "_" + std::to_string(meshnumber);
 
-	/*
-	1. Open material file
-	1.5. Write contain bools
-	2. Write diffuse name length
-	3. Write diffuse name
-	4. Write specular name length
-	5. Write specular name
-
-	*/
-
 	std::string material_path = MATERIAL_DATA_PATH + material_name + ".mat";
 
 	std::ofstream contentf (material_path.c_str(), std::ios::binary);
@@ -427,20 +392,6 @@ std::string process_mesh(aiMesh* mesh,
 	}
 
 	contentf.close();
-
-	/*
-	1. Open mesh file
-	2. Write material name length
-	3. Write material name
-	4. Write num vertices
-	5. Write num indices
-
-	loop:
-		1. Write vertices
-	loop:
-		1. Write indices
-
-	*/
 
 	std::string mesh_path = MESH_DATA_PATH + meshname + ".mesh";
 

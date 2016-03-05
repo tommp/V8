@@ -247,16 +247,16 @@ bool Spot_light::render_light_quad()const{
 
 void Directional_light::render_light(const Renderer& renderer)const{
 
-	GLuint program = renderer.get_light_shader_program(DIRECTIONAL);
-	if (!program) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get shader program when rendering directional light!" << std::endl;
-		errorlogger("ERROR: Failed to get shader program when rendering directional light!");
+	Shader_ptr shader = renderer.get_light_shader(DIRECTIONAL);
+	if (!shader) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get shader when rendering directional light!" << std::endl;
+		errorlogger("ERROR: Failed to get shader when rendering directional light!");
 	}
 
-	glUniform3fv(glGetUniformLocation(program, "dir_light.direction"), 1, (float*)&(direction));
-	glUniform3fv(glGetUniformLocation(program, "dir_light.ambient"), 1, (float*)&(ambient));
-	glUniform3fv(glGetUniformLocation(program, "dir_light.diffuse"), 1, (float*)&(diffuse));
-	glUniform3fv(glGetUniformLocation(program, "dir_light.specular"), 1, (float*)&(specular));
+	glUniform3fv(shader->load_uniform_location("dir_light.direction"), 1, (float*)&(direction));
+	glUniform3fv(shader->load_uniform_location("dir_light.ambient"), 1, (float*)&(ambient));
+	glUniform3fv(shader->load_uniform_location("dir_light.diffuse"), 1, (float*)&(diffuse));
+	glUniform3fv(shader->load_uniform_location("dir_light.specular"), 1, (float*)&(specular));
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind directional light uniforms!" << std::endl;
 		errorlogger("ERROR: Failed to bind directional light uniforms!");
@@ -269,25 +269,25 @@ void Point_light::render_light(const Renderer& renderer)const{
 	model = glm::translate(model, position);  
 	model = glm::scale(model, glm::vec3(scale)); 
 
-	renderer.get_light_shader(POINT)->set_matrix4("model", model);
+	Shader_ptr shader = renderer.get_light_shader(POINT);
+	if (!shader) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get shader when rendering directional light!" << std::endl;
+		errorlogger("ERROR: Failed to get shader when rendering directional light!");
+	}
+
+	shader->set_matrix4("model", model);
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix for point light!" << std::endl;
 		errorlogger("ERROR: Failed to set model matrix for point light!");
 	}
 
-	GLuint program = renderer.get_light_shader_program(POINT);
-	if (!program) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get shader program when rendering directional light!" << std::endl;
-		errorlogger("ERROR: Failed to get shader program when rendering directional light!");
-	}
+	glUniform3fv(shader->load_uniform_location("point_light.position"), 1, (float*)&(position));
+	glUniform1f(shader->load_uniform_location("point_light.linear"), linear);
+	glUniform1f(shader->load_uniform_location("point_light.quadratic"), quadratic);
 
-	glUniform3fv(glGetUniformLocation(program, "point_light.position"), 1, (float*)&(position));
-	glUniform1f(glGetUniformLocation(program, "point_light.linear"), linear);
-	glUniform1f(glGetUniformLocation(program, "point_light.quadratic"), quadratic);
-
-	glUniform3fv(glGetUniformLocation(program, "point_light.ambient"), 1, (float*)&(ambient));
-	glUniform3fv(glGetUniformLocation(program, "point_light.diffuse"), 1, (float*)&(diffuse));
-	glUniform3fv(glGetUniformLocation(program, "point_light.specular"), 1, (float*)&(specular));
+	glUniform3fv(shader->load_uniform_location("point_light.ambient"), 1, (float*)&(ambient));
+	glUniform3fv(shader->load_uniform_location("point_light.diffuse"), 1, (float*)&(diffuse));
+	glUniform3fv(shader->load_uniform_location("point_light.specular"), 1, (float*)&(specular));
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind point light uniforms!" << std::endl;
 		errorlogger("ERROR: Failed to bind point light uniforms!");
@@ -300,28 +300,28 @@ void Spot_light::render_light(const Renderer& renderer)const{
 	model = glm::translate(model, position);  
 	model = glm::scale(model, glm::vec3(size)); 
 
-	renderer.get_light_shader(SPOT)->set_matrix4("model", model);
+	Shader_ptr shader = renderer.get_light_shader(SPOT);
+	if (!shader) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get shader when rendering directional light!" << std::endl;
+		errorlogger("ERROR: Failed to get shader when rendering directional light!");
+	}
+
+	shader->set_matrix4("model", model);
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix for spot light!" << std::endl;
 		errorlogger("ERROR: Failed to set model matrix for spot light!");
 	}
 
-	GLuint program = renderer.get_light_shader_program(SPOT);
-	if (!program) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get shader program when rendering directional light!" << std::endl;
-		errorlogger("ERROR: Failed to get shader program when rendering directional light!");
-	}
+	glUniform3fv(shader->load_uniform_location("spot_light.position"), 1, (float*)&(position));
+	glUniform3fv(shader->load_uniform_location("spot_light.direction"), 1, (float*)&(direction));
+	glUniform1f(shader->load_uniform_location("spot_light.cut_off"), cut_off);
+	glUniform1f(shader->load_uniform_location("spot_light.outer_cut_off"), outer_cut_off);
+	glUniform1f(shader->load_uniform_location("spot_light.linear"), linear);
+	glUniform1f(shader->load_uniform_location("spot_light.quadratic"), quadratic);
 
-	glUniform3fv(glGetUniformLocation(program, "spot_light.position"), 1, (float*)&(position));
-	glUniform3fv(glGetUniformLocation(program, "spot_light.direction"), 1, (float*)&(direction));
-	glUniform1f(glGetUniformLocation(program, "spot_light.cut_off"), cut_off);
-	glUniform1f(glGetUniformLocation(program, "spot_light.outer_cut_off"), outer_cut_off);
-	glUniform1f(glGetUniformLocation(program, "spot_light.linear"), linear);
-	glUniform1f(glGetUniformLocation(program, "spot_light.quadratic"), quadratic);
-
-	glUniform3fv(glGetUniformLocation(program, "spot_light.ambient"), 1, (float*)&(ambient));
-	glUniform3fv(glGetUniformLocation(program, "spot_light.diffuse"), 1, (float*)&(diffuse));
-	glUniform3fv(glGetUniformLocation(program, "spot_light.specular"), 1, (float*)&(specular));
+	glUniform3fv(shader->load_uniform_location("spot_light.ambient"), 1, (float*)&(ambient));
+	glUniform3fv(shader->load_uniform_location("spot_light.diffuse"), 1, (float*)&(diffuse));
+	glUniform3fv(shader->load_uniform_location("spot_light.specular"), 1, (float*)&(specular));
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind spot light uniforms!" << std::endl;
 		errorlogger("ERROR: Failed to bind spot light uniforms!");
