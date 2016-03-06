@@ -25,6 +25,7 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 	GLuint vsize;
 	GLuint isize;
 	char has_material;
+	char has_animation;
 
 	contentf.read(reinterpret_cast<char *>(&has_material), sizeof(char));
 	if (has_material){
@@ -40,6 +41,40 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 	for (GLuint i = 0; i < isize; ++i) {
 		contentf.read(reinterpret_cast<char *>(&index), sizeof(GLuint));
 		indices.push_back(index);
+	}
+
+	contentf.read(reinterpret_cast<char *>(&has_animation), sizeof(char));
+	if (has_animation) {
+		for (GLuint i = 0; i < 4; ++i) {
+			for (GLuint j = 0; j < 4; ++j) {
+				contentf.read(reinterpret_cast<char *>(&(root_inverse_transform[i][j])), sizeof(float));
+			}
+		}
+		GLuint num_bones;
+		contentf.read(reinterpret_cast<char *>(&num_bones), sizeof(GLuint));
+		for (GLuint i = 0; i < num_bones; ++i) {
+			glm::mat4 bone_offset;
+			for (GLuint x = 0; x < 4; ++x) {
+				for (GLuint y = 0; y < 4; ++y) {
+					contentf.read(reinterpret_cast<char *>(&(bone_offset[x][y])), sizeof(float));
+				}
+			}
+			bone_info.push_back(bone_offset);
+		}
+
+		GLuint num_bone_mappings;
+		contentf.read(reinterpret_cast<char *>(&num_bone_mappings), sizeof(GLuint));
+		for (GLuint i = 0; i < num_bone_mappings; ++i) {
+			std::string bone_name = read_string_from_binary_file(contentf);
+			if (bone_name.empty()) {
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Loaded empty bone name from file: " << name << std::endl;
+				errorlogger("FATAL ERROR: Loaded empty bone name from file: ", name.c_str());
+				exit(EXIT_FAILURE);
+			}
+			GLuint bone_id;
+			contentf.read(reinterpret_cast<char *>(&(bone_id)), sizeof(GLuint));
+			bone_map[bone_name] = bone_id;
+		}
 	}
 
 	contentf.close();
@@ -97,6 +132,15 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 	/* TexCoord attribute */
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tex_coords));
+
+	/* TODO:: Make conditional after vertex struct split */
+	/* Bone ID attribute */
+	glEnableVertexAttribArray(3);
+    glVertexAttribIPointer(3, 4, GL_INT, sizeof(Vertex), (GLvoid*)offsetof(Vertex, bone_ids));
+
+    /* Bone weight attribute */
+    glEnableVertexAttribArray(4); 
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, bone_weights));
 
 	/* Unbind */
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

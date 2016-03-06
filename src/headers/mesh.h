@@ -5,6 +5,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "glm.h"
+#include "bone.h"
 #include "vertex.h"
 #include "utility.h"
 #include "errorlogger.h"
@@ -26,7 +27,8 @@
 /*Header content*/
 /*=============================================*/
 
-const glm::vec3 MESH_DIRECTION = {0.0f, 0.0f, 1.0f};
+/* TODO:: Hack, fix by passing mesh init dir later */
+const glm::vec3 MESH_DIRECTION = {0.0f, 1.0f, -1.0f};
 
 class Resource_manager;
 class Material;
@@ -41,6 +43,12 @@ class Mesh {
 		GLuint EBO;
 
 		GLuint num_vertices;
+
+		/* Inverse transform of the root bone transformation used in animation */
+		glm::mat4 root_inverse_transform;
+
+		std::unordered_map<std::string, GLuint> bone_map;
+		std::vector<glm::mat4> bone_info;
 
 		Material_ptr material;
 	public:
