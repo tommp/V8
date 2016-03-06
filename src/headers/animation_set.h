@@ -33,6 +33,7 @@ typedef std::shared_ptr<Animation> Animation_ptr;
 
 class Animation_set {
 	private:
+		Mesh_ptr mesh;
 		std::unordered_map<std::string, Animation_ptr> animations;
 	public:
 		Animation_set();

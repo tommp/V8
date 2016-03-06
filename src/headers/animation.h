@@ -35,9 +35,18 @@ class Resource_manager;
 class Frame;
 class Model;
 
+typedef struct Channel{
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec3> scalings;
+	std::vector<glm::fquat> rotations;
+}Channel;
+
 class Animation{
 	private:
-		std::vector<Frame> frames;
+		GLdouble duration;
+		GLdouble ticks_per_second;
+
+		std::unordered_map<std::string, Channel> channels;
 
 		GLuint num_frames;
 		GLuint current_frame;

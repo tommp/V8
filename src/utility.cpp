@@ -528,7 +528,7 @@ std::string store_binary_material(const aiScene* scene, aiMesh* mesh) {
 	return material_name;
 }
 
-/* WARNING::Vertex vector must be sorted according to aimesh indices or shits goes south */
+/* WARNING::Vertex vector must be sorted according to aimesh indices or shit goes south */
 void load_mesh_bones(const aiMesh* mesh, 
 						std::unordered_map<std::string, GLuint>& bone_map,
 						std::vector<Vertex>& vertices,
