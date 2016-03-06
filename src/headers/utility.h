@@ -7,6 +7,7 @@
 #include "paths.h"
 #include "errorlogger.h"
 #include "vertex.h"
+#include "bone.h"
 #include "Importer.hpp"
 #include "scene.h"
 #include "postprocess.h"
@@ -32,6 +33,8 @@
 const unsigned int TILESIZE = 				32;
 const unsigned int SCREEN_FPS = 			60;
 const int SCREEN_TICKS_PER_FRAME =			1000 / SCREEN_FPS;
+const GLuint TRUE_BOOL = 					1;
+const GLuint FALSE_BOOL = 					0;
 
 /* Waits for user input and quits when detected */
 void wait_for_event();
@@ -57,6 +60,26 @@ void process_node(aiNode* node, const aiScene* scene,
 std::string process_mesh(aiMesh* mesh, const aiScene* scene, 
 							const std::string modelname, 
 							GLuint meshnumber);
+
+void store_binary_mesh(const std::vector<Vertex>& vertices, 
+						const std::vector<GLuint>& indices, 
+						const std::string& material_name,
+						const std::string& meshname);
+
+void store_binary_mesh(const aiScene* scene,
+						const std::vector<Vertex>& vertices, 
+						const std::vector<GLuint>& indices, 
+						const std::string& material_name,
+						const std::string& meshname,
+						const std::unordered_map<std::string, GLuint>& bone_map,
+						const std::vector<glm::mat4>& bone_info);
+
+std::string store_binary_material(const aiScene* scene, aiMesh* mesh);
+
+void load_mesh_bones(const aiMesh* mesh, 
+						std::unordered_map<std::string, GLuint>& bone_map,
+						std::vector<Vertex>& vertices,
+						std::vector<glm::mat4>& bone_info);
 
 std::vector<std::string> load_material_textures(aiMaterial* mat, 
 												aiTextureType type, 
