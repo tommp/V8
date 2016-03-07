@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <glob.h>
 /*---------------------------------------------*/
@@ -44,6 +45,8 @@ std::string read_string_from_binary_file(std::ifstream& fstream);
 bool write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector);
 
 bool write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion);
+
+std::string build_anim_set_name(const std::vector<std::string>& nodenames);
 
 void store_ai_node_tree(std::ofstream& contentf, aiNode* node);
 

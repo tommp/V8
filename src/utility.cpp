@@ -498,7 +498,7 @@ if (!write_string_to_binary_file(contentf_set, anim_name)){
 
 bool store_binary_animation_set(const aiScene* scene, const std::string& modelname){
 	/* Animation sets indexed by bone structures */
-	std::unordered_map<std::vector<std::string>, std::vector<std::string>> animation_sets;
+	std::map<std::vector<std::string>, std::vector<std::string>> animation_sets;
 
 	/* Write animations */
 	GLuint num_animations = scene->mNumAnimations;
@@ -549,21 +549,25 @@ bool store_binary_animation_set(const aiScene* scene, const std::string& modelna
 			
 			}
 		}
-		animation_nodes.sort();
+		sort(animation_nodes.begin(), animation_nodes.end());
 		animation_sets[animation_nodes].push_back(anim_name);
 
-		store_binary_skeleton(contentf, scene, animation_nodes);
+		//store_binary_skeleton(contentf, scene, animation_nodes);
 		contentf.close();
 	}
 
 	for (auto anim_set : animation_sets) {
-		std::string anim_set_path = ANIMATION_DATA_PATH + /*Rootnodename or something*/ + ".anims";
+		std::string anim_set_path = ANIMATION_DATA_PATH + build_anim_set_name(anim_set.first) + ".anims";
 		std::ofstream contentf_set(anim_set_path.c_str(), std::ios::binary);
 		/* Write animation set here */
 		contentf_set.close();
 	}
 
 	return true;
+}
+
+std::string build_anim_set_name(const std::vector<std::string>& nodenames) {
+	return "";
 }
 
 void store_ai_node_tree(std::ofstream& contentf, aiNode* node){
