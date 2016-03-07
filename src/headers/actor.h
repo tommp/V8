@@ -9,7 +9,6 @@
 
 /*Included dependencies*/
 /*---------------------------------------------*/
-#include <SDL2/SDL.h>
 #include <memory>
 #include <GL/glew.h>
 /*---------------------------------------------*/

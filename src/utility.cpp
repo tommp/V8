@@ -296,6 +296,12 @@ bool convert_model_file(const std::string& source_path, const std::string& targe
 	}
 	contentf.close();
 
+	if (scene->HasAnimations()) {
+		store_binary_animation_set(scene, modelname);
+	}
+	
+	contentf.write(reinterpret_cast<const char *>(&FALSE_BOOL), sizeof(GLuint));
+
 	return true;
 }
 
@@ -308,7 +314,6 @@ void process_node(aiNode* node,
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]]; 
 		mesh_names.push_back(process_mesh(mesh, scene, modelname, meshnumber));	
 		++meshnumber;
-
 	}
 
 	for(GLuint i = 0; i < node->mNumChildren; i++) {
@@ -482,6 +487,139 @@ void store_binary_mesh(const aiScene* scene,
 		}
 		contentf.write(reinterpret_cast<const char *>(&(mapping.second)), sizeof(GLuint));
 	}
+}
+/*
+if (!write_string_to_binary_file(contentf_set, anim_name)){
+	std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Cannot store nameless animation, key must be named, model: " << modelname << std::endl;
+	errorlogger("FATAL ERROR: Cannot store nameless animation, key must be named, model: ", modelname.c_str());
+	exit(EXIT_FAILURE);
+}*/
+
+
+bool store_binary_animation_set(const aiScene* scene, const std::string& modelname){
+	/* Animation sets indexed by bone structures */
+	std::unordered_map<std::vector<std::string>, std::vector<std::string>> animation_sets;
+
+	/* Write animations */
+	GLuint num_animations = scene->mNumAnimations;
+	for (GLuint i = 0; i < num_animations; ++i) {
+		std::string anim_name = scene->mAnimations[i]->mName.data;
+		GLdouble duration = scene->mAnimations[i]->mDuration;
+		GLdouble ticks_per_second = scene->mAnimations[i]->mTicksPerSecond;
+		GLuint num_channels = scene->mAnimations[i]->mNumChannels;
+
+		std::vector<std::string> animation_nodes;
+
+		std::string anim_path = ANIMATION_DATA_PATH + anim_name + ".anim";
+		std::ofstream contentf(anim_path.c_str(), std::ios::binary);
+
+		contentf.write(reinterpret_cast<const char *>(&duration), sizeof(GLdouble));
+		contentf.write(reinterpret_cast<const char *>(&ticks_per_second), sizeof(GLdouble));
+		contentf.write(reinterpret_cast<const char *>(&num_channels), sizeof(GLuint));
+		for (GLuint j = 0; j < num_channels; ++j) {
+			std::string channel_name = scene->mAnimations[i]->mChannels[j]->mNodeName.data;
+			animation_nodes.push_back(channel_name);
+
+			GLuint num_pos_keys = scene->mAnimations[i]->mChannels[j]->mNumPositionKeys;
+			GLuint num_rot_keys = scene->mAnimations[i]->mChannels[j]->mNumRotationKeys;
+			GLuint num_scale_keys = scene->mAnimations[i]->mChannels[j]->mNumScalingKeys;
+
+			if (!write_string_to_binary_file(contentf, channel_name)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Cannot store nameless channel, key must be named, model: " << modelname << std::endl;
+				errorlogger("FATAL ERROR: Cannot store nameless channel, key must be named, model: ", modelname.c_str());
+				exit(EXIT_FAILURE);
+			}
+
+			contentf.write(reinterpret_cast<const char *>(&num_pos_keys), sizeof(GLuint));
+			for (GLuint k = 0; k < num_pos_keys; ++k) {
+				write_vector_to_binary_file(contentf, 
+									scene->mAnimations[i]->mChannels[j]->mPositionKeys[k]);
+			}
+
+			contentf.write(reinterpret_cast<const char *>(&num_rot_keys), sizeof(GLuint));
+			for (GLuint k = 0; k < num_rot_keys; ++k) {
+				write_quaternion_to_binary_file(contentf, 
+										scene->mAnimations[i]->mChannels[j]->mRotationKeys[k]);
+			}
+
+			contentf.write(reinterpret_cast<const char *>(&num_scale_keys), sizeof(GLuint));
+			for (GLuint k = 0; k < num_scale_keys; ++k) {
+				write_vector_to_binary_file(contentf, 
+									scene->mAnimations[i]->mChannels[j]->mScalingKeys[k]);
+			
+			}
+		}
+		animation_nodes.sort();
+		animation_sets[animation_nodes].push_back(anim_name);
+
+		store_binary_skeleton(contentf, scene, animation_nodes);
+		contentf.close();
+	}
+
+	for (auto anim_set : animation_sets) {
+		std::string anim_set_path = ANIMATION_DATA_PATH + /*Rootnodename or something*/ + ".anims";
+		std::ofstream contentf_set(anim_set_path.c_str(), std::ios::binary);
+		/* Write animation set here */
+		contentf_set.close();
+	}
+
+	return true;
+}
+
+void store_ai_node_tree(std::ofstream& contentf, aiNode* node){
+	/* To signal a node is coming up */
+	contentf.write(reinterpret_cast<const char *>(&TRUE_BOOL), sizeof(GLuint));
+
+	/* Use the pointer value as ID's */
+	void* node_id = (void*) node;
+	void* parent_id = 0;
+	GLuint num_children = node->mNumChildren;
+
+	if (node->mParent) {
+		parent_id = (void*)(node->mParent);
+	}
+
+	contentf.write(reinterpret_cast<const char *>(&node_id), sizeof(void*));
+	contentf.write(reinterpret_cast<const char *>(&parent_id), sizeof(void*));
+
+	std::string node_name = node->mName.data;
+	write_string_to_binary_file(contentf, node_name);
+
+	contentf.write(reinterpret_cast<const char *>(&num_children), sizeof(GLuint));
+	for (GLuint i = 0; i < num_children; ++i) {
+		void* child_id = (void*)(node->mChildren[i]);
+		contentf.write(reinterpret_cast<const char *>(&child_id), sizeof(void*));
+	}
+
+	for (GLuint i = 0; i < num_children; ++i) {
+		store_ai_node_tree(contentf, node->mChildren[i]);
+	}
+}
+
+bool write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion){
+	GLdouble key_time = quaternion.mTime;
+	aiQuaternion raw_quat = quaternion.mValue;
+
+	contentf.write(reinterpret_cast<const char *>(&key_time), sizeof(GLdouble));
+
+	contentf.write(reinterpret_cast<const char *>(&(raw_quat.x)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_quat.y)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_quat.z)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_quat.w)), sizeof(GLfloat));
+	return true;
+
+}
+
+bool write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector){
+	GLdouble key_time = vector.mTime;
+	aiVector3D raw_vec = vector.mValue;
+
+	contentf.write(reinterpret_cast<const char *>(&key_time), sizeof(GLdouble));
+
+	contentf.write(reinterpret_cast<const char *>(&(raw_vec.x)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_vec.y)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_vec.z)), sizeof(GLfloat));
+	return true;
 }
 
 std::string store_binary_material(const aiScene* scene, aiMesh* mesh) {

@@ -1,6 +1,7 @@
 #ifndef FRAME_H
 #define FRAME_H
 
+/* TODO::Delete when skinning is done */
 
 /*Included headers*/
 /*---------------------------------------------*/

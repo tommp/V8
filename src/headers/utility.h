@@ -7,7 +7,6 @@
 #include "paths.h"
 #include "errorlogger.h"
 #include "vertex.h"
-#include "bone.h"
 #include "Importer.hpp"
 #include "scene.h"
 #include "postprocess.h"
@@ -15,7 +14,6 @@
 
 /*Included dependencies*/
 /*---------------------------------------------*/
-#include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <string>
 #include <sstream>
@@ -40,7 +38,14 @@ const GLuint FALSE_BOOL = 					0;
 void wait_for_event();
 
 bool write_string_to_binary_file(std::ofstream& fstream, const std::string& string);
+
 std::string read_string_from_binary_file(std::ifstream& fstream);
+
+bool write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector);
+
+bool write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion);
+
+void store_ai_node_tree(std::ofstream& contentf, aiNode* node);
 
 std::vector<std::string> glob(const std::string& path);
 
@@ -75,6 +80,8 @@ void store_binary_mesh(const aiScene* scene,
 						const std::vector<glm::mat4>& bone_info);
 
 std::string store_binary_material(const aiScene* scene, aiMesh* mesh);
+
+bool store_binary_animation_set(const aiScene* scene, const std::string& modelname);
 
 void load_mesh_bones(const aiMesh* mesh, 
 						std::unordered_map<std::string, GLuint>& bone_map,

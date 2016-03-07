@@ -16,7 +16,6 @@
 
 /*Included dependencies*/
 /*---------------------------------------------*/
-#include <SDL2/SDL.h>
 #include <forward_list>
 #include <list>
 #include <vector>

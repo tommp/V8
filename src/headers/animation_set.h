@@ -7,6 +7,7 @@
 #include "animation_set_map.h"
 #include "glm.h"
 #include "errorlogger.h"
+#include "skeletal_node.h"
 #include "utility.h"
 #include "resource_manager.h"
 #include "animation.h"
@@ -14,7 +15,6 @@
 
 /*Included dependencies*/
 /*---------------------------------------------*/
-#include <SDL2/SDL.h>
 #include <string>
 #include <unistd.h>
 #include <list>
@@ -35,6 +35,7 @@ class Animation_set {
 	private:
 		Mesh_ptr mesh;
 		std::unordered_map<std::string, Animation_ptr> animations;
+		Skeletal_node_ptr root_node;
 	public:
 		Animation_set();
 		void render_current(const Renderer& renderer, const std::string& name, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;

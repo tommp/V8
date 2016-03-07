@@ -1,7 +1,7 @@
 #ifndef BONE_H
 #define BONE_H
 
-
+/* TODO::FOR LATER USE */
 /*Included headers*/
 /*---------------------------------------------*/
 #include "glm.h"
@@ -17,8 +17,8 @@
 /*=============================================*/
 
 typedef struct Bone{
-	std::string name;
-	glm::mat4 offset;
+	glm::vec4 weights;
+	glm::i16vec4 bone_ids;
 }Bone;
 
 /*=============================================*/

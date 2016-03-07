@@ -1,32 +1,25 @@
-#ifndef CONTACT_H
-#define CONTACT_H
+#ifndef CHANNEL_H
+#define CHANNEL_H
 
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "errorlogger.h"
-#include "actor.h"
+#include "glm.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
-#include <forward_list>
-#include <list>
+#include <vector>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
-class Actor;
-
-typedef std::shared_ptr<Actor> Actor_ptr;
-
-class Contact{
-	private:
-		Actor_ptr a;
-		Actor_ptr b;
-	public:
-		Contact(Actor_ptr c_a, Actor_ptr c_b);
-};
+typedef struct Channel{
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec3> scalings;
+	std::vector<glm::fquat> rotations;
+}Channel;
 /*=============================================*/
 
 #endif
+

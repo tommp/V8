@@ -13,7 +13,6 @@
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <iostream>
-#include <SDL2/SDL.h>
 #include <string>
 #include <unistd.h>
 #include <vector>

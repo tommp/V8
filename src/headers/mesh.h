@@ -17,7 +17,6 @@
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <iostream>
-#include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <string>
 #include <unistd.h>
@@ -43,6 +42,8 @@ class Mesh {
 		GLuint EBO;
 
 		GLuint num_vertices;
+
+		bool is_animated;
 
 		/* Inverse transform of the root bone transformation used in animation */
 		glm::mat4 root_inverse_transform;
