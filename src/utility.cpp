@@ -91,7 +91,7 @@ GLboolean convert_all_models(){
 	std::vector<std::string> sources;
 	std::string source_path_mask = RAW_MODEL_DATA_PATH;
 	source_path_mask += "*";
-	std::vector<std::string> filetypes = {".obj", ".3ds", ".ms3d", ".b3d", "md5mesh", ".blend"};
+	std::vector<std::string> filetypes = {".obj", ".3ds", ".ms3d", ".b3d", ".x", "md5mesh", ".blend", ".dae"};
 	for (const auto &suffix : filetypes) {
 		std::string true_path = source_path_mask + suffix;
 		std::vector<std::string> files = glob(true_path.c_str());
@@ -285,8 +285,7 @@ GLint check_ogl_error(){
 
 GLboolean convert_model_file(const std::string& source_path, const std::string& target_path){
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(source_path, 
-						aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+	const aiScene* scene = importer.ReadFile(source_path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
 	if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Assimp failed to load model: " << importer.GetErrorString() << std::endl;
 		errorlogger("ERROR: Assimp failed to load model: ", importer.GetErrorString());
@@ -336,7 +335,7 @@ GLboolean convert_model_file(const std::string& source_path, const std::string& 
 	return true;
 }
 
-void process_node(aiNode* node, 
+void process_node(const aiNode* node, 
 					const aiScene* scene, 
 					std::vector<std::string>& mesh_names){
 	for(GLuint i = 0; i < node->mNumMeshes; i++) {
@@ -349,7 +348,7 @@ void process_node(aiNode* node,
 	}
 }
 
-std::string process_mesh(aiMesh* mesh, const aiScene* scene){
+std::string process_mesh(const aiMesh* mesh, const aiScene* scene){
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::string material_name;
@@ -548,6 +547,7 @@ GLboolean store_binary_animation_set(const aiScene* scene, const std::string& mo
 
 	/* Write animations */
 	GLuint num_animations = scene->mNumAnimations;
+
 	contentf_set.write(reinterpret_cast<const char *>(&num_animations), sizeof(GLuint));
 	for (GLuint i = 0; i < num_animations; ++i) {
 		std::string anim_name = modelname + "_" + scene->mAnimations[i]->mName.data;
@@ -644,7 +644,7 @@ GLboolean store_binary_animation_set(const aiScene* scene, const std::string& mo
 	return true;
 }
 
-void store_ai_node_tree(std::ofstream& contentf, aiNode* node){
+void store_ai_node_tree(std::ofstream& contentf, const aiNode* node){
 	/* To signal a node is coming up */
 	contentf.write(reinterpret_cast<const char *>(&TRUE_BOOL), sizeof(GLuint));
 
@@ -707,7 +707,7 @@ GLboolean write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey
 	return true;
 }
 
-GLboolean store_binary_material(const aiScene* scene, aiMesh* mesh, std::string& material_name) {
+GLboolean store_binary_material(const aiScene* scene, const aiMesh* mesh, std::string& material_name) {
 	aiMaterial* new_material = scene->mMaterials[mesh->mMaterialIndex];
 	std::string material_path;
 	std::string diffuse_name;
@@ -792,21 +792,21 @@ void load_mesh_bones(const aiMesh* mesh,
             GLuint vertex_id = mesh->mBones[i]->mWeights[j].mVertexId;
             GLfloat weight = mesh->mBones[i]->mWeights[j].mWeight; 
             if (!add_bone_to_vertex(vertices[vertex_id], bone_index)){
-            	std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Vertex can only be affected by four bones, id overflow in bone: " << bone_name << std::endl;
-				errorlogger("FATAL ERROR: Vertex can only be affected by four bones, id overflow in bone: ", bone_name.c_str());
-            	exit(EXIT_FAILURE);
+            	//std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Vertex can only be affected by four bones, id overflow in bone: " << bone_name << std::endl;
+				//errorlogger("FATAL ERROR: Vertex can only be affected by four bones, id overflow in bone: ", bone_name.c_str());
+            	//exit(EXIT_FAILURE);
             }
             if (!add_weight_to_vertex(vertices[vertex_id], weight)) {
-            	std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Vertex can only be affected by four bones, weight overflow in bone: " << bone_name << std::endl;
-				errorlogger("ERROR: Vertex can only be affected by four bones, weight overflow in bone: ", bone_name.c_str());
-            	exit(EXIT_FAILURE);
+            	//std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Vertex can only be affected by four bones, weight overflow in bone: " << bone_name << std::endl;
+				//errorlogger("ERROR: Vertex can only be affected by four bones, weight overflow in bone: ", bone_name.c_str());
+            	//exit(EXIT_FAILURE);
             }
         }
     }
 }
 
 /* Not in use, rework it if needed */
-std::vector<std::string> load_material_textures(aiMaterial* mat, 
+std::vector<std::string> load_material_textures(const aiMaterial* mat, 
 												aiTextureType type, 
 												const std::string& typeName){
 	std::vector<std::string> textures;
@@ -822,7 +822,7 @@ std::vector<std::string> load_material_textures(aiMaterial* mat,
 	return textures;
 }
 
-std::string load_material_texture(aiMaterial* mat, 
+std::string load_material_texture(const aiMaterial* mat, 
 									aiTextureType type, 
 									const std::string& typeName){
 	std::string texture = "";

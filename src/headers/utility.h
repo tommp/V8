@@ -51,7 +51,7 @@ GLboolean write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatK
 
 std::string build_anim_set_name(const std::vector<std::string>& nodenames);
 
-void store_ai_node_tree(std::ofstream& contentf, aiNode* node);
+void store_ai_node_tree(std::ofstream& contentf, const aiNode* node);
 
 std::vector<std::string> glob(const std::string& path);
 
@@ -63,10 +63,10 @@ GLboolean convert_all_models();
 
 GLboolean convert_model_file(const std::string& source_path, const std::string& target_path);
 
-void process_node(aiNode* node, const aiScene* scene, 
+void process_node(const aiNode* node, const aiScene* scene, 
 					std::vector<std::string>& mesh_names);
 
-std::string process_mesh(aiMesh* mesh, const aiScene* scene);
+std::string process_mesh(const aiMesh* mesh, const aiScene* scene);
 
 void store_binary_mesh(const std::vector<Vertex>& vertices, 
 						const std::vector<GLuint>& indices, 
@@ -81,7 +81,7 @@ void store_binary_mesh(const aiScene* scene,
 						const std::unordered_map<std::string, GLuint>& bone_map,
 						const std::vector<glm::mat4>& bone_info);
 
-GLboolean store_binary_material(const aiScene* scene, aiMesh* mesh, std::string& material_name);
+GLboolean store_binary_material(const aiScene* scene, const aiMesh* mesh, std::string& material_name);
 
 GLboolean store_binary_animation_set(const aiScene* scene, const std::string& modelname);
 
@@ -90,11 +90,11 @@ void load_mesh_bones(const aiMesh* mesh,
 						std::vector<Vertex>& vertices,
 						std::vector<glm::mat4>& bone_info);
 
-std::vector<std::string> load_material_textures(aiMaterial* mat, 
+std::vector<std::string> load_material_textures(const aiMaterial* mat, 
 												aiTextureType type, 
 												const std::string& typeName);
 
-std::string load_material_texture(aiMaterial* mat, 
+std::string load_material_texture(const aiMaterial* mat, 
 									aiTextureType type, 
 									const std::string& typeName);
 

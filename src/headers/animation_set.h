@@ -4,7 +4,6 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "animation_set_map.h"
 #include "glm.h"
 #include "errorlogger.h"
 #include "skeletal_node.h"

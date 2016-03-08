@@ -6,7 +6,6 @@
 /*---------------------------------------------*/
 #include "paths.h"
 #include "channel.h"
-#include "animation_map.h"
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
