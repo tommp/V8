@@ -1,6 +1,15 @@
 #include "utility.h"
 
-bool write_string_to_binary_file(std::ofstream& fstream, const std::string& string) {
+inline GLboolean file_exists(const std::string& name) {
+    if (FILE *file = fopen(name.c_str(), "r")) {
+        fclose(file);
+        return true;
+    } else {
+        return false;
+    }   
+}
+
+GLboolean write_string_to_binary_file(std::ofstream& fstream, const std::string& string) {
 	GLuint string_length = string.length();
 	if (string_length == 0) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Writing empty string!" << std::endl;
@@ -78,7 +87,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 
-bool convert_all_models(){
+GLboolean convert_all_models(){
 	std::vector<std::string> sources;
 	std::string source_path_mask = RAW_MODEL_DATA_PATH;
 	source_path_mask += "*";
@@ -97,14 +106,19 @@ bool convert_all_models(){
 		if (path.find_first_of('\\') != std::string::npos){
 			token = '\\';
 		}
-		std::vector<std::string> tokens = split(path, token);
-		std::string filename = tokens.back();
+		std::string filename = split(path, token).back();
 		std::vector<std::string> file_tokens = split(filename, '.');
 		std::string new_target = (MODEL_DATA_PATH + file_tokens[0] + ".model");
+
 		targets.push_back(new_target);
 	}
 
 	for(GLuint i = 0; i < sources.size(); ++i) {
+		if (file_exists(targets[i])) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Model already exists, skipping conversion: " << targets[i] << std::endl;
+			errorlogger("WARNING: Model already exists, skipping conversion: ", targets[i].c_str());
+			continue;
+		}
 		if (!convert_model_file(sources[i], targets[i])){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to convert model: " << sources[i] << std::endl;
 			errorlogger("WARNING: Failed to convert model: ", sources[i].c_str());
@@ -113,7 +127,7 @@ bool convert_all_models(){
 	return true;
 }
 
-bool convert_all_images(){
+GLboolean convert_all_images(){
 	std::string source_path_mask = IMAGE_DATA_PATH;
 	source_path_mask += "*";
 	std::vector<std::string> sources = glob(source_path_mask.c_str());
@@ -127,6 +141,11 @@ bool convert_all_images(){
 	}
 	
 	for(GLuint i = 0; i < sources.size(); ++i) {
+		if (file_exists(targets[i])) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Texture already exists, skipping conversion: " << targets[i] << std::endl;
+			errorlogger("WARNING: Texture already exists, skipping conversion: ", targets[i].c_str());
+			continue;
+		}
 		if (!convert_image_file(sources[i], targets[i])){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to convert image: " << sources[i] << std::endl;
 			errorlogger("WARNING: Failed to convert image: ", sources[i].c_str());
@@ -135,7 +154,7 @@ bool convert_all_images(){
 	return true;
 }
 
-bool convert_image_file(const std::string& source_path, const std::string& target_path){
+GLboolean convert_image_file(const std::string& source_path, const std::string& target_path){
 	GLint width, height, channels;
 	unsigned char* image = SOIL_load_image(source_path.c_str(), &width, &height, &channels, SOIL_LOAD_RGB);
 	if (!image) {
@@ -153,12 +172,18 @@ bool convert_image_file(const std::string& source_path, const std::string& targe
 	return true;
 }
 
-bool store_binary_texture(const std::string& path, 
+GLboolean store_binary_texture(const std::string& path, 
 							unsigned char* image, 
 							GLuint width, 
 							GLuint height, 
 							GLuint channels, 
 							GLint format){
+	if (file_exists(path)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to store binary texture, target file exists: " << path << std::endl;
+		errorlogger("ERROR: Failed to store binary texture, target file exists: ", path.c_str());
+		return false;
+	}
+
 	std::ofstream contentf (path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for storing texture data!" << std::endl;
@@ -179,7 +204,7 @@ bool store_binary_texture(const std::string& path,
 
 void waitForEvent(){
 	SDL_Event event;
-	bool done = false;
+	GLboolean done = false;
 	while((!done) && (SDL_WaitEvent(&event))) {
 		switch(event.type) {
 	
@@ -242,9 +267,9 @@ const char* gl_error_string(GLenum err){
 	}
 }
 
-int check_ogl_error(){
+GLint check_ogl_error(){
 	GLenum gl_error;
-	int retCode = 0;
+	GLint retCode = 0;
 
 	gl_error = glGetError();
 
@@ -258,7 +283,7 @@ int check_ogl_error(){
 	return retCode;
 }
 
-bool convert_model_file(const std::string& source_path, const std::string& target_path){
+GLboolean convert_model_file(const std::string& source_path, const std::string& target_path){
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(source_path, 
 						aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
@@ -273,7 +298,13 @@ bool convert_model_file(const std::string& source_path, const std::string& targe
 	std::string filename = split(target_path, '/').back();
 	std::string modelname = split(filename, '.')[0];
 
-	process_node(scene->mRootNode, scene, mesh_names, modelname, 0);
+	process_node(scene->mRootNode, scene, mesh_names);
+
+	if (file_exists(target_path)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to store binary model, target file exists: " << target_path << std::endl;
+		errorlogger("ERROR: Failed to store binary model, target file exists: ", target_path.c_str());
+		return false;
+	}
 
 	std::ofstream contentf (target_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
@@ -307,24 +338,18 @@ bool convert_model_file(const std::string& source_path, const std::string& targe
 
 void process_node(aiNode* node, 
 					const aiScene* scene, 
-					std::vector<std::string>& mesh_names, 
-					const std::string& modelname,
-					GLuint meshnumber){
+					std::vector<std::string>& mesh_names){
 	for(GLuint i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]]; 
-		mesh_names.push_back(process_mesh(mesh, scene, modelname, meshnumber));	
-		++meshnumber;
+		mesh_names.push_back(process_mesh(mesh, scene));	
 	}
 
 	for(GLuint i = 0; i < node->mNumChildren; i++) {
-		process_node(node->mChildren[i], scene, mesh_names, modelname, ++meshnumber);
+		process_node(node->mChildren[i], scene, mesh_names);
 	}
 }
 
-std::string process_mesh(aiMesh* mesh, 
-							const aiScene* scene, 
-							const std::string modelname, 
-							GLuint meshnumber){
+std::string process_mesh(aiMesh* mesh, const aiScene* scene){
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::string material_name;
@@ -367,8 +392,11 @@ std::string process_mesh(aiMesh* mesh,
 		}
 	}
 
-	std::string meshname = modelname + "_" + std::to_string(meshnumber);
-	material_name = store_binary_material(scene, mesh);
+	std::string meshname = mesh->mName.data;
+	if (!store_binary_material(scene, mesh, material_name)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to store binary material!" << std::endl;
+		errorlogger("WARNING: Failed to store binary material!");
+	}
 
 	if (scene->HasAnimations()){
 		std::unordered_map<std::string, GLuint> bone_map;
@@ -386,8 +414,20 @@ std::string process_mesh(aiMesh* mesh,
 void store_binary_mesh(const std::vector<Vertex>& vertices, 
 						const std::vector<GLuint>& indices, 
 						const std::string& material_name,
-						const std::string& meshname) {
+						std::string& meshname) {
 	std::string mesh_path = MESH_DATA_PATH + meshname + ".mesh";
+
+	/* TODO::Better handling */
+	int counter = 0;
+	while (file_exists(mesh_path)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to store binary mesh, target file exists: " << mesh_path << std::endl;
+		errorlogger("WARNING: Failed to store binary mesh, target file exists: ", mesh_path.c_str());
+		
+		std::cout<< "Renaming..." << std::endl;
+		meshname = meshname + std::to_string(counter);
+		mesh_path = MESH_DATA_PATH + meshname + ".mesh";
+		++counter;
+	}
 
 	std::ofstream contentf(mesh_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
@@ -424,10 +464,22 @@ void store_binary_mesh(const aiScene* scene,
 						const std::vector<Vertex>& vertices, 
 						const std::vector<GLuint>& indices, 
 						const std::string& material_name,
-						const std::string& meshname,
+						std::string& meshname,
 						const std::unordered_map<std::string, GLuint>& bone_map,
 						const std::vector<glm::mat4>& bone_info) {
 	std::string mesh_path = MESH_DATA_PATH + meshname + ".mesh";
+
+	/* TODO::Better handling */
+	int counter = 0;
+	while (file_exists(mesh_path)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to store binary mesh, target file exists: " << mesh_path << std::endl;
+		errorlogger("WARNING: Failed to store binary mesh, target file exists: ", mesh_path.c_str());
+		
+		std::cout<< "Renaming..." << std::endl;
+		meshname = meshname + std::to_string(counter);
+		mesh_path = MESH_DATA_PATH + meshname + ".mesh";
+		++counter;
+	}
 
 	std::ofstream contentf(mesh_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
@@ -489,29 +541,29 @@ void store_binary_mesh(const aiScene* scene,
 	}
 }
 
-/*
-if (!write_string_to_binary_file(contentf_set, anim_name)){
-	std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Cannot store nameless animation, key must be named, model: " << modelname << std::endl;
-	errorlogger("FATAL ERROR: Cannot store nameless animation, key must be named, model: ", modelname.c_str());
-	exit(EXIT_FAILURE);
-}*/
-
-
-bool store_binary_animation_set(const aiScene* scene, const std::string& modelname){
-	/* Animation sets indexed by bone structures */
-	std::map<std::vector<std::string>, std::vector<std::string>> animation_sets;
+GLboolean store_binary_animation_set(const aiScene* scene, const std::string& modelname){
+	std::string anim_set_path = ANIMATION_DATA_PATH + modelname + ".anims";
+	std::ofstream contentf_set(anim_set_path.c_str(), std::ios::binary);
+	std::vector<std::string> animation_set_nodes;
 
 	/* Write animations */
 	GLuint num_animations = scene->mNumAnimations;
+	contentf_set.write(reinterpret_cast<const char *>(&num_animations), sizeof(GLuint));
 	for (GLuint i = 0; i < num_animations; ++i) {
-		std::string anim_name = scene->mAnimations[i]->mName.data;
+		std::string anim_name = modelname + "_" + scene->mAnimations[i]->mName.data;
+
+		if (!write_string_to_binary_file(contentf_set, anim_name)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Cannot store nameless animation, key must be named, model: " << modelname << std::endl;
+			errorlogger("FATAL ERROR: Cannot store nameless animation, key must be named, model: ", modelname.c_str());
+			exit(EXIT_FAILURE);
+		}
+
 		GLdouble duration = scene->mAnimations[i]->mDuration;
 		GLdouble ticks_per_second = scene->mAnimations[i]->mTicksPerSecond;
 		GLuint num_channels = scene->mAnimations[i]->mNumChannels;
 
-		std::vector<std::string> animation_nodes;
-
 		std::string anim_path = ANIMATION_DATA_PATH + anim_name + ".anim";
+
 		std::ofstream contentf(anim_path.c_str(), std::ios::binary);
 
 		contentf.write(reinterpret_cast<const char *>(&duration), sizeof(GLdouble));
@@ -519,7 +571,17 @@ bool store_binary_animation_set(const aiScene* scene, const std::string& modelna
 		contentf.write(reinterpret_cast<const char *>(&num_channels), sizeof(GLuint));
 		for (GLuint j = 0; j < num_channels; ++j) {
 			std::string channel_name = scene->mAnimations[i]->mChannels[j]->mNodeName.data;
-			animation_nodes.push_back(channel_name);
+			GLboolean node_in_set = false;
+			for (const auto &node : animation_set_nodes) {
+				if (node == channel_name) {
+					node_in_set = true;
+					break;
+				}
+			}
+
+			if (!node_in_set) {
+				animation_set_nodes.push_back(channel_name);
+			}
 
 			GLuint num_pos_keys = scene->mAnimations[i]->mChannels[j]->mNumPositionKeys;
 			GLuint num_rot_keys = scene->mAnimations[i]->mChannels[j]->mNumRotationKeys;
@@ -550,31 +612,38 @@ bool store_binary_animation_set(const aiScene* scene, const std::string& modelna
 			
 			}
 		}
-		sort(animation_nodes.begin(), animation_nodes.end());
-		animation_sets[animation_nodes].push_back(anim_name);
 
-		//store_binary_skeleton(contentf, scene, animation_nodes);
 		contentf.close();
 	}
 
-	for (auto anim_set : animation_sets) {
-		std::string anim_set_path = ANIMATION_DATA_PATH + build_anim_set_name(anim_set.first) + ".anims";
-		std::ofstream contentf_set(anim_set_path.c_str(), std::ios::binary);
-		/* Write animation set here */
-		contentf_set.close();
+	sort(animation_set_nodes.begin(), animation_set_nodes.end());
+
+	for (const auto &node : animation_set_nodes) {
+		aiNode* root_candidate_parent = scene->mRootNode->FindNode(node.c_str())->mParent;
+		if (root_candidate_parent){
+			GLboolean is_skeletal_root = true;
+			for (const auto &nodename : animation_set_nodes) {
+				if (root_candidate_parent->mName.data == nodename) {
+					is_skeletal_root = false;
+					break;
+				}
+			}
+			if (is_skeletal_root) {
+				store_ai_node_tree(contentf_set, scene->mRootNode->FindNode(node.c_str()));
+				break;
+			}
+		}
+		else{
+			store_ai_node_tree(contentf_set, scene->mRootNode->FindNode(node.c_str()));
+			break;
+		}
 	}
+
+	contentf_set.close();
 
 	return true;
 }
 
-std::string build_anim_set_name(const std::vector<std::string>& nodenames) {
-	return "";
-}
-
-<<<<<<< HEAD
-=======
-/* This fucked yo */
->>>>>>> Cleanup to base files
 void store_ai_node_tree(std::ofstream& contentf, aiNode* node){
 	/* To signal a node is coming up */
 	contentf.write(reinterpret_cast<const char *>(&TRUE_BOOL), sizeof(GLuint));
@@ -594,6 +663,13 @@ void store_ai_node_tree(std::ofstream& contentf, aiNode* node){
 	std::string node_name = node->mName.data;
 	write_string_to_binary_file(contentf, node_name);
 
+	for (GLuint x = 0; x < 4; ++x) {
+		for (GLuint y = 0; y < 4; ++y) {
+			GLfloat index = node->mTransformation[x][y];
+			contentf.write(reinterpret_cast<const char *>(&index), sizeof(GLfloat));
+		}
+	}
+
 	contentf.write(reinterpret_cast<const char *>(&num_children), sizeof(GLuint));
 	for (GLuint i = 0; i < num_children; ++i) {
 		void* child_id = (void*)(node->mChildren[i]);
@@ -605,7 +681,7 @@ void store_ai_node_tree(std::ofstream& contentf, aiNode* node){
 	}
 }
 
-bool write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion){
+GLboolean write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion){
 	GLdouble key_time = quaternion.mTime;
 	aiQuaternion raw_quat = quaternion.mValue;
 
@@ -619,7 +695,7 @@ bool write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& q
 
 }
 
-bool write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector){
+GLboolean write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector){
 	GLdouble key_time = vector.mTime;
 	aiVector3D raw_vec = vector.mValue;
 
@@ -630,15 +706,10 @@ bool write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vec
 	contentf.write(reinterpret_cast<const char *>(&(raw_vec.z)), sizeof(GLfloat));
 	return true;
 }
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> Cleanup to base files
 
-std::string store_binary_material(const aiScene* scene, aiMesh* mesh) {
+GLboolean store_binary_material(const aiScene* scene, aiMesh* mesh, std::string& material_name) {
 	aiMaterial* new_material = scene->mMaterials[mesh->mMaterialIndex];
 	std::string material_path;
-	std::string material_name;
 	std::string diffuse_name;
 	std::string specular_name;
 	aiString name;
@@ -651,11 +722,17 @@ std::string store_binary_material(const aiScene* scene, aiMesh* mesh) {
 
 	material_path = MATERIAL_DATA_PATH + material_name + ".mat";
 
+	if (file_exists(material_path)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to store binary material, target file exists: " << material_path << std::endl;
+		errorlogger("ERROR: Failed to store binary material, target file exists: ", material_path.c_str());
+		return false;
+	}
+
 	std::ofstream contentf (material_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for storing material data: " << material_path << std::endl;
-		errorlogger("ERROR: Failed to open content file for storing material data: ", material_path.c_str());
-		return "";
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to open content file for storing material data: " << material_path << std::endl;
+		errorlogger("FATAL ERROR: Failed to open content file for storing material data: ", material_path.c_str());
+		exit(EXIT_FAILURE);
 	}
 
 	if (!diffuse_name.empty()){
@@ -676,7 +753,7 @@ std::string store_binary_material(const aiScene* scene, aiMesh* mesh) {
 
 	contentf.close();
 
-	return material_name;
+	return true;
 }
 
 /* WARNING::Vertex vector must be sorted according to aimesh indices or shit goes south */

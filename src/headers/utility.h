@@ -23,6 +23,7 @@
 #include <map>
 #include <vector>
 #include <glob.h>
+#include <cstdio>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -35,16 +36,18 @@ const int SCREEN_TICKS_PER_FRAME =			1000 / SCREEN_FPS;
 const GLuint TRUE_BOOL = 					1;
 const GLuint FALSE_BOOL = 					0;
 
+inline GLboolean file_exists(const std::string& name);
+
 /* Waits for user input and quits when detected */
 void wait_for_event();
 
-bool write_string_to_binary_file(std::ofstream& fstream, const std::string& string);
+GLboolean write_string_to_binary_file(std::ofstream& fstream, const std::string& string);
 
 std::string read_string_from_binary_file(std::ifstream& fstream);
 
-bool write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector);
+GLboolean write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector);
 
-bool write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion);
+GLboolean write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion);
 
 std::string build_anim_set_name(const std::vector<std::string>& nodenames);
 
@@ -56,35 +59,31 @@ std::vector<std::string> &split(const std::string &s, char delim, std::vector<st
 
 std::vector<std::string> split(const std::string &s, char delim);
 
-bool convert_all_models();
+GLboolean convert_all_models();
 
-bool convert_model_file(const std::string& source_path, const std::string& target_path);
+GLboolean convert_model_file(const std::string& source_path, const std::string& target_path);
 
 void process_node(aiNode* node, const aiScene* scene, 
-					std::vector<std::string>& mesh_names, 
-					const std::string& modelname, 
-					GLuint meshnumber);
+					std::vector<std::string>& mesh_names);
 
-std::string process_mesh(aiMesh* mesh, const aiScene* scene, 
-							const std::string modelname, 
-							GLuint meshnumber);
+std::string process_mesh(aiMesh* mesh, const aiScene* scene);
 
 void store_binary_mesh(const std::vector<Vertex>& vertices, 
 						const std::vector<GLuint>& indices, 
 						const std::string& material_name,
-						const std::string& meshname);
+						std::string& meshname);
 
 void store_binary_mesh(const aiScene* scene,
 						const std::vector<Vertex>& vertices, 
 						const std::vector<GLuint>& indices, 
 						const std::string& material_name,
-						const std::string& meshname,
+						std::string& meshname,
 						const std::unordered_map<std::string, GLuint>& bone_map,
 						const std::vector<glm::mat4>& bone_info);
 
-std::string store_binary_material(const aiScene* scene, aiMesh* mesh);
+GLboolean store_binary_material(const aiScene* scene, aiMesh* mesh, std::string& material_name);
 
-bool store_binary_animation_set(const aiScene* scene, const std::string& modelname);
+GLboolean store_binary_animation_set(const aiScene* scene, const std::string& modelname);
 
 void load_mesh_bones(const aiMesh* mesh, 
 						std::unordered_map<std::string, GLuint>& bone_map,
@@ -99,11 +98,11 @@ std::string load_material_texture(aiMaterial* mat,
 									aiTextureType type, 
 									const std::string& typeName);
 
-bool convert_all_images();
+GLboolean convert_all_images();
 
-bool convert_image_file(const std::string& source_path, const std::string& target_path);
+GLboolean convert_image_file(const std::string& source_path, const std::string& target_path);
 
-bool store_binary_texture(const std::string& path, 
+GLboolean store_binary_texture(const std::string& path, 
 							unsigned char* image, 
 							GLuint width, 
 							GLuint height, 
@@ -114,7 +113,7 @@ bool store_binary_texture(const std::string& path,
 const char* gl_error_string(GLenum err);
 
 /* Check for openGL errors and print them to file if detected */
-int check_ogl_error();
+GLint check_ogl_error();
 
 void print_framebuffer_error_in_fucking_english();
 /*=============================================*/
