@@ -488,6 +488,7 @@ void store_binary_mesh(const aiScene* scene,
 		contentf.write(reinterpret_cast<const char *>(&(mapping.second)), sizeof(GLuint));
 	}
 }
+
 /*
 if (!write_string_to_binary_file(contentf_set, anim_name)){
 	std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Cannot store nameless animation, key must be named, model: " << modelname << std::endl;
@@ -570,6 +571,10 @@ std::string build_anim_set_name(const std::vector<std::string>& nodenames) {
 	return "";
 }
 
+<<<<<<< HEAD
+=======
+/* This fucked yo */
+>>>>>>> Cleanup to base files
 void store_ai_node_tree(std::ofstream& contentf, aiNode* node){
 	/* To signal a node is coming up */
 	contentf.write(reinterpret_cast<const char *>(&TRUE_BOOL), sizeof(GLuint));
@@ -625,6 +630,10 @@ bool write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vec
 	contentf.write(reinterpret_cast<const char *>(&(raw_vec.z)), sizeof(GLfloat));
 	return true;
 }
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> Cleanup to base files
 
 std::string store_binary_material(const aiScene* scene, aiMesh* mesh) {
 	aiMaterial* new_material = scene->mMaterials[mesh->mMaterialIndex];
@@ -719,6 +728,7 @@ void load_mesh_bones(const aiMesh* mesh,
     }
 }
 
+/* Not in use, rework it if needed */
 std::vector<std::string> load_material_textures(aiMaterial* mat, 
 												aiTextureType type, 
 												const std::string& typeName){
