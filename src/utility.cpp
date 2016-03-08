@@ -82,7 +82,7 @@ bool convert_all_models(){
 	std::vector<std::string> sources;
 	std::string source_path_mask = RAW_MODEL_DATA_PATH;
 	source_path_mask += "*";
-	std::vector<std::string> filetypes = {".obj", ".3ds", ".ms3d", ".b3d", "md5mesh"};
+	std::vector<std::string> filetypes = {".obj", ".3ds", ".ms3d", ".b3d", "md5mesh", ".blend"};
 	for (const auto &suffix : filetypes) {
 		std::string true_path = source_path_mask + suffix;
 		std::vector<std::string> files = glob(true_path.c_str());
