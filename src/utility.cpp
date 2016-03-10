@@ -9,6 +9,52 @@ inline GLboolean file_exists(const std::string& name) {
     }   
 }
 
+GLboolean write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion){
+	GLdouble key_time = quaternion.mTime;
+	aiQuaternion raw_quat = quaternion.mValue;
+
+	contentf.write(reinterpret_cast<const char *>(&key_time), sizeof(GLdouble));
+
+	contentf.write(reinterpret_cast<const char *>(&(raw_quat.x)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_quat.y)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_quat.z)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_quat.w)), sizeof(GLfloat));
+	return true;
+
+}
+
+GLboolean write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector){
+	GLdouble key_time = vector.mTime;
+	aiVector3D raw_vec = vector.mValue;
+
+	contentf.write(reinterpret_cast<const char *>(&key_time), sizeof(GLdouble));
+
+	contentf.write(reinterpret_cast<const char *>(&(raw_vec.x)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_vec.y)), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&(raw_vec.z)), sizeof(GLfloat));
+	return true;
+}
+
+GLboolean read_quaternion_from_binary_file(std::ifstream& contentf, std::pair<GLdouble, glm::fquat>& key_quaternion){
+	contentf.read(reinterpret_cast<char *>(&(key_quaternion.first)), sizeof(GLdouble));
+
+	contentf.read(reinterpret_cast<char *>(&(key_quaternion.second.x)), sizeof(GLfloat));
+	contentf.read(reinterpret_cast<char *>(&(key_quaternion.second.y)), sizeof(GLfloat));
+	contentf.read(reinterpret_cast<char *>(&(key_quaternion.second.z)), sizeof(GLfloat));
+	contentf.read(reinterpret_cast<char *>(&(key_quaternion.second.w)), sizeof(GLfloat));
+	return true;
+
+}
+
+GLboolean read_vector_from_binary_file(std::ifstream& contentf, std::pair<GLdouble, glm::vec3>& key_vector){
+	contentf.read(reinterpret_cast<char *>(&(key_vector.first)), sizeof(GLdouble));
+
+	contentf.read(reinterpret_cast<char *>(&(key_vector.second.x)), sizeof(GLfloat));
+	contentf.read(reinterpret_cast<char *>(&(key_vector.second.y)), sizeof(GLfloat));
+	contentf.read(reinterpret_cast<char *>(&(key_vector.second.z)), sizeof(GLfloat));
+	return true;
+}
+
 GLboolean write_string_to_binary_file(std::ofstream& fstream, const std::string& string) {
 	GLuint string_length = string.length();
 	if (string_length == 0) {
@@ -30,14 +76,13 @@ GLboolean write_string_to_binary_file(std::ofstream& fstream, const std::string&
 	return true;
 }
 
-std::string read_string_from_binary_file(std::ifstream& fstream){
+bool read_string_from_binary_file(std::ifstream& fstream, std::string& data){
 	GLuint string_length;
 	fstream.read(reinterpret_cast<char *>(&string_length), sizeof(GLuint));
 	if (string_length == 0) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Empty string read!" << std::endl;
-		errorlogger("WARNING: Empty string read!");
-		return "";
 	}
+
 	if (string_length > MAX_FILENAME_LENGTH) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: String name too long, clipping it! Length: " << string_length << std::endl;
 		string_length = MAX_FILENAME_LENGTH;
@@ -50,8 +95,8 @@ std::string read_string_from_binary_file(std::ifstream& fstream){
 
 	string[string_length] = '\0';
 
-	std::string result = string;
-	return result;
+	data = string;
+	return true;
 }
 
 std::vector<std::string> glob(const std::string& path){
@@ -200,87 +245,6 @@ GLboolean store_binary_texture(const std::string& path,
 	contentf.close();
 
 	return true;
-}
-
-void waitForEvent(){
-	SDL_Event event;
-	GLboolean done = false;
-	while((!done) && (SDL_WaitEvent(&event))) {
-		switch(event.type) {
-	
-			case SDL_KEYDOWN:
-				done = true;
-				break;
-
-			case SDL_QUIT:
-				done = true;
-				break;
-				
-			default:
-				break;
-		} 	
-	}
-}
-
-void print_framebuffer_error_in_fucking_english(){
-	switch(glCheckFramebufferStatus(GL_FRAMEBUFFER)){
-		case GL_FRAMEBUFFER_UNDEFINED:
-			std::cout <<  "FRAMEBUFFER ERROR: Default framebuffer does not exist." << std::endl;
-			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-			std::cout <<  "FRAMEBUFFER ERROR:  Framebuffer attachment point(s) are framebuffer incomplete." << std::endl;
-			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-			std::cout <<  "FRAMEBUFFER ERROR: Missing attachment." << std::endl;
-			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-			std::cout <<  "FRAMEBUFFER ERROR: Incomplete draw buffer." << std::endl;
-			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-			std::cout <<  "FRAMEBUFFER ERROR: Incomplete read buffer." << std::endl;
-			break;
-		case GL_FRAMEBUFFER_UNSUPPORTED:
-			std::cout <<  "FRAMEBUFFER ERROR: Combination of internal formats of the attached images violates an implementation-dependent set of restrictions." << std::endl;
-			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-			std::cout <<  "FRAMEBUFFER ERROR: Invalid values for samples." << std::endl;
-			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-			std::cout <<  "FRAMEBUFFER ERROR: Incomplete layers." << std::endl;
-			break;
-		default:
-			std::cout <<  "FRAMEBUFFER ERROR: Unknown error!" << std::endl;
-			break;
-	}
-}
-
-const char* gl_error_string(GLenum err){
-  	switch(err) {
-		case GL_INVALID_ENUM: return "Invalid Enum";
-		case GL_INVALID_VALUE: return "Invalid Value";
-		case GL_INVALID_OPERATION: return "Invalid Operation";
-		case GL_STACK_OVERFLOW: return "Stack Overflow";
-		case GL_STACK_UNDERFLOW: return "Stack Underflow";
-		case GL_OUT_OF_MEMORY: return "Out of Memory";
-		case GL_TABLE_TOO_LARGE: return "Table too Large";
-		default: return "Unknown Error";
-	}
-}
-
-GLint check_ogl_error(){
-	GLenum gl_error;
-	GLint retCode = 0;
-
-	gl_error = glGetError();
-
-	while (gl_error != GL_NO_ERROR){
-		errorlogger("ERROR: glError: ", gl_error_string(gl_error));
-		std::cout << "ERROR: glError: " << gl_error_string(gl_error) << std::endl;
-		gl_error = glGetError();
-		retCode = 1;
-	}
-
-	return retCode;
 }
 
 GLboolean convert_model_file(const std::string& source_path, const std::string& target_path){
@@ -681,32 +645,6 @@ void store_ai_node_tree(std::ofstream& contentf, const aiNode* node){
 	}
 }
 
-GLboolean write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion){
-	GLdouble key_time = quaternion.mTime;
-	aiQuaternion raw_quat = quaternion.mValue;
-
-	contentf.write(reinterpret_cast<const char *>(&key_time), sizeof(GLdouble));
-
-	contentf.write(reinterpret_cast<const char *>(&(raw_quat.x)), sizeof(GLfloat));
-	contentf.write(reinterpret_cast<const char *>(&(raw_quat.y)), sizeof(GLfloat));
-	contentf.write(reinterpret_cast<const char *>(&(raw_quat.z)), sizeof(GLfloat));
-	contentf.write(reinterpret_cast<const char *>(&(raw_quat.w)), sizeof(GLfloat));
-	return true;
-
-}
-
-GLboolean write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector){
-	GLdouble key_time = vector.mTime;
-	aiVector3D raw_vec = vector.mValue;
-
-	contentf.write(reinterpret_cast<const char *>(&key_time), sizeof(GLdouble));
-
-	contentf.write(reinterpret_cast<const char *>(&(raw_vec.x)), sizeof(GLfloat));
-	contentf.write(reinterpret_cast<const char *>(&(raw_vec.y)), sizeof(GLfloat));
-	contentf.write(reinterpret_cast<const char *>(&(raw_vec.z)), sizeof(GLfloat));
-	return true;
-}
-
 GLboolean store_binary_material(const aiScene* scene, const aiMesh* mesh, std::string& material_name) {
 	aiMaterial* new_material = scene->mMaterials[mesh->mMaterialIndex];
 	std::string material_path;
@@ -848,4 +786,85 @@ std::string load_material_texture(const aiMaterial* mat,
 		}
 	}
 	return texture;
+}
+
+void waitForEvent(){
+	SDL_Event event;
+	GLboolean done = false;
+	while((!done) && (SDL_WaitEvent(&event))) {
+		switch(event.type) {
+	
+			case SDL_KEYDOWN:
+				done = true;
+				break;
+
+			case SDL_QUIT:
+				done = true;
+				break;
+				
+			default:
+				break;
+		} 	
+	}
+}
+
+void print_framebuffer_error_in_fucking_english(){
+	switch(glCheckFramebufferStatus(GL_FRAMEBUFFER)){
+		case GL_FRAMEBUFFER_UNDEFINED:
+			std::cout <<  "FRAMEBUFFER ERROR: Default framebuffer does not exist." << std::endl;
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+			std::cout <<  "FRAMEBUFFER ERROR:  Framebuffer attachment point(s) are framebuffer incomplete." << std::endl;
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+			std::cout <<  "FRAMEBUFFER ERROR: Missing attachment." << std::endl;
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+			std::cout <<  "FRAMEBUFFER ERROR: Incomplete draw buffer." << std::endl;
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+			std::cout <<  "FRAMEBUFFER ERROR: Incomplete read buffer." << std::endl;
+			break;
+		case GL_FRAMEBUFFER_UNSUPPORTED:
+			std::cout <<  "FRAMEBUFFER ERROR: Combination of internal formats of the attached images violates an implementation-dependent set of restrictions." << std::endl;
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+			std::cout <<  "FRAMEBUFFER ERROR: Invalid values for samples." << std::endl;
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+			std::cout <<  "FRAMEBUFFER ERROR: Incomplete layers." << std::endl;
+			break;
+		default:
+			std::cout <<  "FRAMEBUFFER ERROR: Unknown error!" << std::endl;
+			break;
+	}
+}
+
+const char* gl_error_string(GLenum err){
+  	switch(err) {
+		case GL_INVALID_ENUM: return "Invalid Enum";
+		case GL_INVALID_VALUE: return "Invalid Value";
+		case GL_INVALID_OPERATION: return "Invalid Operation";
+		case GL_STACK_OVERFLOW: return "Stack Overflow";
+		case GL_STACK_UNDERFLOW: return "Stack Underflow";
+		case GL_OUT_OF_MEMORY: return "Out of Memory";
+		case GL_TABLE_TOO_LARGE: return "Table too Large";
+		default: return "Unknown Error";
+	}
+}
+
+GLint check_ogl_error(){
+	GLenum gl_error;
+	GLint retCode = 0;
+
+	gl_error = glGetError();
+
+	while (gl_error != GL_NO_ERROR){
+		errorlogger("ERROR: glError: ", gl_error_string(gl_error));
+		std::cout << "ERROR: glError: " << gl_error_string(gl_error) << std::endl;
+		gl_error = glGetError();
+		retCode = 1;
+	}
+
+	return retCode;
 }

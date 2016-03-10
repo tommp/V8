@@ -32,13 +32,13 @@ typedef std::shared_ptr<Animation> Animation_ptr;
 
 class Animation_set {
 	private:
-		Mesh_ptr mesh;
 		std::unordered_map<std::string, Animation_ptr> animations;
 		Skeletal_node_ptr root_node;
 	public:
 		Animation_set();
-		void render_current(const Renderer& renderer, const std::string& name, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
+		bool load_binary_animation_set(Resource_manager& resource_manager, const std::string& name);
+		bool load_binary_skeleton(std::ifstream& contentf);
 };
 
 typedef std::shared_ptr<Animation_set> Animation_set_ptr;

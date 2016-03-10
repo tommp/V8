@@ -7,6 +7,7 @@
 #include "errorlogger.h"
 #include "renderer.h"
 #include "mesh.h"
+#include "animation_set.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
 
@@ -23,15 +24,19 @@
 class Resource_manager;
 class Mesh;
 class Renderer;
+class Animation_set;
 
+typedef std::shared_ptr<Animation_set> Animation_set_ptr;
 typedef std::shared_ptr<Mesh> Mesh_ptr;
 
 class Model {
 	private:
 		std::vector<Mesh_ptr> meshes;
+		Animation_set_ptr animations;
 	public:
 		Model();
 		void render_model(const Renderer& renderer, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
+		void render_model(const Renderer& renderer, const std::string& state, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
 		bool load_binary_model(const std::string& name, std::vector<std::string>& meshes);
 		bool load_from_file(Resource_manager& manager, const std::string& name);
 };

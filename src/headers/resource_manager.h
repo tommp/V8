@@ -48,6 +48,7 @@ class Resource_manager {
 
 		std::unordered_map<std::string, Texture_ptr> textures;
 		std::unordered_map<std::string, Material_ptr> materials;
+		std::unordered_map<std::string, Animation_ptr> animations;
 		std::unordered_map<std::string, Animation_set_ptr> animation_sets;
 		std::unordered_map<std::string, Mesh_ptr> meshes;
 		std::unordered_map<std::string, Model_ptr> models;
@@ -62,6 +63,7 @@ class Resource_manager {
 		Mesh_ptr load_mesh(const std::string& name);
 		Model_ptr load_model(const std::string& name);
 		Shader_ptr load_shader(const std::string& name);
+		Animation_ptr load_animation(const std::string& name);
 		Animation_set_ptr load_animation_set(const std::string& name);
 };
 /*=============================================*/

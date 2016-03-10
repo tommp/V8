@@ -9,15 +9,16 @@
 
 /*Included dependencies*/
 /*---------------------------------------------*/
+#include <GL/glew.h>
 #include <vector>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
 typedef struct Channel{
-	std::vector<glm::vec3> positions;
-	std::vector<glm::vec3> scalings;
-	std::vector<glm::fquat> rotations;
+	std::vector<std::pair<GLdouble, glm::vec3>> positions;
+	std::vector<std::pair<GLdouble, glm::vec3>> scalings;
+	std::vector<std::pair<GLdouble, glm::fquat>> rotations;
 }Channel;
 /*=============================================*/
 

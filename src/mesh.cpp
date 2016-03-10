@@ -15,8 +15,8 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 
 	std::ifstream contentf (mesh_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for mesh data!" << std::endl;
-		errorlogger("ERROR: Failed to open content file for mesh data!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for mesh data: " << mesh_path << std::endl;
+		errorlogger("ERROR: Failed to open content file for mesh data: ", mesh_path.c_str());
 		return false;
 	}
 
@@ -29,7 +29,7 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 
 	contentf.read(reinterpret_cast<char *>(&has_material), sizeof(char));
 	if (has_material){
-		material_name = read_string_from_binary_file(contentf);
+		read_string_from_binary_file(contentf, material_name);
 	}
 
 	contentf.read(reinterpret_cast<char *>(&vsize), sizeof(GLuint));
@@ -65,10 +65,15 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 		GLuint num_bone_mappings;
 		contentf.read(reinterpret_cast<char *>(&num_bone_mappings), sizeof(GLuint));
 		for (GLuint i = 0; i < num_bone_mappings; ++i) {
-			std::string bone_name = read_string_from_binary_file(contentf);
+			std::string bone_name;
+			if (!read_string_from_binary_file(contentf, bone_name)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not read bone name from file: " << mesh_path << std::endl;
+				errorlogger("FATAL ERROR: Could not read bone name from file: ", mesh_path.c_str());
+				exit(EXIT_FAILURE);
+			}
 			if (bone_name.empty()) {
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Loaded empty bone name from file: " << name << std::endl;
-				errorlogger("FATAL ERROR: Loaded empty bone name from file: ", name.c_str());
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Loaded empty bone name from file: " << mesh_path << std::endl;
+				errorlogger("FATAL ERROR: Loaded empty bone name from file: ", mesh_path.c_str());
 				exit(EXIT_FAILURE);
 			}
 			GLuint bone_id;

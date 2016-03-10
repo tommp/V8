@@ -24,7 +24,12 @@ bool Model::load_binary_model(const std::string& name, std::vector<std::string>&
 	contentf.read(reinterpret_cast<char *>(&num_meshes), sizeof(GLuint));
 
 	for (GLuint i = 0; i < num_meshes; ++i) {
-		std::string mesh = read_string_from_binary_file(contentf);
+		std::string mesh;
+		if (!read_string_from_binary_file(contentf, mesh)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to read mesh name in model from file: " << model_path << std::endl;
+			errorlogger("ERROR: Unable to read mesh name in model from file: ", model_path.c_str());
+			return false;
+		}
 		meshes.push_back(mesh);
 	}
 

@@ -1,11 +1,11 @@
 #include "prop.h"
 
 Prop::Prop(Resource_manager& manager){
-	std::string anim_set = "floor";
+	std::string model_name = "engine_base_floor";
 	state = {"prop"};
-	if ( !(animations = manager.load_animation_set(anim_set) ) ){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Slime_blob constructor failed to load animation set: " << anim_set << std::endl;
-		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim_set.c_str());
+	if ( !(model = manager.load_model(model_name) ) ){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Prop constructor failed to load model: " << model_name << std::endl;
+		errorlogger("ERROR: Prop constructor failed to load model: ", model_name.c_str());
 	}
 
 	position[0] = 10000.0f;
@@ -32,7 +32,7 @@ Prop::~Prop(){
 }
 
 void Prop::render_frame(const Renderer& renderer)const{
-	animations->render_current(renderer, state, position, size, direction);
+	model->render_model(renderer, position, size, direction);
 }
 
 bool Prop::update_position(float timedelta){

@@ -6,7 +6,7 @@
 /*---------------------------------------------*/
 #include "keys.h"
 #include "object.h"
-#include "animation.h"
+#include "model.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
 
@@ -20,14 +20,14 @@
 
 /*Header content*/
 /*=============================================*/
-class Animation;
+class Model;
 class Resource_manager;
 class Object;
 class btRigidBody;
 
 class Player : public Object{
 private:
-	Animation_set_ptr animations;
+	Model_ptr model;
 	glm::vec3 velocity;
 	glm::vec3 init_direction;
 	GLfloat speed;

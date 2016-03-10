@@ -43,11 +43,17 @@ void wait_for_event();
 
 GLboolean write_string_to_binary_file(std::ofstream& fstream, const std::string& string);
 
-std::string read_string_from_binary_file(std::ifstream& fstream);
+bool read_string_from_binary_file(std::ifstream& fstream, std::string& data);
 
 GLboolean write_vector_to_binary_file(std::ofstream& contentf, const aiVectorKey& vector);
 
 GLboolean write_quaternion_to_binary_file(std::ofstream& contentf, const aiQuatKey& quaternion);
+
+GLboolean read_vector_from_binary_file(std::ifstream& contentf, 
+										std::pair<GLdouble, glm::vec3>& key_vector);
+
+GLboolean read_quaternion_from_binary_file(std::ifstream& contentf, 
+										std::pair<GLdouble, glm::fquat>& key_quaternion);
 
 std::string build_anim_set_name(const std::vector<std::string>& nodenames);
 

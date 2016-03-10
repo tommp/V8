@@ -1,8 +1,11 @@
 #include "player.h"
 
 Player::Player(Resource_manager& init_manager){
-	animations = std::make_shared<Animation_set>();
-	animations->load_from_file(init_manager, "player");
+	std::string model_name = "wiggle";
+	if ( !(model = init_manager.load_model(model_name) ) ){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Player constructor failed to load model: " << model_name << std::endl;
+		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
+	}
 	state = "player_test";
 	manager = &init_manager;
 	speed = 400.0f;
@@ -24,7 +27,7 @@ Player::Player(Resource_manager& init_manager){
 }
 
 void Player::render_frame(const Renderer& renderer)const{
-	animations->render_current(renderer, state, position, size, direction);
+	model->render_model(renderer, position, size, direction);
 }
 
 bool Player::update_position(GLfloat timedelta){

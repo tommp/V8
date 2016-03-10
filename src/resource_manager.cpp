@@ -96,13 +96,34 @@ Model_ptr Resource_manager::load_model(const std::string& name){
 	}
 }
 
-Animation_set_ptr Resource_manager::load_animation_set(const std::string& name){
-	Animation_set_ptr animation_set = std::make_shared<Animation_set>();
-
-	if (!animation_set->load_from_file(*this, name)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Resource manager failed to load new animation with keyname: " << name << std::endl;
-		errorlogger("ERROR: Resource manager failed to load new animation: ", name.c_str());
-		return nullptr;
+Animation_ptr Resource_manager::load_animation(const std::string& name){
+	if (animations.find(name) != animations.end()){
+		return animations[name];
 	}
-	return animation_set;
+	else{
+		Animation_ptr new_animation = std::make_shared<Animation>();
+		if (!new_animation->load_from_file(name)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Resource manager failed to load new animation with keyname: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new animation: ", name.c_str());
+			return nullptr;
+		}
+		animations.insert({name, new_animation});
+		return new_animation;
+	}
+}
+
+Animation_set_ptr Resource_manager::load_animation_set(const std::string& name){
+	if (animation_sets.find(name) != animation_sets.end()){
+		return animation_sets[name];
+	}
+	else{
+		Animation_set_ptr new_animation_set = std::make_shared<Animation_set>();
+		if (!new_animation_set->load_from_file(*this, name)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Resource manager failed to load new animation set with keyname: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new animation set: ", name.c_str());
+			return nullptr;
+		}
+		animation_sets.insert({name, new_animation_set});
+		return new_animation_set;
+	}
 }
