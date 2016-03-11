@@ -57,7 +57,8 @@ GLboolean read_quaternion_from_binary_file(std::ifstream& contentf,
 
 std::string build_anim_set_name(const std::vector<std::string>& nodenames);
 
-void store_ai_node_tree(std::ofstream& contentf, const aiNode* node);
+void store_ai_node_tree(std::ofstream& contentf, const aiNode* node, GLboolean root, 
+						const std::vector<std::string>& bone_names);
 
 std::vector<std::string> glob(const std::string& path);
 

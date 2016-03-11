@@ -9,7 +9,7 @@ void Model::render_model(const Renderer& renderer, const glm::vec3& position, co
 	}
 }
 
-bool Model::load_binary_model(const std::string& name, std::vector<std::string>& meshes){
+bool Model::load_binary_model(Resource_manager& manager, const std::string& name, std::vector<std::string>& meshes){
 	std::string model_path = MODEL_DATA_PATH + name + ".model";
 
 	std::ifstream contentf (model_path.c_str(), std::ios::binary);
@@ -20,7 +20,6 @@ bool Model::load_binary_model(const std::string& name, std::vector<std::string>&
 	}
 
 	GLuint num_meshes = 0;
-
 	contentf.read(reinterpret_cast<char *>(&num_meshes), sizeof(GLuint));
 
 	for (GLuint i = 0; i < num_meshes; ++i) {
@@ -33,6 +32,17 @@ bool Model::load_binary_model(const std::string& name, std::vector<std::string>&
 		meshes.push_back(mesh);
 	}
 
+	GLuint has_animations = 0;
+	contentf.read(reinterpret_cast<char *>(&has_animations), sizeof(GLuint));
+	if (has_animations) {
+		animations = manager.load_animation_set(name);/* TODODODODOD::DIfferent file you moron, write to right one! Gotto go world cup! REMEMBER THIS ON MONDAY TOMMYBOY!!!! */
+		if (!animations) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load animation set in model from resource handler: " << name << std::endl;
+			errorlogger("ERROR: Unable to load animation set in model from resource handler: ", name.c_str());
+			return false;
+		}
+	}
+
 	contentf.close();
 
 	return true;
@@ -42,7 +52,7 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 
 	std::vector<std::string> mesh_names;
 
-	if (!load_binary_model(name, mesh_names)) {
+	if (!load_binary_model(manager, name, mesh_names)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load binary model with name: " << name << std::endl;
 		errorlogger("ERROR: Unable to load binary model with name: ", name.c_str());
 		return false;
@@ -57,5 +67,6 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 		}
 		meshes.push_back(new_mesh);
 	}
+
 	return true;
 }

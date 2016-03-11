@@ -288,14 +288,18 @@ GLboolean convert_model_file(const std::string& source_path, const std::string& 
 		}
 		std::cout << "Done!\n" << std::endl;
 	}
-	contentf.close();
 
 	if (scene->HasAnimations()) {
+		contentf.write(reinterpret_cast<const char *>(&TRUE_BOOL), sizeof(GLuint));
 		store_binary_animation_set(scene, modelname);
+		contentf.write(reinterpret_cast<const char *>(&FALSE_BOOL), sizeof(GLuint));
 	}
-	
-	contentf.write(reinterpret_cast<const char *>(&FALSE_BOOL), sizeof(GLuint));
+	else{
+		contentf.write(reinterpret_cast<const char *>(&FALSE_BOOL), sizeof(GLuint));
+	}
 
+	contentf.close();
+	
 	return true;
 }
 
@@ -586,19 +590,17 @@ GLboolean store_binary_animation_set(const aiScene* scene, const std::string& mo
 		aiNode* root_candidate_parent = scene->mRootNode->FindNode(node.c_str())->mParent;
 		if (root_candidate_parent){
 			GLboolean is_skeletal_root = true;
-			for (const auto &nodename : animation_set_nodes) {
-				if (root_candidate_parent->mName.data == nodename) {
-					is_skeletal_root = false;
-					break;
-				}
+			if(std::find(animation_set_nodes.begin(), animation_set_nodes.end(), root_candidate_parent->mName.data) != animation_set_nodes.end()) {
+			    is_skeletal_root = false;
 			}
+
 			if (is_skeletal_root) {
-				store_ai_node_tree(contentf_set, scene->mRootNode->FindNode(node.c_str()));
+				store_ai_node_tree(contentf_set, scene->mRootNode->FindNode(node.c_str()), true, animation_set_nodes);
 				break;
 			}
 		}
 		else{
-			store_ai_node_tree(contentf_set, scene->mRootNode->FindNode(node.c_str()));
+			store_ai_node_tree(contentf_set, scene->mRootNode->FindNode(node.c_str()), true, animation_set_nodes);
 			break;
 		}
 	}
@@ -608,7 +610,8 @@ GLboolean store_binary_animation_set(const aiScene* scene, const std::string& mo
 	return true;
 }
 
-void store_ai_node_tree(std::ofstream& contentf, const aiNode* node){
+void store_ai_node_tree(std::ofstream& contentf, const aiNode* node, GLboolean root, 
+						const std::vector<std::string>& bone_names){
 	/* To signal a node is coming up */
 	contentf.write(reinterpret_cast<const char *>(&TRUE_BOOL), sizeof(GLuint));
 
@@ -616,16 +619,20 @@ void store_ai_node_tree(std::ofstream& contentf, const aiNode* node){
 
 	/* Use the pointers as ID's */
 	const void * address = static_cast<const void*>(node);
-	void* parent_adress = 0;
+	void* parent_adress;
 	std::stringstream node_ss;
 	std::stringstream parent_ss;
 
-	if (node->mParent) {
+	if (!root) {
 		parent_adress = static_cast<void*>(node->mParent);
+		parent_ss << parent_adress;
+	}
+	else{
+		parent_ss << "ROOT";
 	}
 
 	node_ss << address;  
-	parent_ss << parent_adress;
+	
 	std::string node_id = node_ss.str(); 
 	std::string parent_id = parent_ss.str();
 
@@ -643,7 +650,9 @@ void store_ai_node_tree(std::ofstream& contentf, const aiNode* node){
 	}
 
 	for (GLuint i = 0; i < num_children; ++i) {
-		store_ai_node_tree(contentf, node->mChildren[i]);
+		if (std::find(bone_names.begin(), bone_names.end(), node->mChildren[i]->mName.data) != bone_names.end()) {
+			store_ai_node_tree(contentf, node->mChildren[i], false, bone_names);
+		}
 	}
 }
 

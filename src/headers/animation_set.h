@@ -38,7 +38,7 @@ class Animation_set {
 		Animation_set();
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
 		bool load_binary_animation_set(Resource_manager& resource_manager, const std::string& name);
-		bool load_binary_skeleton(std::ifstream& contentf);
+		bool load_binary_skeleton(std::ifstream& contentf, const std::string& name);
 };
 
 typedef std::shared_ptr<Animation_set> Animation_set_ptr;

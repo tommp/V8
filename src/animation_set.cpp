@@ -37,16 +37,20 @@ bool Animation_set::load_binary_animation_set(Resource_manager& resource_manager
 		animations.insert({anim_name, new_animation});
 	}
 
-	if (!load_binary_skeleton(contentf)) {
+	if (!load_binary_skeleton(contentf, name)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load binary skeleyon in animation set name: " << name << std::endl;
 		errorlogger("ERROR: Failed to load binary skeleyon in animation set name: ", name.c_str());
 		return false;
 	}
 
+	return true;
+}
+
+bool Animation_set::load_binary_skeleton(std::ifstream& contentf, const std::string& name){
 	GLuint reading_tree;
 	contentf.read(reinterpret_cast<char *>(&reading_tree), sizeof(GLuint));
-	if (reading_tree != 0 || reading_tree != 1) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Corrupted file data read from: " << name << std::endl;
+	if (reading_tree != 0 && reading_tree != 1) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Corrupted file data read from: " << name << ", Data: " << reading_tree << std::endl;
 		errorlogger("FATAL ERROR: Corrupted file data read from: ", name.c_str());
 		exit(EXIT_FAILURE);
 	}
@@ -59,6 +63,8 @@ bool Animation_set::load_binary_animation_set(Resource_manager& resource_manager
 		glm::mat4 transformation;
 		Skeletal_node_ptr new_node = std::make_shared<Skeletal_node>();
 
+		std::cout << "READING AGAIN!" << std::endl;
+
 		read_string_from_binary_file(contentf, node_id);
 		read_string_from_binary_file(contentf, parent_id);
 		read_string_from_binary_file(contentf, new_node->name);
@@ -70,8 +76,11 @@ bool Animation_set::load_binary_animation_set(Resource_manager& resource_manager
 
 		new_node->trans = transformation;
 
+		std::cout << "Loaded node: " << new_node->name << std::endl;
+		std::cout << "ID: " << node_id << std::endl;
+ 
 		/* Safe as long as we always write a nodes parent before its children, whitch we do */
-		if (parent_id != "0") {
+		if (parent_id != "ROOT") {
 			new_node->parent = bone_map[parent_id];
 			bone_map[parent_id]->children.push_back(new_node);
 		}
@@ -85,9 +94,5 @@ bool Animation_set::load_binary_animation_set(Resource_manager& resource_manager
 		contentf.read(reinterpret_cast<char *>(&reading_tree), sizeof(GLuint));
 	}
 
-	return true;
-}
-
-bool Animation_set::load_binary_skeleton(std::ifstream& contentf){
 	return true;
 }
