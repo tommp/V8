@@ -24,7 +24,7 @@ class Skeletal_node;
 typedef std::shared_ptr<Skeletal_node> Skeletal_node_ptr;
 
 class Skeletal_node{
-	private:
+	public:
 		std::string name;
 		glm::mat4 trans;
 		Skeletal_node_ptr parent;

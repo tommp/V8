@@ -34,7 +34,6 @@ bool Animation_set::load_binary_animation_set(Resource_manager& resource_manager
 			return false;
 		}
 
-		//TODO::Errorchecking, maybe use emplace??
 		animations.insert({anim_name, new_animation});
 	}
 
@@ -42,6 +41,48 @@ bool Animation_set::load_binary_animation_set(Resource_manager& resource_manager
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load binary skeleyon in animation set name: " << name << std::endl;
 		errorlogger("ERROR: Failed to load binary skeleyon in animation set name: ", name.c_str());
 		return false;
+	}
+
+	GLuint reading_tree;
+	contentf.read(reinterpret_cast<char *>(&reading_tree), sizeof(GLuint));
+	if (reading_tree != 0 || reading_tree != 1) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Corrupted file data read from: " << name << std::endl;
+		errorlogger("FATAL ERROR: Corrupted file data read from: ", name.c_str());
+		exit(EXIT_FAILURE);
+	}
+
+	std::unordered_map<std::string, Skeletal_node_ptr> bone_map;
+
+	while (reading_tree) {
+		std::string node_id;
+		std::string parent_id;
+		glm::mat4 transformation;
+		Skeletal_node_ptr new_node = std::make_shared<Skeletal_node>();
+
+		read_string_from_binary_file(contentf, node_id);
+		read_string_from_binary_file(contentf, parent_id);
+		read_string_from_binary_file(contentf, new_node->name);
+		for (GLuint x = 0; x < 4; ++x) {
+			for (GLuint y = 0; y < 4; ++y) {
+				contentf.read(reinterpret_cast<char *>(&(transformation[x][y])), sizeof(GLfloat));
+			}
+		}
+
+		new_node->trans = transformation;
+
+		/* Safe as long as we always write a nodes parent before its children, whitch we do */
+		if (parent_id != "0") {
+			new_node->parent = bone_map[parent_id];
+			bone_map[parent_id]->children.push_back(new_node);
+		}
+		else{
+			new_node->parent = nullptr;
+			root_node = new_node;
+		}
+
+		bone_map[node_id] = new_node;
+
+		contentf.read(reinterpret_cast<char *>(&reading_tree), sizeof(GLuint));
 	}
 
 	return true;

@@ -15,7 +15,7 @@ bool add_bone_to_vertex(Vertex& vertex, GLuint index){
 			return true;
 		}
 	}
-	//std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Bone limit reached for vertex!"<< std::endl;
+	std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Bone limit reached for vertex!"<< std::endl;
 	errorlogger("ERROR: Bone limit reached for vertex!");
 	return false;
 }
@@ -26,7 +26,7 @@ bool add_weight_to_vertex(Vertex& vertex, GLfloat weight){
 			return true;
 		}
 	}
-	//std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Weight limit reached for vertex!"<< std::endl;
+	std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Weight limit reached for vertex!"<< std::endl;
 	errorlogger("ERROR: Weight limit reached for vertex!");
 	return false;
 }

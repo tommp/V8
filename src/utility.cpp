@@ -612,17 +612,25 @@ void store_ai_node_tree(std::ofstream& contentf, const aiNode* node){
 	/* To signal a node is coming up */
 	contentf.write(reinterpret_cast<const char *>(&TRUE_BOOL), sizeof(GLuint));
 
-	/* Use the pointer value as ID's */
-	void* node_id = (void*) node;
-	void* parent_id = 0;
 	GLuint num_children = node->mNumChildren;
 
+	/* Use the pointers as ID's */
+	const void * address = static_cast<const void*>(node);
+	void* parent_adress = 0;
+	std::stringstream node_ss;
+	std::stringstream parent_ss;
+
 	if (node->mParent) {
-		parent_id = (void*)(node->mParent);
+		parent_adress = static_cast<void*>(node->mParent);
 	}
 
-	contentf.write(reinterpret_cast<const char *>(&node_id), sizeof(void*));
-	contentf.write(reinterpret_cast<const char *>(&parent_id), sizeof(void*));
+	node_ss << address;  
+	parent_ss << parent_adress;
+	std::string node_id = node_ss.str(); 
+	std::string parent_id = parent_ss.str();
+
+	write_string_to_binary_file(contentf, node_id);
+	write_string_to_binary_file(contentf, parent_id);
 
 	std::string node_name = node->mName.data;
 	write_string_to_binary_file(contentf, node_name);
@@ -632,12 +640,6 @@ void store_ai_node_tree(std::ofstream& contentf, const aiNode* node){
 			GLfloat index = node->mTransformation[x][y];
 			contentf.write(reinterpret_cast<const char *>(&index), sizeof(GLfloat));
 		}
-	}
-
-	contentf.write(reinterpret_cast<const char *>(&num_children), sizeof(GLuint));
-	for (GLuint i = 0; i < num_children; ++i) {
-		void* child_id = (void*)(node->mChildren[i]);
-		contentf.write(reinterpret_cast<const char *>(&child_id), sizeof(void*));
 	}
 
 	for (GLuint i = 0; i < num_children; ++i) {
@@ -730,14 +732,14 @@ void load_mesh_bones(const aiMesh* mesh,
             GLuint vertex_id = mesh->mBones[i]->mWeights[j].mVertexId;
             GLfloat weight = mesh->mBones[i]->mWeights[j].mWeight; 
             if (!add_bone_to_vertex(vertices[vertex_id], bone_index)){
-            	//std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Vertex can only be affected by four bones, id overflow in bone: " << bone_name << std::endl;
-				//errorlogger("FATAL ERROR: Vertex can only be affected by four bones, id overflow in bone: ", bone_name.c_str());
-            	//exit(EXIT_FAILURE);
+            	std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Vertex can only be affected by four bones, id overflow in bone: " << bone_name << std::endl;
+				errorlogger("FATAL ERROR: Vertex can only be affected by four bones, id overflow in bone: ", bone_name.c_str());
+            	exit(EXIT_FAILURE);
             }
             if (!add_weight_to_vertex(vertices[vertex_id], weight)) {
-            	//std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Vertex can only be affected by four bones, weight overflow in bone: " << bone_name << std::endl;
-				//errorlogger("ERROR: Vertex can only be affected by four bones, weight overflow in bone: ", bone_name.c_str());
-            	//exit(EXIT_FAILURE);
+            	std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Vertex can only be affected by four bones, weight overflow in bone: " << bone_name << std::endl;
+				errorlogger("ERROR: Vertex can only be affected by four bones, weight overflow in bone: ", bone_name.c_str());
+            	exit(EXIT_FAILURE);
             }
         }
     }
