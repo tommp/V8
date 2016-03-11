@@ -292,7 +292,6 @@ GLboolean convert_model_file(const std::string& source_path, const std::string& 
 	if (scene->HasAnimations()) {
 		contentf.write(reinterpret_cast<const char *>(&TRUE_BOOL), sizeof(GLuint));
 		store_binary_animation_set(scene, modelname);
-		contentf.write(reinterpret_cast<const char *>(&FALSE_BOOL), sizeof(GLuint));
 	}
 	else{
 		contentf.write(reinterpret_cast<const char *>(&FALSE_BOOL), sizeof(GLuint));
@@ -604,6 +603,8 @@ GLboolean store_binary_animation_set(const aiScene* scene, const std::string& mo
 			break;
 		}
 	}
+
+	contentf_set.write(reinterpret_cast<const char *>(&FALSE_BOOL), sizeof(GLuint));
 
 	contentf_set.close();
 

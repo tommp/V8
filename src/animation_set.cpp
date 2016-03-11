@@ -63,8 +63,6 @@ bool Animation_set::load_binary_skeleton(std::ifstream& contentf, const std::str
 		glm::mat4 transformation;
 		Skeletal_node_ptr new_node = std::make_shared<Skeletal_node>();
 
-		std::cout << "READING AGAIN!" << std::endl;
-
 		read_string_from_binary_file(contentf, node_id);
 		read_string_from_binary_file(contentf, parent_id);
 		read_string_from_binary_file(contentf, new_node->name);
@@ -75,9 +73,6 @@ bool Animation_set::load_binary_skeleton(std::ifstream& contentf, const std::str
 		}
 
 		new_node->trans = transformation;
-
-		std::cout << "Loaded node: " << new_node->name << std::endl;
-		std::cout << "ID: " << node_id << std::endl;
  
 		/* Safe as long as we always write a nodes parent before its children, whitch we do */
 		if (parent_id != "ROOT") {
