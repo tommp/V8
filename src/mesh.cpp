@@ -65,20 +65,11 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 		GLuint num_bone_mappings;
 		contentf.read(reinterpret_cast<char *>(&num_bone_mappings), sizeof(GLuint));
 		for (GLuint i = 0; i < num_bone_mappings; ++i) {
-			std::string bone_name;
-			if (!read_string_from_binary_file(contentf, bone_name)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not read bone name from file: " << mesh_path << std::endl;
-				errorlogger("FATAL ERROR: Could not read bone name from file: ", mesh_path.c_str());
-				exit(EXIT_FAILURE);
-			}
-			if (bone_name.empty()) {
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Loaded empty bone name from file: " << mesh_path << std::endl;
-				errorlogger("FATAL ERROR: Loaded empty bone name from file: ", mesh_path.c_str());
-				exit(EXIT_FAILURE);
-			}
 			GLuint bone_id;
+			GLuint bone_index;
 			contentf.read(reinterpret_cast<char *>(&(bone_id)), sizeof(GLuint));
-			bone_map[bone_name] = bone_id;
+			contentf.read(reinterpret_cast<char *>(&(bone_index)), sizeof(GLuint));
+			bone_map[bone_id] = bone_id;
 		}
 	}
 

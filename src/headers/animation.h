@@ -38,7 +38,7 @@ class Animation{
 		GLdouble duration;
 		GLdouble ticks_per_second;
 
-		std::unordered_map<std::string, Channel> channels;
+		std::unordered_map<GLuint, Channel> channels;
 	public:
 		Animation();
 		bool load_binary_animation(const std::string& name);

@@ -58,7 +58,8 @@ GLboolean read_quaternion_from_binary_file(std::ifstream& contentf,
 std::string build_anim_set_name(const std::vector<std::string>& nodenames);
 
 void store_ai_node_tree(std::ofstream& contentf, const aiNode* node, GLboolean root, 
-						const std::vector<std::string>& bone_names);
+						const std::vector<std::string>& bone_names, 
+						const std::unordered_map<std::string, GLuint>& bone_id_map);
 
 std::vector<std::string> glob(const std::string& path);
 
@@ -70,30 +71,38 @@ GLboolean convert_all_models();
 
 GLboolean convert_model_file(const std::string& source_path, const std::string& target_path);
 
-void process_node(const aiNode* node, const aiScene* scene, 
-					std::vector<std::string>& mesh_names);
+void process_node(const aiNode* node, 
+					const aiScene* scene, 
+					std::vector<std::string>& mesh_names,
+					std::unordered_map<std::string, GLuint>& bone_id_map,
+					const std::string& modelname);
 
-std::string process_mesh(const aiMesh* mesh, const aiScene* scene);
+std::string process_mesh(const aiMesh* mesh, const aiScene* scene, 
+						std::unordered_map<std::string, GLuint>& bone_id_map,
+						const std::string& modelname);
 
 void store_binary_mesh(const std::vector<Vertex>& vertices, 
 						const std::vector<GLuint>& indices, 
 						const std::string& material_name,
-						std::string& meshname);
-
+						std::string& meshname,
+						const std::string& modelname);
 void store_binary_mesh(const aiScene* scene,
 						const std::vector<Vertex>& vertices, 
 						const std::vector<GLuint>& indices, 
 						const std::string& material_name,
 						std::string& meshname,
-						const std::unordered_map<std::string, GLuint>& bone_map,
+						const std::string& modelname,
+						const std::unordered_map<GLuint, GLuint>& bone_map,
 						const std::vector<glm::mat4>& bone_info);
 
 GLboolean store_binary_material(const aiScene* scene, const aiMesh* mesh, std::string& material_name);
 
-GLboolean store_binary_animation_set(const aiScene* scene, const std::string& modelname);
+GLboolean store_binary_animation_set(const aiScene* scene, const std::string& modelname, 
+								const std::unordered_map<std::string, GLuint>& bone_id_map);
 
 void load_mesh_bones(const aiMesh* mesh, 
-						std::unordered_map<std::string, GLuint>& bone_map,
+						std::unordered_map<GLuint, GLuint>& bone_map,
+						std::unordered_map<std::string, GLuint>& bone_id_map,
 						std::vector<Vertex>& vertices,
 						std::vector<glm::mat4>& bone_info);
 

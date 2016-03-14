@@ -24,6 +24,7 @@ bool Model::load_binary_model(Resource_manager& manager, const std::string& name
 
 	for (GLuint i = 0; i < num_meshes; ++i) {
 		std::string mesh;
+		
 		if (!read_string_from_binary_file(contentf, mesh)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to read mesh name in model from file: " << model_path << std::endl;
 			errorlogger("ERROR: Unable to read mesh name in model from file: ", model_path.c_str());
@@ -35,7 +36,7 @@ bool Model::load_binary_model(Resource_manager& manager, const std::string& name
 	GLuint has_animations = 0;
 	contentf.read(reinterpret_cast<char *>(&has_animations), sizeof(GLuint));
 	if (has_animations) {
-		animations = manager.load_animation_set(name);/* TODODODODOD::DIfferent file you moron, write to right one! Gotto go world cup! REMEMBER THIS ON MONDAY TOMMYBOY!!!! */
+		animations = manager.load_animation_set(name);
 		if (!animations) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load animation set in model from resource handler: " << name << std::endl;
 			errorlogger("ERROR: Unable to load animation set in model from resource handler: ", name.c_str());

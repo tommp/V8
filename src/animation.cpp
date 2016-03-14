@@ -24,34 +24,30 @@ bool Animation::load_binary_animation(const std::string& name){
 		GLuint num_pos_keys;
 		GLuint num_rot_keys;
 		GLuint num_scale_keys;
-		
-		std::string channel_name;
-		if (!read_string_from_binary_file(contentf, channel_name)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not read channel name from file: " << name << std::endl;
-			errorlogger("FATAL ERROR: Could not read channel name from file: ", name.c_str());
-			exit(EXIT_FAILURE);
-		}
+		GLuint channel_id;
 
-		channels[channel_name].positions = std::vector<std::pair<GLdouble, glm::vec3>>();
-		channels[channel_name].scalings = std::vector<std::pair<GLdouble, glm::vec3>>();
-		channels[channel_name].rotations = std::vector<std::pair<GLdouble, glm::fquat>>();
+		channels[channel_id].positions = std::vector<std::pair<GLdouble, glm::vec3>>();
+		channels[channel_id].scalings = std::vector<std::pair<GLdouble, glm::vec3>>();
+		channels[channel_id].rotations = std::vector<std::pair<GLdouble, glm::fquat>>();
+
+		contentf.read(reinterpret_cast<char *>(&channel_id), sizeof(GLuint));
 
 		contentf.read(reinterpret_cast<char *>(&num_pos_keys), sizeof(GLuint));
-		channels[channel_name].positions.resize(num_pos_keys);
+		channels[channel_id].positions.resize(num_pos_keys);
 		for (GLuint k = 0; k < num_pos_keys; ++k) {
-			read_vector_from_binary_file(contentf, channels[channel_name].positions[k]);
+			read_vector_from_binary_file(contentf, channels[channel_id].positions[k]);
 		}
 
 		contentf.read(reinterpret_cast<char *>(&num_rot_keys), sizeof(GLuint));
-		channels[channel_name].rotations.resize(num_rot_keys);
+		channels[channel_id].rotations.resize(num_rot_keys);
 		for (GLuint k = 0; k < num_rot_keys; ++k) {
-			read_quaternion_from_binary_file(contentf, channels[channel_name].rotations[k]);
+			read_quaternion_from_binary_file(contentf, channels[channel_id].rotations[k]);
 		}
 
 		contentf.read(reinterpret_cast<char *>(&num_scale_keys), sizeof(GLuint));
-		channels[channel_name].scalings.resize(num_scale_keys);
+		channels[channel_id].scalings.resize(num_scale_keys);
 		for (GLuint k = 0; k < num_scale_keys; ++k) {
-			read_vector_from_binary_file(contentf, channels[channel_name].scalings[k]);
+			read_vector_from_binary_file(contentf, channels[channel_id].scalings[k]);
 		
 		}
 	}

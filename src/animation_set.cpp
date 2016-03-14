@@ -66,6 +66,8 @@ bool Animation_set::load_binary_skeleton(std::ifstream& contentf, const std::str
 		read_string_from_binary_file(contentf, node_id);
 		read_string_from_binary_file(contentf, parent_id);
 		read_string_from_binary_file(contentf, new_node->name);
+		contentf.read(reinterpret_cast<char *>(&(new_node->id)), sizeof(GLuint));
+
 		for (GLuint x = 0; x < 4; ++x) {
 			for (GLuint y = 0; y < 4; ++y) {
 				contentf.read(reinterpret_cast<char *>(&(transformation[x][y])), sizeof(GLfloat));

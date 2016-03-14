@@ -738,7 +738,7 @@ bool Renderer::init_openGL(){
 		return false;
 	}
 
-	std::cout << "OpenGL initialized! Version: " << glGetString(GL_VERSION) << "\n\n\n\n\n" << std::endl;
+	std::cout << "OpenGL initialized! Version: " << glGetString(GL_VERSION) << "\n" << std::endl;
 
 	return true;
 }

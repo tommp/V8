@@ -36,6 +36,7 @@ class Animation_set {
 		Skeletal_node_ptr root_node;
 	public:
 		Animation_set();
+		//void upload_bone_transformation_uniforms(const std::String& animation, )
 		bool load_from_file(Resource_manager& resource_manager, const std::string& name);
 		bool load_binary_animation_set(Resource_manager& resource_manager, const std::string& name);
 		bool load_binary_skeleton(std::ifstream& contentf, const std::string& name);
