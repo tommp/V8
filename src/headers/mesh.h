@@ -48,7 +48,7 @@ class Mesh {
 		/* Inverse transform of the root bone transformation used in animation */
 		glm::mat4 root_inverse_transform;
 
-		std::unordered_map<std::string, GLuint> bone_map;
+		std::unordered_map<GLuint, GLuint> bone_map;
 		std::vector<glm::mat4> bone_info;
 
 		Material_ptr material;

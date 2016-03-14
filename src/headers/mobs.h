@@ -5,7 +5,7 @@
 /*---------------------------------------------*/
 #include "glm.h"
 #include "object.h"
-#include "animation.h"
+#include "model.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -18,13 +18,13 @@
 
 /*Header content*/
 /*=============================================*/
-class Animation;
+class Model;
 class Object;
 class btRigidBody;
 
 class Cube: public Object{
 private:
-	Animation_set_ptr animations;
+	Model_ptr model;
 	glm::vec3 last_pos;
 	glm::vec3 velocity;
 

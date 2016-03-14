@@ -5,7 +5,7 @@
 /*---------------------------------------------*/
 #include "glm.h"
 #include "object.h"
-#include "animation.h"
+#include "model.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -18,13 +18,13 @@
 
 /*Header content*/
 /*=============================================*/
-class Animation;
+class Model;
 class Object;
 class btRigidBody;
 
 class Prop: public Object{
 private:
-	Animation_set_ptr animations;
+	Model_ptr model;
 public:
 	Prop(Resource_manager& manager);
 	~Prop();

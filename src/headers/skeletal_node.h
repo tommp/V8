@@ -24,14 +24,16 @@ class Skeletal_node;
 typedef std::shared_ptr<Skeletal_node> Skeletal_node_ptr;
 
 class Skeletal_node{
-	private:
+	public:
 		std::string name;
+		GLuint id;
 		glm::mat4 trans;
 		Skeletal_node_ptr parent;
 		std::vector<Skeletal_node_ptr> children;
 	public:
 		Skeletal_node();
 		Skeletal_node(const std::string& name, 
+						GLuint id, 
 						const glm::mat4& trans,
 						Skeletal_node_ptr parent,
 						std::vector<Skeletal_node_ptr> children);

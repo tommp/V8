@@ -15,8 +15,8 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 
 	std::ifstream contentf (mesh_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for mesh data!" << std::endl;
-		errorlogger("ERROR: Failed to open content file for mesh data!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for mesh data: " << mesh_path << std::endl;
+		errorlogger("ERROR: Failed to open content file for mesh data: ", mesh_path.c_str());
 		return false;
 	}
 
@@ -29,7 +29,7 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 
 	contentf.read(reinterpret_cast<char *>(&has_material), sizeof(char));
 	if (has_material){
-		material_name = read_string_from_binary_file(contentf);
+		read_string_from_binary_file(contentf, material_name);
 	}
 
 	contentf.read(reinterpret_cast<char *>(&vsize), sizeof(GLuint));
@@ -65,15 +65,11 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 		GLuint num_bone_mappings;
 		contentf.read(reinterpret_cast<char *>(&num_bone_mappings), sizeof(GLuint));
 		for (GLuint i = 0; i < num_bone_mappings; ++i) {
-			std::string bone_name = read_string_from_binary_file(contentf);
-			if (bone_name.empty()) {
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Loaded empty bone name from file: " << name << std::endl;
-				errorlogger("FATAL ERROR: Loaded empty bone name from file: ", name.c_str());
-				exit(EXIT_FAILURE);
-			}
 			GLuint bone_id;
+			GLuint bone_index;
 			contentf.read(reinterpret_cast<char *>(&(bone_id)), sizeof(GLuint));
-			bone_map[bone_name] = bone_id;
+			contentf.read(reinterpret_cast<char *>(&(bone_index)), sizeof(GLuint));
+			bone_map[bone_id] = bone_id;
 		}
 	}
 

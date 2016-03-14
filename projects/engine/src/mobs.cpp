@@ -1,11 +1,11 @@
 #include "mobs.h"
 
 Cube::Cube(Resource_manager& manager){
-	std::string anim_set = "cube";
-	state = {"cube_walk"};
-	if ( !(animations = manager.load_animation_set(anim_set) ) ){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Slime_blob constructor failed to load animation set: " << anim_set << std::endl;
-		errorlogger("ERROR: Slime_blobconstructor failed to load animation set: ", anim_set.c_str());
+	std::string model_name = "wiggle";
+	state = {"wiggle"};
+	if ( !(model = manager.load_model(model_name) ) ){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cube constructor failed to load model: " << model_name << std::endl;
+		errorlogger("ERROR: Cube constructor failed to load model: ", model_name.c_str());
 	}
 	speed = 30.0f;
 	position[0] = rand() % 4001;
@@ -35,7 +35,7 @@ Cube::~Cube(){
 }
 
 void Cube::render_frame(const Renderer& renderer)const{
-	animations->render_current(renderer, state, position, size, direction);
+	model->render_model(renderer, position, size, direction);
 }
 
 bool Cube::update_position(float timedelta){

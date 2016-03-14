@@ -11,6 +11,7 @@
 #define MATERIAL_DATA_PATH "assets/materials/"
 #define SHADER_PATH "src/shaders/"
 
+#define ENGINE_DEFAULT_MATERIAL_NAME "engine_default_material"
 #define MAX_FILENAME_LENGTH 500
 #define REBUILD_ASSETS
 

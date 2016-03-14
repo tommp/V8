@@ -6,7 +6,6 @@
 /*---------------------------------------------*/
 #include "paths.h"
 #include "channel.h"
-#include "animation_map.h"
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
@@ -16,6 +15,7 @@
 
 /*Included dependencies*/
 /*---------------------------------------------*/
+#include <GL/glew.h>
 #include <unistd.h>
 #include <string>
 #include <list>
@@ -29,7 +29,6 @@
 
 /*Header content*/
 /*=============================================*/
-
 class Resource_manager;
 class Frame;
 class Model;
@@ -39,15 +38,11 @@ class Animation{
 		GLdouble duration;
 		GLdouble ticks_per_second;
 
-		std::unordered_map<std::string, Channel> channels;
-
-		bool reverse_looping;
-		bool going_forward;
+		std::unordered_map<GLuint, Channel> channels;
 	public:
 		Animation();
-		void render_frame(const Renderer& renderer, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction)const;
-		void animate(const Renderer& renderer, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction);
-		void update_state();
+		bool load_binary_animation(const std::string& name);
+		bool load_from_file(const std::string& name);
 };
 
 typedef std::shared_ptr<Animation> Animation_ptr;

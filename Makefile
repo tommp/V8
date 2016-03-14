@@ -7,6 +7,12 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 current_path := $(abspath ../$(current_dir))
 
+program_ASSETS := $(wildcard assets/animations/*)
+program_ASSETS += $(wildcard assets/models/*)
+program_ASSETS += $(wildcard assets/textures/*)
+program_ASSETS += $(wildcard assets/materials/*)
+program_ASSETS += $(wildcard assets/meshes/*)
+
 program_CXX_SRCS := $(wildcard src/*.cpp)
 program_CXX_SRCS += $(wildcard projects/$(game_EXECUTABLE)/src/*.cpp)
 program_OBJS := ${program_CXX_SRCS:.cpp=.o}
@@ -47,8 +53,12 @@ $(game_EXECUTABLE): $(program_OBJS)
 clean:
 	@- $(RM) $(program_EXECUTABLE)
 	@- $(RM) $(program_OBJS)
+	@- $(RM) $(program_ASSETS)
+
+rmas:
+	@- $(RM) $(program_ASSETS)
 
 distclean: clean
 
-.PHONY: all clean
+.PHONY: all clean rmas
 
