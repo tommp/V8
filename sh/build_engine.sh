@@ -7,7 +7,8 @@ git clone https://github.com/bulletphysics/bullet3.git
 git clone https://github.com/g-truc/glm.git
 git clone https://github.com/assimp/assimp.git
 
-mkdir src/lib
+mkdir src/lib/dynamic
+mkdir src/lib/static
 
 #Make assimp shared libs
 cd assimp
@@ -16,12 +17,12 @@ make
 
 #Move shared libs to engine lib folder
 cd lib
-find ./ -type f -iname "*.so*" -print0 | xargs -0 -Ilibfiles mv libfiles ../../src/lib/
+find ./ -type f -iname "*.so*" -print0 | xargs -0 -Ilibfiles mv libfiles ../../src/lib/dynamic/
 
 
 #Move header files to include dir
 cd ../include
-mv assimp ../src/headers/assimp_includes
+mv assimp ../../src/headers/assimp_includes
 cd ../..
 
 
@@ -38,7 +39,7 @@ cmake .. -G "Unix Makefiles" -DINSTALL_LIBS=ON -DBUILD_SHARED_LIBS=ON
 make -j4
 
 #Move shared libs to engine lib folder
-find ./ -type f -iname "*.so*" -print0 | xargs -0 -Ilibfiles mv libfiles ../../src/lib/
+find ./ -type f -iname "*.so*" -print0 | xargs -0 -Ilibfiles mv libfiles ../../src/lib/dynamic/
 
 #Remove unused files
 cd ../src
@@ -57,6 +58,5 @@ rm -rf glm
 rm -rf assimp
 
 #Build engine
-cd src
 make clean
 make
