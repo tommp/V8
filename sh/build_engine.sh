@@ -7,6 +7,7 @@ git clone https://github.com/bulletphysics/bullet3.git
 git clone https://github.com/g-truc/glm.git
 git clone https://github.com/assimp/assimp.git
 
+mkdir src/lib
 mkdir src/lib/dynamic
 mkdir src/lib/static
 
