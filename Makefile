@@ -12,6 +12,7 @@ program_ASSETS += $(wildcard assets/models/*)
 program_ASSETS += $(wildcard assets/textures/*)
 program_ASSETS += $(wildcard assets/materials/*)
 program_ASSETS += $(wildcard assets/meshes/*)
+program_ASSETS += $(wildcard assets/config/*)
 
 program_CXX_SRCS := $(wildcard src/*.cpp)
 program_CXX_SRCS += $(wildcard projects/$(game_EXECUTABLE)/src/*.cpp)

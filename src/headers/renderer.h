@@ -33,8 +33,6 @@
 
 const unsigned int OPENGL_MAJOR_VERSION =	3;
 const unsigned int OPENGL_MINOR_VERSION =	3;
-const unsigned int SCREEN_HEIGHT =			640;
-const unsigned int SCREEN_WIDTH	=			1280;
 
 const glm::vec4 CLEARCOLOR = 				{0.0, 0.0, 0.0, 1.0};
 
@@ -70,6 +68,9 @@ class Renderer{
 		GLuint g_albedo_spec;
 		GLuint g_rbo_depth;
 
+		GLuint uniform_buffer_matrices;
+		GLuint uniform_buffer_light_data;
+
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
 		Shader_ptr dir_light_shader;
@@ -79,12 +80,15 @@ class Renderer{
 	public:
 		Renderer();
 		Renderer(Resource_manager& resource_manager);
+		~Renderer();
 		bool init_window();
 		bool init_openGL();
 		bool init_settings();
 		bool init_uniform_buffers();
 		bool init_framebuffer();
 		bool init_shaders(Resource_manager& resource_manager);
+
+		bool delete_g_buffer();
 
 		bool use_g_buffer()const;
 		bool use_default_buffer()const;
@@ -141,6 +145,8 @@ class Renderer{
 		bool save_settings();
 		bool load_settings();
 		bool enable_fullscreen();
+		bool set_screen_size(GLuint width, GLuint height);
+		bool update_screen_size();
 		bool enable_vsync();
 		bool disable_vsync();
 

@@ -3,20 +3,30 @@
 Renderer::Renderer(){
 };
 
+Renderer::~Renderer() {
+	delete_g_buffer();
+	glDeleteBuffers(1, &uniform_buffer_matrices);
+	glDeleteBuffers(1, &uniform_buffer_light_data);
+}
+
 bool Renderer::init_settings(){
 	if (!load_settings()) {
 		ortographic = false;
 		mouse_visible = true;
 		use_vsync = true;
 		use_fullscreen = false;
-		window_size.x = (GLfloat)SCREEN_WIDTH;
-		window_size.y = (GLfloat)SCREEN_HEIGHT;
+		window_size.x = 1280.0f;
+		window_size.y = 640.0f;
 
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load display settings, restoring defaults." << std::endl;
-		errorlogger("ERROR: Failed to load display settings, restoring defaults.");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to load display settings, restoring defaults." << std::endl;
+		errorlogger("WARNING: Failed to load display settings, restoring defaults.");
 
-		save_settings();
-		return false;
+		if (!save_settings()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to save display settings!" << std::endl;
+			errorlogger("ERROR: Failed to save display settings!");
+			return false;
+		}
+		
 	}
 	SDL_DisableScreenSaver();
 	clear();
@@ -31,45 +41,47 @@ Renderer::Renderer(Resource_manager& resource_manager){
 	g_rbo_depth = 0;
 
 	if(!init_settings()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize display settings! Reset to default." << std::endl;
-		errorlogger("ERROR: Failed to Initialize display settings!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to Initialize display settings! Reset to default." << std::endl;
+		errorlogger("WARNING: Failed to Initialize display settings!");
 	}
+	std::cout << "Renderer settings initialized!" << std::endl;
 
 	/* Initialize the window */
 	if(!init_window()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize display window!" << std::endl;
-		errorlogger("ERROR: Failed to Initialize display window!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to Initialize display window!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to Initialize display window!");
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "Renderer window initialized!" << std::endl;
 
 	/* Initialize opengl */
 	if(!init_openGL()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize display openGL!" << std::endl;
-		errorlogger("ERROR: Failed to Initialize display openGL!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to Initialize display openGL!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to Initialize display openGL!");
 		exit(EXIT_FAILURE);
 	}
 
 	if (!init_uniform_buffers()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize unform buffers!" << std::endl;
-		errorlogger("ERROR: Failed to initialize unform buffers");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize unform buffers!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to initialize unform buffers");
 		exit(EXIT_FAILURE);
 	}
 
 	if(!init_framebuffer()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize g_framebuffer in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to initialize g_framebuffer in renderer!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize g_framebuffer in renderer!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to initialize g_framebuffer in renderer!");
 		exit(EXIT_FAILURE);
 	}
 
 	if(!init_shaders(resource_manager)) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize shaders in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to initialize shaders in renderer!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize shaders in renderer!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to initialize shaders in renderer!");
 		exit(EXIT_FAILURE);
 	}
 
 	if (!upload_light_data()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload light data in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to upload light data in renderer!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to upload light data in renderer!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to upload light data in renderer!");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -79,7 +91,6 @@ Renderer::Renderer(Resource_manager& resource_manager){
 }
 
 bool Renderer::init_uniform_buffers(){
-	GLuint uniform_buffer_matrices;
 	glGenBuffers(1, &uniform_buffer_matrices);
 	  
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_matrices);
@@ -96,7 +107,6 @@ bool Renderer::init_uniform_buffers(){
 
 	uniform_buffers["matrices"] = uniform_buffer_matrices;
 
-	GLuint uniform_buffer_light_data;
 	glGenBuffers(1, &uniform_buffer_light_data);
 	  
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_light_data);
@@ -165,7 +175,21 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 	return true;
 }
 
-bool Renderer::init_framebuffer(){
+bool Renderer::delete_g_buffer() {
+	glDeleteTextures(1, &g_position);
+	glDeleteTextures(1, &g_normal);
+	glDeleteTextures(1, &g_albedo_spec);
+	glDeleteRenderbuffers(1, &g_rbo_depth);
+	glDeleteFramebuffers(1, &g_buffer);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete g_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed delete g_buffer objects!");
+		return false;
+	}
+	return true;
+}
+
+bool Renderer::init_framebuffer() {
 	//dir_light_shader->use();
 	if ((window_size.x <= 0) || (window_size.y <= 0)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Display not initialized, cannot initialize g buffer!" << std::endl;
@@ -440,6 +464,7 @@ void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
 }
 
 bool Renderer::render_geometry(std::vector<const std::list<Object_ptr>*> targets, const Camera_ptr& camera){
+	update_screen_size();
 	setup_geometry_rendering(camera);
 	for (auto target_vector : targets) {
 		for (auto object : (*target_vector)){
@@ -566,6 +591,7 @@ void Renderer::upload_projection_matrix()const{
 }
 
 bool Renderer::save_settings(){
+	std::cout << "Saving display settings...\n" << std::endl;
 	std::ofstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
 
 	if (!contentf.is_open()){
@@ -574,20 +600,21 @@ bool Renderer::save_settings(){
 		return false;
 	}
 
-	contentf.write(reinterpret_cast<char *>(&ortographic), sizeof(bool));
-	contentf.write(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
-	contentf.write(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
-	contentf.write(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
+	contentf.write(reinterpret_cast<const char *>(&ortographic), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_vsync), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_fullscreen), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&mouse_visible), sizeof(GLboolean));
 
-	contentf.write(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
-	contentf.write(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&window_size.x), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&window_size.y), sizeof(GLfloat));
 
 	contentf.close();
-
+	std::cout << "Display settings saved!\n" << std::endl;
 	return true;
 }
 
 bool Renderer::load_settings(){
+	std::cout << "Loading settings...\n" << std::endl;
 	std::ifstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
 
 	if (!contentf.is_open()){
@@ -596,15 +623,16 @@ bool Renderer::load_settings(){
 		return false;
 	}
 
-	contentf.read(reinterpret_cast<char *>(&ortographic), sizeof(bool));
-	contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(bool));
-	contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(bool));
-	contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(bool));
+	contentf.read(reinterpret_cast<char *>(&ortographic), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(GLboolean));
 
 	contentf.read(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
 	contentf.read(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
 
 	contentf.close();
+	std::cout << "Display settings loaded!\n" << std::endl;
 
 	return true;
 }
@@ -625,7 +653,7 @@ bool Renderer::init_window(){
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OPENGL_MINOR_VERSION);
 
 	/*Initializes a window to render graphics in*/
-	window = SDL_CreateWindow("V8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_size.x, window_size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("V8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_size.x, window_size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (window == nullptr){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to create SDL window, see errorlog for details."<<std::endl;
 		SDLerrorLogger("SDL_CreateWindow");
@@ -640,7 +668,7 @@ bool Renderer::init_window(){
 		return false;
 	}
 
-	if(use_fullscreen){
+	if(use_fullscreen) {
 		enable_fullscreen();
 	}
 
@@ -665,8 +693,47 @@ bool Renderer::enable_fullscreen(){
 	SDL_GetWindowSize(window, &width, &height);
 	window_size.x = (GLfloat) width;
 	window_size.y = (GLfloat) height;
+	return true;
+}
+
+bool Renderer::set_screen_size(GLuint width, GLuint height){
+	SDL_SetWindowSize(window, width, height);
+	window_size.x = (GLfloat) width;
+	window_size.y = (GLfloat) height;
 	update_projection_matrix();
 	upload_projection_matrix();
+	return true;
+}
+
+bool Renderer::update_screen_size(){
+	GLint width;
+	GLint height;
+	SDL_GetWindowSize(window, &width, &height);
+	if (width != window_size.x || height != window_size.y) {
+		window_size.x = (GLfloat) width;
+		window_size.y = (GLfloat) height;
+		glViewport(0, 0, window_size.x, window_size.y);
+		if(check_ogl_error()) {
+			std::cout << "ERROR: Failed to reset viewport!" << std::endl;
+			errorlogger("ERROR: Failed to reset viewport!");
+			return false;
+		}
+		delete_g_buffer();
+		init_framebuffer();
+		if(check_ogl_error()) {
+			std::cout << "ERROR: Failed to reset g_buffer!" << std::endl;
+			errorlogger("ERROR: Failed to reset g_buffer!");
+			return false;
+		}
+
+		if (!upload_light_data()) {
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to upload light data in renderer!" << std::endl;
+			errorlogger("FATAL ERROR: Failed to upload light data in renderer!");
+			exit(EXIT_FAILURE);
+		}
+		update_projection_matrix();
+		upload_projection_matrix();
+	}
 	return true;
 }
 
@@ -707,13 +774,13 @@ bool Renderer::init_openGL(){
 	/* Discard all errors set by glewinit */
 	check_ogl_error();
 
-	/* Define the viewport dimensions
-	glViewport(0, 0, width, height);
+	/* Define the viewport dimensions */
+	glViewport(0, 0, window_size.x, window_size.y);
 	if(check_ogl_error()) {
 		std::cout << "ERROR: Failed to Initialize viewport in Display::init_openGL(): " << glewGetErrorString(err) << std::endl;
 		errorlogger("ERROR: Failed to Initialize viewport in Display::init_openGL(): ", (const char*)glewGetErrorString(err));
 		return false;
-	}*/
+	}
 
 	/* Setup OpenGL options */
 	glEnable(GL_DEPTH_TEST);

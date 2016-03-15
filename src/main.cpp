@@ -77,6 +77,7 @@ int main(int argc, char** argv){
 	/* Main loop */
 	/*=======================================================*/
 	std::cout << "Engine running~\n" << std::endl;
+	std::cout << "=======================================" << std::endl;
 	std::cout << "=======================================\n" << std::endl;
 
 	while(state_handler.game_is_running()){
@@ -116,15 +117,15 @@ int main(int argc, char** argv){
 #if DISABLE_VSYNC
 		/* If frame finished early */
 		int frame_ticks = cap_timer.get_ticks();
-		if( frame_ticks < SCREEN_TICKS_PER_FRAME )
-		{
+		if (frame_ticks < SCREEN_TICKS_PER_FRAME) {
 			/* Wait remaining time */
-			SDL_Delay( SCREEN_TICKS_PER_FRAME - frame_ticks );
+			SDL_Delay(SCREEN_TICKS_PER_FRAME - frame_ticks);
 		}
 #endif
 	}
 	/*=======================================================*/
-	/*Always be sure to clean up*/
+	std::cout << "\n=======================================" << std::endl;
+	std::cout << "=======================================\n" << std::endl;
 	std::cout << "Engine shutting down...\n" << std::endl;
 	SDL_Quit();
 	std::cout << "Shutdown complete!\n" << std::endl;

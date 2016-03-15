@@ -30,7 +30,7 @@
 #Misc
 ErrorLog.txt
 src/ErrorLog.txt
-src/lib
+src/lib/dynamic/*
 src/headers/rocket_includes
 src/headers/glm_includes
 src/headers/bullet3_includes
