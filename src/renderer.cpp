@@ -40,14 +40,14 @@ Renderer::Renderer(Resource_manager& resource_manager){
 	g_albedo_spec = 0;
 	g_rbo_depth = 0;
 
-	if(!init_settings()){
+	if (!init_settings()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to Initialize display settings! Reset to default." << std::endl;
 		errorlogger("WARNING: Failed to Initialize display settings!");
 	}
 	std::cout << "Renderer settings initialized!" << std::endl;
 
 	/* Initialize the window */
-	if(!init_window()){
+	if (!init_window()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to Initialize display window!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to Initialize display window!");
 		exit(EXIT_FAILURE);
@@ -55,7 +55,7 @@ Renderer::Renderer(Resource_manager& resource_manager){
 	std::cout << "Renderer window initialized!" << std::endl;
 
 	/* Initialize opengl */
-	if(!init_openGL()){
+	if (!init_openGL()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to Initialize display openGL!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to Initialize display openGL!");
 		exit(EXIT_FAILURE);
@@ -67,15 +67,21 @@ Renderer::Renderer(Resource_manager& resource_manager){
 		exit(EXIT_FAILURE);
 	}
 
-	if(!init_framebuffer()) {
+	if (!init_framebuffer()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize g_framebuffer in renderer!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to initialize g_framebuffer in renderer!");
 		exit(EXIT_FAILURE);
 	}
 
-	if(!init_shaders(resource_manager)) {
+	if (!init_shaders(resource_manager)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize shaders in renderer!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to initialize shaders in renderer!");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!init_base_geometry()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize base geometry in renderer!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to initialize base geometry in renderer!");
 		exit(EXIT_FAILURE);
 	}
 
@@ -173,6 +179,12 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 	return true;
+}
+
+bool Renderer::init_base_geometry() {
+	base_geom_box = Base_geometry(BOX, {1.0f, 1.0f, 1.0f});
+	base_geom_line = Base_geometry(BOX, {1.0f, 0.0f, 0.0f});
+    return true;
 }
 
 bool Renderer::delete_g_buffer() {
@@ -496,6 +508,13 @@ void Renderer::detach_geometry_rendering()const{
 
 }
 
+bool Renderer::render_line(const glm::vec3& start, 
+							const glm::vec3& end, 
+							const glm::vec3& color) {
+	return true;
+
+}
+
 
 
 bool Renderer::render_geometry(GLuint VAO, 
@@ -503,7 +522,8 @@ bool Renderer::render_geometry(GLuint VAO,
 							const Material_ptr& material, 
 							const glm::vec3& position, 
 							const glm::vec3& size, 
-							const glm::vec3& direction)const{
+							const glm::vec3& direction,
+							GLenum mode)const{
 	/* Model matrix calculations */
 	glm::mat4 model;
 	model = glm::translate(model, position);  
@@ -529,6 +549,7 @@ bool Renderer::render_geometry(GLuint VAO,
 
     material->use(geometry_shader);
     
+    glPolygonMode(GL_FRONT_AND_BACK, mode);
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0);
     //glDrawArrays(GL_TRIANGLES, 0, num_vertices);

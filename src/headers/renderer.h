@@ -8,6 +8,7 @@
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
+#include "base_geometry.h"
 #include "camera.h"
 #include "enum_light_type.h"
 #include "light.h"
@@ -52,10 +53,14 @@ class Renderer{
 
 		SDL_GLContext gl_context;
 
-	    bool use_vsync;
-	    bool use_fullscreen;
-	    bool mouse_visible;
-	    bool ortographic;
+		Base_geometry base_geom_line;
+		Base_geometry base_geom_box;
+		Base_geometry base_geom_sphere;
+
+	    GLboolean use_vsync;
+	    GLboolean use_fullscreen;
+	    GLboolean mouse_visible;
+	    GLboolean ortographic;
 
 	    glm::vec2 window_size;
 
@@ -73,10 +78,14 @@ class Renderer{
 
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
+		std::list<Rendering_context*> animated_targets;
+		std::list<Rendering_context*> static_targets;
+
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
 		Shader_ptr spot_light_shader;
 		Shader_ptr geometry_shader;
+		Shader_ptr animated_geometry_shader;
 	public:
 		Renderer();
 		Renderer(Resource_manager& resource_manager);
@@ -87,6 +96,7 @@ class Renderer{
 		bool init_uniform_buffers();
 		bool init_framebuffer();
 		bool init_shaders(Resource_manager& resource_manager);
+		bool init_base_geometry();
 
 		bool delete_g_buffer();
 
@@ -112,7 +122,9 @@ class Renderer{
 							const Material_ptr& material, 
 							const glm::vec3& position, 
 							const glm::vec3& size, 
-							const glm::vec3& direction)const;
+							const glm::vec3& direction,
+							GLenum mode)const;
+
 		bool render_geometry(std::vector<const std::list<Object_ptr>*> targets, 
 										const Camera_ptr& camera);
 
@@ -123,6 +135,10 @@ class Renderer{
 		bool render_spot_lights(const std::forward_list<Light_ptr>& spot_lights, 
 								const glm::vec3& position)const;
 
+
+		bool render_line(const glm::vec3& start, 
+							const glm::vec3& end, 
+							const glm::vec3& color);
 
 		void detach_geometry_rendering()const;
 
@@ -154,6 +170,8 @@ class Renderer{
 		void clear()const;
 		void present()const;
 };
+
+typedef std::shared_ptr<Renderer> Renderer_ptr;
 /*=============================================*/
 
 #endif

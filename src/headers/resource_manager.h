@@ -7,7 +7,7 @@
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
-#include "keys.h"
+#include "enum_key_type.h"
 #include "button_mappings.h"
 #include "shader.h"
 #include "texture.h"

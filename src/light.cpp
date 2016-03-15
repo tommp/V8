@@ -5,7 +5,7 @@ Directional_light::Directional_light(){
 	direction = {1.0f, -1.0f, 1.0f};
 	size = {1.0f, 1.0f, 1.0f};
 	ambient = {0.1f, 0.1f, 0.1f};
-	diffuse = {0.03f, 0.03f, 0.03f};
+	diffuse = {0.1f, 0.1f, 0.1f};
 	specular = {0.0f, 0.0f, 0.0f};
 
 	scale = {1.0f, 1.0f, 1.0f};

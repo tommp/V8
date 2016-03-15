@@ -1,5 +1,5 @@
-#ifndef KEYS_H
-#define KEYS_H
+#ifndef ENUM_GEOM_TYPE_H
+#define ENUM_GEOM_TYPE_H
 
 
 /*Included headers*/
@@ -12,20 +12,13 @@
 
 /*Header content*/
 /*=============================================*/
-enum Key {
-	UP = 0,
-	DOWN = 1,
-	LEFT = 2,
-	RIGHT = 3,
-	JUMP = 4,
-	INTERACT = 5,
-	MENU = 6,
-	A0 = 7,
-	A1 = 8,
-	A2 = 9,
-	A3 = 10,
-	QUIT = 11,
+enum Geom_type {
+	BOX = 1,
+	LINE = 2,
+	SPHERE = 3,
+	VAO = 4,
 };
 /*=============================================*/
 
 #endif
+

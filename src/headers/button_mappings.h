@@ -5,7 +5,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "errorlogger.h"
-#include "keys.h"
+#include "enum_key_type.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

@@ -2,12 +2,15 @@
 
 Mesh::Mesh(){
 	VBO = 0;
-	VAO = 0;
+	rendering_context.VAO = 0;
 	EBO = 0;
+	rendering_context.active = true;
+	rendering_context.render_mode = GL_FILL;
 }
 
 Mesh::~Mesh(){
 	free_mesh();
+	/* TODO::REMOVE CONTEXT FROM RENDERER */
 }
 
 bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::string& material_name){
@@ -71,6 +74,9 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 			contentf.read(reinterpret_cast<char *>(&(bone_index)), sizeof(GLuint));
 			bone_map[bone_id] = bone_id;
 		}
+
+		rendering_context.is_animated = true;
+		rendering_context.shader_type = GEOMETRY_ANIMATED;
 	}
 
 	contentf.close();
@@ -95,20 +101,20 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 		return false;
 	}
 
-	material = manager.load_material(material_name);
-	if (!material){
+	rendering_context.material = manager.load_material(material_name);
+	if (!rendering_context.material){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load material in mesh with material name: " << material_name << std::endl;
 		errorlogger("ERROR: Failed to load material in mesh with material name: ", material_name.c_str());
 		return false;
 	}
 
-	num_vertices = vertices.size();
+	rendering_context.num_vertices = vertices.size();
 
-	glGenVertexArrays(1, &VAO);
+	glGenVertexArrays(1, &(rendering_context.VAO));
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
   
-	glBindVertexArray(VAO);
+	glBindVertexArray(rendering_context.VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), 
 				 &vertices[0], GL_STATIC_DRAW);/* TODO::CHANGE STATIC DRAW?? */
@@ -153,13 +159,13 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 }
 
 void Mesh::render_mesh(const Renderer& renderer, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
-	renderer.render_geometry(VAO, num_vertices, material, position, size, direction);
+	renderer.render_geometry(rendering_context.VAO, rendering_context.num_vertices, rendering_context.material, position, size, direction, rendering_context.render_mode);
 }
 
 void Mesh::free_mesh(){
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-	glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &(rendering_context.VAO));
 
 	/* Check for errors */
 	if(check_ogl_error()){

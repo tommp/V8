@@ -7,6 +7,7 @@
 #include "glm.h"
 #include "bone.h"
 #include "vertex.h"
+#include "rendering_context.h"
 #include "utility.h"
 #include "errorlogger.h"
 #include "renderer.h"
@@ -37,21 +38,16 @@ typedef std::shared_ptr<Material> Material_ptr;
 
 class Mesh {
 	private:
+		Rendering_context rendering_context;
+
 		GLuint VBO;
-		GLuint VAO;
 		GLuint EBO;
-
-		GLuint num_vertices;
-
-		bool is_animated;
 
 		/* Inverse transform of the root bone transformation used in animation */
 		glm::mat4 root_inverse_transform;
 
 		std::unordered_map<GLuint, GLuint> bone_map;
 		std::vector<glm::mat4> bone_info;
-
-		Material_ptr material;
 	public:
 		Mesh();
 		~Mesh();
@@ -63,6 +59,9 @@ class Mesh {
 							std::string& material);
 
 		bool load_from_file(Resource_manager& manager, const std::string& name);
+
+		void add_context_to_renderer(Renderer& renderer);
+		void remove_context_from_renderer(Renderer& renderer);
 		
 		void render_mesh(const Renderer& renderer,
 						const glm::vec3& position, 

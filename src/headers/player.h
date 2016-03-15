@@ -4,7 +4,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "keys.h"
+#include "enum_key_type.h"
 #include "object.h"
 #include "model.h"
 #include "resource_manager.h"
