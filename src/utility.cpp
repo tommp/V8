@@ -919,3 +919,10 @@ GLint check_ogl_error(){
 
 	return retCode;
 }
+
+void discard_ogl_errors(){
+	GLenum gl_error = glGetError();
+	while (gl_error != GL_NO_ERROR){
+		gl_error = glGetError();
+	}
+}

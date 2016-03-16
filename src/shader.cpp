@@ -114,24 +114,34 @@ bool Shader::load_from_file(const std::string& name){
     if(check_ogl_error()){
         std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to delete bound shaders in shader load_from_file()" << std::endl;
         errorlogger("ERROR: Failed to delete bound shaders in shader load_from_file()!");
-        exit(EXIT_FAILURE);
+        return false;
     }
 
     /* Bind the uniform buffer object for view and projection matrices */
     GLuint uniform_block_index_matrices = glGetUniformBlockIndex(program, "Matrices");
-    glUniformBlockBinding(program, uniform_block_index_matrices, 1);
-    if(check_ogl_error()){
-        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind matrix uniform buffer in shader load_from_file()" << std::endl;
-        errorlogger("ERROR: Failed to bind matrix uniform buffer in shader load_from_file()!");
-        //exit(EXIT_FAILURE);
+    if (uniform_block_index_matrices == GL_INVALID_INDEX) {
+        SDL_Log("No matrix data uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    }
+    else{
+        glUniformBlockBinding(program, uniform_block_index_matrices, 1);
+        if(check_ogl_error()){
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind matrix uniform buffer in shader load_from_file()" << std::endl;
+            errorlogger("ERROR: Failed to bind matrix uniform buffer in shader load_from_file()!");
+            //exit(EXIT_FAILURE);
+        }
     }
 
     GLuint uniform_block_index_light_data = glGetUniformBlockIndex(program, "Light_data");
-    glUniformBlockBinding(program, uniform_block_index_light_data, 2);
-    if(check_ogl_error()){
-        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
-        errorlogger("ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
-        //exit(EXIT_FAILURE);
+    if (uniform_block_index_light_data == GL_INVALID_INDEX) {
+        SDL_Log("No light data uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    }
+    else{
+        glUniformBlockBinding(program, uniform_block_index_light_data, 2);
+        if(check_ogl_error()){
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
+            //exit(EXIT_FAILURE);
+        }        
     }
 
     return true;

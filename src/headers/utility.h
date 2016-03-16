@@ -131,6 +131,8 @@ const char* gl_error_string(GLenum err);
 /* Check for openGL errors and print them to file if detected */
 GLint check_ogl_error();
 
+void discard_ogl_errors();
+
 void print_framebuffer_error_in_fucking_english();
 /*=============================================*/
 

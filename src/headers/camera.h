@@ -36,7 +36,7 @@ class Camera {
 		glm::vec3 offset;
 		glm::mat4 view;
 
-		bool ortographic;
+		GLboolean ortographic;
 	public:
 		Camera();
 		void focus_target(const glm::vec3& focus_target);

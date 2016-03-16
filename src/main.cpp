@@ -17,7 +17,7 @@ int main(int argc, char** argv){
 	/* Random seed to time */
 	srand (time(NULL));
 
-	std::cout << "Initializing SDL...\n" << std::endl;
+	std::cout << "Initializing SDL..." << std::endl;
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to initialize SDL, see errorlog for details."<<std::endl;
 		SDLerrorLogger("FATAL ERROR: SDL initialization");
@@ -26,7 +26,7 @@ int main(int argc, char** argv){
 	std::cout << "SDL initialized!\n" << std::endl;
 	std::cout << "=======================================\n" << std::endl;
 #ifdef REBUILD_ASSETS
-	std::cout << "Converting images...\n" << std::endl;
+	std::cout << "Converting images..." << std::endl;
 	if (!convert_all_images()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to convert images."<<std::endl;
 		errorlogger("FATAL ERROR: Failed to convert images.");
@@ -34,7 +34,7 @@ int main(int argc, char** argv){
 	}
 	std::cout << "Images converted!\n" << std::endl;
 	std::cout << "=======================================\n" << std::endl;
-	std::cout << "Converting models...\n" << std::endl;
+	std::cout << "Converting models..." << std::endl;
 	if (!convert_all_models()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to convert models."<<std::endl;
 		errorlogger("FATAL ERROR: Failed to convert models.");
@@ -50,23 +50,23 @@ int main(int argc, char** argv){
 
 	std::cout << "Initializing main data structures...\n" << std::endl;
 
-	std::cout << "------ Initializing resource_manager...\n" << std::endl;
+	std::cout << "------ Initializing resource_manager..." << std::endl;
 	Resource_manager resource_manager;
 	std::cout << "------ Resource_manager initialized!\n" << std::endl;
 
-	std::cout << "------ Initializing renderer...\n" << std::endl;
+	std::cout << "------ Initializing renderer..." << std::endl;
 	Renderer renderer(resource_manager);
 	std::cout << "------ Renderer initialized!\n" << std::endl;
 
-	std::cout << "------ Initializing state_handler...\n" << std::endl;
+	std::cout << "------ Initializing state_handler..." << std::endl;
 	State_handler state_handler(resource_manager);
 	std::cout << "------ State_handler initialized!\n" << std::endl;
 
-	std::cout << "------ Initializing world...\n" << std::endl;
+	std::cout << "------ Initializing world..." << std::endl;
 	World world(resource_manager, renderer);
 	std::cout << "------ World initialized!\n" << std::endl;
 
-	std::cout << "------ Initializing timers...\n" << std::endl;
+	std::cout << "------ Initializing timers..." << std::endl;
 	Timer cap_timer;
 	Timer move_timer;
 	std::cout << "------ Timers initialized!\n" << std::endl;

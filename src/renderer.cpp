@@ -40,57 +40,70 @@ Renderer::Renderer(Resource_manager& resource_manager){
 	g_albedo_spec = 0;
 	g_rbo_depth = 0;
 
+	std::cout << "------------ Initializing renderer settings..." << std::endl;
 	if (!init_settings()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to Initialize display settings! Reset to default." << std::endl;
 		errorlogger("WARNING: Failed to Initialize display settings!");
 	}
-	std::cout << "Renderer settings initialized!" << std::endl;
+	std::cout << "------------ Renderer settings initialized!\n" << std::endl;
 
-	/* Initialize the window */
+	std::cout << "------------ Initializing renderer window..." << std::endl;
 	if (!init_window()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to Initialize display window!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to Initialize display window!");
 		exit(EXIT_FAILURE);
 	}
-	std::cout << "Renderer window initialized!" << std::endl;
+	std::cout << "------------ Renderer window initialized!\n" << std::endl;
 
+	std::cout << "------------ Initializing opengl..." << std::endl;
 	/* Initialize opengl */
 	if (!init_openGL()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to Initialize display openGL!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to Initialize display openGL!");
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "------------ OpenGL initialized! Version: " << glGetString(GL_VERSION) << "\n" << std::endl;
 
+	std::cout << "------------ Initializing uniform buffers..." << std::endl;
 	if (!init_uniform_buffers()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize unform buffers!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to initialize unform buffers");
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "------------ Uniform buffers initialized!\n" << std::endl;
 
+	std::cout << "------------ Initializing framebuffer..." << std::endl;
 	if (!init_framebuffer()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize g_framebuffer in renderer!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to initialize g_framebuffer in renderer!");
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "------------ Framebuffer initialized!\n" << std::endl;
 
+	std::cout << "------------ Initializing shaders..." << std::endl;
 	if (!init_shaders(resource_manager)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize shaders in renderer!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to initialize shaders in renderer!");
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "------------ Shaders initialized!\n" << std::endl;
 
+	std::cout << "------------ Initializing base geometry..." << std::endl;
 	if (!init_base_geometry()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize base geometry in renderer!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to initialize base geometry in renderer!");
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "------------ Base geometry initialized!\n" << std::endl;
 
+	std::cout << "------------ Uploading light data..." << std::endl;
 	if (!upload_light_data()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to upload light data in renderer!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to upload light data in renderer!");
 		exit(EXIT_FAILURE);
 	}
-	
+	std::cout << "------------ Light data initialized!\n" << std::endl;
+
 	/* Set projection matrix */
     update_projection_matrix();
     upload_projection_matrix();
@@ -606,9 +619,8 @@ void Renderer::detach_geometry_rendering()const{
 
 bool Renderer::render_line(const glm::vec3& start, 
 							const glm::vec3& end, 
-							const glm::vec3& color) {
+							const glm::vec3& color){
 	return true;
-
 }
 
 
@@ -766,7 +778,6 @@ bool Renderer::save_settings(){
 }
 
 bool Renderer::load_settings(){
-	std::cout << "Loading settings...\n" << std::endl;
 	std::ifstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
 
 	if (!contentf.is_open()){
@@ -784,7 +795,6 @@ bool Renderer::load_settings(){
 	contentf.read(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
 
 	contentf.close();
-	std::cout << "Display settings loaded!\n" << std::endl;
 
 	return true;
 }
@@ -924,7 +934,7 @@ bool Renderer::init_openGL(){
 		return false;
 	}
 	/* Discard all errors set by glewinit */
-	check_ogl_error();
+	discard_ogl_errors();
 
 	/* Define the viewport dimensions */
 	glViewport(0, 0, window_size.x, window_size.y);
@@ -956,8 +966,6 @@ bool Renderer::init_openGL(){
 		errorlogger("ERROR: Failed to Initialize openGL in Display::init_openGL()!");
 		return false;
 	}
-
-	std::cout << "OpenGL initialized! Version: " << glGetString(GL_VERSION) << "\n" << std::endl;
 
 	return true;
 }

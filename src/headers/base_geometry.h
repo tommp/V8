@@ -31,6 +31,8 @@ class Base_geometry{
 		GLuint get_vertex_array()const{return VAO;};
 		bool gen_arrays(GLfloat* vertices);
 };
+
+typedef std::shared_ptr<Base_geometry> Base_geometry_ptr;
 /*=============================================*/
 
 #endif

@@ -6,25 +6,31 @@ World::~World() {
 World::World(Resource_manager& init_manager, Renderer& renderer){
 	manager = &init_manager;
 
+	std::cout << "------------ Initializing world player..." << std::endl;
 	Object_ptr player = std::make_shared<Player>(init_manager);
 	if (!add_player(player)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not add player to world" << std::endl;
 		errorlogger("FATAL ERROR: Could not add player to world");
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "------------ World player initialized!\n" << std::endl;
 
+	std::cout << "------------ Initializing world starting level..." << std::endl;
 	current_level = std::make_shared<Level>(init_manager, renderer);
 	if (!add_players_to_physics_world()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not add player to physics world" << std::endl;
 		errorlogger("FATAL ERROR: Could not add player to physics world");
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "------------ World starting level initialized!\n" << std::endl;
 
+	std::cout << "------------ Initializing player rendering contexts..." << std::endl;
 	if (!add_player_contexts_to_renderer(renderer)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not add player contexts to renderer!" << std::endl;
 		errorlogger("FATAL ERROR: Could not add player contexts to renderer!");
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "------------ World player rendering contexts initialized!\n" << std::endl;
 }
 
 bool World::update_positions(GLfloat timedelta, Renderer& renderer){

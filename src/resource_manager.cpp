@@ -2,7 +2,9 @@
 
 Resource_manager::Resource_manager(){
 	/* Initialize button mappings (TODO::read from settings later) */
+	std::cout << "------------ Initializing button mappings..." << std::endl;
 	button_mappings["player"] = Button_mappings();
+	std::cout << "------------ Button mappings initialized!\n" << std::endl;
 }
 
 SDL_Keycode Resource_manager::get_button_map_key(const std::string& map_name, const Key& key)const{

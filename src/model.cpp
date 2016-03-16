@@ -44,9 +44,8 @@ bool Model::load_binary_model(Resource_manager& manager, const std::string& name
 		meshes.push_back(mesh);
 	}
 
-	GLuint has_animations = 0;
-	contentf.read(reinterpret_cast<char *>(&has_animations), sizeof(GLuint));
-	if (has_animations) {
+	contentf.read(reinterpret_cast<char *>(&is_animated), sizeof(GLuint));
+	if (is_animated) {
 		animations = manager.load_animation_set(name);
 		if (!animations) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load animation set in model from resource handler: " << name << std::endl;

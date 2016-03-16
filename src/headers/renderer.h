@@ -126,14 +126,6 @@ class Renderer{
 		bool render_geometry(const Camera_ptr& camera);
 		void detach_geometry_rendering()const;
 
-		bool render_dir_lights(const std::forward_list<Light_ptr>& dir_lights, 
-								const glm::vec3& position)const;
-		bool render_point_lights(const std::forward_list<Light_ptr>& point_lights, 
-								const glm::vec3& position)const;
-		bool render_spot_lights(const std::forward_list<Light_ptr>& spot_lights, 
-								const glm::vec3& position)const;
-
-
 		bool render_line(const glm::vec3& start, 
 							const glm::vec3& end, 
 							const glm::vec3& color);
@@ -142,10 +134,16 @@ class Renderer{
 
 		void setup_light_rendering(Light_type light_type, const glm::vec3& position)const;
 		bool render_light()const;
+		bool render_dir_lights(const std::forward_list<Light_ptr>& dir_lights, 
+								const glm::vec3& position)const;
+		bool render_point_lights(const std::forward_list<Light_ptr>& point_lights, 
+								const glm::vec3& position)const;
+		bool render_spot_lights(const std::forward_list<Light_ptr>& spot_lights, 
+								const glm::vec3& position)const;
 		void detach_light_rendering()const;
 
-		void upload_view_position(Shader& shader, const glm::vec3& position)const;
 
+		void upload_view_position(Shader& shader, const glm::vec3& position)const;
 		void upload_view_matrix()const;
 		void update_view_matrix(const glm::vec3& position, 
 							const glm::vec3& target, 
