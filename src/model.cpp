@@ -3,35 +3,15 @@
 Model::Model(){
 }
 
-bool Model::add_context_to_renderer(Renderer& renderer)const {
+bool Model::add_bases_to_context(Rendering_context& context)const{
 	GLboolean add_successful = true;
 	for (auto mesh : meshes) {
-		if (!mesh->add_context_to_renderer(renderer)) {
+		if (!mesh->add_base_to_context(context)) {
 			add_successful = false;
 		}
 	}
 
 	if (!add_successful) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update mesh context for model: " << name << std::endl;
-		errorlogger("ERROR: Failed to update mesh context for model: ", name.c_str());
-		return false;
-	}
-
-	return true;
-}
-
-bool Model::update_model_context(const std::string& state, 
-							const glm::vec3& position, 
-							const glm::vec3& size, 
-							const glm::vec3& direction){
-	GLboolean update_successful = true;
-	for (auto mesh : meshes) {
-		if (!mesh->update_context(position, size, direction)) {
-			update_successful = false;
-		}
-	}
-
-	if (!update_successful) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update mesh context for model: " << name << std::endl;
 		errorlogger("ERROR: Failed to update mesh context for model: ", name.c_str());
 		return false;

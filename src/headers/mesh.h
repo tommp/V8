@@ -38,10 +38,9 @@ typedef std::shared_ptr<Material> Material_ptr;
 
 class Mesh {
 	private:
-		Rendering_context_ptr rendering_context;
+		Base_render_context_ptr base_context;
 
 		std::string name;
-		glm::vec3 init_direction;
 		GLuint VBO;
 		GLuint EBO;
 
@@ -50,11 +49,6 @@ class Mesh {
 		
 		std::unordered_map<GLuint, GLuint> bone_map;
 		std::vector<glm::mat4> bone_info;
-
-		/* Used for optimization */
-		glm::vec3 prev_position;
-		glm::vec3 prev_size;
-		glm::vec3 prev_direction;
 	public:
 		Mesh();
 		~Mesh();
@@ -65,10 +59,7 @@ class Mesh {
 							std::string& material);
 
 		bool load_from_file(Resource_manager& manager, const std::string& name);
-		bool add_context_to_renderer(Renderer& renderer)const;
-		bool update_context(const glm::vec3& position, 
-							const glm::vec3& size, 
-							const glm::vec3& direction);
+		bool add_base_to_context(Rendering_context& context)const;
 };
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;

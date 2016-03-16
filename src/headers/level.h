@@ -107,6 +107,7 @@ class Level {
 		bool resolve_collisions();
 		bool check_if_offscreen(const Object_ptr& a)const;
 		bool update_positions(float timedelta, Renderer& renderer);
+		bool update_contexts();
 };
 
 typedef std::shared_ptr<Level> Level_ptr;

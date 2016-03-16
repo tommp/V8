@@ -32,6 +32,7 @@ public:
 	bool update_context();
 	bool touch_object(Object& Object);
 	bool add_context_to_renderer(Renderer& renderer)const;
+	bool add_bases_to_context();
 };
 
 typedef std::shared_ptr<Prop> Prop_ptr;

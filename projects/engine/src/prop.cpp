@@ -25,6 +25,24 @@ Prop::Prop(Resource_manager& manager){
 	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, 
 															btVector3(0, 0, 0));
 	collision_body = new btRigidBody(collision_body_CI);
+
+	rendering_context->model_matrix = glm::mat4();
+	rendering_context->model_matrix = glm::translate(rendering_context->model_matrix, position);  
+
+	/* TODO:: 3D rotation */
+	GLfloat dot = glm::dot(direction, rendering_context->init_direction);
+	GLfloat det =  rendering_context->init_direction.x*direction.z - rendering_context->init_direction.z*direction.x;
+	GLfloat rotation = -1 * glm::atan(det, dot);
+
+	//model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
+	rendering_context->model_matrix = glm::rotate(rendering_context->model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
+	//model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
+
+	rendering_context->model_matrix = glm::scale(rendering_context->model_matrix, glm::vec3(size));
+
+	rendering_context->active = true;
+	rendering_context->init_direction = {0.0f, 1.0f, -1.0f};
+	add_bases_to_context();
 }
 
 Prop::~Prop(){
@@ -36,12 +54,6 @@ bool Prop::update_position(float timedelta){
 }
 
 bool Prop::update_context() {
-	if (!model->update_model_context(state, position, size, direction)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update context for player model!" << std::endl;
-		errorlogger("ERROR: Failed to update context for player model!");
-		return false;
-	}
-
 	return true;
 }
 
@@ -49,8 +61,10 @@ bool Prop::touch_object(Object& object){
 	return true;
 }
 
-bool Prop::add_context_to_renderer(Renderer& renderer)const{
-	if (! model->add_context_to_renderer(renderer)) {
+bool Prop::add_bases_to_context() {
+	if (!model->add_bases_to_context(*rendering_context)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add model bases to rendering context!" << std::endl;
+		errorlogger("ERROR: Failed to add model bases to rendering context!");
 		return false;
 	}
 

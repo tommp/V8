@@ -78,10 +78,7 @@ class Renderer{
 
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
-		std::list<Rendering_context_weak> animated_targets;
-		std::list<Rendering_context_weak> static_targets;
-		std::list<Rendering_context_weak> colored_animated_targets;
-		std::list<Rendering_context_weak> colored_static_targets;
+		std::list<Rendering_context_weak> targets;
 
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
@@ -110,7 +107,7 @@ class Renderer{
 		bool bind_g_data(Light_type light_type)const;
 		bool unbind_g_data()const;
 		bool set_clear_color_black();
-		bool add_context(const Rendering_context_weak& context);
+		bool add_context(const Rendering_context_weak& context_weak);
 
 		glm::mat4 get_projection_matrix()const{return projection;};
 		glm::mat4 get_view_matrix()const{return view;};
@@ -122,10 +119,10 @@ class Renderer{
 		Shader_ptr get_light_shader(Light_type light_type)const;
 
 		void setup_geometry_rendering(const Camera_ptr& camera);
-		bool render_static_geometry()const;
-		bool render_animated_geometry()const;
-		bool render_static_geometry_colored()const;
-		bool render_animated_geometry_colored()const;
+		bool render_static_geometry(const Base_render_context& context)const;
+		bool render_animated_geometry(const Base_render_context& context)const;
+		bool render_static_geometry_colored(const Base_render_context& context)const;
+		bool render_animated_geometry_colored(const Base_render_context& context)const;
 		bool render_geometry(const Camera_ptr& camera);
 		void detach_geometry_rendering()const;
 

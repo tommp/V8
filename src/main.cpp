@@ -93,24 +93,30 @@ int main(int argc, char** argv){
 		/* Update the position of all world objects */
 		float timedelta = move_timer.get_ticks() / 1000.f;
 		if (!world.update_positions(timedelta, renderer)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update world positions!" << std::endl;
-			errorlogger("ERROR: Failed to update world positions!");
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to update world positions!" << std::endl;
+			errorlogger("FATAL ERROR: Failed to update world positions!");
 			exit(EXIT_FAILURE);
 		}
 		move_timer.restart();
 
+		if (!world.update_contexts()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to update world contexts!" << std::endl;
+			errorlogger("FATAL ERROR: Failed to update world contexts!");
+			exit(EXIT_FAILURE);
+		}
+
 		/* Resolve all collisions */
 		if (!world.resolve_collisions()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to resolve world collisions!" << std::endl;
-			errorlogger("ERROR: Failed to resolve world collisions!");
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to resolve world collisions!" << std::endl;
+			errorlogger("FATAL ERROR: Failed to resolve world collisions!");
 			exit(EXIT_FAILURE);
 		}
 
 		/* Render to screen */
 		world.render_world(renderer);
 		if(check_ogl_error()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render world!" << std::endl;
-			errorlogger("ERROR: Failed to render world!");
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to render world!" << std::endl;
+			errorlogger("FATAL ERROR: Failed to render world!");
 			exit(EXIT_FAILURE);
 		}
 

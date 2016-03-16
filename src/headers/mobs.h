@@ -31,13 +31,20 @@ private:
 	unsigned int speed;
 	unsigned int last_move;
 	unsigned int move_duration;
+
+	/* Used for optimization */
+	glm::vec3 prev_position;
+	glm::vec3 prev_size;
+	glm::vec3 prev_direction;
 public:
 	Cube(Resource_manager& manager);
 	~Cube();
 	bool update_position(float timedelta);
 	bool update_context();
+	void update_model_matrix();
 	bool touch_object(Object& Object);
 	bool add_context_to_renderer(Renderer& renderer)const;
+	bool add_bases_to_context();
 };
 
 typedef std::shared_ptr<Cube> Cube_ptr;

@@ -21,8 +21,8 @@ World::World(Resource_manager& init_manager, Renderer& renderer){
 	}
 
 	if (!add_player_contexts_to_renderer(renderer)){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not add player contexts to renferer!" << std::endl;
-		errorlogger("FATAL ERROR: Could not add player contexts to renferer!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not add player contexts to renderer!" << std::endl;
+		errorlogger("FATAL ERROR: Could not add player contexts to renderer!");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -47,6 +47,23 @@ bool World::update_positions(GLfloat timedelta, Renderer& renderer){
 		if (!current_level->camera->center_camera(players.front())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to center camera" << std::endl;
 			errorlogger("ERROR: Failed to center camera");
+			return false;
+		}
+	}
+	return true;
+}
+
+bool World::update_contexts(){
+	for (auto player : players) {
+		if (!player->update_context()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update player contexts!" << std::endl;
+			errorlogger("ERROR: Failed to update player contexts!");
+			return false;
+		}
+		
+		if (!current_level->update_contexts()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update contexts in level!"<< std::endl;
+			errorlogger("ERROR: Failed to update contexts in level!");
 			return false;
 		}
 	}

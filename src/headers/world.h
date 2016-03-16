@@ -42,6 +42,7 @@ public:
 	void render_world(Renderer& renderer);
 
 	bool update_positions(float timedelta, Renderer& renderer);
+	bool update_contexts();
 	bool resolve_collisions();
 	/*
 	bool load_level();

@@ -4,8 +4,9 @@ Cube::Cube(Resource_manager& manager){
 	std::string model_name = "wiggle";
 	state = {"wiggle"};
 	if ( !(model = manager.load_model(model_name) ) ){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cube constructor failed to load model: " << model_name << std::endl;
-		errorlogger("ERROR: Cube constructor failed to load model: ", model_name.c_str());
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Cube constructor failed to load model: " << model_name << std::endl;
+		errorlogger("FATAL ERROR: Cube constructor failed to load model: ", model_name.c_str());
+		exit(EXIT_FAILURE);
 	}
 	speed = 30.0f;
 	position[0] = rand() % 4001;
@@ -28,6 +29,11 @@ Cube::Cube(Resource_manager& manager){
 	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, 
 															btVector3(0, 0, 0));
 	collision_body = new btRigidBody(collision_body_CI);
+
+	update_model_matrix();
+	rendering_context->active = true;
+	rendering_context->init_direction = {0.0f, 1.0f, -1.0f};
+	add_bases_to_context();
 }
 
 Cube::~Cube(){
@@ -35,12 +41,24 @@ Cube::~Cube(){
 }
 
 bool Cube::update_context() {
-	if (!model->update_model_context(state, position, size, direction)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update context for cube model!" << std::endl;
-		errorlogger("ERROR: Failed to update context for cube model!");
-		return false;
+	GLboolean should_update_model = false;
+	if (position != prev_position) {
+		should_update_model = true;
+	}
+	else if (direction != prev_direction) {
+		should_update_model = true;
 	}
 
+	else if (size != prev_size) {
+		should_update_model = true;
+	}
+
+	if (should_update_model) {
+		update_model_matrix();
+		prev_position = position;
+		prev_size = size;
+		prev_direction = direction;
+	}
 	return true;
 }
 
@@ -78,10 +96,28 @@ bool Cube::touch_object(Object& object){
 	return true;
 }
 
-bool Cube::add_context_to_renderer(Renderer& renderer)const{
-	if (! model->add_context_to_renderer(renderer)) {
+bool Cube::add_bases_to_context() {
+	if (!model->add_bases_to_context(*rendering_context)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add model bases to rendering context!" << std::endl;
+		errorlogger("ERROR: Failed to add model bases to rendering context!");
 		return false;
 	}
 
 	return true;
+}
+
+void Cube::update_model_matrix() {
+	rendering_context->model_matrix = glm::mat4();
+	rendering_context->model_matrix = glm::translate(rendering_context->model_matrix, position);  
+
+	/* TODO:: 3D rotation */
+	GLfloat dot = glm::dot(direction, rendering_context->init_direction);
+	GLfloat det =  rendering_context->init_direction.x*direction.z - rendering_context->init_direction.z*direction.x;
+	GLfloat rotation = -1 * glm::atan(det, dot);
+
+    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
+    rendering_context->model_matrix = glm::rotate(rendering_context->model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
+    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
+
+    rendering_context->model_matrix = glm::scale(rendering_context->model_matrix, glm::vec3(size));
 }
