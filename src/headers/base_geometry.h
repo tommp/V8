@@ -20,7 +20,7 @@
 /*=============================================*/
 class Base_geometry{
 	private:
-		Rendering_context rendering_context;
+		Rendering_context_ptr rendering_context;
 
 		GLuint VBO;
 		glm::vec3 color;

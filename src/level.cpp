@@ -11,13 +11,13 @@ Level::Level(Resource_manager& init_manager){
 		exit(EXIT_FAILURE);
 	}
 
-	/*
-	for (int i = 0; i < 10; ++i) {
+	
+	for (int i = 0; i < 100; ++i) {
 		Object_ptr cube = std::make_shared<Cube>(init_manager);
 		add_active_object(cube);
-	}*/
+	}
 	
-	for (int i = 0; i < 20; ++i) {
+	for (int i = 0; i < 2; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_point_light(point_light);
 	}

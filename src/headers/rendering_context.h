@@ -35,9 +35,10 @@ typedef struct Rendering_context {
 	glm::vec3 object_color;
 
 	Shader_type shader_type;
-
-	GLboolean is_animated;
 }Rendering_context;
+
+typedef std::shared_ptr<Rendering_context> Rendering_context_ptr;
+typedef std::weak_ptr<Rendering_context> Rendering_context_weak;
 /*=============================================*/
 
 #endif

@@ -38,7 +38,9 @@ typedef std::shared_ptr<Material> Material_ptr;
 
 class Mesh {
 	private:
-		Rendering_context rendering_context;
+		Rendering_context_ptr rendering_context;
+
+		std::string name;
 
 		GLuint VBO;
 		GLuint EBO;
@@ -60,8 +62,7 @@ class Mesh {
 
 		bool load_from_file(Resource_manager& manager, const std::string& name);
 
-		void add_context_to_renderer(Renderer& renderer);
-		void remove_context_from_renderer(Renderer& renderer);
+		bool add_context_to_renderer(Renderer& renderer);
 		
 		void render_mesh(const Renderer& renderer,
 						const glm::vec3& position, 

@@ -326,6 +326,30 @@ bool Renderer::set_clear_color_black(){
 	return true;
 }
 
+bool Renderer::add_context(const Rendering_context_ptr& context) {
+	Rendering_context_weak context_weak = context;
+	if (context) {
+		switch (context->shader_type) {
+		case GEOMETRY_ANIMATED:
+			animated_targets.push_back(context_weak);
+			return true;
+		case GEOMETRY_STATIC:
+			static_targets.push_back(context_weak);
+			return true;
+		default:
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Unknown shader type for rendering context!" << std::endl;
+			errorlogger("ERROR: Unknown shader type for rendering context!");
+			return false;
+		}
+
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Nullptr passed to renderer add_context(...)!" << std::endl;
+		errorlogger("ERROR: Nullptr passed to renderer add_context(...)!");
+		return false;
+	}
+}
+
 bool Renderer::use_g_buffer()const{
 	glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
 	if(check_ogl_error()){

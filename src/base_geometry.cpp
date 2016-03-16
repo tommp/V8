@@ -2,19 +2,25 @@
 
 Base_geometry::~Base_geometry() {
 	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &(rendering_context.VAO));
+	glDeleteVertexArrays(1, &(rendering_context->VAO));
 }
 
 Base_geometry::Base_geometry() {
+	rendering_context = std::make_shared<Rendering_context>();
+	rendering_context->active = true;
+	rendering_context->object_color = {1.0f, 1.0f, 1.0f};
+	rendering_context->render_mode = GL_FILL;
+	rendering_context->shader_type = GEOMETRY_STATIC;
+	rendering_context->material = nullptr;
 }
 
 Base_geometry::Base_geometry(Geom_type type, const glm::vec3& color) {
-	rendering_context.active = true;
-	rendering_context.object_color = color;
-	rendering_context.render_mode = GL_FILL;
-	rendering_context.shader_type = GEOMETRY_STATIC;
-	rendering_context.material = nullptr;
-	rendering_context.is_animated = false;
+	rendering_context = std::make_shared<Rendering_context>();
+	rendering_context->active = true;
+	rendering_context->object_color = color;
+	rendering_context->render_mode = GL_FILL;
+	rendering_context->shader_type = GEOMETRY_STATIC;
+	rendering_context->material = nullptr;
 
 	if (type == BOX) {
 		GLfloat vertices[] = {
@@ -43,7 +49,7 @@ Base_geometry::Base_geometry(Geom_type type, const glm::vec3& color) {
 			1.0f,  -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 
 			1.0f,  -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 
 		};
-		rendering_context.num_vertices = 24;
+		rendering_context->num_vertices = 24;
 		if (!gen_arrays(vertices)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to initialize Base_geometry for box!" << std::endl;
 			errorlogger("FATAL ERROR: Failed to initialize Base_geometry for box!");
@@ -57,7 +63,7 @@ Base_geometry::Base_geometry(Geom_type type, const glm::vec3& color) {
 			1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  0.0f, 
 		};
 
-		rendering_context.num_vertices = 2;
+		rendering_context->num_vertices = 2;
 		if (!gen_arrays(vertices)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to initialize Base_geometry for line!" << std::endl;
 			errorlogger("FATAL ERROR: Failed to initialize Base_geometry for line!");
@@ -77,12 +83,12 @@ Base_geometry::Base_geometry(Geom_type type, const glm::vec3& color) {
 }
 
 bool Base_geometry::gen_arrays(GLfloat* vertices) {
-	glGenVertexArrays(1, &(rendering_context.VAO));
+	glGenVertexArrays(1, &(rendering_context->VAO));
 	glGenBuffers(1, &VBO);
   
-	glBindVertexArray(rendering_context.VAO);
+	glBindVertexArray(rendering_context->VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, rendering_context.num_vertices * 6 * sizeof(GLfloat), 
+	glBufferData(GL_ARRAY_BUFFER, rendering_context->num_vertices * 6 * sizeof(GLfloat), 
 				 vertices, GL_STATIC_DRAW);/* TODO::CHANGE STATIC DRAW?? */
 
 	/* Position attribute */

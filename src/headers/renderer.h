@@ -78,8 +78,8 @@ class Renderer{
 
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
-		std::list<Rendering_context*> animated_targets;
-		std::list<Rendering_context*> static_targets;
+		std::list<Rendering_context_weak> animated_targets;
+		std::list<Rendering_context_weak> static_targets;
 
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
@@ -106,6 +106,7 @@ class Renderer{
 		bool bind_g_data(Light_type light_type)const;
 		bool unbind_g_data()const;
 		bool set_clear_color_black();
+		bool add_context(const Rendering_context_ptr& context);
 
 		glm::mat4 get_projection_matrix()const{return projection;};
 		glm::mat4 get_view_matrix()const{return view;};

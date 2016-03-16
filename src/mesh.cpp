@@ -2,19 +2,21 @@
 
 Mesh::Mesh(){
 	VBO = 0;
-	rendering_context.VAO = 0;
 	EBO = 0;
-	rendering_context.active = true;
-	rendering_context.render_mode = GL_FILL;
+	rendering_context = std::make_shared<Rendering_context>();
+	rendering_context->VAO = 0;
+	rendering_context->active = true;
+	rendering_context->render_mode = GL_FILL;
 }
 
 Mesh::~Mesh(){
 	free_mesh();
-	/* TODO::REMOVE CONTEXT FROM RENDERER */
 }
 
 bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::string& material_name){
 	std::string mesh_path = MESH_DATA_PATH + name + ".mesh";
+
+	this->name = name;
 
 	std::ifstream contentf (mesh_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){
@@ -75,8 +77,10 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 			bone_map[bone_id] = bone_id;
 		}
 
-		rendering_context.is_animated = true;
-		rendering_context.shader_type = GEOMETRY_ANIMATED;
+		rendering_context->shader_type = GEOMETRY_ANIMATED;
+	}
+	else{
+		rendering_context->shader_type = GEOMETRY_STATIC;
 	}
 
 	contentf.close();
@@ -101,20 +105,20 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 		return false;
 	}
 
-	rendering_context.material = manager.load_material(material_name);
-	if (!rendering_context.material){
+	rendering_context->material = manager.load_material(material_name);
+	if (!rendering_context->material){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load material in mesh with material name: " << material_name << std::endl;
 		errorlogger("ERROR: Failed to load material in mesh with material name: ", material_name.c_str());
 		return false;
 	}
 
-	rendering_context.num_vertices = vertices.size();
+	rendering_context->num_vertices = vertices.size();
 
-	glGenVertexArrays(1, &(rendering_context.VAO));
+	glGenVertexArrays(1, &(rendering_context->VAO));
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
   
-	glBindVertexArray(rendering_context.VAO);
+	glBindVertexArray(rendering_context->VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), 
 				 &vertices[0], GL_STATIC_DRAW);/* TODO::CHANGE STATIC DRAW?? */
@@ -152,20 +156,29 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load mesh from file with name: " << name << std::endl;
 		errorlogger("ERROR: Failed to load mesh from file with name: ", name.c_str());
-		exit(EXIT_FAILURE);
+		return false;
 	}
 
 	return true;
 }
 
+bool Mesh::add_context_to_renderer(Renderer& renderer){
+	if (!renderer.add_context(rendering_context)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed add rendering context for mesh: " << name << std::endl;
+		errorlogger("ERROR: Failed add rendering context for mesh: ", name.c_str());
+		return false;
+	}
+	return true;
+}
+
 void Mesh::render_mesh(const Renderer& renderer, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
-	renderer.render_geometry(rendering_context.VAO, rendering_context.num_vertices, rendering_context.material, position, size, direction, rendering_context.render_mode);
+	renderer.render_geometry(rendering_context->VAO, rendering_context->num_vertices, rendering_context->material, position, size, direction, rendering_context->render_mode);
 }
 
 void Mesh::free_mesh(){
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-	glDeleteVertexArrays(1, &(rendering_context.VAO));
+	glDeleteVertexArrays(1, &(rendering_context->VAO));
 
 	/* Check for errors */
 	if(check_ogl_error()){
