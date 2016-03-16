@@ -15,6 +15,8 @@
 enum Shader_type{
 	GEOMETRY_ANIMATED = 0,
 	GEOMETRY_STATIC = 1,
+	GEOMETRY_ANIMATED_COLORED = 2,
+	GEOMETRY_STATIC_COLORED = 3,
 };
 /*=============================================*/
 

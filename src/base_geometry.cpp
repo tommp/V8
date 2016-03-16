@@ -8,13 +8,13 @@ Base_geometry::~Base_geometry() {
 Base_geometry::Base_geometry() {
 	rendering_context = std::make_shared<Rendering_context>();
 	rendering_context->active = true;
-	rendering_context->object_color = {1.0f, 1.0f, 1.0f};
+	rendering_context->object_color = {1.0f, 1.0f, 1.0f, 1.0f};
 	rendering_context->render_mode = GL_FILL;
 	rendering_context->shader_type = GEOMETRY_STATIC;
 	rendering_context->material = nullptr;
 }
 
-Base_geometry::Base_geometry(Geom_type type, const glm::vec3& color) {
+Base_geometry::Base_geometry(Geom_type type, const glm::vec4& color) {
 	rendering_context = std::make_shared<Rendering_context>();
 	rendering_context->active = true;
 	rendering_context->object_color = color;

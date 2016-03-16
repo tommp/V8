@@ -1,6 +1,6 @@
 #include "level.h"
 
-Level::Level(Resource_manager& init_manager){
+Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	mousepicker = std::make_shared<Mousepicker>();
 
 	camera = std::make_shared<Camera>();
@@ -12,7 +12,7 @@ Level::Level(Resource_manager& init_manager){
 	}
 
 	
-	for (int i = 0; i < 100; ++i) {
+	for (int i = 0; i < 2; ++i) {
 		Object_ptr cube = std::make_shared<Cube>(init_manager);
 		add_active_object(cube);
 	}
@@ -27,7 +27,8 @@ Level::Level(Resource_manager& init_manager){
 
 	Object_ptr prop = std::make_shared<Prop>(init_manager);
 	add_active_object(prop);
-	rendering_targets.push_back(&objects);
+
+	add_context_to_renderer(renderer);
 }
 
 Level::~Level(){
@@ -211,13 +212,34 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	return true;
 }
 
-void Level::render_geometry(Renderer& renderer){
-	renderer.render_geometry(rendering_targets, camera);
+bool Level::add_context_to_renderer(Renderer& renderer)const{
+	for (auto target : objects) {
+		if (!target->add_context_to_renderer(renderer)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
+			errorlogger("ERROR: Failed to add context to renderer for object!");
+			return false;
+		}
+	}
+
+	for (auto target : dormant_objects) {
+		if (!target->add_context_to_renderer(renderer)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
+			errorlogger("ERROR: Failed to add context to renderer for object!");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Level::render_geometry(Renderer& renderer) {
+	renderer.render_geometry(camera);
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
 		errorlogger("ERROR: Failed to render geometry!");
-		exit(EXIT_FAILURE);
+		return false;
 	}
+	return true;
 }
 
 void Level::render_lights(const Renderer& renderer)const{

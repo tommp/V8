@@ -32,11 +32,12 @@ private:
 
 	std::list<Object_ptr> players;
 public:
-	World(Resource_manager& init_manager);
+	World(Resource_manager& init_manager, Renderer& renderer);
 	~World();
 
 	bool add_player(const Object_ptr& player);
-	bool add_players_to_physics_world();
+	bool add_players_to_physics_world()const;
+	bool add_player_contexts_to_renderer(Renderer& renderer)const;
 
 	void render_world(Renderer& renderer);
 

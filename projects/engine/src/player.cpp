@@ -26,41 +26,48 @@ Player::Player(Resource_manager& init_manager){
 	collision_body = new btRigidBody(collision_body_CI);
 }
 
-void Player::render_frame(const Renderer& renderer)const{
-	model->render_model(renderer, position, size, direction);
+
+bool Player::update_context() {
+	if (!model->update_model_context(state, position, size, direction)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update context for player model!" << std::endl;
+		errorlogger("ERROR: Failed to update context for player model!");
+		return false;
+	}
+
+	return true;
 }
 
 bool Player::update_position(GLfloat timedelta){
-	btTransform transform;
-    motion_state->getWorldTransform(transform);
 
-    position[0] = transform.getOrigin().getX();
-    position[1] = transform.getOrigin().getY();
-    position[2] = transform.getOrigin().getZ();
+    btVector3 phys_position = collision_body->getCenterOfMassPosition();
+
+    position[0] = phys_position.getX();
+    position[1] = phys_position.getY();
+    position[2] = phys_position.getZ();
 
     //std::cout <<"player: " << position[0] << ":" << position[1] << ":" << position[2] << std::endl;
 
 	velocity = {0.0f, 0.0f, 0.0f};
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
 	if(current_key_states[manager->get_button_map_key("player", UP)]){
-		velocity[2] -= 1;
+		velocity.z -= 1;
 	}
 	if(current_key_states[manager->get_button_map_key("player", LEFT)]){
-		velocity[0] -= 1;
+		velocity.x -= 1;
 	}
 	if(current_key_states[manager->get_button_map_key("player", DOWN)]){
-		velocity[2] += 1;
+		velocity.z += 1;
 	}
 	if(current_key_states[manager->get_button_map_key("player", RIGHT)]){
-		velocity[0] += 1;
+		velocity.x += 1;
 
 	}
 	if(current_key_states[manager->get_button_map_key("player", JUMP)]){
-		velocity[1] += 1;
+		velocity.y += 1;
 
 	}
 	if(current_key_states[manager->get_button_map_key("player", INTERACT)]){
-		velocity[1] -= 1;
+		velocity.y -= 1;
 
 	}
 	if(glm::length(velocity)) {
@@ -74,5 +81,13 @@ bool Player::update_position(GLfloat timedelta){
 }
 
 bool Player::touch_object(Object& object){
+	return true;
+}
+
+bool Player::add_context_to_renderer(Renderer& renderer)const{
+	if (! model->add_context_to_renderer(renderer)) {
+		return false;
+	}
+
 	return true;
 }

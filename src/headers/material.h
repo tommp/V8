@@ -32,6 +32,7 @@ private:
 	GLuint shininess;
 public:
 	Material();
+	bool is_complete()const;
 	bool load_from_file(Resource_manager& manager, const std::string& name);
 	void use(const Shader_ptr& shader);
 };

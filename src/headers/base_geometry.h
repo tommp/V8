@@ -23,10 +23,10 @@ class Base_geometry{
 		Rendering_context_ptr rendering_context;
 
 		GLuint VBO;
-		glm::vec3 color;
+		glm::vec4 color;
 	public:
 		Base_geometry();
-		Base_geometry(Geom_type type, const glm::vec3& color);
+		Base_geometry(Geom_type type, const glm::vec4& color);
 		~Base_geometry();
 		GLuint get_vertex_array()const{return VAO;};
 		bool gen_arrays(GLfloat* vertices);

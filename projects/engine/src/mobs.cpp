@@ -16,7 +16,7 @@ Cube::Cube(Resource_manager& manager){
 
 	last_move = SDL_GetTicks();
 	move_duration = rand()%1000;
-	size = {2.0f, 2.0f, 2.0f};
+	size = {20.0f, 20.0f, 20.0f};
 
 	/* Physics */
 	mass = 100;
@@ -34,8 +34,14 @@ Cube::~Cube(){
 	
 }
 
-void Cube::render_frame(const Renderer& renderer)const{
-	model->render_model(renderer, position, size, direction);
+bool Cube::update_context() {
+	if (!model->update_model_context(state, position, size, direction)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update context for cube model!" << std::endl;
+		errorlogger("ERROR: Failed to update context for cube model!");
+		return false;
+	}
+
+	return true;
 }
 
 bool Cube::update_position(float timedelta){
@@ -69,5 +75,13 @@ bool Cube::update_position(float timedelta){
 }
 
 bool Cube::touch_object(Object& object){
+	return true;
+}
+
+bool Cube::add_context_to_renderer(Renderer& renderer)const{
+	if (! model->add_context_to_renderer(renderer)) {
+		return false;
+	}
+
 	return true;
 }

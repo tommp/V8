@@ -3,21 +3,26 @@
 World::~World() {
 }
 
-World::World(Resource_manager& init_manager){
+World::World(Resource_manager& init_manager, Renderer& renderer){
 	manager = &init_manager;
 
 	Object_ptr player = std::make_shared<Player>(init_manager);
 	if (!add_player(player)){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Could not add player to world" << std::endl;
-		errorlogger("ERROR: Could not add player to world");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not add player to world" << std::endl;
+		errorlogger("FATAL ERROR: Could not add player to world");
 		exit(EXIT_FAILURE);
 	}
 
-	current_level = std::make_shared<Level>(init_manager);
-	current_level->rendering_targets.push_back(&players);
+	current_level = std::make_shared<Level>(init_manager, renderer);
 	if (!add_players_to_physics_world()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Could not add player to physics world" << std::endl;
-		errorlogger("ERROR: Could not add player to physics world");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not add player to physics world" << std::endl;
+		errorlogger("FATAL ERROR: Could not add player to physics world");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!add_player_contexts_to_renderer(renderer)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Could not add player contexts to renferer!" << std::endl;
+		errorlogger("FATAL ERROR: Could not add player contexts to renferer!");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -74,7 +79,18 @@ bool World::resolve_collisions(){
 	return true;
 }
 
-bool World::add_players_to_physics_world(){
+bool World::add_player_contexts_to_renderer(Renderer& renderer)const{
+	for (auto player : players) {
+		if (!player->add_context_to_renderer(renderer)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for player!"<< std::endl;
+			errorlogger("ERROR: Failed to add context to renderer for player!");
+			return false;
+		}
+	}
+	return true;
+}
+
+bool World::add_players_to_physics_world()const{
 	for (auto player : players) {
 		if (!current_level->add_to_physics_world(player->get_collision_body())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Could not add player collision body" << std::endl;

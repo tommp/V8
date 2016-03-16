@@ -31,14 +31,28 @@ Prop::~Prop(){
 	
 }
 
-void Prop::render_frame(const Renderer& renderer)const{
-	model->render_model(renderer, position, size, direction);
-}
-
 bool Prop::update_position(float timedelta){
 	return true;
 }
 
+bool Prop::update_context() {
+	if (!model->update_model_context(state, position, size, direction)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update context for player model!" << std::endl;
+		errorlogger("ERROR: Failed to update context for player model!");
+		return false;
+	}
+
+	return true;
+}
+
 bool Prop::touch_object(Object& object){
+	return true;
+}
+
+bool Prop::add_context_to_renderer(Renderer& renderer)const{
+	if (! model->add_context_to_renderer(renderer)) {
+		return false;
+	}
+
 	return true;
 }

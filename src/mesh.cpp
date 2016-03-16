@@ -7,6 +7,12 @@ Mesh::Mesh(){
 	rendering_context->VAO = 0;
 	rendering_context->active = true;
 	rendering_context->render_mode = GL_FILL;
+	rendering_context->object_color = {1.0f, 1.0f, 1.0f, 1.0f};
+
+	init_direction = MESH_DIRECTION;
+	prev_position = {0.0f, 0.0f, 0.0f};
+	prev_size = {0.0f, 0.0f, 0.0f};
+	prev_direction = {0.0f, 0.0f, 0.0f};
 }
 
 Mesh::~Mesh(){
@@ -106,11 +112,6 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 	}
 
 	rendering_context->material = manager.load_material(material_name);
-	if (!rendering_context->material){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load material in mesh with material name: " << material_name << std::endl;
-		errorlogger("ERROR: Failed to load material in mesh with material name: ", material_name.c_str());
-		return false;
-	}
 
 	rendering_context->num_vertices = vertices.size();
 
@@ -159,11 +160,32 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 		return false;
 	}
 
+	if (rendering_context->material && (rendering_context->material->is_complete())) {
+		/* yolo */
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Using base color due to incomplete material: " << material_name << std::endl;
+		errorlogger("ERROR: WARNING: Using base color due to incomplete material: ", material_name.c_str());
+		switch (rendering_context->shader_type) {
+			case GEOMETRY_ANIMATED:
+				rendering_context->shader_type = GEOMETRY_ANIMATED_COLORED;
+				break;
+			case GEOMETRY_STATIC:
+				rendering_context->shader_type = GEOMETRY_STATIC_COLORED;
+				break;
+			default:
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid shader type in context of mesh: " << name << std::endl;
+				errorlogger("ERROR: Invalid shader type in context of mesh: ", name.c_str());
+				return false;
+		}
+	}
+
 	return true;
 }
 
-bool Mesh::add_context_to_renderer(Renderer& renderer){
-	if (!renderer.add_context(rendering_context)) {
+bool Mesh::add_context_to_renderer(Renderer& renderer)const{
+	Rendering_context_weak weak_context = rendering_context;
+	if (!renderer.add_context(weak_context)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed add rendering context for mesh: " << name << std::endl;
 		errorlogger("ERROR: Failed add rendering context for mesh: ", name.c_str());
 		return false;
@@ -171,8 +193,38 @@ bool Mesh::add_context_to_renderer(Renderer& renderer){
 	return true;
 }
 
-void Mesh::render_mesh(const Renderer& renderer, const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
-	renderer.render_geometry(rendering_context->VAO, rendering_context->num_vertices, rendering_context->material, position, size, direction, rendering_context->render_mode);
+bool Mesh::update_context(const glm::vec3& position, const glm::vec3& size, const glm::vec3& direction){
+	GLboolean should_update_model = false;
+	if (position != prev_position) {
+		should_update_model = true;
+	}
+	else if (direction != prev_direction) {
+		should_update_model = true;
+	}
+
+	else if (size != prev_size) {
+		should_update_model = true;
+	}
+
+	if (should_update_model) {
+		rendering_context->model_matrix = glm::mat4();
+		rendering_context->model_matrix = glm::translate(rendering_context->model_matrix, position);  
+
+		/* TODO:: 3D rotation */
+		GLfloat dot = glm::dot(direction, init_direction);
+		GLfloat det =  init_direction.x*direction.z - init_direction.z*direction.x;
+		GLfloat rotation = -1 * glm::atan(det, dot);
+
+	    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
+	    rendering_context->model_matrix = glm::rotate(rendering_context->model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
+	    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
+
+	    rendering_context->model_matrix = glm::scale(rendering_context->model_matrix, glm::vec3(size));
+	    prev_position = position;
+		prev_size = size;
+		prev_direction = direction;
+	}
+	return true;
 }
 
 void Mesh::free_mesh(){

@@ -12,6 +12,7 @@
 #include "prop.h"
 #include "resource_manager.h"
 #include "mousepicker.h"
+#include "renderer.h"
 #include "camera.h"
 #include "object.h"
 /*---------------------------------------------*/
@@ -36,6 +37,7 @@ class Spot_light;
 class Directional_light;
 class Light;
 class Camera;
+class Renderer;
 
 typedef std::shared_ptr<Camera> Camera_ptr;
 typedef std::shared_ptr<Light> Light_ptr;
@@ -65,8 +67,6 @@ class Level {
 		glm::vec3 gravity;
 		/* ======================================================== */
 
-		std::vector<const std::list<Object_ptr>*> rendering_targets;
-
 		std::list<Object_ptr> objects;
 		std::forward_list<Object_ptr> dormant_objects;
 
@@ -74,7 +74,7 @@ class Level {
 		std::forward_list<Light_ptr> point_lights;
 		std::forward_list<Light_ptr> spot_lights;
 	public:
-		Level(Resource_manager& init_manager);
+		Level(Resource_manager& init_manager, Renderer& renderer);
 		~Level();
 
 		void update_groups();
@@ -87,7 +87,9 @@ class Level {
 		bool add_point_light(const Light_ptr& light);
 		bool add_spot_light(const Light_ptr& light);
 
-		void render_geometry(Renderer& renderer);
+		bool add_context_to_renderer(Renderer& renderer)const;
+
+		bool render_geometry(Renderer& renderer);
 		void render_lights(const Renderer& renderer)const;
 		void render_level(Renderer& renderer);
 

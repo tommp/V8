@@ -34,9 +34,10 @@ private:
 public:
 	Cube(Resource_manager& manager);
 	~Cube();
-	void render_frame(const Renderer& renderer)const;
 	bool update_position(float timedelta);
+	bool update_context();
 	bool touch_object(Object& Object);
+	bool add_context_to_renderer(Renderer& renderer)const;
 };
 
 typedef std::shared_ptr<Cube> Cube_ptr;

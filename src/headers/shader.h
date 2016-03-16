@@ -47,6 +47,7 @@ public:
 };
 
 typedef std::shared_ptr<Shader> Shader_ptr;
+typedef std::weak_ptr<Shader> Shader_weak;
 /*=============================================*/
 
 #endif

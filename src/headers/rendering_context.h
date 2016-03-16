@@ -32,7 +32,7 @@ typedef struct Rendering_context {
 	GLenum render_mode;
 
 	Material_ptr material;
-	glm::vec3 object_color;
+	glm::vec4 object_color;
 
 	Shader_type shader_type;
 }Rendering_context;

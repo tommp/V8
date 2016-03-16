@@ -7,8 +7,6 @@
 #include "btBulletDynamicsCommon.h"
 #include "errorlogger.h"
 #include "actor.h"
-#include "renderer.h"
-#include "animation_set.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -21,7 +19,9 @@
 class Renderer;
 class Animation_set;
 class btRigidBody;
+struct Rendering_context;
 
+typedef std::weak_ptr<Rendering_context> Rendering_context_weak;
 typedef std::shared_ptr<Animation_set> Animation_set_ptr;
 
 class Object: public Actor{
@@ -39,9 +39,8 @@ class Object: public Actor{
 		Object();
 		virtual ~Object();
 		virtual bool update_position(float timedelta) = 0;
-		virtual void render_frame(const Renderer& renderer)const = 0;
 		virtual bool touch_object(Object& object) = 0;
-
+		virtual bool add_context_to_renderer(Renderer& renderer)const = 0;
 		btRigidBody* get_collision_body()const{return collision_body;};
 		bool operator<(const Object& b);
 };

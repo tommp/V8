@@ -63,7 +63,7 @@ int main(int argc, char** argv){
 	std::cout << "------ State_handler initialized!\n" << std::endl;
 
 	std::cout << "------ Initializing world...\n" << std::endl;
-	World world(resource_manager);
+	World world(resource_manager, renderer);
 	std::cout << "------ World initialized!\n" << std::endl;
 
 	std::cout << "------ Initializing timers...\n" << std::endl;

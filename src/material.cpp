@@ -64,3 +64,11 @@ bool Material::load_from_file(Resource_manager& manager, const std::string& name
 
 	return true;
 }
+
+bool Material::is_complete()const {
+	if (diffuse && specular) {
+		return true;
+	}
+	
+	return false;
+}

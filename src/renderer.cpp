@@ -172,8 +172,29 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
-	geometry_shader = resource_manager.load_shader("geometry_shader");
-	if (!geometry_shader) {
+	static_geometry_shader = resource_manager.load_shader("geometry_shader_static");
+	if (!static_geometry_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load geometry shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load geometry shader in renderer");
+		return false;
+	}
+
+	static_geometry_shader_colored = resource_manager.load_shader("geometry_shader_static_colored");
+	if (!static_geometry_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load geometry shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load geometry shader in renderer");
+		return false;
+	}
+
+	animated_geometry_shader = resource_manager.load_shader("geometry_shader_animated");
+	if (!static_geometry_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load geometry shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load geometry shader in renderer");
+		return false;
+	}
+
+	animated_geometry_shader_colored = resource_manager.load_shader("geometry_shader_animated_colored");
+	if (!static_geometry_shader) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load geometry shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load geometry shader in renderer");
 		return false;
@@ -182,8 +203,8 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 }
 
 bool Renderer::init_base_geometry() {
-	base_geom_box = Base_geometry(BOX, {1.0f, 1.0f, 1.0f});
-	base_geom_line = Base_geometry(BOX, {1.0f, 0.0f, 0.0f});
+	base_geom_box = Base_geometry(BOX, {1.0f, 1.0f, 1.0f, 1.0f});
+	base_geom_line = Base_geometry(LINE, {1.0f, 0.0f, 0.0f, 1.0f});
     return true;
 }
 
@@ -326,8 +347,8 @@ bool Renderer::set_clear_color_black(){
 	return true;
 }
 
-bool Renderer::add_context(const Rendering_context_ptr& context) {
-	Rendering_context_weak context_weak = context;
+bool Renderer::add_context(const Rendering_context_weak& context_weak) {
+	Rendering_context_ptr context = context_weak.lock();
 	if (context) {
 		switch (context->shader_type) {
 		case GEOMETRY_ANIMATED:
@@ -335,6 +356,12 @@ bool Renderer::add_context(const Rendering_context_ptr& context) {
 			return true;
 		case GEOMETRY_STATIC:
 			static_targets.push_back(context_weak);
+			return true;
+		case GEOMETRY_ANIMATED_COLORED:
+			colored_animated_targets.push_back(context_weak);
+			return true;
+		case GEOMETRY_STATIC_COLORED:
+			colored_static_targets.push_back(context_weak);
 			return true;
 		default:
 			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Unknown shader type for rendering context!" << std::endl;
@@ -344,8 +371,8 @@ bool Renderer::add_context(const Rendering_context_ptr& context) {
 
 	}
 	else{
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Nullptr passed to renderer add_context(...)!" << std::endl;
-		errorlogger("ERROR: Nullptr passed to renderer add_context(...)!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to lock context in add_context(...)!" << std::endl;
+		errorlogger("ERROR: Failed to lock context in add_context(...)!");
 		return false;
 	}
 }
@@ -491,7 +518,6 @@ void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
 	clear();
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
-	geometry_shader->use();
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup geometry rendering!" << std::endl;
 		errorlogger("ERROR: Failed to setup geometry rendering!");
@@ -499,19 +525,18 @@ void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
 	}
 }
 
-bool Renderer::render_geometry(std::vector<const std::list<Object_ptr>*> targets, const Camera_ptr& camera){
+bool Renderer::render_geometry(const Camera_ptr& camera){
 	update_screen_size();
 	setup_geometry_rendering(camera);
-	for (auto target_vector : targets) {
-		for (auto object : (*target_vector)){
-			object->render_frame(*this);
-		}
-	}
+	render_static_geometry();
+	render_static_geometry_colored();
+	render_animated_geometry();
+	render_animated_geometry_colored();
 	detach_geometry_rendering();
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!" << std::endl;
 		errorlogger("ERROR: Failed to render geometry!");
-		exit(EXIT_FAILURE);
+		return false;;
 	}
 	return true;
 }
@@ -541,49 +566,174 @@ bool Renderer::render_line(const glm::vec3& start,
 
 
 
-bool Renderer::render_geometry(GLuint VAO, 
-							GLuint num_vertices,
-							const Material_ptr& material, 
-							const glm::vec3& position, 
-							const glm::vec3& size, 
-							const glm::vec3& direction,
-							GLenum mode)const{
-	/* Model matrix calculations */
-	glm::mat4 model;
-	model = glm::translate(model, position);  
+bool Renderer::render_static_geometry()const{
+	static_geometry_shader->use();
+	for (auto target : static_targets) {
+		std::cout << "Rendering static target.." << std::endl;
+		auto context = target.lock();
+		if (!context) {
+			/* TODO::Delete from list */
+			continue;
+		}
 
-	GLfloat dot = glm::dot(direction, MESH_DIRECTION);
-	GLfloat det =  MESH_DIRECTION.x*direction.z - MESH_DIRECTION.z*direction.x;
-	GLfloat rotation = -1 * glm::atan(det, dot);
+		if (!(context->active)) {
+			continue;
+		}
+		
+		std::cout << "Setting model.." << std::endl;
+	    /* Set model matrix */
+	    static_geometry_shader->set_matrix4("model", context->model_matrix);
+	    if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix!" << std::endl;
+			errorlogger("ERROR: Failed to set model matrix!");
+			return false;
+		}
 
-    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
-    model = glm::rotate(model, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
-    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
-
-    model = glm::scale(model, glm::vec3(size)); 
-
-    /* Set model matrix */
-    geometry_shader->set_matrix4("model", model);
-
-    if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix!" << std::endl;
-		errorlogger("ERROR: Failed to set model matrix!");
-		return false;
+		std::cout << "Setting material.." << std::endl;
+		/* Set textures */
+		context->material->use(static_geometry_shader);
+	    
+	    glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
+	    glBindVertexArray(context->VAO);
+	    glDrawElements(GL_TRIANGLES, context->num_vertices, GL_UNSIGNED_INT, 0);
+	    //glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+	    glBindVertexArray(0);
+	    
+	    /* Check for errors */
+		if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render mesh!" << std::endl;
+			errorlogger("ERROR: Failed to render mesh!");
+			return false;
+		}
 	}
+	return true;
+}
 
-    material->use(geometry_shader);
-    
-    glPolygonMode(GL_FRONT_AND_BACK, mode);
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0);
-    //glDrawArrays(GL_TRIANGLES, 0, num_vertices);
-    glBindVertexArray(0);
-    
-    /* Check for errors */
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render mesh!" << std::endl;
-		errorlogger("ERROR: Failed to render mesh!");
-		return false;
+bool Renderer::render_animated_geometry()const{
+	animated_geometry_shader->use();
+	for (auto target : animated_targets) {
+		std::cout << "Rendering animated target.." << std::endl;
+		auto context = target.lock();
+		if (!context) {
+			/* TODO::Delete from list */
+			continue;
+		}
+
+		if (!(context->active)) {
+			continue;
+		}
+		
+	    /* Set model matrix */
+	    animated_geometry_shader->set_matrix4("model", context->model_matrix);
+	    if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix!" << std::endl;
+			errorlogger("ERROR: Failed to set model matrix!");
+			return false;
+		}
+
+		/* Set textures */
+		context->material->use(animated_geometry_shader);
+
+		/* Set animation uniforms */
+	    
+	    glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
+	    glBindVertexArray(context->VAO);
+	    glDrawElements(GL_TRIANGLES, context->num_vertices, GL_UNSIGNED_INT, 0);
+	    //glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+	    glBindVertexArray(0);
+	    
+	    /* Check for errors */
+		if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render mesh!" << std::endl;
+			errorlogger("ERROR: Failed to render mesh!");
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Renderer::render_static_geometry_colored()const{
+	static_geometry_shader_colored->use();
+	for (auto target : colored_static_targets) {
+		std::cout << "Rendering static colored target.." << std::endl;
+		auto context = target.lock();
+		if (!context) {
+			/* TODO::Delete from list */
+			continue;
+		}
+
+		if (!(context->active)) {
+			continue;
+		}
+		
+	    /* Set model matrix */
+	    std::cout << "Setting model.." << std::endl;
+	    static_geometry_shader_colored->set_matrix4("model", context->model_matrix);
+	    if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix!" << std::endl;
+			errorlogger("ERROR: Failed to set model matrix!");
+			return false;
+		}
+
+		std::cout << "Setting color.." << std::endl;
+		/* Set color uniform */
+		glUniform4fv(static_geometry_shader_colored->load_uniform_location("object_color"), 1, (float*)&(context->object_color));
+	    
+	    glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
+	    glBindVertexArray(context->VAO);
+	    glDrawElements(GL_TRIANGLES, context->num_vertices, GL_UNSIGNED_INT, 0);
+	    //glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+	    glBindVertexArray(0);
+	    
+	    /* Check for errors */
+		if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render mesh!" << std::endl;
+			errorlogger("ERROR: Failed to render mesh!");
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Renderer::render_animated_geometry_colored()const{
+	animated_geometry_shader_colored->use();
+	for (auto target : colored_animated_targets) {
+		std::cout << "Rendering static animated target.." << std::endl;
+		auto context = target.lock();
+		if (!context) {
+			/* TODO::Delete from list */
+			continue;
+		}
+
+		if (!(context->active)) {
+			continue;
+		}
+		
+	    /* Set model matrix */
+	    animated_geometry_shader_colored->set_matrix4("model", context->model_matrix);
+	    if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix!" << std::endl;
+			errorlogger("ERROR: Failed to set model matrix!");
+			return false;
+		}
+
+		/* Set color uniform */
+		glUniform4fv(animated_geometry_shader_colored->load_uniform_location("object_color"), 1, (float*)&(context->object_color));
+	    
+	    /* Set animation uniforms */
+
+	    glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
+	    glBindVertexArray(context->VAO);
+	    glDrawElements(GL_TRIANGLES, context->num_vertices, GL_UNSIGNED_INT, 0);
+	    //glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+	    glBindVertexArray(0);
+	    
+	    /* Check for errors */
+		if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render mesh!" << std::endl;
+			errorlogger("ERROR: Failed to render mesh!");
+			return false;
+		}
 	}
 	return true;
 }

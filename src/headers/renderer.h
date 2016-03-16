@@ -80,12 +80,16 @@ class Renderer{
 
 		std::list<Rendering_context_weak> animated_targets;
 		std::list<Rendering_context_weak> static_targets;
+		std::list<Rendering_context_weak> colored_animated_targets;
+		std::list<Rendering_context_weak> colored_static_targets;
 
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
 		Shader_ptr spot_light_shader;
-		Shader_ptr geometry_shader;
+		Shader_ptr static_geometry_shader;
+		Shader_ptr static_geometry_shader_colored;
 		Shader_ptr animated_geometry_shader;
+		Shader_ptr animated_geometry_shader_colored;
 	public:
 		Renderer();
 		Renderer(Resource_manager& resource_manager);
@@ -106,7 +110,7 @@ class Renderer{
 		bool bind_g_data(Light_type light_type)const;
 		bool unbind_g_data()const;
 		bool set_clear_color_black();
-		bool add_context(const Rendering_context_ptr& context);
+		bool add_context(const Rendering_context_weak& context);
 
 		glm::mat4 get_projection_matrix()const{return projection;};
 		glm::mat4 get_view_matrix()const{return view;};
@@ -118,16 +122,12 @@ class Renderer{
 		Shader_ptr get_light_shader(Light_type light_type)const;
 
 		void setup_geometry_rendering(const Camera_ptr& camera);
-		bool render_geometry(GLuint VAO, 
-							GLuint num_vertices,
-							const Material_ptr& material, 
-							const glm::vec3& position, 
-							const glm::vec3& size, 
-							const glm::vec3& direction,
-							GLenum mode)const;
-
-		bool render_geometry(std::vector<const std::list<Object_ptr>*> targets, 
-										const Camera_ptr& camera);
+		bool render_static_geometry()const;
+		bool render_animated_geometry()const;
+		bool render_static_geometry_colored()const;
+		bool render_animated_geometry_colored()const;
+		bool render_geometry(const Camera_ptr& camera);
+		void detach_geometry_rendering()const;
 
 		bool render_dir_lights(const std::forward_list<Light_ptr>& dir_lights, 
 								const glm::vec3& position)const;
@@ -141,7 +141,7 @@ class Renderer{
 							const glm::vec3& end, 
 							const glm::vec3& color);
 
-		void detach_geometry_rendering()const;
+		
 
 		void setup_light_rendering(Light_type light_type, const glm::vec3& position)const;
 		bool render_light()const;
