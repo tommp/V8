@@ -9,7 +9,6 @@
 #include "mesh.h"
 #include "animation_set.h"
 #include "rendering_context.h"
-#include "base_geometry.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
 
@@ -35,7 +34,6 @@ class Model {
 	private:
 		std::string name;
 		std::list<Mesh_ptr> meshes;
-		std::list<Base_geometry_ptr> geometry;
 		
 		GLboolean is_animated;
 		Animation_set_ptr animations;

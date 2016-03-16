@@ -17,7 +17,7 @@ Player::Player(Resource_manager& init_manager){
 	/* Physics */
 	mass = 100;
 	fall_inertia = {0, 0, 0};
-	collision_shape = new btSphereShape(30);
+	collision_shape = new btSphereShape(20);
 	collision_shape->calculateLocalInertia(mass, fall_inertia);
 	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
 														btVector3(position.x, position.y, position.z)));

@@ -8,11 +8,9 @@
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
-#include "base_geometry.h"
 #include "camera.h"
 #include "enum_light_type.h"
 #include "light.h"
-#include "object.h"
 #include "material.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
@@ -38,24 +36,18 @@ const unsigned int OPENGL_MINOR_VERSION =	3;
 const glm::vec4 CLEARCOLOR = 				{0.0, 0.0, 0.0, 1.0};
 
 class Material;
-class Object;
 class Camera;
 class Resource_manager;
 class Light;
 
 typedef std::shared_ptr<Light> Light_ptr;
 typedef std::shared_ptr<Material> Material_ptr;
-typedef std::shared_ptr<Object> Object_ptr;
 
 class Renderer{
 	private:
 		SDL_Window* window;
 
 		SDL_GLContext gl_context;
-
-		Base_geometry base_geom_line;
-		Base_geometry base_geom_box;
-		Base_geometry base_geom_sphere;
 
 	    GLboolean use_vsync;
 	    GLboolean use_fullscreen;
@@ -97,7 +89,6 @@ class Renderer{
 		bool init_uniform_buffers();
 		bool init_framebuffer();
 		bool init_shaders(Resource_manager& resource_manager);
-		bool init_base_geometry();
 
 		bool delete_g_buffer();
 

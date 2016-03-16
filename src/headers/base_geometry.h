@@ -9,16 +9,18 @@
 #include "utility.h"
 #include "errorlogger.h"
 #include "rendering_context.h"
+#include "object.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <GL/glew.h>
 /*---------------------------------------------*/
+class Object;
 
 /*Header content*/
 /*=============================================*/
-class Base_geometry{
+class Base_geometry : public Object{
 	private:
 		Base_render_context_ptr rendering_context;
 

@@ -2,7 +2,7 @@
 
 Directional_light::Directional_light(){
 	type = DIRECTIONAL;
-	direction = {1.0f, -1.0f, 1.0f};
+	direction = {0.0f, -1.0f, 0.0f};
 	size = {1.0f, 1.0f, 1.0f};
 	ambient = {0.1f, 0.1f, 0.1f};
 	diffuse = {0.1f, 0.1f, 0.1f};
@@ -21,9 +21,9 @@ Point_light::Point_light(){
 	type = POINT;
 	position = {0.0f, 0.0f, 0.0f};
 	size = {1.0f, 1.0f, 1.0f};
-	position.x = rand() % 4001;
+	position.x = rand() % 4001 - 2000;
 	position.y = (rand() % 40) + 100;
-	position.z = rand() % 4001;
+	position.z = rand() % 4001 - 2000;
 
 	ambient = {0.0f, 0.0f, 0.0f};
 	diffuse = {0.0f, 0.0f, 0.0f};
@@ -67,8 +67,8 @@ Spot_light::Spot_light(){
 	direction = {0.0f, -1.0f, 0.0f};
 	position = {0.0f, 200.0f, 0.0f};
 	size = {1.0f, 1.0f, 1.0f};
-	position.x = rand() % 4001;
-	position.z = rand() % 4001;
+	position.x = rand() % 4001 - 2000;
+	position.z = rand() % 4001 - 2000;
 
 	ambient = {0.2f, 0.2f, 0.2f};
 	diffuse = {10.0f, 10.0f, 10.0f};

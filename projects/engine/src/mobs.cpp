@@ -9,9 +9,9 @@ Cube::Cube(Resource_manager& manager){
 		exit(EXIT_FAILURE);
 	}
 	speed = 30.0f;
-	position[0] = rand() % 4001;
+	position[0] = rand() % 4001 - 2000;
 	position[1] = 0;
-	position[2] = rand() % 4001;
+	position[2] = rand() % 4001 - 2000;
 
 	velocity = {0.0f, 0.0f, 0.0f};
 

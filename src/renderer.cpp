@@ -26,7 +26,6 @@ bool Renderer::init_settings(){
 			errorlogger("ERROR: Failed to save display settings!");
 			return false;
 		}
-		
 	}
 	SDL_DisableScreenSaver();
 	clear();
@@ -87,14 +86,6 @@ Renderer::Renderer(Resource_manager& resource_manager){
 		exit(EXIT_FAILURE);
 	}
 	std::cout << "------------ Shaders initialized!\n" << std::endl;
-
-	std::cout << "------------ Initializing base geometry..." << std::endl;
-	if (!init_base_geometry()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize base geometry in renderer!" << std::endl;
-		errorlogger("FATAL ERROR: Failed to initialize base geometry in renderer!");
-		exit(EXIT_FAILURE);
-	}
-	std::cout << "------------ Base geometry initialized!\n" << std::endl;
 
 	std::cout << "------------ Uploading light data..." << std::endl;
 	if (!upload_light_data()) {
@@ -213,12 +204,6 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 	return true;
-}
-
-bool Renderer::init_base_geometry() {
-	base_geom_box = Base_geometry(BOX, {1.0f, 1.0f, 1.0f, 1.0f});
-	base_geom_line = Base_geometry(LINE, {1.0f, 0.0f, 0.0f, 1.0f});
-    return true;
 }
 
 bool Renderer::delete_g_buffer() {
@@ -933,7 +918,7 @@ bool Renderer::init_openGL(){
 		errorlogger("ERROR: Failed to Initialize GLEW in Display::init_openGL()!");
 		return false;
 	}
-	/* Discard all errors set by glewinit */
+	/* Discard all ogl-errors set by glewinit */
 	discard_ogl_errors();
 
 	/* Define the viewport dimensions */
