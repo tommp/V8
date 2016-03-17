@@ -104,7 +104,7 @@ bool World::resolve_collisions(){
 
 bool World::add_player_contexts_to_renderer(Renderer& renderer)const{
 	for (auto player : players) {
-		if (!player->add_context_to_renderer(renderer)){
+		if (!renderer.add_context(player)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for player!"<< std::endl;
 			errorlogger("ERROR: Failed to add context to renderer for player!");
 			return false;

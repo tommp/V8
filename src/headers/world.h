@@ -8,7 +8,6 @@
 #include "enum_light_type.h"
 #include "contact.h"
 #include "object.h"
-#include "light.h"
 #include "player.h"
 #include "resource_manager.h"
 #include "level.h"

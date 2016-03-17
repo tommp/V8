@@ -234,7 +234,7 @@ bool Level::update_contexts() {
 
 bool Level::add_context_to_renderer(Renderer& renderer)const{
 	for (auto target : objects) {
-		if (!target->add_context_to_renderer(renderer)){
+		if (!renderer.add_context(target)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
 			errorlogger("ERROR: Failed to add context to renderer for object!");
 			return false;
@@ -242,7 +242,15 @@ bool Level::add_context_to_renderer(Renderer& renderer)const{
 	}
 
 	for (auto target : dormant_objects) {
-		if (!target->add_context_to_renderer(renderer)){
+		if (!renderer.add_context(target)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
+			errorlogger("ERROR: Failed to add context to renderer for object!");
+			return false;
+		}
+	}
+
+	for (auto target : point_lights) {
+		if (!renderer.add_context(target)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
 			errorlogger("ERROR: Failed to add context to renderer for object!");
 			return false;

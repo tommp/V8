@@ -9,20 +9,18 @@
 #include "utility.h"
 #include "errorlogger.h"
 #include "rendering_context.h"
-#include "object.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <GL/glew.h>
 /*---------------------------------------------*/
-class Object;
 
 /*Header content*/
 /*=============================================*/
-class Base_geometry : public Object{
+class Base_geometry{
 	private:
-		Base_render_context_ptr rendering_context;
+		Base_render_context_ptr base_context;
 
 		GLuint VBO;
 		glm::vec4 color;
@@ -32,6 +30,7 @@ class Base_geometry : public Object{
 		~Base_geometry();
 		GLuint get_vertex_array()const{return VAO;};
 		bool gen_arrays(GLfloat* vertices);
+		bool add_base_to_context(Rendering_context_ptr& context)const;
 };
 
 typedef std::shared_ptr<Base_geometry> Base_geometry_ptr;

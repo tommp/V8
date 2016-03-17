@@ -28,12 +28,7 @@ bool Object::operator<(const Object& b){
 	}
 }
 
-bool Object::add_context_to_renderer(Renderer& renderer)const {
-	Rendering_context_weak context = rendering_context;
-	if (!renderer.add_context(context)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add rendering context to renderer!" << std::endl;
-		errorlogger("ERROR: Failed to add rendering context to renderer!");
-		return false;
-	}
-	return true;
+Rendering_context_weak Object::get_weak_context()const{
+	Rendering_context_weak weak_context = rendering_context;
+	return weak_context;
 }

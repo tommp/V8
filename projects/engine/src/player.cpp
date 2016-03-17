@@ -1,7 +1,7 @@
 #include "player.h"
 
 Player::Player(Resource_manager& init_manager){
-	std::string model_name = "wiggle";
+	std::string model_name = "sphere_colored";
 	if ( !(model = init_manager.load_model(model_name) ) ){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Player constructor failed to load model: " << model_name << std::endl;
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());

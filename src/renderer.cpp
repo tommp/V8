@@ -345,7 +345,8 @@ bool Renderer::set_clear_color_black(){
 	return true;
 }
 
-bool Renderer::add_context(const Rendering_context_weak& context_weak) {
+bool Renderer::add_context(const Object_ptr& object) {
+	Rendering_context_weak context_weak = object->get_weak_context();
 	if (!context_weak.expired()){
 		targets.push_back(context_weak);
 	}
@@ -506,6 +507,7 @@ void Renderer::setup_geometry_rendering(const Camera_ptr& camera){
 	}
 }
 
+/* TODO::Refactor this */
 bool Renderer::render_geometry(const Camera_ptr& camera){
 	update_screen_size();
 	setup_geometry_rendering(camera);
@@ -547,13 +549,13 @@ bool Renderer::render_geometry(const Camera_ptr& camera){
 						render_static_geometry(*base_context);
 						break;
 					case GEOMETRY_STATIC_COLORED:
+						static_geometry_shader_colored->use();
 						static_geometry_shader_colored->set_matrix4("model", context->model_matrix); 
 						if(check_ogl_error()){
 							std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix!" << std::endl;
 							errorlogger("ERROR: Failed to set model matrix!");
 							return false;
 						}
-						static_geometry_shader_colored->use();
 						render_static_geometry_colored(*base_context);
 						break;
 					default:
@@ -658,8 +660,8 @@ bool Renderer::render_static_geometry_colored(const Base_render_context& context
     
     glPolygonMode(GL_FRONT_AND_BACK, context.render_mode);
     glBindVertexArray(context.VAO);
-    glDrawElements(GL_TRIANGLES, context.num_vertices, GL_UNSIGNED_INT, 0);
-    //glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+    //glDrawElements(GL_TRIANGLES, context.num_vertices, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, context.num_vertices);
     glBindVertexArray(0);
     
     /* Check for errors */
@@ -989,7 +991,7 @@ bool Renderer::render_dir_lights(const std::forward_list<Light_ptr>& dir_lights,
 	setup_light_rendering(DIRECTIONAL, position);
 
 	for (auto light : dir_lights) {
-		light->render_light(*this);
+		light->render_light(dir_light_shader);
 	}
 	return true;
 }
@@ -999,7 +1001,7 @@ bool Renderer::render_point_lights(const std::forward_list<Light_ptr>& point_lig
 	setup_light_rendering(POINT, position);
 
 	for (auto light : point_lights) {
-		light->render_light(*this);
+		light->render_light(point_light_shader);
 	}
 	return true;
 }
@@ -1009,7 +1011,7 @@ bool Renderer::render_spot_lights(const std::forward_list<Light_ptr>& spot_light
 	setup_light_rendering(SPOT, position);
 
 	for (auto light : spot_lights) {
-		light->render_light(*this);
+		light->render_light(spot_light_shader);
 	}
 	return true;
 }

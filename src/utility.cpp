@@ -332,6 +332,7 @@ std::string process_mesh(const aiMesh* mesh, const aiScene* scene,
 
 	vertices.resize(mesh->mNumVertices);
 
+std::cout << mesh->mNumVertices << std::endl;
 	for(GLuint i = 0; i < mesh->mNumVertices; ++i) {
 		Vertex vertex;
 		initialize_vertex(vertex);
@@ -416,6 +417,7 @@ void store_binary_mesh(const std::vector<Vertex>& vertices,
 		write_string_to_binary_file(contentf, material_name);
 	}
 	else{
+		SDL_Log("No material for model: %s", modelname.c_str());
 		contentf.write(reinterpret_cast<const char *>(&FALSE_BOOL), sizeof(char));
 	}
 
@@ -700,6 +702,11 @@ GLboolean store_binary_material(const aiScene* scene, const aiMesh* mesh, std::s
 	new_material->Get(AI_MATKEY_NAME,name);
 
 	material_name = name.data;
+	if (material_name.empty()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot store material with empty name!" << std::endl;
+		errorlogger("ERROR: Cannot store material with empty name!");
+		return false;
+	}
 	diffuse_name = load_material_texture(new_material, aiTextureType_DIFFUSE, "texture_diffuse");
 	specular_name = load_material_texture(new_material, aiTextureType_SPECULAR, "texture_specular");
 

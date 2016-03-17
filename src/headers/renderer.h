@@ -10,7 +10,9 @@
 #include "utility.h"
 #include "camera.h"
 #include "enum_light_type.h"
-#include "light.h"
+#include "point_light.h"
+#include "spot_light.h"
+#include "dir_light.h"
 #include "material.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
@@ -98,7 +100,7 @@ class Renderer{
 		bool bind_g_data(Light_type light_type)const;
 		bool unbind_g_data()const;
 		bool set_clear_color_black();
-		bool add_context(const Rendering_context_weak& context_weak);
+		bool add_context(const Object_ptr& object);
 
 		glm::mat4 get_projection_matrix()const{return projection;};
 		glm::mat4 get_view_matrix()const{return view;};

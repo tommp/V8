@@ -6,7 +6,9 @@ Mesh::Mesh(){
 	base_context = std::make_shared<Base_render_context>();
 	base_context->VAO = 0;
 	base_context->render_mode = GL_FILL;
-	base_context->object_color = {1.0f, 1.0f, 1.0f, 1.0f};
+	base_context->object_color = {1.0f, 0.2f, 0.2f, 1.0f};
+	base_context->material = nullptr;
+	base_context->shader_type = GEOMETRY_STATIC_COLORED;
 }
 
 Mesh::~Mesh(){
@@ -105,7 +107,30 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 		return false;
 	}
 
-	base_context->material = manager.load_material(material_name);
+	std::cout << material_name << std::endl;
+	if (!material_name.empty()) {
+		base_context->material = manager.load_material(material_name);
+	}
+	
+	if (base_context->material && (base_context->material->is_complete())) {
+		/* yolo */
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Using base color due to incomplete material: " << material_name << std::endl;
+		errorlogger("WARNING: Using base color due to incomplete material: ", material_name.c_str());
+		switch (base_context->shader_type) {
+			case GEOMETRY_ANIMATED:
+				base_context->shader_type = GEOMETRY_ANIMATED_COLORED;
+				break;
+			case GEOMETRY_STATIC:
+				base_context->shader_type = GEOMETRY_STATIC_COLORED;
+				break;
+			default:
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid shader type in context of mesh: " << name << std::endl;
+				errorlogger("ERROR: Invalid shader type in context of mesh: ", name.c_str());
+				return false;
+		}
+	}
 
 	base_context->num_vertices = vertices.size();
 
@@ -152,26 +177,6 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load mesh from file with name: " << name << std::endl;
 		errorlogger("ERROR: Failed to load mesh from file with name: ", name.c_str());
 		return false;
-	}
-
-	if (base_context->material && (base_context->material->is_complete())) {
-		/* yolo */
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Using base color due to incomplete material: " << material_name << std::endl;
-		errorlogger("ERROR: WARNING: Using base color due to incomplete material: ", material_name.c_str());
-		switch (base_context->shader_type) {
-			case GEOMETRY_ANIMATED:
-				base_context->shader_type = GEOMETRY_ANIMATED_COLORED;
-				break;
-			case GEOMETRY_STATIC:
-				base_context->shader_type = GEOMETRY_STATIC_COLORED;
-				break;
-			default:
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid shader type in context of mesh: " << name << std::endl;
-				errorlogger("ERROR: Invalid shader type in context of mesh: ", name.c_str());
-				return false;
-		}
 	}
 
 	return true;

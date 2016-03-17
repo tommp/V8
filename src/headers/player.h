@@ -44,7 +44,6 @@ public:
 	bool update_context();
 	void update_model_matrix();
 	bool touch_object(Object& Object);
-	bool add_context_to_renderer(Renderer& renderer)const;
 	bool add_bases_to_context();
 };
 

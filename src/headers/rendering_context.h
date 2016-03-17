@@ -19,7 +19,6 @@
 /*Header content*/
 /*=============================================*/
 class Material;
-class Object;
 
 typedef std::shared_ptr<Material> Material_ptr;
 

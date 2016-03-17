@@ -2,23 +2,23 @@
 
 Base_geometry::~Base_geometry() {
 	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &(rendering_context->VAO));
+	glDeleteVertexArrays(1, &(base_context->VAO));
 }
 
 Base_geometry::Base_geometry() {
-	rendering_context = std::make_shared<Base_render_context>();
-	rendering_context->object_color = {1.0f, 1.0f, 1.0f, 1.0f};
-	rendering_context->render_mode = GL_FILL;
-	rendering_context->shader_type = GEOMETRY_STATIC;
-	rendering_context->material = nullptr;
+	base_context = std::make_shared<Base_render_context>();
+	base_context->object_color = {1.0f, 1.0f, 1.0f, 0.0f};
+	base_context->render_mode = GL_FILL;
+	base_context->shader_type = GEOMETRY_STATIC_COLORED;
+	base_context->material = nullptr;
 }
 
 Base_geometry::Base_geometry(Geom_type type, const glm::vec4& color) {
-	rendering_context = std::make_shared<Base_render_context>();
-	rendering_context->object_color = color;
-	rendering_context->render_mode = GL_FILL;
-	rendering_context->shader_type = GEOMETRY_STATIC;
-	rendering_context->material = nullptr;
+	base_context = std::make_shared<Base_render_context>();
+	base_context->object_color = color;
+	base_context->render_mode = GL_FILL;
+	base_context->shader_type = GEOMETRY_STATIC_COLORED;
+	base_context->material = nullptr;
 
 	if (type == BOX) {
 		GLfloat vertices[] = {
@@ -47,7 +47,7 @@ Base_geometry::Base_geometry(Geom_type type, const glm::vec4& color) {
 			1.0f,  -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 
 			1.0f,  -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 
 		};
-		rendering_context->num_vertices = 24;
+		base_context->num_vertices = 24;
 		if (!gen_arrays(vertices)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to initialize Base_geometry for box!" << std::endl;
 			errorlogger("FATAL ERROR: Failed to initialize Base_geometry for box!");
@@ -61,7 +61,7 @@ Base_geometry::Base_geometry(Geom_type type, const glm::vec4& color) {
 			1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  0.0f, 
 		};
 
-		rendering_context->num_vertices = 2;
+		base_context->num_vertices = 2;
 		if (!gen_arrays(vertices)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to initialize Base_geometry for line!" << std::endl;
 			errorlogger("FATAL ERROR: Failed to initialize Base_geometry for line!");
@@ -81,13 +81,13 @@ Base_geometry::Base_geometry(Geom_type type, const glm::vec4& color) {
 }
 
 bool Base_geometry::gen_arrays(GLfloat* vertices) {
-	glGenVertexArrays(1, &(rendering_context->VAO));
+	glGenVertexArrays(1, &(base_context->VAO));
 	glGenBuffers(1, &VBO);
   
-	glBindVertexArray(rendering_context->VAO);
+	glBindVertexArray(base_context->VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, rendering_context->num_vertices * 6 * sizeof(GLfloat), 
-				 vertices, GL_STATIC_DRAW);/* TODO::CHANGE STATIC DRAW?? */
+	glBufferData(GL_ARRAY_BUFFER, base_context->num_vertices * 6 * sizeof(GLfloat), 
+				 &vertices[0], GL_STATIC_DRAW);/* TODO::CHANGE STATIC DRAW?? */
 
 	/* Position attribute */
 	glEnableVertexAttribArray(0);
@@ -106,5 +106,11 @@ bool Base_geometry::gen_arrays(GLfloat* vertices) {
 		errorlogger("ERROR: Failed to initialize Base_geometry!");
 		return false;
 	}
+	return true;
+}
+
+bool Base_geometry::add_base_to_context(Rendering_context_ptr& context)const{
+	Base_render_context_weak weak_context = base_context;
+	context->base_contexts.push_back(weak_context);
 	return true;
 }
