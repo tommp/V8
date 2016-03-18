@@ -41,6 +41,17 @@ void main()
 	vec3 ambient = dir_light.ambient * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
 	vec3 diffuse = dir_light.diffuse * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
 	vec3 specular = dir_light.specular * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
-	
-	color = vec4(ambient + diffuse + specular, 1.0);
+
+	//HDR calculations
+	const float gamma = 2.2;
+	const float exposure = 1.0;
+
+    vec3 hdrColor = ambient + diffuse + specular;
+  
+    // Exposure tone mapping
+    vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
+    // Gamma correction 
+    mapped = pow(mapped, vec3(1.0 / gamma));
+  
+    color = vec4(mapped, 1.0);
 }

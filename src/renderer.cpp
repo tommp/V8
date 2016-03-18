@@ -221,7 +221,6 @@ bool Renderer::delete_g_buffer() {
 }
 
 bool Renderer::init_framebuffer() {
-	//dir_light_shader->use();
 	if ((window_size.x <= 0) || (window_size.y <= 0)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Display not initialized, cannot initialize g buffer!" << std::endl;
 		errorlogger("ERROR: Display not initialized, cannot initialize g buffer!");

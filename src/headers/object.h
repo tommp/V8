@@ -19,7 +19,7 @@
 /*=============================================*/
 class Animation_set;
 class btRigidBody;
-struct Rendering_context;
+class Rendering_context;
 
 typedef std::weak_ptr<Rendering_context> Rendering_context_weak;
 typedef std::shared_ptr<Animation_set> Animation_set_ptr;
