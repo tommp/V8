@@ -9,12 +9,16 @@ Directional_light::Directional_light(){
 	specular = {0.0f, 0.0f, 0.0f};
 
 	scale = {1.0f, 1.0f, 1.0f};
+
+	base_geometry = std::make_shared<Base_geometry>(BOX, glm::vec4(diffuse, 1.0));
 		
 	if(!init_light_quad()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize geometry quad in dir light!" << std::endl;
 		errorlogger("ERROR: Failed to initialize geometry quad in dir light!");
 		exit(EXIT_FAILURE);
 	}
+
+	add_bases_to_context();
 }
 
 bool Directional_light::init_light_quad(){

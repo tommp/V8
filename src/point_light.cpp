@@ -24,6 +24,8 @@ Point_light::Point_light(){
 
 	specular.z = (rand()%1000) / 100.0f;
 
+	base_geometry = std::make_shared<Base_geometry>(BOX, glm::vec4(diffuse, 1.0));
+
 	linear = 0.00014f;
 	quadratic = 0.01f;
 
@@ -54,6 +56,7 @@ Point_light::Point_light(){
 
 	rendering_context->init_direction = direction;
 	
+	add_bases_to_context();
 }
 
 bool Point_light::init_light_quad(){

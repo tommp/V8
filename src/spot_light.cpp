@@ -12,6 +12,8 @@ Spot_light::Spot_light(){
 	diffuse = {10.0f, 10.0f, 10.0f};
 	specular = {1.0f, 1.0f, 1.0f};
 
+	base_geometry = std::make_shared<Base_geometry>(BOX, glm::vec4(diffuse, 1.0));
+
 	linear = 0.0014f;
 	quadratic = 0.000007f;
 
@@ -39,6 +41,7 @@ Spot_light::Spot_light(){
 	rendering_context->model_matrix = glm::translate(rendering_context->model_matrix, position);  
 	rendering_context->model_matrix = glm::scale(rendering_context->model_matrix, glm::vec3(scale)); 
 
+	add_bases_to_context();
 }
 
 bool Spot_light::init_light_quad(){

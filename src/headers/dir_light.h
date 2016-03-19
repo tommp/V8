@@ -9,6 +9,7 @@
 #include "utility.h"
 #include "base_light.h"
 #include "shader.h"
+#include "base_geometry.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

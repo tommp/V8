@@ -642,7 +642,7 @@ bool Renderer::render_geometry(const Camera_ptr& camera){
 		
 	}
 
-	if (!bloom_pass(6)) {
+	if (!bloom_pass(10)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!" << std::endl;
 		errorlogger("ERROR: Failed to render bloom!");
 		return false;
@@ -654,12 +654,6 @@ bool Renderer::render_geometry(const Camera_ptr& camera){
 		errorlogger("ERROR: Failed to render geometry!");
 		return false;
 	}
-
-	/*if (!render_bloom()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!" << std::endl;
-		errorlogger("ERROR: Failed to render bloom!");
-		return false;
-	}*/
 
 	return true;
 }
