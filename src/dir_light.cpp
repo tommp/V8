@@ -4,8 +4,8 @@ Directional_light::Directional_light(){
 	type = DIRECTIONAL;
 	direction = {0.0f, -1.0f, 0.0f};
 	size = {1.0f, 1.0f, 1.0f};
-	ambient = {0.1f, 0.1f, 0.1f};
-	diffuse = {0.1f, 0.1f, 0.1f};
+	ambient = {0.0f, 0.0f, 0.0f};
+	diffuse = {0.01f, 0.01f, 0.01f};
 	specular = {0.0f, 0.0f, 0.0f};
 
 	scale = {1.0f, 1.0f, 1.0f};

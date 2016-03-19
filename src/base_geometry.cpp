@@ -7,7 +7,7 @@ Base_geometry::~Base_geometry() {
 
 Base_geometry::Base_geometry() {
 	base_context = std::make_shared<Base_render_context>();
-	base_context->object_color = {1.0f, 1.0f, 1.0f, 0.0f};
+	base_context->object_color = {100.0f, 1.0f, 1.0f, 0.0f};
 	base_context->render_mode = GL_FILL;
 	base_context->shader_type = GEOMETRY_STATIC_COLORED;
 	base_context->material = nullptr;

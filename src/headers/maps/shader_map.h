@@ -12,6 +12,9 @@ const std::unordered_map<std::string, std::pair<std::string, std::string>> WORLD
 	{"point_light_shader", {"vertex_point_light.vs", "fragment_point_light.fs"}},
 	{"spot_light_shader", {"vertex_spot_light.vs", "fragment_spot_light.fs"}},
 	{"dir_light_shader", {"vertex_dir_light.vs", "fragment_dir_light.fs"}},
+	{"vertical_blur_shader", {"vertex_blur.vs", "fragment_vertical_blur.fs"}},
+	{"horizontal_blur_shader", {"vertex_blur.vs", "fragment_horizontal_blur.fs"}},
+	{"bloom_shader", {"vertex_blur.vs", "fragment_bloom.fs"}},
 };
 
 #endif

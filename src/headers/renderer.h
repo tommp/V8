@@ -65,7 +65,14 @@ class Renderer{
 		GLuint g_position;
 		GLuint g_normal;
 		GLuint g_albedo_spec;
+		GLuint g_bloom;
 		GLuint g_rbo_depth;
+
+		GLuint bb_fbos[2];
+		GLuint bb_buffers[2];
+
+		GLuint quad_VAO;
+		GLuint quad_VBO;
 
 		GLuint uniform_buffer_matrices;
 		GLuint uniform_buffer_light_data;
@@ -81,6 +88,9 @@ class Renderer{
 		Shader_ptr static_geometry_shader_colored;
 		Shader_ptr animated_geometry_shader;
 		Shader_ptr animated_geometry_shader_colored;
+		Shader_ptr vertical_blur_shader;
+		Shader_ptr horizontal_blur_shader;
+		Shader_ptr bloom_shader;
 	public:
 		Renderer();
 		Renderer(Resource_manager& resource_manager);
@@ -89,8 +99,9 @@ class Renderer{
 		bool init_openGL();
 		bool init_settings();
 		bool init_uniform_buffers();
-		bool init_framebuffer();
+		bool init_framebuffers();
 		bool init_shaders(Resource_manager& resource_manager);
+		bool init_bloom_quad();
 
 		bool delete_g_buffer();
 
@@ -123,7 +134,9 @@ class Renderer{
 							const glm::vec3& end, 
 							const glm::vec3& color);
 
-		
+		bool bloom_pass(GLuint amount)const;
+		bool render_bloom_quad()const;
+		bool render_bloom()const;
 
 		void setup_light_rendering(Light_type light_type, const glm::vec3& position)const;
 		bool render_light()const;

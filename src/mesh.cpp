@@ -6,7 +6,7 @@ Mesh::Mesh(){
 	base_context = std::make_shared<Base_render_context>();
 	base_context->VAO = 0;
 	base_context->render_mode = GL_FILL;
-	base_context->object_color = {1.0f, 0.2f, 0.2f, 1.0f};
+	base_context->object_color = {20.0f, 10.0f, 10.2f, 10.0f};
 	base_context->material = nullptr;
 	base_context->shader_type = GEOMETRY_STATIC_COLORED;
 }

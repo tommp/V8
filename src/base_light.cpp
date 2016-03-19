@@ -1,7 +1,7 @@
 #include "base_light.h"
 
 Light::Light(){
-	glm::vec4 color = {1.0,1.0,1.0,0.0};
+	glm::vec4 color = {100.0,1.0,1.0,0.0};
 	base_geometry = std::make_shared<Base_geometry>(BOX, color);
 	rendering_context->active = true;
 	add_bases_to_context();
