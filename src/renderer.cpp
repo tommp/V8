@@ -1172,9 +1172,6 @@ bool Renderer::render_dir_lights(const std::forward_list<Light_ptr>& dir_lights,
 bool Renderer::render_point_lights(const std::forward_list<Light_ptr>& point_lights, 
 									const glm::vec3& position)const{
 	setup_light_rendering(POINT, position);
-	/*glActiveTexture(GL_TEXTURE0 + 3);
-	glBindTexture(GL_TEXTURE_2D, bb_buffers[0]); 
-	glUniform1i(point_light_shader->load_uniform_location("bloom"), 3);*/
 
 	for (auto light : point_lights) {
 		light->render_light(point_light_shader);
