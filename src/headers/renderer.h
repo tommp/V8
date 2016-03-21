@@ -119,7 +119,6 @@ class Renderer{
 
 		bool setup_geometry_rendering(const Camera_ptr& camera);
 		bool detach_geometry_rendering()const;
-		bool render_geometry(const Camera_ptr& camera);
 		bool render_static_geomety()const;
 		bool render_static_colored_geomety()const;
 		bool render_animated_geomety()const;
@@ -129,13 +128,11 @@ class Renderer{
 
 		bool bloom_pass(GLuint amount)const;
 		bool render_bloom_quad()const;
-		bool render_bloom()const;
 
 		bool bind_g_data(Shader_type light_type)const;
 		bool upload_view_position(Shader_type shader_type, 
 								const glm::vec3& position)const;
 
-		bool render_lights(const glm::vec3& position)const;
 		bool render_dir_lights()const;
 		bool render_point_lights()const;
 		bool render_spot_lights()const;
@@ -166,6 +163,10 @@ class Renderer{
 		void update_view_matrix(const glm::vec3& position, 
 							const glm::vec3& target, 
 							const glm::vec3& camera_up);
+
+		bool render_geometry(const Camera_ptr& camera);
+		bool render_lights(const glm::vec3& position)const;
+		bool render_bloom()const;
 
 		bool save_settings();
 		bool load_settings();

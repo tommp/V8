@@ -11,11 +11,11 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	
+	/*
 	for (int i = 0; i < 200; ++i) {
 		Object_ptr cube = std::make_shared<Cube>(init_manager);
 		add_active_object(cube);
-	}
+	}*/
 	
 	for (int i = 0; i < 5; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
@@ -25,8 +25,9 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	Light_ptr dir_light = std::make_shared<Directional_light>();
 	add_dir_light(dir_light);
 
+/*
 	Object_ptr prop = std::make_shared<Prop>(init_manager);
-	add_active_object(prop);
+	add_active_object(prop);*/
 
 	add_context_to_renderer(renderer);
 }
@@ -212,54 +213,6 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	return true;
 }
 
-bool Level::update_contexts() {
-	for (auto target : objects) {
-		if (!target->update_context()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update context in level for object!"<< std::endl;
-			errorlogger("ERROR: Failed to update context in level for object!");
-			return false;
-		}
-	}
-
-	for (auto target : dormant_objects) {
-		if (!target->update_context()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update context in level for object!"<< std::endl;
-			errorlogger("ERROR: Failed to update context in level for object!");
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool Level::add_context_to_renderer(Renderer& renderer)const{
-	for (auto target : objects) {
-		if (!renderer.add_context(target)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
-			errorlogger("ERROR: Failed to add context to renderer for object!");
-			return false;
-		}
-	}
-
-	for (auto target : dormant_objects) {
-		if (!renderer.add_context(target)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
-			errorlogger("ERROR: Failed to add context to renderer for object!");
-			return false;
-		}
-	}
-
-	for (auto target : point_lights) {
-		if (!renderer.add_context(target)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
-			errorlogger("ERROR: Failed to add context to renderer for object!");
-			return false;
-		}
-	}
-
-	return true;
-}
-
 bool Level::render_geometry(Renderer& renderer) {
 	if(!renderer.render_geometry(camera) || check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
@@ -271,10 +224,7 @@ bool Level::render_geometry(Renderer& renderer) {
 
 void Level::render_lights(const Renderer& renderer)const{
 	renderer.render_bloom();
-	renderer.render_dir_lights(dir_lights, camera->get_position_refrence());
-	renderer.render_point_lights(point_lights, camera->get_position_refrence());
-	renderer.render_spot_lights(spot_lights, camera->get_position_refrence());
-	if(check_ogl_error()){
+	if(!renderer.render_lights(camera->get_position_refrence()) || check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");
 		exit(EXIT_FAILURE);
