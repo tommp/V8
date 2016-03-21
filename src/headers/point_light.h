@@ -9,7 +9,6 @@
 #include "utility.h"
 #include "base_light.h"
 #include "shader.h"
-#include "base_geometry.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -24,16 +23,14 @@
 /*=============================================*/
 class Light;
 
-class Point_light : public Light {
+class Point_light : public Base_light {
 	private:
 		GLfloat linear;
 		GLfloat quadratic;
-		glm::mat4 quad_model_matrix;
+		bool bind_lambda_expression()const;
 	public:
 		Point_light();
-		bool init_light_quad();
-		bool render_light_quad()const;
-		bool render_light(const Shader_ptr& shader)const;
+		bool calculate_light_uniforms(GLfloat linear, GLfloat quadratic, GLfloat intensity);
 	
 };
 typedef std::shared_ptr<Point_light> Point_light_ptr;

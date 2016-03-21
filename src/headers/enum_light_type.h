@@ -13,9 +13,10 @@
 /*Header content*/
 /*=============================================*/
 enum Light_type{
-	DIRECTIONAL = 0,
-	POINT = 1,
-	SPOT = 2
+	NO_LIGHT = 0,
+	DIRECTIONAL = 1,
+	POINT = 2,
+	SPOT = 3,
 };
 /*=============================================*/
 

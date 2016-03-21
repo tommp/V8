@@ -42,7 +42,7 @@ class Camera;
 class Resource_manager;
 class Light;
 
-typedef std::shared_ptr<Light> Light_ptr;
+typedef std::shared_ptr<Base_light> Light_ptr;
 typedef std::shared_ptr<Material> Material_ptr;
 
 class Renderer{
@@ -79,7 +79,14 @@ class Renderer{
 
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
-		std::list<Rendering_context_weak> targets;
+		std::list<Rendering_context_weak> animated_geom;
+		std::list<Rendering_context_weak> animated_colored_geom;
+		std::list<Rendering_context_weak> static_geom;
+		std::list<Rendering_context_weak> static_colored_geom;
+
+		std::list<Rendering_context_weak> dir_lights;
+		std::list<Rendering_context_weak> point_lights;
+		std::list<Rendering_context_weak> spot_lights;
 
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
@@ -91,74 +98,74 @@ class Renderer{
 		Shader_ptr vertical_blur_shader;
 		Shader_ptr horizontal_blur_shader;
 		Shader_ptr bloom_shader;
-	public:
-		Renderer();
-		Renderer(Resource_manager& resource_manager);
-		~Renderer();
+
 		bool init_window();
 		bool init_openGL();
 		bool init_settings();
 		bool init_uniform_buffers();
 		bool init_framebuffers();
 		bool init_shaders(Resource_manager& resource_manager);
-		bool init_bloom_quad();
+		bool init_bloom_data();
 
 		bool delete_g_buffer();
 
 		bool use_g_buffer()const;
 		bool use_default_buffer()const;
-		bool use_light_shader(Light_type light_type)const;
-		bool bind_g_data(Light_type light_type)const;
-		bool unbind_g_data()const;
-		bool set_clear_color_black();
-		bool add_context(const Object_ptr& object);
 
-		glm::mat4 get_projection_matrix()const{return projection;};
-		glm::mat4 get_view_matrix()const{return view;};
+		bool upload_light_data()const;
+		bool upload_view_matrix()const;
+		bool upload_projection_matrix()const;
+		void update_projection_matrix();
 
-		GLuint get_uniform_buffer(const std::string& name)const;
-		GLuint get_light_shader_program(Light_type light_type)const;
-		GLuint get_window_width()const{return window_size.x;};
-		GLuint get_window_height()const{return window_size.y;};
-		Shader_ptr get_light_shader(Light_type light_type)const;
-
-		void setup_geometry_rendering(const Camera_ptr& camera);
-		bool render_static_geometry(const Base_render_context& context)const;
-		bool render_animated_geometry(const Base_render_context& context)const;
-		bool render_static_geometry_colored(const Base_render_context& context)const;
-		bool render_animated_geometry_colored(const Base_render_context& context)const;
+		bool setup_geometry_rendering(const Camera_ptr& camera);
+		bool detach_geometry_rendering()const;
 		bool render_geometry(const Camera_ptr& camera);
-		void detach_geometry_rendering()const;
-
-		bool render_line(const glm::vec3& start, 
-							const glm::vec3& end, 
-							const glm::vec3& color);
+		bool render_static_geomety()const;
+		bool render_static_colored_geomety()const;
+		bool render_animated_geomety()const;
+		bool render_animated_colored_geomety()const;
+		bool render_base_geometry(const Rendering_context_ptr& context, 
+								const Shader_ptr& shader)const;
 
 		bool bloom_pass(GLuint amount)const;
 		bool render_bloom_quad()const;
 		bool render_bloom()const;
 
-		void setup_light_rendering(Light_type light_type, const glm::vec3& position)const;
-		bool render_light()const;
-		bool render_dir_lights(const std::forward_list<Light_ptr>& dir_lights, 
+		bool bind_g_data(Shader_type light_type)const;
+		bool upload_view_position(Shader_type shader_type, 
 								const glm::vec3& position)const;
-		bool render_point_lights(const std::forward_list<Light_ptr>& point_lights, 
-								const glm::vec3& position)const;
-		bool render_spot_lights(const std::forward_list<Light_ptr>& spot_lights, 
-								const glm::vec3& position)const;
-		void detach_light_rendering()const;
 
+		bool render_lights(const glm::vec3& position)const;
+		bool render_dir_lights()const;
+		bool render_point_lights()const;
+		bool render_spot_lights()const;
+		bool render_light(const Rendering_context_ptr& context, 
+						const Shader_ptr& shader)const;
+		bool render_dir_light(const Rendering_context_ptr& context)const;
 
-		void upload_view_position(Shader& shader, const glm::vec3& position)const;
-		void upload_view_matrix()const;
+		bool set_clear_color_black();
+		
+	public:
+		Renderer();
+		Renderer(Resource_manager& resource_manager);
+		~Renderer();
+		
+		bool add_context(const Rendering_context_ptr& context);
+
+		glm::mat4 get_projection_matrix()const{return projection;};
+		glm::mat4 get_view_matrix()const{return view;};
+
+		GLuint get_uniform_buffer(const std::string& name)const;
+		GLuint get_window_width()const{return window_size.x;};
+		GLuint get_window_height()const{return window_size.y;};
+
+		bool render_line(const glm::vec3& start, 
+							const glm::vec3& end, 
+							const glm::vec3& color);
+
 		void update_view_matrix(const glm::vec3& position, 
 							const glm::vec3& target, 
 							const glm::vec3& camera_up);
-
-		void update_projection_matrix();
-		void upload_projection_matrix()const;
-
-		bool upload_light_data()const;
 
 		bool save_settings();
 		bool load_settings();

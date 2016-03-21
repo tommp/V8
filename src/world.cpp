@@ -49,30 +49,13 @@ bool World::update_positions(GLfloat timedelta, Renderer& renderer){
 	}
 
 	/* TODO:: MOVE THIS */
-	if(!players.empty()){
+	/*if(!players.empty()){
 		if (!current_level->camera->center_camera(players.front())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to center camera" << std::endl;
 			errorlogger("ERROR: Failed to center camera");
 			return false;
 		}
-	}
-	return true;
-}
-
-bool World::update_contexts(){
-	for (auto player : players) {
-		if (!player->update_context()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update player contexts!" << std::endl;
-			errorlogger("ERROR: Failed to update player contexts!");
-			return false;
-		}
-		
-		if (!current_level->update_contexts()) {
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update contexts in level!"<< std::endl;
-			errorlogger("ERROR: Failed to update contexts in level!");
-			return false;
-		}
-	}
+	}*/
 	return true;
 }
 
@@ -98,17 +81,6 @@ bool World::resolve_collisions(){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to resolve collisions" << std::endl;
 		errorlogger("ERROR: Failed to resolve collisions");
 		return false;
-	}
-	return true;
-}
-
-bool World::add_player_contexts_to_renderer(Renderer& renderer)const{
-	for (auto player : players) {
-		if (!renderer.add_context(player)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for player!"<< std::endl;
-			errorlogger("ERROR: Failed to add context to renderer for player!");
-			return false;
-		}
 	}
 	return true;
 }

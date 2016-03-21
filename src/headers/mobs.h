@@ -4,7 +4,6 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "glm.h"
-#include "object.h"
 #include "model.h"
 /*---------------------------------------------*/
 
@@ -19,12 +18,10 @@
 /*Header content*/
 /*=============================================*/
 class Model;
-class Object;
 class btRigidBody;
 
-class Cube: public Object{
+class Cube{
 private:
-	Model_ptr model;
 	glm::vec3 last_pos;
 	glm::vec3 velocity;
 
@@ -42,7 +39,7 @@ public:
 	bool update_position(float timedelta);
 	bool update_context();
 	void update_model_matrix();
-	bool touch_object(Object& Object);
+	bool touch_object();
 	bool add_bases_to_context();
 };
 

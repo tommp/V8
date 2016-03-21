@@ -5,9 +5,9 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "enum_key_type.h"
-#include "object.h"
 #include "model.h"
 #include "resource_manager.h"
+#include "object.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -22,13 +22,11 @@
 /*=============================================*/
 class Model;
 class Resource_manager;
-class Object;
 class btRigidBody;
 
-class Player : public Object{
+class Player: public Object{
 private:
 	Model_ptr model;
-	std::string state;
 	glm::vec3 velocity;
 	glm::vec3 init_direction;
 	GLfloat speed;
@@ -43,8 +41,7 @@ public:
 	bool update_position(GLfloat timedelta);
 	bool update_context();
 	void update_model_matrix();
-	bool touch_object(Object& Object);
-	bool add_bases_to_context();
+	bool touch_object(Object& object);
 };
 
 typedef std::shared_ptr<Player> Player_ptr;

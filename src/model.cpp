@@ -1,23 +1,26 @@
 #include "model.h"
 
 Model::Model(){
+	name = "";
+	state = "";
+
+	model_matrix = glm::mat4();
+	model_matrix = glm::translate(model_matrix, position);  
+	model_matrix = glm::scale(model_matrix, scale);
+	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_view));
+
+	init_direction = direction;
+
+	is_animated = false;
+	animations = nullptr;
 }
 
-bool Model::add_bases_to_context(Rendering_context& context)const{
-	GLboolean add_successful = true;
-	for (auto mesh : meshes) {
-		if (!mesh->add_base_to_context(context)) {
-			add_successful = false;
-		}
-	}
+Model::~Model() {
 
-	if (!add_successful) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update mesh context for model: " << name << std::endl;
-		errorlogger("ERROR: Failed to update mesh context for model: ", name.c_str());
-		return false;
-	}
+}
 
-	return true;
+std::unordered_map<std::string, Rendering_context_weak>* Model::get_contexts()const{
+	return &mesh_contexts;
 }
 
 bool Model::load_binary_model(Resource_manager& manager, const std::string& name, std::vector<std::string>& meshes){
@@ -76,8 +79,46 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 			errorlogger("ERROR: Unable to load mesh in model from resource handler: ", mesh.c_str());
 			return false;
 		}
+
+		if (!add_lambda_expression(new_mesh)) {
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind instance lambda expression for mesh: " << mesh << std::endl;
+			errorlogger("ERROR: Failed to bind instance lambda expression for mesh: ", mesh.c_str());
+			return false;
+		}
+		mesh_contexts[mesh] = new_mesh->get_context();
 		meshes.push_back(new_mesh);
 	}
 
 	return true;
+}
+
+bool Model::add_lambda_expression(const Mesh_ptr& mesh)const{
+	std::function<GLboolean(const Shader_ptr& shader)> expression = [&](const Shader_ptr& shader) ->GLboolean {
+		shader->set_matrix4("model", model_matrix); 
+	};
+	mesh->add_lambda_expression(expression);
+}
+
+btRigidBody* Model::get_collision_body()const{
+	return collision_body;
+}
+
+bool Model::update_matrices() {
+	model_matrix = glm::mat4();
+	model_matrix = glm::translate(model_matrix, position);  
+
+	/* TODO:: 3D rotation */
+	GLfloat dot = glm::dot(direction, init_direction);
+	GLfloat det =  init_direction.x*direction.z - init_direction.z*direction.x;
+	GLfloat rotation = -1 * glm::atan(det, dot);
+
+    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
+    model_matrix = glm::rotate(model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
+    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
+
+    model_matrix = glm::scale(model_matrix, glm::vec3(size));
+
+    normal_model_matrix = glm::inverseTranspose(glm::mat3(model_view));
+
+    return true;
 }

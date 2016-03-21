@@ -9,7 +9,6 @@
 #include "utility.h"
 #include "base_light.h"
 #include "shader.h"
-#include "base_geometry.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -23,12 +22,13 @@
 /*=============================================*/
 class Light;
 
-class Directional_light : public Light {
+class Directional_light : public Base_light {
+	private:
+		glm::vec3 light_direction;
 	public:
 		Directional_light();
+		bool bind_lambda_expression()const;
 		bool init_light_quad();
-		bool render_light_quad()const;
-		bool render_light(const Shader_ptr& shader)const;
 };
 typedef std::shared_ptr<Directional_light> Directional_light_ptr;
 /*=============================================*/

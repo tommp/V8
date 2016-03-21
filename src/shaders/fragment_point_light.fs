@@ -16,7 +16,7 @@ uniform sampler2D g_normal;
 uniform sampler2D g_albedo_spec;
 
 uniform vec3 view_position;
-uniform Point_light point_light;
+uniform Point_light light;
 
 layout (std140) uniform Light_data
 {
@@ -33,19 +33,19 @@ void main()
 	vec3 result = vec3(0.0f, 0.0f, 0.0f);
 	vec3 frag_position = texture(g_position, frag_tex_coord).rgb;
 
-	vec3 light_direction = normalize(point_light.position - frag_position);
+	vec3 light_direction = normalize(light.position - frag_position);
 
 	float diff = max(dot(normal, light_direction), 0.0);
 
 	vec3 reflect_direction = reflect(-light_direction, normal);
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
-	float distance = length(point_light.position - frag_position);
-	float attenuation = 1.0f / (1.0f + point_light.linear * distance + point_light.quadratic * (distance * distance));    
+	float distance = length(light.position - frag_position);
+	float attenuation = 1.0f / (1.0f + light.linear * distance + light.quadratic * (distance * distance));    
 
-	vec3 ambient = point_light.ambient * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
-	vec3 diffuse = point_light.diffuse * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
-	vec3 specular = point_light.specular * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+	vec3 ambient = light.ambient * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 diffuse = light.diffuse * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 specular = light.specular * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 	ambient *= attenuation;
 	diffuse *= attenuation;
 	specular *= attenuation;

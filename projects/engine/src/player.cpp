@@ -6,29 +6,13 @@ Player::Player(Resource_manager& init_manager){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Player constructor failed to load model: " << model_name << std::endl;
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
 	}
-	state = "wiggle";
+
 	manager = &init_manager;
 	speed = 400.0f;
 	position = {0.0f, 0.0f, 0.0f};
 	size = {20.0f, 20.0f, 20.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 	velocity = {0.0f, 0.0f, 0.0f};
-
-	/* Physics */
-	mass = 100;
-	fall_inertia = {0, 0, 0};
-	collision_shape = new btSphereShape(20);
-	collision_shape->calculateLocalInertia(mass, fall_inertia);
-	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
-														btVector3(position.x, position.y, position.z)));
-	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, 
-															btVector3(0, 0, 0));
-	collision_body = new btRigidBody(collision_body_CI);
-
-	update_model_matrix();
-	rendering_context->active = true;
-	rendering_context->init_direction = {0.0f, 1.0f, -1.0f};
-	add_bases_to_context();
 }
 
 void Player::update_model_matrix() {

@@ -40,7 +40,7 @@ class Camera;
 class Renderer;
 
 typedef std::shared_ptr<Camera> Camera_ptr;
-typedef std::shared_ptr<Light> Light_ptr;
+typedef std::shared_ptr<Base_light> Light_ptr;
 typedef std::shared_ptr<Object> Object_ptr;
 typedef std::shared_ptr<Point_light> Point_light_ptr;
 typedef std::shared_ptr<Spot_light> Spot_light_ptr;

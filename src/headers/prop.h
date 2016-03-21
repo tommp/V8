@@ -4,7 +4,6 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "glm.h"
-#include "object.h"
 #include "model.h"
 /*---------------------------------------------*/
 
@@ -19,18 +18,16 @@
 /*Header content*/
 /*=============================================*/
 class Model;
-class Object;
 class btRigidBody;
 
-class Prop: public Object{
+class Prop{
 private:
-	Model_ptr model;
 public:
 	Prop(Resource_manager& manager);
 	~Prop();
 	bool update_position(float timedelta);
 	bool update_context();
-	bool touch_object(Object& Object);
+	bool touch_object();
 	bool add_bases_to_context();
 };
 

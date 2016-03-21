@@ -6,47 +6,54 @@
 /*---------------------------------------------*/
 #include "btBulletDynamicsCommon.h"
 #include "errorlogger.h"
-#include "actor.h"
-#include "rendering_context.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <string>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
-class Animation_set;
-class btRigidBody;
-class Rendering_context;
-
-typedef std::weak_ptr<Rendering_context> Rendering_context_weak;
-typedef std::shared_ptr<Animation_set> Animation_set_ptr;
-
-class Object: public Actor{
+class Object{
 	protected:
-		std::string state;
-		Rendering_context_ptr rendering_context;
-
 		btRigidBody* collision_body;
 		btCollisionShape* collision_shape;
 		btDefaultMotionState* motion_state;
 		
 		btScalar mass;
 		btVector3 fall_inertia;
-
 	public:
 		Object();
-		virtual ~Object();
-		virtual bool update_position(float timedelta) = 0;
-		virtual bool update_context() = 0;
+		~Object();
+		virtual bool update_position(GLfloat timedelta) = 0;
 		virtual bool touch_object(Object& object) = 0;
-		virtual bool add_bases_to_context() = 0;
 		btRigidBody* get_collision_body()const{return collision_body;};
-		bool operator<(const Object& b);
-		Rendering_context_weak get_weak_context()const;
 };
+
+Object::~Object() {
+	delete motion_state;
+	delete collision_shape;
+	delete collision_body;
+}
+
+Object::Object() {
+	mass = 0;
+	fall_inertia = {0.0, 0.0, 0.0};
+	/* TODO::Properly set this */
+	collision_shape = new btSphereShape(20);
+	collision_shape->calculateLocalInertia(mass, fall_inertia);
+	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
+														btVector3(0, 0, 0)));
+	
+	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, 
+															motion_state, 
+															collision_shape, 
+															btVector3(0, 0, 0));
+	collision_body = new btRigidBody(collision_body_CI);
+}
+
 typedef std::shared_ptr<Object> Object_ptr;
 /*=============================================*/
 

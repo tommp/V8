@@ -18,28 +18,28 @@
 class Actor{
 	protected:
 		glm::vec3 position;
-		glm::vec3 size;
 		glm::vec3 scale;
 		glm::vec3 direction;
 	public:
+		Actor();
 		const glm::vec3* get_position()const {return &position;};
-		const glm::vec3* get_size()const {return &size;};
+		const glm::vec3* get_size()const {return &scale;};
 
 		float get_x()const{return position[0];};
 		float get_y()const{return position[1];};
 		float get_z()const{return position[2];};
 
-		float get_width()const{return size[0];};
-		float get_height()const{return size[1];};
-		float get_depth()const{return size[2];};
+		float get_width()const{return scale[0];};
+		float get_height()const{return scale[1];};
+		float get_depth()const{return scale[2];};
 
 		void set_x(float new_x){position[0] = new_x;};
 		void set_y(float new_y){position[1] = new_y;};
 		void set_z(float new_z){position[2] = new_z;};
 
-		void set_width(float new_width){size[0] = new_width;};
-		void set_height(float new_height){size[1] = new_height;};
-		void set_depth(float new_depth){size[2] = new_depth;};
+		void set_width(float new_width){scale[0] = new_width;};
+		void set_height(float new_height){scale[1] = new_height;};
+		void set_depth(float new_depth){scale[2] = new_depth;};
 };
 
 typedef std::shared_ptr<Actor> Actor_ptr;

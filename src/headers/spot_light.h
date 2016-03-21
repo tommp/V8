@@ -9,7 +9,6 @@
 #include "utility.h"
 #include "base_light.h"
 #include "shader.h"
-#include "base_geometry.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -24,7 +23,7 @@
 /*=============================================*/
 class Light;
 
-class Spot_light : public Light{
+class Spot_light : public Base_light{
 	private:
 		GLfloat cut_off;
 		GLfloat outer_cut_off;
