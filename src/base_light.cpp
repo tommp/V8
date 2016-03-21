@@ -1,9 +1,9 @@
 #include "base_light.h"
 
 Base_light::Base_light(){
-	ambient = {1.0f, 1.0f, 1.0f};
-	diffuse = {1.0f, 1.0f, 1.0f};
-	specular = {1.0f, 1.0f, 1.0f};
+	ambient = {0.0f, 0.0f, 0.0f};
+	diffuse = {0.0f, 0.0f, 0.0f};
+	specular = {0.0f, 0.0f, 0.0f};
 	scale = {100.0f, 100.0f, 100.0f};
 
 	quad_model_matrix = glm::mat4();
@@ -97,26 +97,26 @@ bool Base_light::randomize_position(const glm::i16vec3& maxpos, const glm::i16ve
 	return true;
 }
 
-bool Base_light::randomize_diffuse(const glm::i16vec3& max){
-	diffuse.x = (rand() % (max.x + 1));
-	diffuse.y = (rand() % (max.y + 1));
-	diffuse.z = (rand() % (max.z + 1));
+bool Base_light::randomize_diffuse(){
+	diffuse.x = (rand() % 1000) / 1000.0f;
+	diffuse.y = (rand() % 1000) / 1000.0f;
+	diffuse.z = (rand() % 1000) / 1000.0f;
 
 	return true;
 }
 
-bool Base_light::randomize_ambient(const glm::i16vec3& max){
-	ambient.x = (rand() % (max.x + 1));
-	ambient.y = (rand() % (max.y + 1));
-	ambient.z = (rand() % (max.z + 1));
+bool Base_light::randomize_ambient(){
+	ambient.x = (rand() % 1000) / 1000.0f;
+	ambient.y = (rand() % 1000) / 1000.0f;
+	ambient.z = (rand() % 1000) / 1000.0f;
 
 	return true;
 }
 
-bool Base_light::randomize_specular(const glm::i16vec3& max){
-	specular.x = (rand() % (max.x + 1));
-	specular.y = (rand() % (max.y + 1));
-	specular.z = (rand() % (max.z + 1));
+bool Base_light::randomize_specular(){
+	specular.x = (rand() % 1000) / 1000.0f;
+	specular.y = (rand() % 1000) / 1000.0f;
+	specular.z = (rand() % 1000) / 1000.0f;
 
 	return true;
 }

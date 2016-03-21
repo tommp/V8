@@ -45,9 +45,9 @@ class Base_light: public Actor{
 		Base_light();
 		Shader_type get_type(){return base_light_context->shader_type;};
 		bool randomize_position(const glm::i16vec3& maxpos, const glm::i16vec3& offset);	
-		bool randomize_diffuse(const glm::i16vec3& max);
-		bool randomize_ambient(const glm::i16vec3& max);
-		bool randomize_specular(const glm::i16vec3& max);
+		bool randomize_diffuse();
+		bool randomize_ambient();
+		bool randomize_specular();
 		bool add_context(Renderer& renderer)const;
 };
 

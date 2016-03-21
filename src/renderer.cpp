@@ -544,6 +544,8 @@ bool Renderer::set_clear_color_black(){
 }
 
 bool Renderer::add_context(const Rendering_context_ptr& context) {
+
+	std::cout << "Context number: " << animated_geom.size() + static_geom.size() + animated_colored_geom.size() + static_colored_geom.size() << std::endl;
 	Rendering_context_weak context_weak = context;
 
 	if (context){
@@ -926,7 +928,7 @@ bool Renderer::render_dir_lights()const{
 			/* TODO::Remove light context */
 			continue;
 		}
-		else if (!render_dir_light(context)){
+		else if (!render_dir_light(context, dir_light_shader)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render directional light!" << std::endl;
 			errorlogger("ERROR: Failed to render directional light!");
 			return false;
@@ -969,7 +971,13 @@ bool Renderer::render_spot_lights()const{
 	return true;
 }
 
-bool Renderer::render_dir_light(const Rendering_context_ptr& context)const{
+bool Renderer::render_dir_light(const Rendering_context_ptr& context, const Shader_ptr& shader)const{
+	if (!context->setup_base_uniforms(shader)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup base uniforms for light" << std::endl;
+		errorlogger("ERROR: Failed to setup base uniforms for light!");
+		return false;
+	}
+
 	glBindVertexArray(context->VAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
@@ -1115,7 +1123,7 @@ bool Renderer::detach_geometry_rendering()const{
 }
 
 bool Renderer::render_static_geomety()const{
-	for (auto static_context : animated_geom) {
+	for (auto static_context : static_geom) {
 		auto context = static_context.lock();
 		if (!context) {
 			SDL_Log("Static geometry context expired, removing from renderer...");
@@ -1132,7 +1140,7 @@ bool Renderer::render_static_geomety()const{
 }
 
 bool Renderer::render_static_colored_geomety()const{
-	for (auto static_colored_context : animated_geom) {
+	for (auto static_colored_context : static_colored_geom) {
 		auto context = static_colored_context.lock();
 		if (!context) {
 			SDL_Log("Static colored geometry context expired, removing from renderer...");
@@ -1166,7 +1174,7 @@ bool Renderer::render_animated_geomety()const{
 }
 
 bool Renderer::render_animated_colored_geomety()const{
-	for (auto anim_colored_context : animated_geom) {
+	for (auto anim_colored_context : animated_colored_geom) {
 		auto context = anim_colored_context.lock();
 		if (!context) {
 			SDL_Log("Animated colored geometry context expired, removing from renderer...");

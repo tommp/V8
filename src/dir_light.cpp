@@ -3,8 +3,7 @@
 Directional_light::Directional_light(){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
 	direction = {0.0f, -1.0f, 0.0f};
-	diffuse = {1.0f, 1.0f, 1.0f};
-	randomize_specular(glm::i16vec3(2.0f, 2.0f, 2.0f));
+	diffuse = {0.2f, 0.2f, 0.2f};
 
 	scale = {1.0f, 1.0f, 1.0f};
 

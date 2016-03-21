@@ -130,7 +130,8 @@ class Renderer{
 		bool render_spot_lights()const;
 		bool render_light(const Rendering_context_ptr& context, 
 						const Shader_ptr& shader)const;
-		bool render_dir_light(const Rendering_context_ptr& context)const;
+		bool render_dir_light(const Rendering_context_ptr& context, 
+						const Shader_ptr& shader)const;
 
 		bool set_clear_color_black();
 		

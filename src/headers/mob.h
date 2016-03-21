@@ -36,13 +36,14 @@ private:
 
 	/* Used for optimization */
 	glm::vec3 prev_position;
-	glm::vec3 prev_size;
+	glm::vec3 prev_scale;
 	glm::vec3 prev_direction;
 public:
 	Mob(Resource_manager& manager, const std::string& model_name, const std::string& mob_name);
 	~Mob();
 	bool update_position(GLfloat timedelta);
 	bool touch_object(Object& object);
+	bool update_model_matrix();
 	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 

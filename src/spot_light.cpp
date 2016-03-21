@@ -4,8 +4,8 @@ Spot_light::Spot_light(){
 	base_light_context->shader_type = LIGHT_SPOT;
 	direction = {0.0f, -1.0f, 0.0f};
 	randomize_position(glm::i16vec3(4000, 100, 4000), glm::i16vec3(2000, 0, 2000));
-	randomize_diffuse(glm::i16vec3(2.0f, 2.0f, 2.0f));
-	randomize_specular(glm::i16vec3(2.0f, 2.0f, 2.0f));
+	randomize_diffuse();
+	randomize_specular();
 
 	if (!calculate_light_uniforms(0.00014f, 0.000007f, 1.7f, 2.0f, 1.0f)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for spot light!" << std::endl;

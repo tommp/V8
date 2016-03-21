@@ -87,6 +87,7 @@ class Level {
 		bool add_light(const Light_ptr& light);
 
 		bool add_contexts_to_renderer(Renderer& renderer)const;
+		bool add_objects_to_physics_world()const;
 
 		bool render_geometry(Renderer& renderer);
 		void render_lights(const Renderer& renderer)const;

@@ -2,9 +2,9 @@
 
 Point_light::Point_light(){
 	base_light_context->shader_type = LIGHT_POINT;
-	randomize_position(glm::i16vec3(4000, 100, 4000), glm::i16vec3(2000, 0, 2000));
-	randomize_diffuse(glm::i16vec3(2.0f, 2.0f, 2.0f));
-	randomize_specular(glm::i16vec3(2.0f, 2.0f, 2.0f));
+	randomize_position(glm::i16vec3(4000, 0, 4000), glm::i16vec3(2000, -200, 2000));
+	randomize_diffuse();
+	randomize_specular();
 
 	if (!calculate_light_uniforms(0.00014f, 0.01f, 1.0f)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for point light!" << std::endl;

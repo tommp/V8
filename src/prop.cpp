@@ -1,7 +1,7 @@
 #include "prop.h"
 
 Prop::Prop(Resource_manager& manager, const std::string& model_name){
-	if ( !(model = manager.load_model(model_name) ) ){
+	if (!(model = manager.load_model(model_name))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Prop constructor failed to load model: " << model_name << std::endl;
 		errorlogger("ERROR: Prop constructor failed to load model: ", model_name.c_str());
 	}
@@ -17,7 +17,6 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 	btVector3 box_size = {scale.x, scale.y, scale.z};
 
 	/* Physics */
-	delete_collision_data();
 	mass = 0;
 	fall_inertia = {0, 0, 0};
 	collision_shape = new btBoxShape(box_size);
@@ -27,6 +26,8 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, 
 															btVector3(0, 0, 0));
 	collision_body = new btRigidBody(collision_body_CI);
+
+	update_model_matrix();
 }
 
 Prop::~Prop(){
@@ -34,6 +35,28 @@ Prop::~Prop(){
 }
 
 bool Prop::update_position(GLfloat timedelta){
+	return true;
+}
+
+bool Prop::update_model_matrix() {
+	GLboolean should_update_model = false;
+	if (position != prev_position) {
+		should_update_model = true;
+	}
+	else if (direction != prev_direction) {
+		should_update_model = true;
+	}
+
+	else if (scale != prev_scale) {
+		should_update_model = true;
+	}
+
+	if (should_update_model) {
+		model->update_matrices(position, scale, direction);
+		prev_position = position;
+		prev_scale = scale;
+		prev_direction = direction;
+	}
 	return true;
 }
 

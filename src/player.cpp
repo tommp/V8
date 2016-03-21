@@ -1,7 +1,7 @@
 #include "player.h"
 
 Player::Player(Resource_manager& init_manager, const std::string& model_name){
-	if ( !(model = init_manager.load_model(model_name) ) ){
+	if (!(model = init_manager.load_model(model_name))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Player constructor failed to load model: " << model_name << std::endl;
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
 	}
@@ -14,9 +14,22 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	scale = {20.0f, 20.0f, 20.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 
-	prev_position = position;
+	prev_position = position * 2.0f;
 	prev_scale = scale;
 	prev_direction = direction;
+
+	mass = 100.0f;
+	fall_inertia = {0.0, 0.0, 0.0};
+	collision_shape = new btSphereShape(20);
+	collision_shape->calculateLocalInertia(mass, fall_inertia);
+	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
+														btVector3(0, 0, 0)));
+	
+	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, 
+															motion_state, 
+															collision_shape, 
+															btVector3(0, 0, 0));
+	collision_body = new btRigidBody(collision_body_CI);
 }
 
 bool Player::update_model_matrix() {

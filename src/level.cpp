@@ -12,12 +12,12 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	}
 
 	
-	for (int i = 0; i < 1; ++i) {
+	for (int i = 0; i < 100; ++i) {
 		Mob_ptr cube = std::make_shared<Mob>(init_manager, "wiggle", "larva");
 		add_object(cube);
 	}
 	
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_light(point_light);
 	}
@@ -27,6 +27,12 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 
 	Prop_ptr prop = std::make_shared<Prop>(init_manager, "engine_base_cube");
 	add_object(prop);
+
+	if (!add_objects_to_physics_world()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to add level objects to physics world!"<< std::endl;
+		errorlogger("FATAL ERROR: Failed to add level objects to physics world!");
+		exit(EXIT_FAILURE);
+	}
 
 	if (!add_contexts_to_renderer(renderer)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to add level contexts to renderer!"<< std::endl;
@@ -184,6 +190,19 @@ bool Level::remove_from_physics_world(btRigidBody* object)const{
 }
 
 bool Level::resolve_collisions(){
+	return true;
+}
+
+bool Level::add_objects_to_physics_world()const{
+	for (auto prop : props) {
+		physics_world->addRigidBody(prop->get_collision_body());
+	}
+
+	for (auto mob : mobs) {
+		physics_world->addRigidBody(mob->get_collision_body());
+		mob->get_collision_body()->setActivationState(DISABLE_DEACTIVATION);
+	}
+
 	return true;
 }
 
