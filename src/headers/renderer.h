@@ -10,9 +10,6 @@
 #include "utility.h"
 #include "camera.h"
 #include "enum_light_type.h"
-#include "point_light.h"
-#include "spot_light.h"
-#include "dir_light.h"
 #include "material.h"
 #include "resource_manager.h"
 /*---------------------------------------------*/
@@ -37,13 +34,8 @@ const unsigned int OPENGL_MINOR_VERSION =	3;
 
 const glm::vec4 CLEARCOLOR = 				{0.0, 0.0, 0.0, 1.0};
 
-class Material;
 class Camera;
 class Resource_manager;
-class Light;
-
-typedef std::shared_ptr<Base_light> Light_ptr;
-typedef std::shared_ptr<Material> Material_ptr;
 
 class Renderer{
 	private:

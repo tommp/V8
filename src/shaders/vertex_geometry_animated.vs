@@ -7,6 +7,7 @@ out vec3 frag_position;
 out vec3 frag_normal;
 
 uniform mat4 model;
+uniform mat3 normal_model;
 
 layout (std140) uniform Matrices
 {
@@ -20,7 +21,7 @@ void main()
 
     frag_tex_coord = tex_coord;
 
-    frag_normal = mat3(transpose(inverse(model))) * normal;
+    frag_normal = normal_model * normal;
 
     frag_position = vec3(model * vec4(position, 1.0f));
 

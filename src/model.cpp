@@ -5,22 +5,14 @@ Model::Model(){
 	state = "";
 
 	model_matrix = glm::mat4();
-	model_matrix = glm::translate(model_matrix, position);  
-	model_matrix = glm::scale(model_matrix, scale);
-	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_view));
+	model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, 0.0f));  
+	model_matrix = glm::scale(model_matrix, glm::vec3(10.0f, 10.0f, 10.0f));
+	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
 
-	init_direction = direction;
+	init_direction = {0.0f, 0.0f, -1.0f};
 
 	is_animated = false;
 	animations = nullptr;
-}
-
-Model::~Model() {
-
-}
-
-std::unordered_map<std::string, Rendering_context_weak>* Model::get_contexts()const{
-	return &mesh_contexts;
 }
 
 bool Model::load_binary_model(Resource_manager& manager, const std::string& name, std::vector<std::string>& meshes){
@@ -85,7 +77,7 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 			errorlogger("ERROR: Failed to bind instance lambda expression for mesh: ", mesh.c_str());
 			return false;
 		}
-		mesh_contexts[mesh] = new_mesh->get_context();
+
 		meshes.push_back(new_mesh);
 	}
 
@@ -94,16 +86,37 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 
 bool Model::add_lambda_expression(const Mesh_ptr& mesh)const{
 	std::function<GLboolean(const Shader_ptr& shader)> expression = [&](const Shader_ptr& shader) ->GLboolean {
-		shader->set_matrix4("model", model_matrix); 
+		glUniformMatrix4fv(shader->load_uniform_location("model"),
+						 1, 
+						 GL_FALSE, 
+						 glm::value_ptr(model_matrix));
+
+		glUniformMatrix3fv(shader->load_uniform_location("normal_model"),
+						 1, 
+						 GL_FALSE, 
+						 glm::value_ptr(normal_model_matrix));
+
+		if(check_ogl_error()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind uniform matrices for model!" << std::endl;
+			errorlogger("ERROR: Failed to bind uniform matrices for model");
+			return false;
+		}
+
+		return true;
 	};
-	mesh->add_lambda_expression(expression);
+
+	if (!mesh->add_lambda_expression(expression)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add lambda expression to mesh context!" << std::endl;
+		errorlogger("ERROR: Failed to add lambda expression to mesh context!");
+		return false;
+	}
+
+	return true;
 }
 
-btRigidBody* Model::get_collision_body()const{
-	return collision_body;
-}
-
-bool Model::update_matrices() {
+bool Model::update_matrices(const glm::vec3& position, 
+							const glm::vec3& scale, 
+							const glm::vec3& direction) {
 	model_matrix = glm::mat4();
 	model_matrix = glm::translate(model_matrix, position);  
 
@@ -116,9 +129,24 @@ bool Model::update_matrices() {
     model_matrix = glm::rotate(model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
     //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
 
-    model_matrix = glm::scale(model_matrix, glm::vec3(size));
+    model_matrix = glm::scale(model_matrix, glm::vec3(scale));
 
-    normal_model_matrix = glm::inverseTranspose(glm::mat3(model_view));
+    normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
 
     return true;
+}
+
+bool Model::add_mesh_contexts_to_renderer(Renderer& renderer)const{
+	for (auto mesh : meshes) {
+		if (!mesh->add_context_to_renderer(renderer)) {
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add mesh context to renderer!" << std::endl;
+			errorlogger("ERROR: Failed to add mesh context to renderer!");
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Model::add_light_contexts_to_renderer(Renderer& renderer)const{
+	return true;
 }

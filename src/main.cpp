@@ -104,12 +104,6 @@ int main(int argc, char** argv){
 		}
 		move_timer.restart();
 
-		if (!world.update_contexts()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to update world contexts!" << std::endl;
-			errorlogger("FATAL ERROR: Failed to update world contexts!");
-			exit(EXIT_FAILURE);
-		}
-
 		/* Resolve all collisions */
 		if (!world.resolve_collisions()){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to resolve world collisions!" << std::endl;

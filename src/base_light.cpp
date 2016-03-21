@@ -4,34 +4,19 @@ Base_light::Base_light(){
 	ambient = {1.0f, 1.0f, 1.0f};
 	diffuse = {1.0f, 1.0f, 1.0f};
 	specular = {1.0f, 1.0f, 1.0f};
-	light_volume_scale = {100.0f, 100.0f, 100.0f};
+	scale = {100.0f, 100.0f, 100.0f};
 
 	quad_model_matrix = glm::mat4();
 	quad_model_matrix = glm::translate(quad_model_matrix, position);  
-	quad_model_matrix = glm::scale(quad_model_matrix, light_volume_scale); 
+	quad_model_matrix = glm::scale(quad_model_matrix, scale); 
 
-	//base_geometry = std::make_shared<Base_geometry>(BOX, glm::vec4(diffuse * 2.0f, 1.0));
 	base_light_context = std::make_shared<Rendering_context>();
-
-	model = nullptr;
 
 	if (!init_light_volume()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize light volume!!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to initialize light volume!");
 		exit(EXIT_FAILURE);
 	}
-}
-
-bool Base_light::update_position(float timedelta){
-	return true;
-}
-
-bool Base_light::update_context(){
-	return true;
-}
-
-bool Base_light::touch_object(Object& object){
-	return true;
 }
 
 bool Base_light::init_light_volume(){
@@ -143,6 +128,16 @@ bool Base_light::free_buffers(){
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to free buffers in base light!" << std::endl;
 		errorlogger("ERROR: Failed to free buffers in base light!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Base_light::add_context(Renderer& renderer)const{
+	if (!renderer.add_context(base_light_context)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add light context to renderer!" << std::endl;
+		errorlogger("ERROR: Failed to add light context to renderer!");
 		return false;
 	}
 

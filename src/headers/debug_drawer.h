@@ -32,7 +32,7 @@ class Debug_drawer: public btIDebugDraw {
 		void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color);
 		void draw3dText(const btVector3 &location, const char* textString);
 };
-typedef std::shared_ptr<Object> Object_ptr;
+typedef std::shared_ptr<Debug_drawer> Debug_drawer_ptr;
 /*=============================================*/
 
 #endif

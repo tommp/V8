@@ -31,7 +31,6 @@ class Point_light : public Base_light {
 	public:
 		Point_light();
 		bool calculate_light_uniforms(GLfloat linear, GLfloat quadratic, GLfloat intensity);
-	
 };
 typedef std::shared_ptr<Point_light> Point_light_ptr;
 /*=============================================*/

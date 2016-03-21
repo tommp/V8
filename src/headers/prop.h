@@ -5,6 +5,7 @@
 /*---------------------------------------------*/
 #include "glm.h"
 #include "model.h"
+#include "object.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -17,18 +18,17 @@
 
 /*Header content*/
 /*=============================================*/
-class Model;
 class btRigidBody;
 
-class Prop{
+class Prop: public Actor, public Object{
 private:
+	Model_ptr model;
 public:
-	Prop(Resource_manager& manager);
+	Prop(Resource_manager& manager, const std::string& model_name);
 	~Prop();
-	bool update_position(float timedelta);
-	bool update_context();
-	bool touch_object();
-	bool add_bases_to_context();
+	bool update_position(GLfloat timedelta);
+	bool touch_object(Object& object);
+	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 
 typedef std::shared_ptr<Prop> Prop_ptr;

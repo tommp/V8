@@ -30,11 +30,15 @@ class Spot_light : public Base_light{
 	  
 		GLfloat linear;
 		GLfloat quadratic;
+
+		bool bind_lambda_expression()const;
+		bool calculate_light_uniforms(GLfloat linear, 
+									GLfloat quadratic, 
+									GLfloat cut_off,
+									GLfloat outer_cut_off,
+									GLfloat intensity);
 	public:
 		Spot_light();
-		bool init_light_quad();
-		bool render_light_quad()const;
-		bool render_light(const Shader_ptr& shader)const;  
 };
 typedef std::shared_ptr<Spot_light> Spot_light_ptr;
 /*=============================================*/

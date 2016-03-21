@@ -922,7 +922,7 @@ bool Renderer::render_dir_lights()const{
 	for (auto light_context : dir_lights) {
 		auto context = light_context.lock();
 		if (!context) {
-			SDL_Log("DIrectional light context expired, removing from renderer...");
+			SDL_Log("Directional light context expired, removing from renderer...");
 			/* TODO::Remove light context */
 			continue;
 		}

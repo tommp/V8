@@ -44,6 +44,8 @@ class Mesh {
 	private:
 		Rendering_context_ptr base_context;
 
+		GLboolean mesh_in_renderer;
+
 		std::string name;
 		GLuint VBO;
 		GLuint EBO;
@@ -57,11 +59,8 @@ class Mesh {
 		
 		std::unordered_map<GLuint, GLuint> bone_map;
 		std::vector<glm::mat4> bone_info;
-	public:
-		Mesh();
-		~Mesh();
-		void free_mesh();
-		bool add_lambda_expression(std::function<GLboolean(const Shader_ptr& shader)> expression);
+
+		bool free_mesh();
 		bool load_binary_mesh(const std::string& name, 
 							std::vector<Vertex>& vertices, 
 							std::vector<GLuint>& indices,
@@ -69,9 +68,15 @@ class Mesh {
 
 		bool load_base_box(std::vector<Vertex>& vertices, 
 				std::vector<GLuint>& indices);
-
+	public:
+		Mesh();
+		~Mesh();
+		
 		bool load_from_file(Resource_manager& manager, const std::string& name);
 		Rendering_context_weak get_context()const;
+
+		bool add_context_to_renderer(Renderer& renderer);
+		bool add_lambda_expression(std::function<GLboolean(const Shader_ptr& shader)> expression);
 };
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;

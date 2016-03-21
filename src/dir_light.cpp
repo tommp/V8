@@ -2,8 +2,8 @@
 
 Directional_light::Directional_light(){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
-	light_direction = {0.0f, -1.0f, 0.0f};
-	randomize_diffuse(glm::i16vec3(2.0f, 2.0f, 2.0f));
+	direction = {0.0f, -1.0f, 0.0f};
+	diffuse = {1.0f, 1.0f, 1.0f};
 	randomize_specular(glm::i16vec3(2.0f, 2.0f, 2.0f));
 
 	scale = {1.0f, 1.0f, 1.0f};
@@ -78,7 +78,7 @@ bool Directional_light::bind_lambda_expression()const{
 			return false;
 		}
 
-		glUniform3fv(shader->load_uniform_location("light.direction"), 1, (float*)&(light_direction));
+		glUniform3fv(shader->load_uniform_location("light.direction"), 1, (float*)&(direction));
 		glUniform3fv(shader->load_uniform_location("light.ambient"), 1, (float*)&(ambient));
 		glUniform3fv(shader->load_uniform_location("light.diffuse"), 1, (float*)&(diffuse));
 		glUniform3fv(shader->load_uniform_location("light.specular"), 1, (float*)&(specular));
@@ -90,4 +90,6 @@ bool Directional_light::bind_lambda_expression()const{
 
 		return true;
 	};
+
+	return true;
 }

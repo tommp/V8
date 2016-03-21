@@ -127,7 +127,7 @@ bool Shader::load_from_file(const std::string& name){
         if(check_ogl_error()){
             std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind matrix uniform buffer in shader load_from_file()" << std::endl;
             errorlogger("ERROR: Failed to bind matrix uniform buffer in shader load_from_file()!");
-            //exit(EXIT_FAILURE);
+            return false;;
         }
     }
 
@@ -140,22 +140,11 @@ bool Shader::load_from_file(const std::string& name){
         if(check_ogl_error()){
             std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
             errorlogger("ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
-            //exit(EXIT_FAILURE);
+            return false;;
         }        
     }
 
     return true;
-}
-
-void Shader::set_matrix4(const char* uniform, const glm::mat4& matrix){
-    GLint matrix_location = glGetUniformLocation(program, uniform);
-    glUniformMatrix4fv(matrix_location, 1, GL_FALSE, glm::value_ptr(matrix));
-}
-
-void Shader::set_vector4f(const char* uniform, const glm::vec4& vector){
-    use();
-    GLint vector_location = glGetUniformLocation(program, uniform);
-    glUniform4f(vector_location, vector[0], vector[1], vector[2], vector[3]);
 }
 
 void Shader::print_log(GLuint object) {

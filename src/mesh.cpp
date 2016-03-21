@@ -6,6 +6,8 @@ Mesh::Mesh(){
 	object_color = {1.0f, 00.0f, 00.2f, 1.0f};
 	material = nullptr;
 
+	mesh_in_renderer = false;
+
 	base_context = std::make_shared<Rendering_context>();
 	base_context->VAO = 0;
 	base_context->render_mode = GL_FILL;
@@ -36,7 +38,11 @@ Mesh::Mesh(){
 }
 
 Mesh::~Mesh(){
-	free_mesh();
+	if (!free_mesh()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to delete mesh buffers!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to delete mesh buffers!");
+		exit(EXIT_FAILURE);
+	}
 }
 
 bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::string& material_name){
@@ -253,7 +259,7 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 	return true;
 }
 
-void Mesh::free_mesh(){
+bool Mesh::free_mesh(){
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &(base_context->VAO));
@@ -261,8 +267,10 @@ void Mesh::free_mesh(){
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to free mesh!" << std::endl;
 		errorlogger("ERROR: Failed to free mesh!");
-		exit(EXIT_FAILURE);
+		return false;
 	}
+
+	return true;
 }
 
 Rendering_context_weak Mesh::get_context()const {
@@ -272,5 +280,21 @@ Rendering_context_weak Mesh::get_context()const {
 
 bool Mesh::add_lambda_expression(std::function<GLboolean(const Shader_ptr& shader)> expression) {
 	base_context->instance_uniform_setups.push_back(expression);
+	return true;
+}
+
+bool Mesh::add_context_to_renderer(Renderer& renderer){
+	if (mesh_in_renderer == false) {
+		mesh_in_renderer = true;
+		if (!renderer.add_context(base_context)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add mesh context to renderer for mesh: " << name << std::endl;
+			errorlogger("ERROR: Failed to add mesh context to renderer for mesh:", name.c_str());
+			return false;
+		}
+	}
+	else{
+		SDL_Log("Mesh already in renderer: %s", name.c_str());
+	}
+
 	return true;
 }

@@ -24,11 +24,10 @@ class Light;
 
 class Directional_light : public Base_light {
 	private:
-		glm::vec3 light_direction;
-	public:
-		Directional_light();
 		bool bind_lambda_expression()const;
 		bool init_light_quad();
+	public:
+		Directional_light();
 };
 typedef std::shared_ptr<Directional_light> Directional_light_ptr;
 /*=============================================*/

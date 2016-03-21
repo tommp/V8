@@ -6,9 +6,6 @@ Point_light::Point_light(){
 	randomize_diffuse(glm::i16vec3(2.0f, 2.0f, 2.0f));
 	randomize_specular(glm::i16vec3(2.0f, 2.0f, 2.0f));
 
-	/* TODO::RESET CONTEXT AND GEOMETRY COLORS HERE */
-	//base_geometry->set_color(diffuse);
-
 	if (!calculate_light_uniforms(0.00014f, 0.01f, 1.0f)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for point light!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to calculate light uniforms for point light!");
@@ -20,8 +17,6 @@ Point_light::Point_light(){
 		errorlogger("FATAL ERROR: Failed to bind lambda expression for point light!");
 		exit(EXIT_FAILURE);
 	}
-
-	add_bases_to_context();
 }
 
 bool Point_light::bind_lambda_expression()const{
@@ -32,7 +27,11 @@ bool Point_light::bind_lambda_expression()const{
 			return false;
 		}
 
-		shader->set_matrix4("model", quad_model_matrix);
+		glUniformMatrix4fv(shader->load_uniform_location("model"),
+						 1, 
+						 GL_FALSE, 
+						 glm::value_ptr(quad_model_matrix));
+		
 		if(check_ogl_error()){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix for point light!" << std::endl;
 			errorlogger("ERROR: Failed to set model matrix for point light!");
@@ -54,6 +53,8 @@ bool Point_light::bind_lambda_expression()const{
 
 		return true;
 	};
+
+	return true;
 }
 
 bool Point_light::calculate_light_uniforms(GLfloat linear, GLfloat quadratic, GLfloat intensity){
@@ -64,9 +65,11 @@ bool Point_light::calculate_light_uniforms(GLfloat linear, GLfloat quadratic, GL
 	GLfloat distance = (-linear + (sqrt((linear*linear) - ((4 * quadratic) * (1 - (256 * C * intensity))))));
 	distance /= 2*quadratic;
 
-	light_volume_scale = {distance, distance, distance};
+	scale = {distance, distance, distance};
 
-	quad_model_matrix = glm::scale(quad_model_matrix, light_volume_scale); 
+	quad_model_matrix = glm::mat4();
+	quad_model_matrix = glm::translate(quad_model_matrix, position);  
+	quad_model_matrix = glm::scale(quad_model_matrix, scale); 
 
 	return true;
 }
