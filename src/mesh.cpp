@@ -3,16 +3,46 @@
 Mesh::Mesh(){
 	VBO = 0;
 	EBO = 0;
-	base_context = std::make_shared<Base_render_context>();
+	object_color = {1.0f, 00.0f, 00.2f, 1.0f};
+	material = nullptr;
+
+	mesh_in_renderer = false;
+
+	base_context = std::make_shared<Rendering_context>();
 	base_context->VAO = 0;
 	base_context->render_mode = GL_FILL;
-	base_context->object_color = {1.0f, 0.2f, 0.2f, 1.0f};
-	base_context->material = nullptr;
 	base_context->shader_type = GEOMETRY_STATIC_COLORED;
+	base_context->render_elements = true;
+	base_context->setup_base_uniforms = [&](const Shader_ptr& shader) {
+		switch (base_context->shader_type) {
+		case GEOMETRY_ANIMATED:
+			material->use(shader);
+			break;
+		case GEOMETRY_ANIMATED_COLORED:
+			glUniform4fv(shader->load_uniform_location("object_color"), 1, (float*)&(object_color));
+			break;
+		case GEOMETRY_STATIC:
+			material->use(shader);
+			break;
+		case GEOMETRY_STATIC_COLORED:
+			glUniform4fv(shader->load_uniform_location("object_color"), 1, (float*)&(object_color));
+			break;
+		default:
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unknown shader type when rendering mesh!" << std::endl;
+			errorlogger("ERROR: Unknown shader type when rendering mesh!");
+			return false;
+		}
+
+		return true;
+	};
 }
 
 Mesh::~Mesh(){
-	free_mesh();
+	if (!free_mesh()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to delete mesh buffers!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to delete mesh buffers!");
+		exit(EXIT_FAILURE);
+	}
 }
 
 bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::string& material_name){
@@ -90,29 +120,76 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 	return true;
 }
 
-bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
+bool Mesh::load_base_box(std::vector<Vertex>& vertices, 
+				std::vector<GLuint>& indices) {
+	base_context->shader_type = GEOMETRY_STATIC;
+	std::vector<glm::vec3> cube_vertices = {
+		glm::vec3(-1.0, -1.0,  1.0),
+		glm::vec3(1.0, -1.0,  1.0),
+		glm::vec3(1.0,  1.0,  1.0),
+		glm::vec3(-1.0,  1.0,  1.0),
+		glm::vec3(-1.0, -1.0, -1.0),
+		glm::vec3(1.0, -1.0, -1.0),
+		glm::vec3(1.0,  1.0, -1.0),
+		glm::vec3(-1.0,  1.0, -1.0),
+	};
 
-	/* Get rid of preexisting mesh */
+	GLushort cube_elements[] = {
+		// front
+		0, 1, 2, 2, 3, 0,
+		// top
+		1, 5, 6, 6, 2, 1,
+		// back
+		7, 6, 5, 5, 4, 7,
+		// bottom
+		4, 0, 3, 3, 7, 4,
+		// left
+		4, 5, 1, 1, 0, 4,
+		// right
+		3, 2, 6, 6, 7, 3,
+	};
+
+	Vertex vertex;
+	for (auto vertex_position : cube_vertices) {
+		vertex.position = vertex_position;
+		vertices.push_back(vertex);
+	}
+
+	for (GLushort i = 0; i < 36; ++i) {
+		indices.push_back(cube_elements[i]);
+	}
+
+	return true;
+}
+
+bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 	if( VBO != 0 ){
 		free_mesh();
 	}
 
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
-	std::string material_name;
+	std::string material_name = "";
 
-	if (!load_binary_mesh(name, vertices, indices, material_name)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Error propogation from load_binary_mesh(..) when loading keyname: " << name << std::endl;
-		errorlogger("ERROR: Error propogation from load_binary_mesh(..) when loading keyname: ", name.c_str());
+	if (name == Mesh_vars::BOX) {
+		if (!load_base_box(vertices, indices)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load base box mesh!" << std::endl;
+			errorlogger("ERROR: Failed to load base box mesh!");
+			return false;
+		}
+	}
+
+	else if (!load_binary_mesh(name, vertices, indices, material_name)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load binary mesh with name: " << name << std::endl;
+		errorlogger("ERROR: Failed to load binary mesh with name: ", name.c_str());
 		return false;
 	}
 
-	std::cout << material_name << std::endl;
 	if (!material_name.empty()) {
-		base_context->material = manager.load_material(material_name);
+		material = manager.load_material(material_name);
 	}
 	
-	if (base_context->material && (base_context->material->is_complete())) {
+	if (material && (material->is_complete())) {
 		/* yolo */
 	}
 	else{
@@ -182,21 +259,42 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 	return true;
 }
 
-bool Mesh::add_base_to_context(Rendering_context& context)const{
-	Base_render_context_weak weak_context = base_context;
-	context.base_contexts.push_back(weak_context);
-	return true;
-}
-
-void Mesh::free_mesh(){
+bool Mesh::free_mesh(){
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &(base_context->VAO));
 
-	/* Check for errors */
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to free mesh!" << std::endl;
 		errorlogger("ERROR: Failed to free mesh!");
-		exit(EXIT_FAILURE);
+		return false;
 	}
+
+	return true;
+}
+
+Rendering_context_weak Mesh::get_context()const {
+	Rendering_context_weak weak_context = base_context;
+	return weak_context;
+}
+
+bool Mesh::add_lambda_expression(std::function<GLboolean(const Shader_ptr& shader)> expression) {
+	base_context->instance_uniform_setups.push_back(expression);
+	return true;
+}
+
+bool Mesh::add_context_to_renderer(Renderer& renderer){
+	if (mesh_in_renderer == false) {
+		mesh_in_renderer = true;
+		if (!renderer.add_context(base_context)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add mesh context to renderer for mesh: " << name << std::endl;
+			errorlogger("ERROR: Failed to add mesh context to renderer for mesh:", name.c_str());
+			return false;
+		}
+	}
+	else{
+		SDL_Log("Mesh already in renderer: %s", name.c_str());
+	}
+
+	return true;
 }

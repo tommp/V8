@@ -5,10 +5,11 @@
 /*---------------------------------------------*/
 #include "glm.h"
 #include "enum_light_type.h"
-#include "object.h"
 #include "errorlogger.h"
 #include "utility.h"
-#include "base_geometry.h"
+#include "rendering_context.h"
+#include "actor.h"
+#include "renderer.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -22,30 +23,35 @@
 
 /*Header content*/
 /*=============================================*/
-class Object;
-class Renderer;
 class Shader;
 
 typedef std::shared_ptr<Shader> Shader_ptr;
 
-class Light : public Object {
+class Base_light: public Actor{
 	protected:
-		GLuint clip_VAO;
-		Base_geometry_ptr base_geometry;
-		Light_type type;
+		/* Light rendering specifics */
 		glm::vec3 ambient;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
+
+		Rendering_context_ptr base_light_context;
+		GLuint quad_VBO;
+		GLuint quad_EBO;
+		glm::mat4 quad_model_matrix;
+		
+		bool init_light_volume();
+		bool free_buffers();
 	public:
-		Light();
-		virtual bool render_light(const Shader_ptr& shader)const = 0;
-		Light_type get_type(){return type;};
-		bool update_position(float timedelta);
-		bool update_context();
-		bool touch_object(Object& object);
-		bool add_bases_to_context();
+		Base_light();
+		Shader_type get_type(){return base_light_context->shader_type;};
+		bool randomize_position(const glm::i16vec3& maxpos, const glm::i16vec3& offset);	
+		bool randomize_diffuse();
+		bool randomize_ambient();
+		bool randomize_specular();
+		bool add_context(Renderer& renderer)const;
 };
-typedef std::shared_ptr<Light> Light_ptr;
+
+typedef std::shared_ptr<Base_light> Light_ptr;
 /*=============================================*/
 
 #endif

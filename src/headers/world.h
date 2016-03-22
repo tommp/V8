@@ -29,19 +29,18 @@ private:
 	Level_ptr current_level;
 	Resource_manager* manager;
 
-	std::list<Object_ptr> players;
+	std::list<Player_ptr> players;
 public:
 	World(Resource_manager& init_manager, Renderer& renderer);
 	~World();
 
-	bool add_player(const Object_ptr& player);
+	bool add_player(const Player_ptr& player);
 	bool add_players_to_physics_world()const;
 	bool add_player_contexts_to_renderer(Renderer& renderer)const;
 
 	void render_world(Renderer& renderer);
 
 	bool update_positions(float timedelta, Renderer& renderer);
-	bool update_contexts();
 	bool resolve_collisions();
 	/*
 	bool load_level();

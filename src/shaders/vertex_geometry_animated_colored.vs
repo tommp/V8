@@ -5,6 +5,7 @@ out vec3 frag_normal;
 out vec3 frag_position;
 
 uniform mat4 model;
+uniform mat3 normal_model;
 
 layout (std140) uniform Matrices
 {
@@ -16,7 +17,7 @@ void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0f);
 
-    frag_normal = normal;
+    frag_normal = normal_model * normal;
 
     frag_position = vec3(model * vec4(position, 1.0f));
 

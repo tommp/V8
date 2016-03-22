@@ -7,6 +7,7 @@
 #include "errorlogger.h"
 #include "utility.h"
 #include "object.h"
+#include "rendering_context.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -22,7 +23,7 @@
 
 class Terrain : public Object{
     private:
-        Base_render_context_ptr base_context;
+        Rendering_context_ptr base_context;
     public:
         bool update_position(float timedelta);
         bool update_context();

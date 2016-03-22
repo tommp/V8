@@ -6,29 +6,39 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	camera = std::make_shared<Camera>();
 
 	if (!init_physics()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to initialize physics!"<< std::endl;
-		errorlogger("ERROR: Failed to initialize physics!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to initialize physics!"<< std::endl;
+		errorlogger("FATAL ERROR: Failed to initialize physics!");
 		exit(EXIT_FAILURE);
 	}
 
 	
-	for (int i = 0; i < 200; ++i) {
-		Object_ptr cube = std::make_shared<Cube>(init_manager);
-		add_active_object(cube);
+	for (int i = 0; i < 100; ++i) {
+		Mob_ptr cube = std::make_shared<Mob>(init_manager, "wiggle", "larva");
+		add_object(cube);
 	}
 	
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
-		add_point_light(point_light);
+		add_light(point_light);
 	}
 
 	Light_ptr dir_light = std::make_shared<Directional_light>();
-	add_dir_light(dir_light);
+	add_light(dir_light);
 
-	Object_ptr prop = std::make_shared<Prop>(init_manager);
-	add_active_object(prop);
+	Prop_ptr prop = std::make_shared<Prop>(init_manager, "engine_base_cube");
+	add_object(prop);
 
-	add_context_to_renderer(renderer);
+	if (!add_objects_to_physics_world()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to add level objects to physics world!"<< std::endl;
+		errorlogger("FATAL ERROR: Failed to add level objects to physics world!");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!add_contexts_to_renderer(renderer)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to add level contexts to renderer!"<< std::endl;
+		errorlogger("FATAL ERROR: Failed to add level contexts to renderer!");
+		exit(EXIT_FAILURE);
+	}
 }
 
 Level::~Level(){
@@ -39,106 +49,26 @@ Level::~Level(){
 	delete solver;
 }
 
-bool Level::add_dir_light(const Light_ptr& light){
+bool Level::add_light(const Light_ptr& light){
 	if (light){
-		dir_lights.push_front(light);	
+		lights.push_front(light);	
 		return true;
 	}
 	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null directional light in World" << std::endl;
-		errorlogger("ERROR: Cannot add null directional light in World");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null light in World" << std::endl;
+		errorlogger("ERROR: Cannot add null light in World");
 		return false;
 	}
 }
 
-bool Level::add_point_light(const Light_ptr& light){
-	if (light){
-		point_lights.push_front(light);	
-		return true;
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null point light in World" << std::endl;
-		errorlogger("ERROR: Cannot add null point light in World");
-		return false;
-	}
+bool Level::add_object(const Prop_ptr& prop) {
+	props.push_back(prop);
+	return true;
 }
 
-bool Level::add_spot_light(const Light_ptr& light){
-	if (light){
-		spot_lights.push_front(light);	
-		return true;
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null point light in World" << std::endl;
-		errorlogger("ERROR: Cannot add null point light in World");
-		return false;
-	}
-}
-
-bool Level::add_active_object(const Object_ptr& object){
-	if (object){
-		objects.push_back(object);
-		add_to_physics_world(object->get_collision_body());
-		return true;
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null object to level" << std::endl;
-		errorlogger("ERROR: Cannot add null object to level");
-		return false;
-	}
-}
-
-bool Level::add_dormant_object(const Object_ptr& object){
-	if(object){
-		dormant_objects.push_front(object);
-		return true;
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null object to level" << std::endl;
-		errorlogger("ERROR: Cannot add null object to level");
-		return false;
-	}
-}
-
-bool Level::add_object(const Object_ptr& object){
-	if(object) {
-		if(check_if_offscreen(object)) {
-			return add_active_object(object);
-		}
-		else{
-			return add_dormant_object(object);
-		}
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Cannot add null object to level" << std::endl;
-		errorlogger("ERROR: Cannot add null object to level");
-		return false;
-	}
-}
-
-void Level::update_groups(){
-	auto first_it_dormant = dormant_objects.begin();
-	auto before_it_dormant = dormant_objects.before_begin();
-
-	for (auto it = objects.begin(); it != objects.end(); ++it){
-		if( !check_if_offscreen(*it)){
-			add_dormant_object(*it);
-			remove_from_physics_world((*it)->get_collision_body());
-			it = objects.erase(it);
-		}
-	}
-
-	for (auto it = first_it_dormant; it != dormant_objects.end(); ++it){
-		if(check_if_offscreen(*it)){
-			add_active_object(*it);
-			add_to_physics_world((*it)->get_collision_body());
-			dormant_objects.erase_after(before_it_dormant);
-			it = before_it_dormant;
-		}
-		else{
-			++before_it_dormant;
-		}
-	}
+bool Level::add_object(const Mob_ptr& mob) {
+	mobs.push_back(mob);
+	return true;
 }
 
 bool Level::init_physics(){
@@ -191,13 +121,17 @@ void Level::update_gravity(){
 	physics_world->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 }
 
-bool Level::check_if_offscreen(const Object_ptr& a)const{
-	return false;
-}
-
 bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
-	for (auto it = objects.begin(); it != objects.end(); ++it) {
-		if (!(*it)->update_position(timedelta)){
+	for (auto object : props) {
+		if (!object->update_position(timedelta)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
+			errorlogger("ERROR: Failed to update object position!");
+			return false;
+		}
+	}
+
+	for (auto object : mobs) {
+		if (!object->update_position(timedelta)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
 			errorlogger("ERROR: Failed to update object position!");
 			return false;
@@ -212,54 +146,6 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	return true;
 }
 
-bool Level::update_contexts() {
-	for (auto target : objects) {
-		if (!target->update_context()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update context in level for object!"<< std::endl;
-			errorlogger("ERROR: Failed to update context in level for object!");
-			return false;
-		}
-	}
-
-	for (auto target : dormant_objects) {
-		if (!target->update_context()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update context in level for object!"<< std::endl;
-			errorlogger("ERROR: Failed to update context in level for object!");
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool Level::add_context_to_renderer(Renderer& renderer)const{
-	for (auto target : objects) {
-		if (!renderer.add_context(target)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
-			errorlogger("ERROR: Failed to add context to renderer for object!");
-			return false;
-		}
-	}
-
-	for (auto target : dormant_objects) {
-		if (!renderer.add_context(target)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
-			errorlogger("ERROR: Failed to add context to renderer for object!");
-			return false;
-		}
-	}
-
-	for (auto target : point_lights) {
-		if (!renderer.add_context(target)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add context to renderer for object!"<< std::endl;
-			errorlogger("ERROR: Failed to add context to renderer for object!");
-			return false;
-		}
-	}
-
-	return true;
-}
-
 bool Level::render_geometry(Renderer& renderer) {
 	if(!renderer.render_geometry(camera) || check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
@@ -270,10 +156,8 @@ bool Level::render_geometry(Renderer& renderer) {
 }
 
 void Level::render_lights(const Renderer& renderer)const{
-	renderer.render_dir_lights(dir_lights, camera->get_position_refrence());
-	renderer.render_point_lights(point_lights, camera->get_position_refrence());
-	renderer.render_spot_lights(spot_lights, camera->get_position_refrence());
-	if(check_ogl_error()){
+	renderer.render_bloom();
+	if(!renderer.render_lights(camera->get_position_refrence()) || check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");
 		exit(EXIT_FAILURE);
@@ -306,5 +190,46 @@ bool Level::remove_from_physics_world(btRigidBody* object)const{
 }
 
 bool Level::resolve_collisions(){
+	return true;
+}
+
+bool Level::add_objects_to_physics_world()const{
+	for (auto prop : props) {
+		physics_world->addRigidBody(prop->get_collision_body());
+	}
+
+	for (auto mob : mobs) {
+		physics_world->addRigidBody(mob->get_collision_body());
+		mob->get_collision_body()->setActivationState(DISABLE_DEACTIVATION);
+	}
+
+	return true;
+}
+
+bool Level::add_contexts_to_renderer(Renderer& renderer)const{
+	for (auto light : lights) {
+		if (!light->add_context(renderer)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add light context to renderer!" << std::endl;
+			errorlogger("ERROR: Failed to add light context to renderer!");
+			return false;
+		}
+	}
+
+	for (auto prop : props) {
+		if (!prop->add_contexts_to_renderer(renderer)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add prop context to renderer!" << std::endl;
+			errorlogger("ERROR: Failed to add prop context to renderer!");
+			return false;
+		}
+	}
+
+	for (auto mob : mobs) {
+		if (!mob->add_contexts_to_renderer(renderer)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add mob context to renderer!" << std::endl;
+			errorlogger("ERROR: Failed to add mob context to renderer!");
+			return false;
+		}
+	}
+
 	return true;
 }

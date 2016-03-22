@@ -7,7 +7,9 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 	}
 
 	position[0] = 2000.0f;
+
 	position[1] = -100.0f;
+
 	position[2] = 0.0f;
 
 	direction = {0.0f, 0.0f, -1.0f};

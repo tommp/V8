@@ -13,15 +13,16 @@ Camera::Camera(){
 	camera_up = glm::normalize(glm::cross(camera_direction, right));
 }
 
-void Camera::focus_target(const glm::vec3& focus_target){
+bool Camera::focus_target(const glm::vec3& focus_target){
 	position = focus_target + init_position + offset;
 	target = focus_target + offset;
+
+	return true;
 }
 
-bool Camera::center_camera(const Actor_ptr& target) {
+bool Camera::center_camera(const glm::vec3& position) {
 	/* Center on the actor collision box */
-	if(target){
-		focus_target(*target->get_position());
+	if (focus_target(position)){
 
 		/*
 		if( target->get_position()->x < (screen_width/2.0f) ) { 

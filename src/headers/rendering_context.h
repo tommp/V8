@@ -4,7 +4,6 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "enum_shader_type.h"
-#include "enum_geom_type.h"
 #include "glm.h"
 /*---------------------------------------------*/
 
@@ -18,31 +17,23 @@
 
 /*Header content*/
 /*=============================================*/
+class Shader;
 class Material;
 
+typedef std::shared_ptr<Shader> Shader_ptr;
 typedef std::shared_ptr<Material> Material_ptr;
 
-typedef struct Base_render_context{
-	GLuint VAO;
-	GLuint num_vertices;
-	
-	GLenum render_mode;
+class Rendering_context{
+	public:
+		GLuint VAO;
+		GLuint num_vertices;
+		Shader_type shader_type;
+		GLenum render_mode;
+		GLboolean render_elements;
 
-	Material_ptr material;
-	glm::vec4 object_color;
-
-	Shader_type shader_type;
-}Base_render_context;
-
-typedef std::shared_ptr<Base_render_context> Base_render_context_ptr;
-typedef std::weak_ptr<Base_render_context> Base_render_context_weak;
-
-typedef struct Rendering_context{
-	glm::mat4 model_matrix;
-	GLboolean active;
-	glm::vec3 init_direction;
-	std::list<Base_render_context_weak> base_contexts;
-}Rendering_context;
+		std::function<GLboolean(const Shader_ptr& shader)> setup_base_uniforms;
+		std::list<std::function<GLboolean(const Shader_ptr& shader)>> instance_uniform_setups;
+};
 
 typedef std::shared_ptr<Rendering_context> Rendering_context_ptr;
 typedef std::weak_ptr<Rendering_context> Rendering_context_weak;

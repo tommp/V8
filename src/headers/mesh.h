@@ -13,6 +13,7 @@
 #include "renderer.h"
 #include "material.h"
 #include "resource_manager.h"
+#include "shader.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -27,8 +28,11 @@
 /*Header content*/
 /*=============================================*/
 
-/* TODO:: Hack, fix by passing mesh init dir later */
-const glm::vec3 MESH_DIRECTION = {0.0f, 1.0f, -1.0f};
+namespace Mesh_vars{
+	const std::string BOX = "BOX";
+	const std::string LINE = "LINE";
+	const std::string SPHERE = "SPHERE";
+};
 
 class Resource_manager;
 class Material;
@@ -38,28 +42,41 @@ typedef std::shared_ptr<Material> Material_ptr;
 
 class Mesh {
 	private:
-		Base_render_context_ptr base_context;
+		Rendering_context_ptr base_context;
+
+		GLboolean mesh_in_renderer;
 
 		std::string name;
 		GLuint VBO;
 		GLuint EBO;
+
+		/* Uniforms */
+		Material_ptr material;
+		glm::vec4 object_color;
 
 		/* Inverse transform of the root bone transformation used in animation */
 		glm::mat4 root_inverse_transform;
 		
 		std::unordered_map<GLuint, GLuint> bone_map;
 		std::vector<glm::mat4> bone_info;
-	public:
-		Mesh();
-		~Mesh();
-		void free_mesh();
+
+		bool free_mesh();
 		bool load_binary_mesh(const std::string& name, 
 							std::vector<Vertex>& vertices, 
 							std::vector<GLuint>& indices,
 							std::string& material);
 
+		bool load_base_box(std::vector<Vertex>& vertices, 
+				std::vector<GLuint>& indices);
+	public:
+		Mesh();
+		~Mesh();
+		
 		bool load_from_file(Resource_manager& manager, const std::string& name);
-		bool add_base_to_context(Rendering_context& context)const;
+		Rendering_context_weak get_context()const;
+
+		bool add_context_to_renderer(Renderer& renderer);
+		bool add_lambda_expression(std::function<GLboolean(const Shader_ptr& shader)> expression);
 };
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;

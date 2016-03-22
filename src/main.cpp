@@ -69,6 +69,7 @@ int main(int argc, char** argv){
 	std::cout << "------ Initializing timers..." << std::endl;
 	Timer cap_timer;
 	Timer move_timer;
+	Timer performance_timer;
 	std::cout << "------ Timers initialized!\n" << std::endl;
 	std::cout << "Sucessfully initialized main data structures!\n" << std::endl;
 	std::cout << "=======================================\n" << std::endl;
@@ -80,8 +81,12 @@ int main(int argc, char** argv){
 	std::cout << "=======================================" << std::endl;
 	std::cout << "=======================================\n" << std::endl;
 
+	GLuint average_render_time = 0;
+	GLuint pooled_render_time = 0;
+	GLuint num_frames_average = 30;
+	GLuint frame_counter = 0;
 	while(state_handler.game_is_running()){
-
+		performance_timer.restart();
 #if DISABLE_VSYNC
 		//Start cap timer
 		cap_timer.restart();
@@ -91,19 +96,13 @@ int main(int argc, char** argv){
 		state_handler.handle_events();
 
 		/* Update the position of all world objects */
-		float timedelta = move_timer.get_ticks() / 1000.f;
+		float timedelta = move_timer.get_ticks() / 1000.0f;
 		if (!world.update_positions(timedelta, renderer)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to update world positions!" << std::endl;
 			errorlogger("FATAL ERROR: Failed to update world positions!");
 			exit(EXIT_FAILURE);
 		}
 		move_timer.restart();
-
-		if (!world.update_contexts()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to update world contexts!" << std::endl;
-			errorlogger("FATAL ERROR: Failed to update world contexts!");
-			exit(EXIT_FAILURE);
-		}
 
 		/* Resolve all collisions */
 		if (!world.resolve_collisions()){
@@ -128,6 +127,19 @@ int main(int argc, char** argv){
 			SDL_Delay(SCREEN_TICKS_PER_FRAME - frame_ticks);
 		}
 #endif
+		GLint performance_ticks = performance_timer.get_ticks();
+		performance_timer.pause();
+		if (frame_counter < num_frames_average) {
+			++frame_counter;
+			pooled_render_time += performance_ticks;
+		}
+		else{
+			frame_counter = 0;
+			average_render_time = pooled_render_time / num_frames_average;
+			pooled_render_time = 0;
+		}
+		
+		std::cout << '\r' << std::setw(5) << std::setfill('0') << "Avg. render time: "<< average_render_time << " ms" << std::flush;
 	}
 	/*=======================================================*/
 	std::cout << "\n=======================================" << std::endl;

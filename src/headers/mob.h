@@ -4,8 +4,9 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "glm.h"
-#include "object.h"
 #include "model.h"
+#include "object.h"
+#include "actor.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -18,35 +19,35 @@
 
 /*Header content*/
 /*=============================================*/
-class Model;
-class Object;
 class btRigidBody;
 
-class Cube: public Object{
+class Mob: public Actor, public Object{
 private:
-	Model_ptr model;
-	glm::vec3 last_pos;
-	glm::vec3 velocity;
+	std::string name;
 
-	unsigned int speed;
-	unsigned int last_move;
-	unsigned int move_duration;
+	Model_ptr model;
+
+	glm::vec3 velocity;
+	glm::vec3 last_pos;
+
+	GLuint speed;
+	GLuint last_move;
+	GLuint move_duration;
 
 	/* Used for optimization */
 	glm::vec3 prev_position;
-	glm::vec3 prev_size;
+	glm::vec3 prev_scale;
 	glm::vec3 prev_direction;
 public:
-	Cube(Resource_manager& manager);
-	~Cube();
-	bool update_position(float timedelta);
-	bool update_context();
-	void update_model_matrix();
-	bool touch_object(Object& Object);
-	bool add_bases_to_context();
+	Mob(Resource_manager& manager, const std::string& model_name, const std::string& mob_name);
+	~Mob();
+	bool update_position(GLfloat timedelta);
+	bool touch_object(Object& object);
+	bool update_model_matrix();
+	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 
-typedef std::shared_ptr<Cube> Cube_ptr;
+typedef std::shared_ptr<Mob> Mob_ptr;
 /*=============================================*/
 
 #endif
