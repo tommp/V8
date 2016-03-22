@@ -1,5 +1,29 @@
 #include "point_light.h"
 
+Point_light::Point_light(GLfloat radius, 
+						const glm::vec3& pos, 
+						const glm::vec3& color, 
+						const glm::vec3& color_components) {
+	base_light_context->shader_type = LIGHT_POINT;
+
+	this->radius = radius;
+	this->color = color;
+	this->color_components = color_components;
+	this->position = pos;
+
+	if (!calculate_light_uniforms()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for point light!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to calculate light uniforms for point light!");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!bind_lambda_expression()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to bind lambda expression for point light!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to bind lambda expression for point light!");
+		exit(EXIT_FAILURE);
+	}
+}
+
 Point_light::Point_light(){
 	base_light_context->shader_type = LIGHT_POINT;
 	radius = rand() % 500;

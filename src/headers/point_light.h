@@ -29,6 +29,10 @@ class Point_light : public Base_light {
 		bool bind_lambda_expression()const;
 	public:
 		Point_light();
+		Point_light(GLfloat radius, 
+					const glm::vec3& pos,
+					const glm::vec3& color, 
+					const glm::vec3& color_components);
 		bool calculate_light_uniforms();
 };
 typedef std::shared_ptr<Point_light> Point_light_ptr;

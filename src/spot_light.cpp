@@ -1,5 +1,35 @@
 #include "spot_light.h"
 
+Spot_light::Spot_light(GLfloat radius, 
+						const glm::vec3& pos,
+						const glm::vec3& dir,
+						const glm::vec3& color, 
+						const glm::vec3& color_components,
+						const GLfloat cutoff,
+						const GLfloat outer_cutoff) {
+	base_light_context->shader_type = LIGHT_SPOT;
+
+	this->radius = radius;
+	this->position = pos;
+	this->direction = dir;
+	this->color = color;
+	this->color_components = color_components;
+	this->cutoff = cutoff;
+	this->outer_cutoff = outer_cutoff;
+
+	if (!calculate_light_uniforms()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for spot light!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to calculate light uniforms for spot light!");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!bind_lambda_expression()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to bind lambda expression for spot light!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to bind lambda expression for spot light!");
+		exit(EXIT_FAILURE);
+	}
+}
+
 Spot_light::Spot_light(){
 	base_light_context->shader_type = LIGHT_SPOT;
 	direction = {0.0f, -1.0f, 0.0f};
@@ -12,6 +42,9 @@ Spot_light::Spot_light(){
 	color_components = {0.0f, 1.0f, 1.0f};
 
 	radius = rand() % 400;
+
+	cutoff = (rand() % 30) + 15;
+	outer_cutoff = cutoff + (rand() % 10) + 5;
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for spot light!" << std::endl;
@@ -48,8 +81,8 @@ bool Spot_light::bind_lambda_expression()const{
 
 		glUniform3fv(shader->load_uniform_location("light.position"), 1, (float*)&(position));
 		glUniform3fv(shader->load_uniform_location("light.direction"), 1, (float*)&(direction));
-		glUniform1f(shader->load_uniform_location("light.cut_off"), cut_off);
-		glUniform1f(shader->load_uniform_location("light.outer_cut_off"), outer_cut_off);
+		glUniform1f(shader->load_uniform_location("light.cut_off"), cutoff);
+		glUniform1f(shader->load_uniform_location("light.outer_cut_off"), outer_cutoff);
 		glUniform1f(shader->load_uniform_location("light.radius"), radius);
 
 		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(color));

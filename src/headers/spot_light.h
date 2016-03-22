@@ -25,8 +25,8 @@ class Light;
 
 class Spot_light : public Base_light{
 	private:
-		GLfloat cut_off;
-		GLfloat outer_cut_off;
+		GLfloat cutoff;
+		GLfloat outer_cutoff;
 	  
 		GLfloat radius;
 
@@ -34,6 +34,13 @@ class Spot_light : public Base_light{
 		bool calculate_light_uniforms();
 	public:
 		Spot_light();
+		Spot_light(GLfloat radius, 
+				const glm::vec3& pos,
+				const glm::vec3& dir,
+				const glm::vec3& color, 
+				const glm::vec3& color_components,
+				const GLfloat cutoff,
+				const GLfloat outer_cutoff);
 };
 typedef std::shared_ptr<Spot_light> Spot_light_ptr;
 /*=============================================*/
