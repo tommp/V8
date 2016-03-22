@@ -23,6 +23,7 @@
 #include <GL/glew.h>
 #include <string>
 #include <unistd.h>
+#include <iomanip>
 /*---------------------------------------------*/
 
 /*Header content*/

@@ -1,34 +1,30 @@
 #include "object.h"
 
-Object::Object(){
-	motion_state = nullptr;
-	collision_shape = nullptr;
-	collision_body = nullptr;
-	rendering_context = std::make_shared<Rendering_context>();
+Object::~Object() {
+	if (!delete_collision_data()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to delete collision data!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to delete collision data!");
+		exit(EXIT_FAILURE);
+	}
 }
 
-Object::~Object(){
+Object::Object() {
+	mass = 0;
+	fall_inertia = {0.0, 0.0, 0.0};
+	/* TODO::Properly set this */
+	collision_shape = nullptr;
+	motion_state = nullptr;
+	collision_body = nullptr;
+}
+
+bool Object::delete_collision_data() {
 	delete motion_state;
 	delete collision_shape;
 	delete collision_body;
+
+	return true;
 }
 
-bool Object::operator<(const Object& b){
-	if (position[2] < b.get_z() ){
-		return true;
-	}
-	else if (this->position[2] == b.get_z()){
-		if ( (position[1]+size[1]) < (b.get_y() + b.get_height() ) ){
-			return true;
-		}
-		return false;
-	}
-	else{
-		return false;
-	}
-}
-
-Rendering_context_weak Object::get_weak_context()const{
-	Rendering_context_weak weak_context = rendering_context;
-	return weak_context;
+btRigidBody* Object::get_collision_body()const{
+	return collision_body;
 }

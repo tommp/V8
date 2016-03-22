@@ -13,10 +13,14 @@
 /*Header content*/
 /*=============================================*/
 enum Shader_type{
-	GEOMETRY_ANIMATED = 0,
-	GEOMETRY_STATIC = 1,
-	GEOMETRY_ANIMATED_COLORED = 2,
-	GEOMETRY_STATIC_COLORED = 3,
+	NO_SHADER = 0,
+	GEOMETRY_ANIMATED = 1,
+	GEOMETRY_STATIC = 2,
+	GEOMETRY_ANIMATED_COLORED = 3,
+	GEOMETRY_STATIC_COLORED = 4,
+	LIGHT_POINT = 5,
+	LIGHT_SPOT = 6,
+	LIGHT_DIRECTIONAL = 7,
 };
 /*=============================================*/
 
