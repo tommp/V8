@@ -41,7 +41,7 @@ void main()
 	vec3 reflect_direction = reflect(-light_direction, normal);  
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
-	float distance    = length(light.position - frag_position);
+	float distance = length(light.position - frag_position);
 	
 	float attenuation = clamp(1.0 - distance/light.radius, 0.0, 1.0);
 
@@ -51,7 +51,7 @@ void main()
 	vec3 diffuse = (light.color * light.color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
 	vec3 specular = (light.color * light.color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 	
-	float theta = dot(light_direction, normalize(-light.direction)); 
+	float theta = degrees(acos(dot(light_direction, normalize(-light.direction)))); 
 	float epsilon = (light.cut_off - light.outer_cut_off);
 	float intensity = clamp((theta - light.outer_cut_off) / epsilon, 0.0, 1.0);
 

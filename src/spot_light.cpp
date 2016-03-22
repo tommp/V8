@@ -34,17 +34,17 @@ Spot_light::Spot_light(){
 	base_light_context->shader_type = LIGHT_SPOT;
 	direction = {0.0f, -1.0f, 0.0f};
 
-	direction.x = ((rand() % 1000) / 500) - 1;
-	direction.z = ((rand() % 1000) / 500) - 1;
+	direction.x = ((rand() % 1500) / 501) - 1;
+	direction.z = ((rand() % 1500) / 501) - 1;
 
-	randomize_position(glm::i16vec3(4000, 0, 4000), glm::i16vec3(2000, -200, 2000));
+	randomize_position(glm::i16vec3(4000, 50, 4000), glm::i16vec3(2000, -100, 2000));
 	randomize_color(5);
 	color_components = {0.0f, 1.0f, 1.0f};
 
-	radius = rand() % 400;
+	radius = (rand() % 400) + 200;
 
-	cutoff = (rand() % 30) + 15;
-	outer_cutoff = cutoff + (rand() % 10) + 5;
+	cutoff = (rand() % 35) + 15;
+	outer_cutoff = cutoff + (rand() % 10) + 10;
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for spot light!" << std::endl;

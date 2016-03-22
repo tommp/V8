@@ -8,6 +8,7 @@
 #include "model.h"
 #include "resource_manager.h"
 #include "object.h"
+#include "spot_light.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -27,6 +28,7 @@ class btRigidBody;
 class Player: public Actor, public Object{
 private:
 	Model_ptr model;
+	Spot_light_ptr flashlight;
 
 	glm::vec3 velocity;
 

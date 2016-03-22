@@ -145,3 +145,13 @@ bool Base_light::add_context(Renderer& renderer)const{
 
 	return true;
 }
+
+bool Base_light::set_direction(const glm::vec3& dir){
+	this->direction = dir;
+	return true;
+}
+
+bool Base_light::set_position(const glm::vec3& pos) {
+	this->position = pos;
+	return true;
+}

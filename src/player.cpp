@@ -14,6 +14,17 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	scale = {20.0f, 20.0f, 20.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 
+	glm::vec3 lightcolor = {1.0f, 1.0f, 1.0f};
+	glm::vec3 lightcomponents = {0.0f, 1.0f, 1.0f};
+
+	flashlight = std::make_shared<Spot_light>(600, 
+				position,
+				direction,
+				lightcolor, 
+				lightcomponents,
+				30,
+				45);
+
 	prev_position = position * 2.0f;
 	prev_scale = scale;
 	prev_direction = direction;
@@ -94,6 +105,9 @@ bool Player::update_position(GLfloat timedelta){
 	}
 
 	update_model_matrix();
+	flashlight->set_direction(direction);
+	flashlight->set_position(position);
+	flashlight->calculate_light_uniforms();
 	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
 	return true;
 }
@@ -113,6 +127,8 @@ bool Player::add_contexts_to_renderer(Renderer& renderer)const{
 		errorlogger("ERROR: Failed to add model light contexts to renderer!");
 		return false;
 	}
+
+	flashlight->add_context(renderer);
 
 	return true;
 }

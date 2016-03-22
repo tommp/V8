@@ -51,6 +51,8 @@ class Base_light: public Actor{
 		bool randomize_ambient();
 		bool randomize_specular();
 		bool add_context(Renderer& renderer)const;
+		bool set_direction(const glm::vec3& dir);
+		bool set_position(const glm::vec3& pos);
 };
 
 typedef std::shared_ptr<Base_light> Light_ptr;
