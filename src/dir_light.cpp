@@ -3,11 +3,8 @@
 Directional_light::Directional_light(){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
 	direction = {0.0f, -1.0f, 0.0f};
-	diffuse = {0.2f, 0.2f, 0.2f};
-
-	scale = {1.0f, 1.0f, 1.0f};
-
-	/* TODO::RESET CONTEXT AND GEOMETRY COLORS HERE, LOAD MODEL */
+	color = {0.2f, 0.2f, 0.2f};
+	color_components = {1.0f, 1.0f, 0.0f};
 
 	if (!init_light_quad()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize light quad!" << std::endl;
@@ -78,9 +75,8 @@ bool Directional_light::bind_lambda_expression()const{
 		}
 
 		glUniform3fv(shader->load_uniform_location("light.direction"), 1, (float*)&(direction));
-		glUniform3fv(shader->load_uniform_location("light.ambient"), 1, (float*)&(ambient));
-		glUniform3fv(shader->load_uniform_location("light.diffuse"), 1, (float*)&(diffuse));
-		glUniform3fv(shader->load_uniform_location("light.specular"), 1, (float*)&(specular));
+		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(color));
+		glUniform3fv(shader->load_uniform_location("light.color_components"), 1, (float*)&(color_components));
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind directional light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to bind directional light uniforms!");

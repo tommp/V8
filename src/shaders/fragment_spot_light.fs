@@ -5,12 +5,10 @@ struct Spot_light {
 	float cut_off;
 	float outer_cut_off;
   
-	float linear;
-	float quadratic;
-  
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;       
+	float radius;
+
+	vec3 color;
+	vec3 color_components;     
 };
 
 out vec4 color;
@@ -44,11 +42,14 @@ void main()
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
 	float distance    = length(light.position - frag_position);
-	float attenuation = 1.0f / (1.0f + light.linear * distance + light.quadratic * (distance * distance));   
+	
+	float attenuation = clamp(1.0 - distance/light.radius, 0.0, 1.0);
 
-	vec3 ambient = light.ambient * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
-	vec3 diffuse = light.diffuse * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
-	vec3 specular = light.specular * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+	attenuation *= attenuation; 
+
+	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 diffuse = (light.color * light.color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 specular = (light.color * light.color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 	
 	float theta = dot(light_direction, normalize(-light.direction)); 
 	float epsilon = (light.cut_off - light.outer_cut_off);

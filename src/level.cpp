@@ -17,10 +17,15 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_object(cube);
 	}
 	
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 20; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_light(point_light);
 	}
+
+	/*for (int i = 0; i < 20; ++i) {
+		Light_ptr spot_light = std::make_shared<Spot_light>();
+		add_light(spot_light);
+	}*/
 
 	Light_ptr dir_light = std::make_shared<Directional_light>();
 	add_light(dir_light);

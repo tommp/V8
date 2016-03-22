@@ -30,9 +30,10 @@ typedef std::shared_ptr<Shader> Shader_ptr;
 class Base_light: public Actor{
 	protected:
 		/* Light rendering specifics */
-		glm::vec3 ambient;
-		glm::vec3 diffuse;
-		glm::vec3 specular;
+		glm::vec3 color;
+
+		/* x is ambient, y is diffuse, z is specular */
+		glm::vec3 color_components;
 
 		Rendering_context_ptr base_light_context;
 		GLuint quad_VBO;
@@ -44,7 +45,8 @@ class Base_light: public Actor{
 	public:
 		Base_light();
 		Shader_type get_type(){return base_light_context->shader_type;};
-		bool randomize_position(const glm::i16vec3& maxpos, const glm::i16vec3& offset);	
+		bool randomize_position(const glm::i16vec3& maxpos, const glm::i16vec3& offset);
+		bool randomize_color(GLfloat intensity);
 		bool randomize_diffuse();
 		bool randomize_ambient();
 		bool randomize_specular();

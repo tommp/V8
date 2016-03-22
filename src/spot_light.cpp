@@ -2,12 +2,19 @@
 
 Spot_light::Spot_light(){
 	base_light_context->shader_type = LIGHT_SPOT;
-	direction = {0.0f, -1.0f, 0.0f};
+	direction = {0.0f, 0.0f, 0.0f};
+
+	//direction.x = ((rand() % 1000) / 500) - 1;
+	//direction.z = ((rand() % 1000) / 500) - 1;
+
 	randomize_position(glm::i16vec3(4000, 100, 4000), glm::i16vec3(2000, 0, 2000));
+	randomize_color(5);
 	randomize_diffuse();
 	randomize_specular();
 
-	if (!calculate_light_uniforms(0.00014f, 0.000007f, 1.7f, 2.0f, 1.0f)) {
+	radius = rand() % 400;
+
+	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for spot light!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to calculate light uniforms for spot light!");
 		exit(EXIT_FAILURE);
@@ -44,12 +51,10 @@ bool Spot_light::bind_lambda_expression()const{
 		glUniform3fv(shader->load_uniform_location("light.direction"), 1, (float*)&(direction));
 		glUniform1f(shader->load_uniform_location("light.cut_off"), cut_off);
 		glUniform1f(shader->load_uniform_location("light.outer_cut_off"), outer_cut_off);
-		glUniform1f(shader->load_uniform_location("light.linear"), linear);
-		glUniform1f(shader->load_uniform_location("light.quadratic"), quadratic);
+		glUniform1f(shader->load_uniform_location("light.radius"), radius);
 
-		glUniform3fv(shader->load_uniform_location("light.ambient"), 1, (float*)&(ambient));
-		glUniform3fv(shader->load_uniform_location("light.diffuse"), 1, (float*)&(diffuse));
-		glUniform3fv(shader->load_uniform_location("light.specular"), 1, (float*)&(specular));
+		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(color));
+		glUniform3fv(shader->load_uniform_location("light.color_components"), 1, (float*)&(color_components));
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind spot light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to bind spot light uniforms!");
@@ -62,19 +67,10 @@ bool Spot_light::bind_lambda_expression()const{
 	return true;
 }
 
-bool Spot_light::calculate_light_uniforms(GLfloat linear, 
-										GLfloat quadratic, 
-										GLfloat cut_off,
-										GLfloat outer_cut_off,
-										GLfloat intensity){
-	GLfloat C = glm::max(ambient.x + diffuse.x + specular.x, glm::max(
-						ambient.y + diffuse.y + specular.y,
-						ambient.z + diffuse.z + specular.z));
+bool Spot_light::calculate_light_uniforms(){
 
-	GLfloat distance = (-linear + (sqrt((linear*linear) - ((4 * quadratic) * (1 - (256 * C * intensity))))));
-	distance /= 2*quadratic;
-
-	scale = {distance, distance, distance};
+	/* TODO::Optimize based on direction */
+	scale = {radius * 2, radius * 2, radius * 2};
 
 	quad_model_matrix = glm::mat4();
 	quad_model_matrix = glm::translate(quad_model_matrix, position);  

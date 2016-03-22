@@ -28,15 +28,10 @@ class Spot_light : public Base_light{
 		GLfloat cut_off;
 		GLfloat outer_cut_off;
 	  
-		GLfloat linear;
-		GLfloat quadratic;
+		GLfloat radius;
 
 		bool bind_lambda_expression()const;
-		bool calculate_light_uniforms(GLfloat linear, 
-									GLfloat quadratic, 
-									GLfloat cut_off,
-									GLfloat outer_cut_off,
-									GLfloat intensity);
+		bool calculate_light_uniforms();
 	public:
 		Spot_light();
 };

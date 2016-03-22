@@ -25,12 +25,11 @@ class Light;
 
 class Point_light : public Base_light {
 	private:
-		GLfloat linear;
-		GLfloat quadratic;
+		GLfloat radius;
 		bool bind_lambda_expression()const;
 	public:
 		Point_light();
-		bool calculate_light_uniforms(GLfloat linear, GLfloat quadratic, GLfloat intensity);
+		bool calculate_light_uniforms();
 };
 typedef std::shared_ptr<Point_light> Point_light_ptr;
 /*=============================================*/

@@ -1,9 +1,8 @@
 struct Directional_light {
 	vec3 direction;
 	
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	vec3 color;
+	vec3 color_components;
 };
 
 out vec4 color;
@@ -38,9 +37,9 @@ void main()
 	vec3 reflect_direction = reflect(-light_direction, normal);
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
-	vec3 ambient = light.ambient * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
-	vec3 diffuse = light.diffuse * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
-	vec3 specular = light.specular * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 diffuse = (light.color * light.color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 specular = (light.color * light.color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 
 	//HDR calculations
 	const float gamma = 2.2;

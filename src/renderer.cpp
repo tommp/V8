@@ -205,8 +205,8 @@ bool Renderer::init_uniform_buffers(){
 	glGenBuffers(1, &uniform_buffer_matrices);
 	  
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_matrices);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 1, uniform_buffer_matrices, 0, 2 * sizeof(glm::mat4));
+	glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 1, uniform_buffer_matrices, 0, 3 * sizeof(glm::mat4));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){
@@ -771,12 +771,14 @@ void Renderer::update_view_matrix(const glm::vec3& position, const glm::vec3& ta
 	std::cout << "TARG: " << target.x << " : " << target.y << " : " << target.z << std::endl;
 	std::cout << "CAM: " << camera_up.x << " : " << camera_up.y << " : " << camera_up.z << std::endl;*/
 	view = glm::lookAt(position, target, camera_up);
+	unrotated_view =  glm::lookAt(position, target, camera_up);
 }
 
 bool Renderer::upload_view_matrix()const{
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("matrices")->second);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view)); 
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(unrotated_view));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload view matrix!" << std::endl;

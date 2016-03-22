@@ -11,13 +11,14 @@ layout (std140) uniform Matrices
 {
     mat4 projection;
     mat4 view;
+    mat4 unrotated_view;
 };
 
 void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0f);
 
-    frag_normal =  normal_model * normal;
+    frag_normal = normal_model * normal;
 
     frag_position = vec3(model * vec4(position, 1.0f));
 }

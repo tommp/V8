@@ -1,12 +1,10 @@
 struct Point_light {
 	vec3 position;
 	
-	float linear;
-	float quadratic;
+	float radius;
 	
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	vec3 color;
+	vec3 color_components;
 };
 
 out vec4 color;
@@ -41,11 +39,15 @@ void main()
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
 	float distance = length(light.position - frag_position);
-	float attenuation = 1.0f / (1.0f + light.linear * distance + light.quadratic * (distance * distance));    
 
-	vec3 ambient = light.ambient * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
-	vec3 diffuse = light.diffuse * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
-	vec3 specular = light.specular * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+	float attenuation = clamp(1.0 - distance/light.radius, 0.0, 1.0);
+
+	attenuation *= attenuation;
+
+	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 diffuse = (light.color * light.color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 specular = (light.color * light.color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+
 	ambient *= attenuation;
 	diffuse *= attenuation;
 	specular *= attenuation;
@@ -59,7 +61,7 @@ void main()
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
     // Gamma correction 
-    mapped = pow(mapped, vec3(1.0 / gamma));
+    //mapped = pow(mapped, vec3(1.0 / gamma));
   
     color = vec4(mapped, 1.0);
 }
