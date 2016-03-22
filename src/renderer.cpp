@@ -545,7 +545,6 @@ bool Renderer::set_clear_color_black(){
 
 bool Renderer::add_context(const Rendering_context_ptr& context) {
 
-	std::cout << "Context number: " << animated_geom.size() + static_geom.size() + animated_colored_geom.size() + static_colored_geom.size() << std::endl;
 	Rendering_context_weak context_weak = context;
 
 	if (context){

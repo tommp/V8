@@ -5,8 +5,7 @@ Point_light::Point_light(){
 	radius = rand() % 500;
 	randomize_position(glm::i16vec3(4000, 1, 4000), glm::i16vec3(2000, -100, 2000));
 	randomize_color(5);
-	randomize_diffuse();
-	randomize_specular();
+	color_components = {0.0f, 1.0f, 1.0f};
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for point light!" << std::endl;
