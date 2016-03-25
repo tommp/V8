@@ -8,6 +8,8 @@ Mob::Mob(Resource_manager& manager, const std::string& model_name, const std::st
 		exit(EXIT_FAILURE);
 	}
 
+	model->bind_matrices(model_matrix, normal_model_matrix);
+
 	scale = {50.0f, 50.0f, 50.0f};
 
 
@@ -28,7 +30,6 @@ Mob::Mob(Resource_manager& manager, const std::string& model_name, const std::st
 															collision_shape, 
 															btVector3(0, 0, 0));
 	collision_body = new btRigidBody(collision_body_CI);
-	
 }
 
 Mob::~Mob(){
@@ -64,7 +65,7 @@ bool Mob::update_position(float timedelta){
 
 	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
 
-	if (!update_model_matrix()) {
+	if (!update_matrices()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to update mob model matrix!" << std::endl;
 		errorlogger("ERROR: Failed to update mob model matrix!");
 		return false;
@@ -78,21 +79,16 @@ bool Mob::touch_object(Object& object){
 }
 
 bool Mob::add_contexts_to_renderer(Renderer& renderer)const{
-	if (!model->add_mesh_contexts_to_renderer(renderer)) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add model mesh contexts to renderer!" << std::endl;
-		errorlogger("ERROR: Failed to add model mesh contexts to renderer!");
-		return false;
-	}
-	if (!model->add_light_contexts_to_renderer(renderer)) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add model light contexts to renderer!" << std::endl;
-		errorlogger("ERROR: Failed to add model light contexts to renderer!");
+	if (!model->add_contexts_to_renderer(renderer)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add model contexts to renderer!" << std::endl;
+		errorlogger("ERROR: Failed to add model contexts to renderer!");
 		return false;
 	}
 
 	return true;
 }
 
-bool Mob::update_model_matrix(){
+bool Mob::update_matrices(){
 	GLboolean should_update_model = false;
 	if (position != prev_position) {
 		should_update_model = true;
@@ -106,7 +102,22 @@ bool Mob::update_model_matrix(){
 	}
 
 	if (should_update_model) {
-		model->update_matrices(position, scale, direction);
+		model_matrix = glm::mat4();
+		model_matrix = glm::translate(model_matrix, position);  
+
+		/* TODO:: 3D rotation */
+		GLfloat dot = glm::dot(direction, model->get_init_direction());
+		GLfloat det =  model->get_init_direction().x*direction.z - model->get_init_direction().z*direction.x;
+		GLfloat rotation = -1 * glm::atan(det, dot);
+
+	    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
+	    model_matrix = glm::rotate(model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
+	    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
+
+	    model_matrix = glm::scale(model_matrix, glm::vec3(scale));
+
+	    normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
+
 		prev_position = position;
 		prev_scale = scale;
 		prev_direction = direction;

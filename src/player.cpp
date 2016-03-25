@@ -6,6 +6,8 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
 	}
 
+	model->bind_matrices(model_matrix, normal_model_matrix);
+
 	manager = &init_manager;
 	speed = 400.0f;
 	velocity = {0.0f, 0.0f, 0.0f};
@@ -41,28 +43,6 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 															collision_shape, 
 															btVector3(0, 0, 0));
 	collision_body = new btRigidBody(collision_body_CI);
-}
-
-bool Player::update_model_matrix() {
-	GLboolean should_update_model = false;
-	if (position != prev_position) {
-		should_update_model = true;
-	}
-	else if (direction != prev_direction) {
-		should_update_model = true;
-	}
-
-	else if (scale != prev_scale) {
-		should_update_model = true;
-	}
-
-	if (should_update_model) {
-		model->update_matrices(position, scale, direction);
-		prev_position = position;
-		prev_scale = scale;
-		prev_direction = direction;
-	}
-	return true;
 }
 
 bool Player::update_position(GLfloat timedelta){
@@ -104,7 +84,7 @@ bool Player::update_position(GLfloat timedelta){
 		velocity *= speed;
 	}
 
-	update_model_matrix();
+	update_matrices();
 	flashlight->set_direction(direction);
 	flashlight->set_position(position);
 	flashlight->calculate_light_uniforms();
@@ -117,18 +97,50 @@ bool Player::touch_object(Object& object){
 }
 
 bool Player::add_contexts_to_renderer(Renderer& renderer)const{
-	if (!model->add_mesh_contexts_to_renderer(renderer)) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add model mesh contexts to renderer!" << std::endl;
-		errorlogger("ERROR: Failed to add model mesh contexts to renderer!");
-		return false;
-	}
-	if (!model->add_light_contexts_to_renderer(renderer)) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add model light contexts to renderer!" << std::endl;
-		errorlogger("ERROR: Failed to add model light contexts to renderer!");
+	if (!model->add_contexts_to_renderer(renderer)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add model contexts to renderer!" << std::endl;
+		errorlogger("ERROR: Failed to add model contexts to renderer!");
 		return false;
 	}
 
 	flashlight->add_context(renderer);
 
+	return true;
+}
+
+bool Player::update_matrices(){
+	GLboolean should_update_model = false;
+	if (position != prev_position) {
+		should_update_model = true;
+	}
+	else if (direction != prev_direction) {
+		should_update_model = true;
+	}
+
+	else if (scale != prev_scale) {
+		should_update_model = true;
+	}
+
+	if (should_update_model) {
+		model_matrix = glm::mat4();
+		model_matrix = glm::translate(model_matrix, position);  
+
+		/* TODO:: 3D rotation */
+		GLfloat dot = glm::dot(direction, model->get_init_direction());
+		GLfloat det =  model->get_init_direction().x*direction.z - model->get_init_direction().z*direction.x;
+		GLfloat rotation = -1 * glm::atan(det, dot);
+
+	    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
+	    model_matrix = glm::rotate(model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
+	    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
+
+	    model_matrix = glm::scale(model_matrix, glm::vec3(scale));
+
+	    normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
+
+		prev_position = position;
+		prev_scale = scale;
+		prev_direction = direction;
+	}
 	return true;
 }

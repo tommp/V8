@@ -3,11 +3,7 @@
 Model::Model(){
 	name = "";
 	state = "";
-
-	model_matrix = glm::mat4();
-	model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, 0.0f));  
-	model_matrix = glm::scale(model_matrix, glm::vec3(10.0f, 10.0f, 10.0f));
-	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
+	is_complete = false;
 
 	init_direction = {0.0f, 0.0f, -1.0f};
 
@@ -72,19 +68,14 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 			return false;
 		}
 
-		if (!add_lambda_expression(new_mesh)) {
-			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind instance lambda expression for mesh: " << mesh << std::endl;
-			errorlogger("ERROR: Failed to bind instance lambda expression for mesh: ", mesh.c_str());
-			return false;
-		}
-
 		meshes.push_back(new_mesh);
 	}
 
 	return true;
 }
 
-bool Model::add_lambda_expression(const Mesh_ptr& mesh)const{
+bool Model::bind_matrices(const glm::mat4& model_matrix,
+								const glm::mat3& normal_model_matrix){
 	std::function<GLboolean(const Shader_ptr& shader)> expression = [&](const Shader_ptr& shader) ->GLboolean {
 		glUniformMatrix4fv(shader->load_uniform_location("model"),
 						 1, 
@@ -105,35 +96,18 @@ bool Model::add_lambda_expression(const Mesh_ptr& mesh)const{
 		return true;
 	};
 
-	if (!mesh->add_lambda_expression(expression)) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add lambda expression to mesh context!" << std::endl;
-		errorlogger("ERROR: Failed to add lambda expression to mesh context!");
-		return false;
+
+	for (auto mesh : meshes) {
+		if (!mesh->add_lambda_expression(expression)) {
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add lambda expression to mesh context!" << std::endl;
+			errorlogger("ERROR: Failed to add lambda expression to mesh context!");
+			return false;
+		}
 	}
 
+	is_complete = true;
+
 	return true;
-}
-
-bool Model::update_matrices(const glm::vec3& position, 
-							const glm::vec3& scale, 
-							const glm::vec3& direction) {
-	model_matrix = glm::mat4();
-	model_matrix = glm::translate(model_matrix, position);  
-
-	/* TODO:: 3D rotation */
-	GLfloat dot = glm::dot(direction, init_direction);
-	GLfloat det =  init_direction.x*direction.z - init_direction.z*direction.x;
-	GLfloat rotation = -1 * glm::atan(det, dot);
-
-    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
-    model_matrix = glm::rotate(model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
-    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
-
-    model_matrix = glm::scale(model_matrix, glm::vec3(scale));
-
-    normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
-
-    return true;
 }
 
 bool Model::add_mesh_contexts_to_renderer(Renderer& renderer)const{
@@ -149,4 +123,30 @@ bool Model::add_mesh_contexts_to_renderer(Renderer& renderer)const{
 
 bool Model::add_light_contexts_to_renderer(Renderer& renderer)const{
 	return true;
+}
+
+bool Model::add_contexts_to_renderer(Renderer& renderer)const{
+	if (!is_complete) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add rendering contexts, matrices not set for model: " << name << std::endl;
+		errorlogger("ERROR: Failed to add rendering contexts, matrices not set for model: ", name.c_str());
+		return false;
+	}
+
+	if (!add_mesh_contexts_to_renderer(renderer)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add mesh rendering contexts to renderer for model: " << name << std::endl;
+		errorlogger("ERROR: Failed to add mesh rendering contexts to renderer for model: ", name.c_str());
+		return false;
+	}
+
+	if (!add_light_contexts_to_renderer(renderer)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add light rendering contexts to renderer for model: " << name << std::endl;
+		errorlogger("ERROR: Failed to add light rendering contexts to renderer for model: ", name.c_str());
+		return false;
+	}
+
+	return true;
+}
+
+glm::vec3& Model::get_init_direction(){
+	return init_direction;
 }

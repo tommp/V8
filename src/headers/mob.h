@@ -26,6 +26,8 @@ private:
 	std::string name;
 
 	Model_ptr model;
+	glm::mat4 model_matrix;
+	glm::mat3 normal_model_matrix;
 
 	glm::vec3 velocity;
 	glm::vec3 last_pos;
@@ -38,12 +40,13 @@ private:
 	glm::vec3 prev_position;
 	glm::vec3 prev_scale;
 	glm::vec3 prev_direction;
+	bool update_matrices();
+
 public:
 	Mob(Resource_manager& manager, const std::string& model_name, const std::string& mob_name);
 	~Mob();
 	bool update_position(GLfloat timedelta);
 	bool touch_object(Object& object);
-	bool update_model_matrix();
 	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 
