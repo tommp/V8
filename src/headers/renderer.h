@@ -126,9 +126,9 @@ class Renderer{
 		bool upload_view_position(Shader_type shader_type, 
 								const glm::vec3& position)const;
 
-		bool render_dir_lights()const;
-		bool render_point_lights()const;
-		bool render_spot_lights()const;
+		bool render_dir_lights();
+		bool render_point_lights();
+		bool render_spot_lights();
 		bool render_light(const Rendering_context_ptr& context, 
 						const Shader_ptr& shader)const;
 		bool render_dir_light(const Rendering_context_ptr& context, 
@@ -159,7 +159,7 @@ class Renderer{
 							const glm::vec3& camera_up);
 
 		bool render_geometry(const Camera_ptr& camera);
-		bool render_lights(const glm::vec3& position)const;
+		bool render_lights(const glm::vec3& position);
 		bool render_bloom()const;
 
 		bool save_settings();

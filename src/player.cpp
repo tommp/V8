@@ -6,7 +6,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
 	}
 
-	model->bind_matrices(model_matrix, normal_model_matrix);
+	model->bind_context(model_matrix, normal_model_matrix, context_name);
 
 	manager = &init_manager;
 	speed = 400.0f;
@@ -43,6 +43,14 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 															collision_shape, 
 															btVector3(0, 0, 0));
 	collision_body = new btRigidBody(collision_body_CI);
+}
+
+Player::~Player(){
+	if (!model->unbind_context(context_name)){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to unbind model context: " << context_name << std::endl;
+		errorlogger("FATAL ERROR: Failed to unbind model context: ", context_name.c_str());
+		exit(EXIT_FAILURE);
+	}
 }
 
 bool Player::update_position(GLfloat timedelta){

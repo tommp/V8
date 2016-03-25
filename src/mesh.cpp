@@ -278,9 +278,24 @@ Rendering_context_weak Mesh::get_context()const {
 	return weak_context;
 }
 
-bool Mesh::add_lambda_expression(std::function<GLboolean(const Shader_ptr& shader)> expression) {
-	base_context->instance_uniform_setups.push_back(expression);
-	return true;
+bool Mesh::add_uniform_setup(const std::string& modelname, 
+					std::function<GLboolean(const Shader_ptr& shader)> expression) {
+	if (base_context->instance_uniform_setups.find(modelname) == base_context->instance_uniform_setups.end()) {
+		base_context->instance_uniform_setups[modelname] = expression;
+		return true;
+	}
+	std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add lambda expression to mesh context, keyname: " << modelname << std::endl;
+	errorlogger("ERROR: Failed to add lambda expression to mesh context, keyname: ", modelname.c_str());
+	return false;
+}
+
+bool Mesh::remove_uniform_setup(const std::string& modelname) {
+	if (base_context->instance_uniform_setups.find(modelname) != base_context->instance_uniform_setups.end()) {
+		base_context->instance_uniform_setups.erase(modelname);
+		return true;
+	}
+
+	return false;
 }
 
 bool Mesh::add_context_to_renderer(Renderer& renderer){

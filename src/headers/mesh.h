@@ -76,7 +76,10 @@ class Mesh {
 		Rendering_context_weak get_context()const;
 
 		bool add_context_to_renderer(Renderer& renderer);
-		bool add_lambda_expression(std::function<GLboolean(const Shader_ptr& shader)> expression);
+		bool add_uniform_setup(const std::string& modelname, 
+					std::function<GLboolean(const Shader_ptr& shader)> expression);
+		bool remove_uniform_setup(const std::string& modelname);
+		std::string& get_name(){return name;};
 };
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;

@@ -8,7 +8,7 @@ Mob::Mob(Resource_manager& manager, const std::string& model_name, const std::st
 		exit(EXIT_FAILURE);
 	}
 
-	model->bind_matrices(model_matrix, normal_model_matrix);
+	model->bind_context(model_matrix, normal_model_matrix, context_name);
 
 	scale = {50.0f, 50.0f, 50.0f};
 
@@ -33,6 +33,11 @@ Mob::Mob(Resource_manager& manager, const std::string& model_name, const std::st
 }
 
 Mob::~Mob(){
+	if (!model->unbind_context(context_name)){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to unbind model context: " << context_name << std::endl;
+		errorlogger("FATAL ERROR: Failed to unbind model context: ", context_name.c_str());
+		exit(EXIT_FAILURE);
+	}
 }
 
 bool Mob::update_position(float timedelta){

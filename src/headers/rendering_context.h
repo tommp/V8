@@ -12,7 +12,7 @@
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <memory>
-#include <list>
+#include <unordered_map>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -32,7 +32,7 @@ class Rendering_context{
 		GLboolean render_elements;
 
 		std::function<GLboolean(const Shader_ptr& shader)> setup_base_uniforms;
-		std::list<std::function<GLboolean(const Shader_ptr& shader)>> instance_uniform_setups;
+		std::unordered_map<std::string, std::function<GLboolean(const Shader_ptr& shader)>> instance_uniform_setups;
 };
 
 typedef std::shared_ptr<Rendering_context> Rendering_context_ptr;

@@ -869,7 +869,7 @@ bool Renderer::upload_view_position(Shader_type shader_type,
 	return true;
 }
 
-bool Renderer::render_lights(const glm::vec3& position)const{
+bool Renderer::render_lights(const glm::vec3& position){
 
 	if (!bind_g_data(LIGHT_DIRECTIONAL)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_data for directional lights!" << std::endl;
@@ -921,12 +921,12 @@ bool Renderer::render_lights(const glm::vec3& position)const{
 	return true;
 }
 
-bool Renderer::render_dir_lights()const{
-	for (auto light_context : dir_lights) {
-		auto context = light_context.lock();
+bool Renderer::render_dir_lights(){
+	for (auto light_context = dir_lights.begin(); light_context != dir_lights.end(); ++light_context) {
+		auto context = light_context->lock();
 		if (!context) {
 			SDL_Log("Directional light context expired, removing from renderer...");
-			/* TODO::Remove light context */
+			dir_lights.erase(light_context);
 			continue;
 		}
 		else if (!render_dir_light(context, dir_light_shader)){
@@ -938,12 +938,12 @@ bool Renderer::render_dir_lights()const{
 	return true;
 }
 
-bool Renderer::render_point_lights()const{
-	for (auto light_context : point_lights) {
-		auto context = light_context.lock();
+bool Renderer::render_point_lights(){
+	for (auto light_context = point_lights.begin(); light_context != point_lights.end(); ++light_context) {
+		auto context = light_context->lock();
 		if (!context) {
 			SDL_Log("Point light context expired, removing from renderer...");
-			/* TODO::Remove light context */
+			//point_lights.erase(light_context);
 			continue;
 		}
 		else if (!render_light(context, point_light_shader)) {
@@ -955,12 +955,12 @@ bool Renderer::render_point_lights()const{
 	return true;
 }
 
-bool Renderer::render_spot_lights()const{
-	for (auto light_context : spot_lights) {
-		auto context = light_context.lock();
+bool Renderer::render_spot_lights(){
+	for (auto light_context = spot_lights.begin(); light_context != spot_lights.end(); ++light_context) {
+		auto context = light_context->lock();
 		if (!context) {
 			SDL_Log("Spot light context expired, removing from renderer...");
-			/* TODO::Remove light context */
+			//spot_lights.erase(light_context);
 			continue;
 		}
 		else if (!render_light(context, spot_light_shader)) {
@@ -1198,7 +1198,7 @@ bool Renderer::render_base_geometry(const Rendering_context_ptr& context,
 	context->setup_base_uniforms(shader);
 	
 	for (auto instance_setup : context->instance_uniform_setups) {
-		if (!instance_setup(shader)) {
+		if (!instance_setup.second(shader)) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup instance uniforms!");
 			return false;

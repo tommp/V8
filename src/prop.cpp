@@ -6,7 +6,7 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 		errorlogger("ERROR: Prop constructor failed to load model: ", model_name.c_str());
 	}
 
-	model->bind_matrices(model_matrix, normal_model_matrix);
+	model->bind_context(model_matrix, normal_model_matrix, context_name);
 
 	position[0] = 2000.0f;
 

@@ -1,8 +1,9 @@
 #include "model.h"
 
+GLuint Model::context_count= 0;
+
 Model::Model(){
 	name = "";
-	state = "";
 	is_complete = false;
 
 	init_direction = {0.0f, 0.0f, -1.0f};
@@ -74,8 +75,9 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 	return true;
 }
 
-bool Model::bind_matrices(const glm::mat4& model_matrix,
-								const glm::mat3& normal_model_matrix){
+bool Model::bind_context(const glm::mat4& model_matrix,
+								const glm::mat3& normal_model_matrix, 
+								std::string& context_name){
 	std::function<GLboolean(const Shader_ptr& shader)> expression = [&](const Shader_ptr& shader) ->GLboolean {
 		glUniformMatrix4fv(shader->load_uniform_location("model"),
 						 1, 
@@ -96,16 +98,29 @@ bool Model::bind_matrices(const glm::mat4& model_matrix,
 		return true;
 	};
 
+	context_name = static_cast<std::ostringstream*>( &(std::ostringstream() << name << "_" << context_count++) )->str();
 
 	for (auto mesh : meshes) {
-		if (!mesh->add_lambda_expression(expression)) {
-			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add lambda expression to mesh context!" << std::endl;
-			errorlogger("ERROR: Failed to add lambda expression to mesh context!");
+		if (!mesh->add_uniform_setup(context_name, expression)) {
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind uniforms to mesh context!" << std::endl;
+			errorlogger("ERROR: Failed to bind uniforms to mesh context!");
 			return false;
 		}
 	}
 
 	is_complete = true;
+
+	return true;
+}
+
+bool Model::unbind_context(std::string& context_name){
+	for (auto mesh : meshes) {
+		if (!mesh->remove_uniform_setup(context_name)) {
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to remove model mesh context: " << context_name << std::endl;
+			errorlogger("ERROR: Failed to remove model mesh context: ", context_name.c_str());
+			return false;
+		}
+	}
 
 	return true;
 }

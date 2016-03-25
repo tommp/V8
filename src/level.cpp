@@ -151,7 +151,7 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	return true;
 }
 
-bool Level::render_geometry(Renderer& renderer) {
+bool Level::render_geometry(Renderer& renderer)const{
 	if(!renderer.render_geometry(camera) || check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
 		errorlogger("ERROR: Failed to render geometry!");
@@ -160,7 +160,7 @@ bool Level::render_geometry(Renderer& renderer) {
 	return true;
 }
 
-void Level::render_lights(const Renderer& renderer)const{
+void Level::render_lights(Renderer& renderer)const{
 	renderer.render_bloom();
 	if(!renderer.render_lights(camera->get_position_refrence()) || check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
@@ -169,7 +169,7 @@ void Level::render_lights(const Renderer& renderer)const{
 	}
 }
 
-void Level::render_level(Renderer& renderer){
+void Level::render_level(Renderer& renderer)const{
 	render_geometry(renderer);
 	render_lights(renderer);
 }

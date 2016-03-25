@@ -28,6 +28,7 @@ private:
 	Model_ptr model;
 	glm::mat4 model_matrix;
 	glm::mat3 normal_model_matrix;
+	std::string context_name;
 
 	glm::vec3 velocity;
 	glm::vec3 last_pos;

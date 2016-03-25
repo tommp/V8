@@ -35,8 +35,9 @@ class Model{
 	private:
 		GLboolean is_complete;
 
+		static GLuint context_count;
+
 		std::string name;
-		std::string state;
 
 		glm::vec3 init_direction;
 
@@ -53,8 +54,10 @@ class Model{
 	public:
 		Model();
 		bool load_from_file(Resource_manager& manager, const std::string& name);
-		bool bind_matrices(const glm::mat4& model_matrix,
-							const glm::mat3& normal_model_matrix);
+		bool bind_context(const glm::mat4& model_matrix,
+								const glm::mat3& normal_model_matrix, 
+								std::string& context_name);
+		bool unbind_context(std::string& context_name);
 		bool add_contexts_to_renderer(Renderer& renderer)const;
 
 		glm::vec3& get_init_direction();

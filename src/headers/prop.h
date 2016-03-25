@@ -23,6 +23,7 @@ class btRigidBody;
 class Prop: public Actor, public Object{
 private:
 	Model_ptr model;
+	std::string context_name;
 	glm::mat4 model_matrix;
 	glm::mat3 normal_model_matrix;
 	
