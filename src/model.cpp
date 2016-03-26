@@ -83,13 +83,13 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 bool Model::bind_context(const glm::mat4& model_matrix,
 								const glm::mat3& normal_model_matrix, 
 								std::string& context_name){
-	std::function<GLboolean(const Shader_ptr& shader)> expression = [&](const Shader_ptr& shader) ->GLboolean {
-		glUniformMatrix4fv(shader->load_uniform_location("model"),
+	std::function<GLboolean(const Shader_ptr& shader, GLuint instance)> expression = [&](const Shader_ptr& shader, GLuint instance) ->GLboolean {
+		glUniformMatrix4fv(shader->load_uniform_location("models", instance),
 						 1, 
 						 GL_FALSE, 
 						 glm::value_ptr(model_matrix));
 
-		glUniformMatrix3fv(shader->load_uniform_location("normal_model"),
+		glUniformMatrix3fv(shader->load_uniform_location("normal_models", instance),
 						 1, 
 						 GL_FALSE, 
 						 glm::value_ptr(normal_model_matrix));

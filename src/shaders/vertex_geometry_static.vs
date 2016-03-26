@@ -6,8 +6,8 @@ out vec2 frag_tex_coord;
 out vec3 frag_position;
 out vec3 frag_normal;
 
-uniform mat4 model;
-uniform mat3 normal_model;
+uniform mat4 models[100];
+uniform mat3 normal_models[100];
 
 layout (std140) uniform Matrices
 {
@@ -18,12 +18,12 @@ layout (std140) uniform Matrices
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(position, 1.0f);
+    gl_Position = projection * view * models[gl_InstanceID] * vec4(position, 1.0f);
 
     frag_tex_coord = tex_coord;
 
-    frag_normal = normal_model * normal;
+    frag_normal = normal_models[gl_InstanceID] * normal;
 
-    frag_position = vec3(model * vec4(position, 1.0f));
+    frag_position = vec3(models[gl_InstanceID] * vec4(position, 1.0f));
 
 }

@@ -186,3 +186,20 @@ GLuint Shader::load_uniform_location(const std::string& uniform){
         return new_uniform_location;
     }
 }
+
+GLuint Shader::load_uniform_location(const std::string& uniform, GLuint uniform_index){
+    std::string uniform_name = static_cast<std::ostringstream*>( &(std::ostringstream() << uniform << "[" << uniform_index << "]") )->str();
+    if (uniform_locations.find(uniform_name) != uniform_locations.end()){
+        return uniform_locations[uniform_name];
+    }
+    else{
+        GLuint new_uniform_location = glGetUniformLocation(program, uniform_name.c_str());
+        if(check_ogl_error()) {
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_position buffer!" << std::endl;
+            errorlogger("ERROR: Failed to bind g_position buffer!");
+            return -1;
+        }
+        uniform_locations[uniform_name] = new_uniform_location;
+        return new_uniform_location;
+    }
+}

@@ -1196,33 +1196,70 @@ bool Renderer::render_base_geometry(const Rendering_context_ptr& context,
 								const Shader_ptr& shader)const{
 
 	context->setup_base_uniforms(shader);
-	
-	for (auto instance_setup : context->instance_uniform_setups) {
-		if (!instance_setup.second(shader)) {
+
+	GLuint num_instances = context->instance_uniform_setups.size();
+	GLuint num_batches = num_instances / Renderer_consts::BATCH_SIZE;
+	GLuint last_batch_instances = num_instances % Renderer_consts::BATCH_SIZE;
+	auto context_iterator = context->instance_uniform_setups.begin();
+
+	for (GLuint batch = 0; batch < num_batches; ++batch) {
+		for (GLuint instance = 0; instance < Renderer_consts::BATCH_SIZE; ++instance) {
+			if (!context_iterator->second(shader, instance)) {
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
+				errorlogger("ERROR: Failed to setup instance uniforms!");
+				return false;
+			}
+
+			++context_iterator;
+		}
+
+		if (!ogl_render_geometry(context, Renderer_consts::BATCH_SIZE)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render batch geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render batch geometry!");
+			return false;
+		}
+	}
+
+	for (GLuint instance = 0; instance < last_batch_instances; ++instance) {
+		if (!context_iterator->second(shader, instance)) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup instance uniforms!");
 			return false;
 		}
-		else{
-			glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
-			glBindVertexArray(context->VAO);
-			if (context->render_elements) {
-				glDrawElements(GL_TRIANGLES, context->num_vertices, GL_UNSIGNED_INT, 0);
-			}
-			else{
-				glDrawArrays(GL_TRIANGLES, 0, context->num_vertices);
-			}
-			glBindVertexArray(0);
 
-			if(check_ogl_error()){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render elements!" << std::endl;
-				errorlogger("ERROR: Failed to render elements!");
-				return false;
-			}
-		}
-		
+		++context_iterator;
+	}
+
+	if (!ogl_render_geometry(context, last_batch_instances)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last batch geometry!" << std::endl;
+		errorlogger("ERROR: Failed to render last batch geometry!");
+		return false;
 	}
    
+	return true;
+}
+
+bool Renderer::ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const{
+	glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
+	glBindVertexArray(context->VAO);
+	if (context->render_elements) {
+		glDrawElementsInstanced(GL_TRIANGLES, 
+								context->num_vertices, 
+								GL_UNSIGNED_INT, 
+								0, 
+								instances);
+	}
+	else{
+		glDrawArraysInstanced(GL_TRIANGLES, 0, context->num_vertices, instances);
+	}
+
+	glBindVertexArray(0);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: OpenGL error, failed to draw geometry!" << std::endl;
+		errorlogger("ERROR: OpenGL error, failed to draw geometry!");
+		return false;
+	}
+
 	return true;
 }
 

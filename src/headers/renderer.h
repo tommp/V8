@@ -32,6 +32,10 @@
 const unsigned int OPENGL_MAJOR_VERSION =	3;
 const unsigned int OPENGL_MINOR_VERSION =	3;
 
+namespace Renderer_consts{
+	const GLuint BATCH_SIZE = 100;
+}
+
 const glm::vec4 CLEARCOLOR = 				{0.0, 0.0, 0.0, 1.0};
 
 class Camera;
@@ -118,6 +122,7 @@ class Renderer{
 		bool render_animated_colored_geomety()const;
 		bool render_base_geometry(const Rendering_context_ptr& context, 
 								const Shader_ptr& shader)const;
+		bool ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const;
 
 		bool bloom_pass(GLuint amount)const;
 		bool render_bloom_quad()const;
