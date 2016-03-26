@@ -12,7 +12,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	}
 
 	
-	for (int i = 0; i < 100; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		Mob_ptr cube = std::make_shared<Mob>(init_manager, "BOX", "larva");
 		add_object(cube);
 	}
@@ -187,11 +187,11 @@ bool Level::render_level(Renderer& renderer)const{
 		return false;
 	}
 
-	/*if (!render_bloom(renderer)){
+	if (!render_bloom(renderer)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level bloom!"<< std::endl;
 		errorlogger("ERROR: Failed to render level bloom!");
 		return false;
-	}*/
+	}
 
 	if (!render_lights(renderer)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level lights!" << std::endl;

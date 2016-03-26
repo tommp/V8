@@ -20,7 +20,7 @@ Mob::Mob(Resource_manager& manager, const std::string& model_name, const std::st
 
 	mass = 100.0f;
 	fall_inertia = {0.0, 0.0, 0.0};
-	collision_shape = new btSphereShape(20);
+	collision_shape = new btSphereShape(50);
 	collision_shape->calculateLocalInertia(mass, fall_inertia);
 	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
 														btVector3(0, 0, 0)));

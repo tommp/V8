@@ -222,7 +222,12 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 		}
 	}
 
-	base_context->num_vertices = indices.size();
+	if (indices.size() > 0) {
+		base_context->num_vertices = indices.size();
+	}
+	else{
+		base_context->num_vertices = vertices.size();
+	}
 
 	glGenVertexArrays(1, &(base_context->VAO));
 	glGenBuffers(1, &VBO);

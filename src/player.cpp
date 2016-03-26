@@ -12,7 +12,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	speed = 400.0f;
 	velocity = {0.0f, 0.0f, 0.0f};
 
-	position = {0.0f, 0.0f, 0.0f};
+	position = {0.0f, 0.0f, -100.0f};
 	scale = {20.0f, 20.0f, 20.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 
@@ -36,7 +36,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	collision_shape = new btSphereShape(20);
 	collision_shape->calculateLocalInertia(mass, fall_inertia);
 	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
-														btVector3(0, 0, 0)));
+														btVector3(position.x, position.y, position.z)));
 	
 	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, 
 															motion_state, 

@@ -1288,6 +1288,12 @@ bool Renderer::bloom_pass(GLuint amount)const{
 		}
 	}
 
+	if (!use_default_buffer()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set framebuffer to default!" << std::endl;
+			errorlogger("ERROR: Failed to set framebuffer to default!");
+			return false;
+	}
+
 	return true;
 }
 
@@ -1304,7 +1310,6 @@ bool Renderer::render_bloom_quad()const{
 }
 
 bool Renderer::render_bloom()const{
-	use_g_buffer();
 	glDisable(GL_BLEND);
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup bloom rendering!" << std::endl;
@@ -1318,7 +1323,6 @@ bool Renderer::render_bloom()const{
 		return false;
 	}
 
-	use_default_buffer();
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_ONE, GL_ONE);
