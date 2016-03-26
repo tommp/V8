@@ -6,6 +6,7 @@
 /*---------------------------------------------*/
 #include "btBulletDynamicsCommon.h"
 #include "errorlogger.h"
+#include "actor.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -17,8 +18,21 @@
 
 /*Header content*/
 /*=============================================*/
-class Particle_system{
+class Particle{
+	public:
+		Model_ptr model;
+		GLuint lifetime;
+		GLuint age;
+
+		/* TODO::Transform feedback */
+		glm::mat4 model_matrix;
+		glm::mat3 normal_model_matrix;
+};
+
+class Particle_system: public Actor{
 	private:
+		std::list<Particle> particles;
+
 	public:
 };
 
