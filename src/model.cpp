@@ -55,10 +55,15 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 	this->name = name;
 	std::vector<std::string> mesh_names;
 
-	if (!load_binary_model(manager, name, mesh_names)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load binary model with name: " << name << std::endl;
-		errorlogger("ERROR: Unable to load binary model with name: ", name.c_str());
-		return false;
+	if (name == Mesh_vars::BOX) {
+		mesh_names.push_back(name);
+	}
+	else{
+		if (!load_binary_model(manager, name, mesh_names)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load binary model with name: " << name << std::endl;
+			errorlogger("ERROR: Unable to load binary model with name: ", name.c_str());
+			return false;
+		}
 	}
 
 	for (auto mesh : mesh_names) {

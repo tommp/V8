@@ -13,7 +13,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 
 	
 	for (int i = 0; i < 100; ++i) {
-		Mob_ptr cube = std::make_shared<Mob>(init_manager, "wiggle", "larva");
+		Mob_ptr cube = std::make_shared<Mob>(init_manager, "BOX", "larva");
 		add_object(cube);
 	}
 	

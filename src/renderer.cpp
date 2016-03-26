@@ -1091,11 +1091,11 @@ bool Renderer::render_geometry(const Camera_ptr& camera){
 		return false;
 	}
 
-	/*if (!bloom_pass(10)) {
+	if (!bloom_pass(10)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!" << std::endl;
 		errorlogger("ERROR: Failed to render bloom!");
 		return false;
-	}*/
+	}
 	
 	if (!detach_geometry_rendering()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;

@@ -3,7 +3,7 @@
 Mesh::Mesh(){
 	VBO = 0;
 	EBO = 0;
-	object_color = {1.0f, 00.0f, 00.2f, 1.0f};
+	object_color = {5.0f, 0.0f, 0.0f, 1.0f};
 	material = nullptr;
 
 	mesh_in_renderer = false;
@@ -123,7 +123,18 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 bool Mesh::load_base_box(std::vector<Vertex>& vertices, 
 				std::vector<GLuint>& indices) {
 	base_context->shader_type = GEOMETRY_STATIC;
-	std::vector<glm::vec3> cube_vertices = {
+	std::vector<glm::vec3> cube_v_positions = {
+		glm::vec3(-1.0, -1.0,  1.0),
+		glm::vec3(1.0, -1.0,  1.0),
+		glm::vec3(1.0,  1.0,  1.0),
+		glm::vec3(-1.0,  1.0,  1.0),
+		glm::vec3(-1.0, -1.0, -1.0),
+		glm::vec3(1.0, -1.0, -1.0),
+		glm::vec3(1.0,  1.0, -1.0),
+		glm::vec3(-1.0,  1.0, -1.0),
+	};
+
+	std::vector<glm::vec3> cube_normals = {
 		glm::vec3(-1.0, -1.0,  1.0),
 		glm::vec3(1.0, -1.0,  1.0),
 		glm::vec3(1.0,  1.0,  1.0),
@@ -150,8 +161,10 @@ bool Mesh::load_base_box(std::vector<Vertex>& vertices,
 	};
 
 	Vertex vertex;
-	for (auto vertex_position : cube_vertices) {
-		vertex.position = vertex_position;
+	for (GLuint i = 0; i < cube_v_positions.size(); ++i) {
+		vertex.position = cube_v_positions[i];
+		vertex.normal = cube_normals[i];
+		vertex.tex_coords = {0.0f, 0.0f};
 		vertices.push_back(vertex);
 	}
 
