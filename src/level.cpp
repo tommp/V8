@@ -160,18 +160,46 @@ bool Level::render_geometry(Renderer& renderer)const{
 	return true;
 }
 
-void Level::render_lights(Renderer& renderer)const{
-	renderer.render_bloom();
+bool Level::render_lights(Renderer& renderer)const{
 	if(!renderer.render_lights(camera->get_position_refrence()) || check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");
-		exit(EXIT_FAILURE);
+		return false;
 	}
+
+	return true;
 }
 
-void Level::render_level(Renderer& renderer)const{
-	render_geometry(renderer);
-	render_lights(renderer);
+bool Level::render_bloom(Renderer& renderer)const{
+	if (!renderer.render_bloom()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!"<< std::endl;
+		errorlogger("ERROR: Failed to render bloom!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Level::render_level(Renderer& renderer)const{
+	if (!render_geometry(renderer)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level geometry!"<< std::endl;
+		errorlogger("ERROR: Failed to render level geometry!");
+		return false;
+	}
+
+	/*if (!render_bloom(renderer)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level bloom!"<< std::endl;
+		errorlogger("ERROR: Failed to render level bloom!");
+		return false;
+	}*/
+
+	if (!render_lights(renderer)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level lights!" << std::endl;
+		errorlogger("ERROR: Failed to render level lights!");
+		return false;
+	}
+
+	return true;
 }
 
 bool Level::add_to_physics_world(btRigidBody* object)const{

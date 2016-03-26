@@ -1090,12 +1090,6 @@ bool Renderer::render_geometry(const Camera_ptr& camera){
 		errorlogger("ERROR: Failed to render animated colored geometry!");
 		return false;
 	}
-
-	if (!bloom_pass(10)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!" << std::endl;
-		errorlogger("ERROR: Failed to render bloom!");
-		return false;
-	}
 	
 	if (!detach_geometry_rendering()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;
@@ -1310,6 +1304,25 @@ bool Renderer::render_bloom_quad()const{
 }
 
 bool Renderer::render_bloom()const{
+	use_g_buffer();
+	glDisable(GL_BLEND);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup bloom rendering!" << std::endl;
+		errorlogger("ERROR: Failed to setup bloom rendering!");
+		return false;
+	}
+
+	if (!bloom_pass(10)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!" << std::endl;
+		errorlogger("ERROR: Failed to render bloom!");
+		return false;
+	}
+
+	use_default_buffer();
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_ONE, GL_ONE);
+
 	bloom_shader->use();
 	glActiveTexture(GL_TEXTURE0 + 5);
 	glUniform1i(bloom_shader->load_uniform_location("bloom"), 5);

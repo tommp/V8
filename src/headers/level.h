@@ -79,7 +79,7 @@ class Level {
 		Level(Resource_manager& init_manager, Renderer& renderer);
 		~Level();
 
-		void update_groups();
+		bool update_groups();
 
 		bool add_object(const Prop_ptr& prop);
 		bool add_object(const Mob_ptr& mob);
@@ -90,8 +90,9 @@ class Level {
 		bool add_objects_to_physics_world()const;
 
 		bool render_geometry(Renderer& renderer)const;
-		void render_lights(Renderer& renderer)const;
-		void render_level(Renderer& renderer)const;
+		bool render_bloom(Renderer& renderer)const;
+		bool render_lights(Renderer& renderer)const;
+		bool render_level(Renderer& renderer)const;
 
 		void load_level();
 		void unload_level();
