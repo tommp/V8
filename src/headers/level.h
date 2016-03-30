@@ -89,9 +89,6 @@ class Level {
 		bool add_contexts_to_renderer(Renderer& renderer)const;
 		bool add_objects_to_physics_world()const;
 
-		bool render_geometry(Renderer& renderer)const;
-		bool render_bloom(Renderer& renderer)const;
-		bool render_lights(Renderer& renderer)const;
 		bool render_level(Renderer& renderer)const;
 
 		void load_level();

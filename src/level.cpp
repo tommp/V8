@@ -12,7 +12,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	}
 
 	
-	for (int i = 0; i < 1000; ++i) {
+	for (int i = 0; i < 20; ++i) {
 		Mob_ptr cube = std::make_shared<Mob>(init_manager, "BOX", "larva");
 		add_object(cube);
 	}
@@ -151,51 +151,10 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	return true;
 }
 
-bool Level::render_geometry(Renderer& renderer)const{
-	if(!renderer.render_geometry(camera) || check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
-		errorlogger("ERROR: Failed to render geometry!");
-		return false;
-	}
-	return true;
-}
-
-bool Level::render_lights(Renderer& renderer)const{
-	if(!renderer.render_lights(camera->get_position_refrence()) || check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
-		errorlogger("ERROR: Failed to render lights!");
-		return false;
-	}
-
-	return true;
-}
-
-bool Level::render_bloom(Renderer& renderer)const{
-	if (!renderer.render_bloom()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!"<< std::endl;
-		errorlogger("ERROR: Failed to render bloom!");
-		return false;
-	}
-
-	return true;
-}
-
 bool Level::render_level(Renderer& renderer)const{
-	if (!render_geometry(renderer)){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level geometry!"<< std::endl;
-		errorlogger("ERROR: Failed to render level geometry!");
-		return false;
-	}
-
-	/*if (!render_bloom(renderer)){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level bloom!"<< std::endl;
-		errorlogger("ERROR: Failed to render level bloom!");
-		return false;
-	}*/
-
-	if (!render_lights(renderer)){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level lights!" << std::endl;
-		errorlogger("ERROR: Failed to render level lights!");
+	if (!renderer.render_all(camera)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level!"<< std::endl;
+		errorlogger("ERROR: Failed to render level!");
 		return false;
 	}
 

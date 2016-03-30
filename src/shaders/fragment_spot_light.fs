@@ -25,7 +25,7 @@ layout (std140) uniform Light_data
 	vec2 screen_size;
 };
 
-int shininess = 32;
+const int shininess = 32;
 
 void main()
 {    
@@ -60,17 +60,6 @@ void main()
 	ambient  *= attenuation; 
 	diffuse  *= attenuation;
 	specular *= attenuation;   
-			
-	//HDR calculations
-	const float gamma = 2.2;
-	const float exposure = 1.0;
-
-    vec3 hdrColor = ambient + diffuse + specular;
   
-    // Exposure tone mapping
-    vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
-    // Gamma correction 
-    mapped = pow(mapped, vec3(1.0 / gamma));
-  
-    color = vec4(mapped, 1.0);
+    color = vec4(ambient + diffuse + specular, 1.0);
 }

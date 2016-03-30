@@ -25,7 +25,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 				lightcolor, 
 				lightcomponents,
 				30,
-				45);
+				60);
 
 	prev_position = position * 2.0f;
 	prev_scale = scale;

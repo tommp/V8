@@ -38,7 +38,6 @@ namespace Renderer_consts{
 
 const glm::vec4 CLEARCOLOR = 				{0.0, 0.0, 0.0, 1.0};
 
-class Camera;
 class Resource_manager;
 
 class Renderer{
@@ -48,6 +47,8 @@ class Renderer{
 		SDL_GLContext gl_context;
 
 	    GLboolean use_vsync;
+	    GLboolean use_AA;
+	    GLboolean use_bloom;
 	    GLboolean use_fullscreen;
 	    GLboolean mouse_visible;
 	    GLboolean ortographic;
@@ -58,15 +59,22 @@ class Renderer{
 	    glm::mat4 view;
 	    glm::mat4 unrotated_view;
 
+	    /* TODO::Optimize lots here, wasting a ton of res. */
 		GLuint g_buffer;
+		GLuint AA_fbo;
+		GLuint bb_fbos[2];
+		GLuint light_fbo;
+
 		GLuint g_position;
 		GLuint g_normal;
 		GLuint g_albedo_spec;
 		GLuint g_bloom;
 		GLuint g_rbo_depth;
-
-		GLuint bb_fbos[2];
 		GLuint bb_buffers[2];
+		GLuint AA_buffer;
+		GLuint light_buffer;
+		GLuint light_rbo_depth;
+		/* =============================================== */
 
 		GLuint quad_VAO;
 		GLuint quad_VBO;
@@ -95,6 +103,7 @@ class Renderer{
 		Shader_ptr vertical_blur_shader;
 		Shader_ptr horizontal_blur_shader;
 		Shader_ptr bloom_shader;
+		Shader_ptr FXAA_shader;
 
 		bool init_window();
 		bool init_openGL();
@@ -124,8 +133,8 @@ class Renderer{
 								const Shader_ptr& shader)const;
 		bool ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const;
 
-		bool bloom_pass(GLuint amount)const;
-		bool render_bloom_quad()const;
+		bool apply_bloom(GLuint amount)const;
+		bool render_quad()const;
 
 		bool bind_g_data(Shader_type light_type)const;
 		bool upload_view_position(Shader_type shader_type, 
@@ -165,7 +174,9 @@ class Renderer{
 
 		bool render_geometry(const Camera_ptr& camera);
 		bool render_lights(const glm::vec3& position);
-		bool render_bloom()const;
+		bool ppe_blend()const;
+
+		bool apply_AA()const;
 
 		bool save_settings();
 		bool load_settings();
@@ -178,6 +189,8 @@ class Renderer{
 		void toggle_mouse()const;
 		void clear()const;
 		void present()const;
+
+		bool render_all(const Camera_ptr& camera);
 };
 
 typedef std::shared_ptr<Renderer> Renderer_ptr;

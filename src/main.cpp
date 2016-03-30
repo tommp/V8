@@ -112,8 +112,8 @@ int main(int argc, char** argv){
 		}
 
 		/* Render to screen */
-		world.render_world(renderer);
-		if(check_ogl_error()){
+		
+		if(!world.render_world(renderer)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to render world!" << std::endl;
 			errorlogger("FATAL ERROR: Failed to render world!");
 			exit(EXIT_FAILURE);

@@ -7,6 +7,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "errorlogger.h"
 #include "actor.h"
+#include "model.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -14,6 +15,7 @@
 #include <GL/glew.h>
 #include <string>
 #include <memory>
+#include <list>
 /*---------------------------------------------*/
 
 /*Header content*/

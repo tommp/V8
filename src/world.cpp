@@ -60,9 +60,12 @@ bool World::update_positions(GLfloat timedelta, Renderer& renderer){
 }
 
 
-void World::render_world(Renderer& renderer){
-	current_level->render_level(renderer);
+bool World::render_world(Renderer& renderer){
+	if (!current_level->render_level(renderer)) {
+		return false;
+	}
 	renderer.present();
+	return true;
 }
 
 bool World::add_player(const Player_ptr& player){

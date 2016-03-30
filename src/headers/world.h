@@ -38,7 +38,7 @@ public:
 	bool add_players_to_physics_world()const;
 	bool add_player_contexts_to_renderer(Renderer& renderer)const;
 
-	void render_world(Renderer& renderer);
+	bool render_world(Renderer& renderer);
 
 	bool update_positions(float timedelta, Renderer& renderer);
 	bool resolve_collisions();

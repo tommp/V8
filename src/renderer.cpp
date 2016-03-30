@@ -97,6 +97,8 @@ bool Renderer::init_settings(){
 		use_fullscreen = false;
 		window_size.x = 1280.0f;
 		window_size.y = 640.0f;
+		use_AA = true;
+		use_bloom = false;
 
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to load display settings, restoring defaults." << std::endl;
 		errorlogger("WARNING: Failed to load display settings, restoring defaults.");
@@ -108,7 +110,6 @@ bool Renderer::init_settings(){
 		}
 	}
 	SDL_DisableScreenSaver();
-	clear();
 	return true;
 }
 
@@ -326,6 +327,13 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
+	FXAA_shader = resource_manager.load_shader("FXAA_shader");
+	if (!FXAA_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to FXAA_shader shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load FXAA_shader in renderer");
+		return false;
+	}
+
 	return true;
 }
 
@@ -339,7 +347,6 @@ bool Renderer::init_framebuffers() {
 	glGenFramebuffers(1, &g_buffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
 	  
-	// - Position color buffer
 	glGenTextures(1, &g_position);
 	glBindTexture(GL_TEXTURE_2D, g_position);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -351,7 +358,7 @@ bool Renderer::init_framebuffers() {
 		errorlogger("ERROR: Failed to initialize g_position buffer in g_buffer!");
 		return false;
 	}
-	// - Normal color buffer
+
 	glGenTextures(1, &g_normal);
 	glBindTexture(GL_TEXTURE_2D, g_normal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -364,7 +371,6 @@ bool Renderer::init_framebuffers() {
 		return false;
 	}
 
-	// - Color + Specular color buffer
 	glGenTextures(1, &g_albedo_spec);
 	glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -377,7 +383,6 @@ bool Renderer::init_framebuffers() {
 		return false;
 	}
 
-	// - Bloom color buffer
 	glGenTextures(1, &g_bloom);
 	glBindTexture(GL_TEXTURE_2D, g_bloom);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -390,7 +395,6 @@ bool Renderer::init_framebuffers() {
 		return false;
 	}
 
-	// - Tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
 	GLuint attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 	glDrawBuffers(4, attachments);
 
@@ -407,13 +411,6 @@ bool Renderer::init_framebuffers() {
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
 		print_framebuffer_error_in_fucking_english();
 		errorlogger( "ERROR: G-framebuffer not complete!");
-		return false;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	if (!set_clear_color_black()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to set clear color!" << std::endl;
-		errorlogger("ERROR: Failed to set clear color!");
 		return false;
 	}
 
@@ -436,11 +433,74 @@ bool Renderer::init_framebuffers() {
 			return false;
 		}
 
+		GLuint bb_attachment = GL_COLOR_ATTACHMENT0;
+		glDrawBuffers(1, &bb_attachment);
+
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
 			print_framebuffer_error_in_fucking_english();
 			errorlogger( "ERROR: Bloom framebuffers not complete!");
 			return false;
 		}
+	}
+
+	glGenFramebuffers(1, &AA_fbo);
+	glGenTextures(1, &AA_buffer);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, AA_fbo);
+	glBindTexture(GL_TEXTURE_2D, AA_buffer);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, AA_buffer, 0);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize AA_buffer in AA_fbo!" << std::endl;
+		errorlogger("ERROR: Failed to initialize AA_buffer in AA_fbo!");
+		return false;
+	}
+
+	GLuint aa_attachment = GL_COLOR_ATTACHMENT0;
+	glDrawBuffers(1, &aa_attachment);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
+		print_framebuffer_error_in_fucking_english();
+		errorlogger( "ERROR: AA framebuffer not complete!");
+		return false;
+	}
+
+	glGenFramebuffers(1, &light_fbo);
+	glGenTextures(1, &light_buffer);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, light_fbo);
+	glBindTexture(GL_TEXTURE_2D, light_buffer);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, light_buffer, 0);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize light_buffer in light_fbo!" << std::endl;
+		errorlogger("ERROR: Failed to initialize light_buffer in light_fbo!");
+		return false;
+	}
+
+	GLuint light_attachment = GL_COLOR_ATTACHMENT0;
+	glDrawBuffers(1, &light_attachment);
+
+	glGenRenderbuffers(1, &light_rbo_depth);
+	glBindRenderbuffer(GL_RENDERBUFFER, light_rbo_depth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, window_size.x, window_size.y);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, light_rbo_depth);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize g_rbo_depth buffer in g_buffer!" << std::endl;
+		errorlogger("ERROR: Failed to initialize g_rbo_depth buffer in g_buffer!");
+		return false;
+	}
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
+		print_framebuffer_error_in_fucking_english();
+		errorlogger( "ERROR: Light framebuffer not complete!");
+		return false;
 	}
 
 	return true;
@@ -502,6 +562,8 @@ bool Renderer::save_settings(){
 	contentf.write(reinterpret_cast<const char *>(&use_vsync), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_fullscreen), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&mouse_visible), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_bloom), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_AA), sizeof(GLboolean));
 
 	contentf.write(reinterpret_cast<const char *>(&window_size.x), sizeof(GLfloat));
 	contentf.write(reinterpret_cast<const char *>(&window_size.y), sizeof(GLfloat));
@@ -524,6 +586,8 @@ bool Renderer::load_settings(){
 	contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_bloom), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_AA), sizeof(GLboolean));
 
 	contentf.read(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
 	contentf.read(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
@@ -632,10 +696,10 @@ bool Renderer::render_line(const glm::vec3& start,
 
 void Renderer::update_projection_matrix(){
 	if (ortographic) {
-		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, 0.1f, 6000.0f);
+		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, 10.0f, 3000.0f);
 	}
 	else{
-		projection = glm::perspective(45.0f, window_size.x / window_size.y, 0.1f, 6000.0f);
+		projection = glm::perspective(45.0f, window_size.x / window_size.y, 10.0f, 3000.0f);
 	}
 }
 
@@ -788,6 +852,36 @@ bool Renderer::upload_view_matrix()const{
 	return true;
 }
 
+bool Renderer::render_all(const Camera_ptr& camera){
+	if(!render_geometry(camera) || check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
+		errorlogger("ERROR: Failed to render geometry!");
+		return false;
+	}
+
+	if (use_AA) {
+		if (!apply_AA()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply anti aliasing!"<< std::endl;
+			errorlogger("ERROR: Failed to apply anti aliasing!");
+			return false;
+		}
+	}
+
+	if(!render_lights(camera->get_position_refrence()) || check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
+		errorlogger("ERROR: Failed to render lights!");
+		return false;
+	}
+
+	if (!ppe_blend()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!"<< std::endl;
+		errorlogger("ERROR: Failed to render bloom!");
+		return false;
+	}
+
+	return true;
+}
+
 /* ================================================================== LightLight */
 
 bool Renderer::bind_g_data(Shader_type light_type)const{
@@ -830,8 +924,14 @@ bool Renderer::bind_g_data(Shader_type light_type)const{
 	}
 	
 	glActiveTexture(GL_TEXTURE0 + 2);
-	glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
 	glUniform1i(current_shader->load_uniform_location("g_albedo_spec"), 2);
+	if (use_AA) {
+		glBindTexture(GL_TEXTURE_2D, AA_buffer);
+	}
+	else{
+		glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
+	}
+	
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_albedo_spec buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_albedo_spec buffer!");
@@ -870,6 +970,11 @@ bool Renderer::upload_view_position(Shader_type shader_type,
 }
 
 bool Renderer::render_lights(const glm::vec3& position){
+	glBindFramebuffer(GL_FRAMEBUFFER, light_fbo);
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_ONE, GL_ONE);
+	clear();
 
 	if (!bind_g_data(LIGHT_DIRECTIONAL)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_data for directional lights!" << std::endl;
@@ -918,6 +1023,9 @@ bool Renderer::render_lights(const glm::vec3& position){
 		errorlogger("ERROR: Failed to render spot lights!");
 		return false;
 	}
+
+	glDisable(GL_BLEND);
+
 	return true;
 }
 
@@ -1041,11 +1149,12 @@ bool Renderer::setup_geometry_rendering(const Camera_ptr& camera){
 						camera->get_target_refrence(), 
 						camera->get_up_dir_refrence());
 	upload_view_matrix();
+
 	use_g_buffer();
+	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 	clear();
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
+	
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup geometry rendering!" << std::endl;
 		errorlogger("ERROR: Failed to setup geometry rendering!");
@@ -1103,11 +1212,6 @@ bool Renderer::render_geometry(const Camera_ptr& camera){
 bool Renderer::detach_geometry_rendering()const{
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_ONE, GL_ONE);
-	use_default_buffer();
-	clear();
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;
 		errorlogger("ERROR: Failed to detach geometry rendering!");
@@ -1259,7 +1363,7 @@ bool Renderer::ogl_render_geometry(const Rendering_context_ptr& context, GLuint 
 
 /* ================================================================== BloomBloom */
 
-bool Renderer::bloom_pass(GLuint amount)const{
+bool Renderer::apply_bloom(GLuint amount)const{
 	if ((amount % 2) != 0) {
 		++amount;
 	}
@@ -1279,58 +1383,93 @@ bool Renderer::bloom_pass(GLuint amount)const{
 
 		glBindFramebuffer(GL_FRAMEBUFFER, bb_fbos[1 - (i % 2)]); 
 		glActiveTexture(GL_TEXTURE0);
-		glUniform1i(bloom_shader->load_uniform_location("bloom"), 0);
 		glBindTexture(GL_TEXTURE_2D, (i == 0) ? g_bloom : bb_buffers[i % 2]); 
-		if (!render_bloom_quad()) {
+		if (!render_quad()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render light quad for bloom calculations!" << std::endl;
 			errorlogger("ERROR: Failed to render light quad for bloom calculations!");
 			return false;
 		}
 	}
 
-	if (!use_default_buffer()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set framebuffer to default!" << std::endl;
-			errorlogger("ERROR: Failed to set framebuffer to default!");
-			return false;
-	}
-
 	return true;
 }
 
-bool Renderer::render_bloom_quad()const{
+bool Renderer::render_quad()const{
 	glBindVertexArray(quad_VAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind light quad for bloom calculations!" << std::endl;
-		errorlogger("ERROR: Failed to bind light quad for bloom calculations!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind quad!" << std::endl;
+		errorlogger("ERROR: Failed to bind quad!");
 		return false;
 	}
 	return true;
 }
 
-bool Renderer::render_bloom()const{
-	glDisable(GL_BLEND);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup bloom rendering!" << std::endl;
-		errorlogger("ERROR: Failed to setup bloom rendering!");
-		return false;
+bool Renderer::ppe_blend()const{
+	if (use_bloom) {
+		if (!apply_bloom(2)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!" << std::endl;
+			errorlogger("ERROR: Failed to render bloom!");
+			return false;
+		}
 	}
 
-	if (!bloom_pass(10)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!" << std::endl;
-		errorlogger("ERROR: Failed to render bloom!");
-		return false;
-	}
-
+	use_default_buffer();
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_ONE, GL_ONE);
+	clear();
 
 	bloom_shader->use();
-	glActiveTexture(GL_TEXTURE0 + 5);
-	glUniform1i(bloom_shader->load_uniform_location("bloom"), 5);
-	glBindTexture(GL_TEXTURE_2D, bb_buffers[0]); 
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(bloom_shader->load_uniform_location("bloom"), 0);
+	
+	if (use_bloom) {
+		glBindTexture(GL_TEXTURE_2D, bb_buffers[0]);
+		if(check_ogl_error()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffer!" << std::endl;
+			errorlogger("ERROR: Failed to bind bloom buffer!");
+			return false;
+		}
+
+		if (!render_quad()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom quad!" << std::endl;
+			errorlogger("ERROR: Failed to render bloom quad!");
+			return false;
+		}
+	}
+
+
+	glBindTexture(GL_TEXTURE_2D, light_buffer);
+
+	if(check_ogl_error()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffer!" << std::endl;
+		errorlogger("ERROR: Failed to bind bloom buffer!");
+		return false;
+	}
+
+	if (!render_quad()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom quad!" << std::endl;
+		errorlogger("ERROR: Failed to render bloom quad!");
+		return false;
+	}
+
+	glDisable(GL_BLEND);
+
+	return true;
+}
+
+/* ================================================================== AAAA */
+
+bool Renderer::apply_AA()const{
+	glBindFramebuffer(GL_FRAMEBUFFER, AA_fbo);
+	clear();
+
+	FXAA_shader->use();
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(FXAA_shader->load_uniform_location("colortexture"), 0);
+	glBindTexture(GL_TEXTURE_2D, g_albedo_spec); 
 	
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffer!" << std::endl;
@@ -1338,7 +1477,7 @@ bool Renderer::render_bloom()const{
 		return false;
 	}
 
-	if (!render_bloom_quad()){
+	if (!render_quad()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom quad!" << std::endl;
 		errorlogger("ERROR: Failed to render bloom quad!");
 		return false;
