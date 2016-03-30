@@ -8,29 +8,40 @@ Texture::Texture(){
 }
 
 Texture::~Texture(){
-	/* Deallocate */
-	free_texture();
+	if (!free_texture()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to free texture: " << name << std::endl;
+		errorlogger("FATAL ERROR: Failed to free texture: ", name.c_str());
+		exit(EXIT_FAILURE);
+	}
 }
 
-void Texture::free_texture(){
-	/* Free texture if it exists */
-	if( texture != 0 )
-	{
+bool Texture::free_texture(){
+	if( texture != 0 ){
 		glDeleteTextures(1, &texture);
+		if(check_ogl_error()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to delete texture: " << name << std::endl;
+			errorlogger("ERROR: Failed to delete texture: ", name.c_str());
+			return false;
+		}
 		texture = 0;
 		width = 0;
 		height = 0;
 	}
+
+	return true;
 }
 
-void Texture::use(const std::string& uniform_name, GLuint texture_unit, const Shader_ptr& shader){
+bool Texture::use(const std::string& uniform_name, GLuint texture_unit, const Shader_ptr& shader){
     glActiveTexture(GL_TEXTURE0 + texture_unit);
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(shader->load_uniform_location(uniform_name.c_str()), texture_unit);
     if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind texture when using: " << uniform_name << ", with texture: " << name << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind texture uniform: " << uniform_name << ", with texture: " << name << std::endl;
 		errorlogger("ERROR: Failed to bind texture when using: ", uniform_name.c_str());
+		return false;
 	}
+
+	return true;
 }
 
 unsigned char* Texture::load_binary_texture(const std::string& name){

@@ -16,13 +16,21 @@ Mesh::Mesh(){
 	base_context->setup_base_uniforms = [&](const Shader_ptr& shader) {
 		switch (base_context->shader_type) {
 		case GEOMETRY_ANIMATED:
-			material->use(shader);
+			if (!material->use(shader)) {
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to use material for mesh: " << name << std::endl;
+				errorlogger("ERROR: Failed to use material for mesh: ", name.c_str());
+				return false;
+			}
 			break;
 		case GEOMETRY_ANIMATED_COLORED:
 			glUniform4fv(shader->load_uniform_location("object_color"), 1, (float*)&(object_color));
 			break;
 		case GEOMETRY_STATIC:
-			material->use(shader);
+			if (!material->use(shader)) {
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to use material for mesh: " << name << std::endl;
+				errorlogger("ERROR: Failed to use material for mesh: ", name.c_str());
+				return false;
+			}
 			break;
 		case GEOMETRY_STATIC_COLORED:
 			glUniform4fv(shader->load_uniform_location("object_color"), 1, (float*)&(object_color));

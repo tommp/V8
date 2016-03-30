@@ -5,18 +5,30 @@ Material::Material(){
 	specular = nullptr;
 }
 
-void Material::use(const Shader_ptr& shader){
+bool Material::use(const Shader_ptr& shader){
 	if (diffuse) {
-		diffuse->use("material.diffuse", 3, shader);
+		if (!diffuse->use("material.diffuse", 3, shader)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to use diffuse texture for material: " << name << std::endl;
+			errorlogger("ERROR: Failed to use diffuse texture for material: ", name.c_str());
+			return false;
+		}
 	}
 	if(specular){
-		specular->use("material.specular", 4, shader);
+		if (!specular->use("material.specular", 4, shader)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to use specular texture for material: " << name << std::endl;
+			errorlogger("ERROR: Failed to use specular texture for material: ", name.c_str());
+			return false;
+		}
 	}
 	shininess = 32;
+
+	return true;
 }
 
 bool Material::load_from_file(Resource_manager& manager, const std::string& name){
 	std::string material_path = MATERIAL_DATA_PATH + name + ".mat";
+
+	this->name = name;
 
 	std::ifstream contentf (material_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){

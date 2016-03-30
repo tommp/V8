@@ -548,340 +548,6 @@ bool Renderer::init_bloom_data(){
 	return true;
 }
 
-bool Renderer::save_settings(){
-	std::cout << "Saving display settings...\n" << std::endl;
-	std::ofstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
-
-	if (!contentf.is_open()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for display settings!" << std::endl;
-		errorlogger("ERROR: Failed to open content file for display settings!");
-		return false;
-	}
-
-	contentf.write(reinterpret_cast<const char *>(&ortographic), sizeof(GLboolean));
-	contentf.write(reinterpret_cast<const char *>(&use_vsync), sizeof(GLboolean));
-	contentf.write(reinterpret_cast<const char *>(&use_fullscreen), sizeof(GLboolean));
-	contentf.write(reinterpret_cast<const char *>(&mouse_visible), sizeof(GLboolean));
-	contentf.write(reinterpret_cast<const char *>(&use_bloom), sizeof(GLboolean));
-	contentf.write(reinterpret_cast<const char *>(&use_AA), sizeof(GLboolean));
-
-	contentf.write(reinterpret_cast<const char *>(&window_size.x), sizeof(GLfloat));
-	contentf.write(reinterpret_cast<const char *>(&window_size.y), sizeof(GLfloat));
-
-	contentf.close();
-	std::cout << "Display settings saved!\n" << std::endl;
-	return true;
-}
-
-bool Renderer::load_settings(){
-	std::ifstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
-
-	if (!contentf.is_open()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for display settings!" << std::endl;
-		errorlogger("ERROR: Failed to open content file for display settings!");
-		return false;
-	}
-
-	contentf.read(reinterpret_cast<char *>(&ortographic), sizeof(GLboolean));
-	contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(GLboolean));
-	contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(GLboolean));
-	contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(GLboolean));
-	contentf.read(reinterpret_cast<char *>(&use_bloom), sizeof(GLboolean));
-	contentf.read(reinterpret_cast<char *>(&use_AA), sizeof(GLboolean));
-
-	contentf.read(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
-	contentf.read(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
-
-	contentf.close();
-
-	return true;
-}
-
-bool Renderer::set_clear_color_black(){
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to set clear color to black!" << std::endl;
-		errorlogger("ERROR: Failed to set clear color to black!");
-		return false;
-	}
-	return true;
-}
-
-bool Renderer::add_context(const Rendering_context_ptr& context) {
-
-	Rendering_context_weak context_weak = context;
-
-	if (context){
-		switch (context->shader_type) {
-			case GEOMETRY_ANIMATED:
-				animated_geom.push_back(context_weak);
-				break;
-			case GEOMETRY_STATIC:
-				static_geom.push_back(context_weak);
-				break;
-			case GEOMETRY_ANIMATED_COLORED:
-				animated_colored_geom.push_back(context_weak);
-				break;
-			case GEOMETRY_STATIC_COLORED:
-				static_colored_geom.push_back(context_weak);
-				break;
-			case LIGHT_POINT:
-				point_lights.push_back(context_weak);
-				break;
-			case LIGHT_SPOT:
-				spot_lights.push_back(context_weak);
-				break;
-			case LIGHT_DIRECTIONAL:
-				dir_lights.push_back(context_weak);
-				break;
-			case NO_SHADER:
-				std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: No shader type set for rendering context!" << std::endl;
-				errorlogger("ERROR: No shader type set for rendering context!");
-				return false;
-			default:
-				std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Unknown shader type for rendering context!" << std::endl;
-				errorlogger("ERROR: Unknown shader type for rendering context!");
-				return false;
-		}
-		
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Cannot add nullptr to targets!" << std::endl;
-		errorlogger("ERROR: Cannot add nullptr to targets!");
-		return false;
-	}
-
-	return true;
-}
-
-bool Renderer::use_g_buffer()const{
-	glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind g_buffer!" << std::endl;
-		errorlogger("ERROR: Failed to bind g_buffer!");
-		return false;
-	}
-	return true;
-}
-
-bool Renderer::use_default_buffer()const{
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind default_framebuffer!" << std::endl;
-		errorlogger("ERROR: Failed to bind default_framebuffer!");
-		return false;
-	}
-	return true;
-}
-
-GLuint Renderer::get_uniform_buffer(const std::string& name)const{
-	if(uniform_buffers.find(name) != uniform_buffers.end()){
-		return uniform_buffers.find(name)->second;
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Uniform buffer not availiable, query name: " << name << std::endl;
-		errorlogger("ERROR: Uniform buffer not availiable, query name: ", name.c_str());
-		exit(EXIT_FAILURE);
-		return -1;
-	}
-};
-
-bool Renderer::render_line(const glm::vec3& start, 
-							const glm::vec3& end, 
-							const glm::vec3& color){
-	return true;
-}
-
-//DISPFUNCS
-
-void Renderer::update_projection_matrix(){
-	if (ortographic) {
-		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, 10.0f, 3000.0f);
-	}
-	else{
-		projection = glm::perspective(45.0f, window_size.x / window_size.y, 10.0f, 3000.0f);
-	}
-}
-
-bool Renderer::upload_projection_matrix()const{
-	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("matrices")->second);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
-
-	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload projection matix!" << std::endl;
-		errorlogger("ERROR: Failed to upload projection matix!");
-		return false;
-	}
-
-	return true;
-}
-
-void Renderer::toggle_mouse()const{
-	if (mouse_visible) {
-		SDL_ShowCursor(0);
-	}
-	else{
-		SDL_ShowCursor(1);
-	}
-}
-
-bool Renderer::enable_fullscreen(){
-	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-	GLint width;
-	GLint height;
-	SDL_GetWindowSize(window, &width, &height);
-	window_size.x = (GLfloat) width;
-	window_size.y = (GLfloat) height;
-	return true;
-}
-
-bool Renderer::set_screen_size(GLuint width, GLuint height){
-	SDL_SetWindowSize(window, width, height);
-	window_size.x = (GLfloat) width;
-	window_size.y = (GLfloat) height;
-	update_projection_matrix();
-	if (!upload_projection_matrix()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload projection matrix!" << std::endl;
-		errorlogger("ERROR: Failed to upload projection matrix!");
-		return false;
-	}
-	return true;
-}
-
-bool Renderer::update_screen_size(){
-	GLint width;
-	GLint height;
-	SDL_GetWindowSize(window, &width, &height);
-	if (width != window_size.x || height != window_size.y) {
-		window_size.x = (GLfloat) width;
-		window_size.y = (GLfloat) height;
-		glViewport(0, 0, window_size.x, window_size.y);
-		if(check_ogl_error()) {
-			std::cout << "ERROR: Failed to reset viewport!" << std::endl;
-			errorlogger("ERROR: Failed to reset viewport!");
-			return false;
-		}
-		delete_g_buffer();
-		init_framebuffers();
-		if(check_ogl_error()) {
-			std::cout << "ERROR: Failed to reset g_buffer!" << std::endl;
-			errorlogger("ERROR: Failed to reset g_buffer!");
-			return false;
-		}
-
-		if (!upload_light_data()) {
-			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload light data in renderer!" << std::endl;
-			errorlogger("ERROR: Failed to upload light data in renderer!");
-			return false;
-		}
-		update_projection_matrix();
-		if (!upload_projection_matrix()) {
-			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload projection matrix!" << std::endl;
-			errorlogger("ERROR: Failed to upload projection matrix!");
-			return false;
-		}
-	}
-	return true;
-}
-
-bool Renderer::enable_vsync(){
-	if ( !(SDL_GL_SetSwapInterval(1) < 0)){
-		return true;
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: SDL_GL_SetSwapInterval could not enable vsync! SDL Error: " << SDL_GetError() << std::endl;
-		SDLerrorLogger("SDL_GL_SetSwapInterval");
-		return false;
-	}
-}
-
-bool Renderer::disable_vsync(){
-	if ( !(SDL_GL_SetSwapInterval(0) < 0)){
-		return true;
-	}
-	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: SDL_GL_SetSwapInterval could not disable vsync! SDL Error: " << SDL_GetError() << std::endl;
-		SDLerrorLogger("SDL_GL_SetSwapInterval");
-		return false;
-	}
-}
-
-void Renderer::clear()const{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void Renderer::present()const{
-	SDL_GL_SwapWindow(window);
-}
-
-bool Renderer::delete_g_buffer() {
-	glDeleteTextures(1, &g_position);
-	glDeleteTextures(1, &g_normal);
-	glDeleteTextures(1, &g_albedo_spec);
-	glDeleteRenderbuffers(1, &g_rbo_depth);
-	glDeleteFramebuffers(1, &g_buffer);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete g_buffer objects!" << std::endl;
-		errorlogger("ERROR: Failed delete g_buffer objects!");
-		return false;
-	}
-	return true;
-}
-
-void Renderer::update_view_matrix(const glm::vec3& position, const glm::vec3& target, const glm::vec3& camera_up) {
-	/*std::cout << "POS: " << position.x << " : " << position.y << " : " << position.z << std::endl;
-	std::cout << "TARG: " << target.x << " : " << target.y << " : " << target.z << std::endl;
-	std::cout << "CAM: " << camera_up.x << " : " << camera_up.y << " : " << camera_up.z << std::endl;*/
-	view = glm::lookAt(position, target, camera_up);
-	unrotated_view =  glm::lookAt(position, target, camera_up);
-}
-
-bool Renderer::upload_view_matrix()const{
-	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("matrices")->second);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view)); 
-	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(unrotated_view));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload view matrix!" << std::endl;
-		errorlogger("ERROR: Failed to upload view matrix!");
-		return false;
-	}
-
-	return true;
-}
-
-bool Renderer::render_all(const Camera_ptr& camera){
-	if(!render_geometry(camera) || check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
-		errorlogger("ERROR: Failed to render geometry!");
-		return false;
-	}
-
-	if (use_AA) {
-		if (!apply_AA()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply anti aliasing!"<< std::endl;
-			errorlogger("ERROR: Failed to apply anti aliasing!");
-			return false;
-		}
-	}
-
-	if(!render_lights(camera->get_position_refrence()) || check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
-		errorlogger("ERROR: Failed to render lights!");
-		return false;
-	}
-
-	if (!ppe_blend()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!"<< std::endl;
-		errorlogger("ERROR: Failed to render bloom!");
-		return false;
-	}
-
-	return true;
-}
-
 /* ================================================================== LightLight */
 
 bool Renderer::bind_g_data(Shader_type light_type)const{
@@ -1440,6 +1106,36 @@ void Renderer::toggle_aliasing() {
 
 /* ======================================================= GenericGeneric */
 
+bool Renderer::render_all(const Camera_ptr& camera){
+	if(!render_geometry(camera) || check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
+		errorlogger("ERROR: Failed to render geometry!");
+		return false;
+	}
+
+	if (use_AA) {
+		if (!apply_AA()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply anti aliasing!"<< std::endl;
+			errorlogger("ERROR: Failed to apply anti aliasing!");
+			return false;
+		}
+	}
+
+	if(!render_lights(camera->get_position_refrence()) || check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
+		errorlogger("ERROR: Failed to render lights!");
+		return false;
+	}
+
+	if (!ppe_blend()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!"<< std::endl;
+		errorlogger("ERROR: Failed to render bloom!");
+		return false;
+	}
+
+	return true;
+}
+
 bool Renderer::ppe_blend()const{
 	if (use_bloom) {
 		if (!apply_bloom(2)) {
@@ -1503,5 +1199,309 @@ bool Renderer::render_quad()const{
 		errorlogger("ERROR: Failed to bind quad!");
 		return false;
 	}
+	return true;
+}
+
+bool Renderer::save_settings(){
+	std::cout << "Saving display settings...\n" << std::endl;
+	std::ofstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
+
+	if (!contentf.is_open()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for display settings!" << std::endl;
+		errorlogger("ERROR: Failed to open content file for display settings!");
+		return false;
+	}
+
+	contentf.write(reinterpret_cast<const char *>(&ortographic), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_vsync), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_fullscreen), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&mouse_visible), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_bloom), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_AA), sizeof(GLboolean));
+
+	contentf.write(reinterpret_cast<const char *>(&window_size.x), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&window_size.y), sizeof(GLfloat));
+
+	contentf.close();
+	std::cout << "Display settings saved!\n" << std::endl;
+	return true;
+}
+
+bool Renderer::load_settings(){
+	std::ifstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
+
+	if (!contentf.is_open()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for display settings!" << std::endl;
+		errorlogger("ERROR: Failed to open content file for display settings!");
+		return false;
+	}
+
+	contentf.read(reinterpret_cast<char *>(&ortographic), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_bloom), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_AA), sizeof(GLboolean));
+
+	contentf.read(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
+	contentf.read(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
+
+	contentf.close();
+
+	return true;
+}
+
+bool Renderer::set_clear_color_black(){
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to set clear color to black!" << std::endl;
+		errorlogger("ERROR: Failed to set clear color to black!");
+		return false;
+	}
+	return true;
+}
+
+bool Renderer::add_context(const Rendering_context_ptr& context) {
+
+	Rendering_context_weak context_weak = context;
+
+	if (context){
+		switch (context->shader_type) {
+			case GEOMETRY_ANIMATED:
+				animated_geom.push_back(context_weak);
+				break;
+			case GEOMETRY_STATIC:
+				static_geom.push_back(context_weak);
+				break;
+			case GEOMETRY_ANIMATED_COLORED:
+				animated_colored_geom.push_back(context_weak);
+				break;
+			case GEOMETRY_STATIC_COLORED:
+				static_colored_geom.push_back(context_weak);
+				break;
+			case LIGHT_POINT:
+				point_lights.push_back(context_weak);
+				break;
+			case LIGHT_SPOT:
+				spot_lights.push_back(context_weak);
+				break;
+			case LIGHT_DIRECTIONAL:
+				dir_lights.push_back(context_weak);
+				break;
+			case NO_SHADER:
+				std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: No shader type set for rendering context!" << std::endl;
+				errorlogger("ERROR: No shader type set for rendering context!");
+				return false;
+			default:
+				std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Unknown shader type for rendering context!" << std::endl;
+				errorlogger("ERROR: Unknown shader type for rendering context!");
+				return false;
+		}
+		
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Cannot add nullptr to targets!" << std::endl;
+		errorlogger("ERROR: Cannot add nullptr to targets!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::use_g_buffer()const{
+	glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind g_buffer!" << std::endl;
+		errorlogger("ERROR: Failed to bind g_buffer!");
+		return false;
+	}
+	return true;
+}
+
+bool Renderer::use_default_buffer()const{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind default_framebuffer!" << std::endl;
+		errorlogger("ERROR: Failed to bind default_framebuffer!");
+		return false;
+	}
+	return true;
+}
+
+GLuint Renderer::get_uniform_buffer(const std::string& name)const{
+	if(uniform_buffers.find(name) != uniform_buffers.end()){
+		return uniform_buffers.find(name)->second;
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Uniform buffer not availiable, query name: " << name << std::endl;
+		errorlogger("ERROR: Uniform buffer not availiable, query name: ", name.c_str());
+		exit(EXIT_FAILURE);
+		return -1;
+	}
+};
+
+bool Renderer::render_line(const glm::vec3& start, 
+							const glm::vec3& end, 
+							const glm::vec3& color){
+	return true;
+}
+
+//DISPFUNCS
+
+void Renderer::update_projection_matrix(){
+	if (ortographic) {
+		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, 10.0f, 3000.0f);
+	}
+	else{
+		projection = glm::perspective(45.0f, window_size.x / window_size.y, 10.0f, 3000.0f);
+	}
+}
+
+bool Renderer::upload_projection_matrix()const{
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("matrices")->second);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
+
+	if(check_ogl_error()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload projection matix!" << std::endl;
+		errorlogger("ERROR: Failed to upload projection matix!");
+		return false;
+	}
+
+	return true;
+}
+
+void Renderer::toggle_mouse()const{
+	if (mouse_visible) {
+		SDL_ShowCursor(0);
+	}
+	else{
+		SDL_ShowCursor(1);
+	}
+}
+
+bool Renderer::enable_fullscreen(){
+	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	GLint width;
+	GLint height;
+	SDL_GetWindowSize(window, &width, &height);
+	window_size.x = (GLfloat) width;
+	window_size.y = (GLfloat) height;
+	return true;
+}
+
+bool Renderer::set_screen_size(GLuint width, GLuint height){
+	SDL_SetWindowSize(window, width, height);
+	window_size.x = (GLfloat) width;
+	window_size.y = (GLfloat) height;
+	update_projection_matrix();
+	if (!upload_projection_matrix()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload projection matrix!" << std::endl;
+		errorlogger("ERROR: Failed to upload projection matrix!");
+		return false;
+	}
+	return true;
+}
+
+bool Renderer::update_screen_size(){
+	GLint width;
+	GLint height;
+	SDL_GetWindowSize(window, &width, &height);
+	if (width != window_size.x || height != window_size.y) {
+		window_size.x = (GLfloat) width;
+		window_size.y = (GLfloat) height;
+		glViewport(0, 0, window_size.x, window_size.y);
+		if(check_ogl_error()) {
+			std::cout << "ERROR: Failed to reset viewport!" << std::endl;
+			errorlogger("ERROR: Failed to reset viewport!");
+			return false;
+		}
+		delete_g_buffer();
+		init_framebuffers();
+		if(check_ogl_error()) {
+			std::cout << "ERROR: Failed to reset g_buffer!" << std::endl;
+			errorlogger("ERROR: Failed to reset g_buffer!");
+			return false;
+		}
+
+		if (!upload_light_data()) {
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload light data in renderer!" << std::endl;
+			errorlogger("ERROR: Failed to upload light data in renderer!");
+			return false;
+		}
+		update_projection_matrix();
+		if (!upload_projection_matrix()) {
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload projection matrix!" << std::endl;
+			errorlogger("ERROR: Failed to upload projection matrix!");
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Renderer::enable_vsync(){
+	if ( !(SDL_GL_SetSwapInterval(1) < 0)){
+		return true;
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: SDL_GL_SetSwapInterval could not enable vsync! SDL Error: " << SDL_GetError() << std::endl;
+		SDLerrorLogger("SDL_GL_SetSwapInterval");
+		return false;
+	}
+}
+
+bool Renderer::disable_vsync(){
+	if ( !(SDL_GL_SetSwapInterval(0) < 0)){
+		return true;
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: SDL_GL_SetSwapInterval could not disable vsync! SDL Error: " << SDL_GetError() << std::endl;
+		SDLerrorLogger("SDL_GL_SetSwapInterval");
+		return false;
+	}
+}
+
+void Renderer::clear()const{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::present()const{
+	SDL_GL_SwapWindow(window);
+}
+
+bool Renderer::delete_g_buffer() {
+	glDeleteTextures(1, &g_position);
+	glDeleteTextures(1, &g_normal);
+	glDeleteTextures(1, &g_albedo_spec);
+	glDeleteRenderbuffers(1, &g_rbo_depth);
+	glDeleteFramebuffers(1, &g_buffer);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete g_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed delete g_buffer objects!");
+		return false;
+	}
+	return true;
+}
+
+void Renderer::update_view_matrix(const glm::vec3& position, const glm::vec3& target, const glm::vec3& camera_up) {
+	/*std::cout << "POS: " << position.x << " : " << position.y << " : " << position.z << std::endl;
+	std::cout << "TARG: " << target.x << " : " << target.y << " : " << target.z << std::endl;
+	std::cout << "CAM: " << camera_up.x << " : " << camera_up.y << " : " << camera_up.z << std::endl;*/
+	view = glm::lookAt(position, target, camera_up);
+	unrotated_view =  glm::lookAt(position, target, camera_up);
+}
+
+bool Renderer::upload_view_matrix()const{
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("matrices")->second);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view)); 
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(unrotated_view));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload view matrix!" << std::endl;
+		errorlogger("ERROR: Failed to upload view matrix!");
+		return false;
+	}
+
 	return true;
 }

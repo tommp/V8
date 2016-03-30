@@ -7,7 +7,7 @@ layout (std140) uniform Light_data
 	vec2 screen_size;
 };
 
-const float FXAA_span_max = 8.0;
+const float FXAA_span_max = 9.0;
 const float FXAA_reduce_mul = 1.0/8.0;
 const float FXAA_reduce_min = (1.0/128.0);
 

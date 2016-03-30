@@ -153,8 +153,8 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 
 bool Level::render_level(Renderer& renderer)const{
 	if (!renderer.render_all(camera)){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level!"<< std::endl;
-		errorlogger("ERROR: Failed to render level!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Renderer failed to render level!"<< std::endl;
+		errorlogger("ERROR: Renderer failed to render level!");
 		return false;
 	}
 

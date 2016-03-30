@@ -62,6 +62,8 @@ bool World::update_positions(GLfloat timedelta, Renderer& renderer){
 
 bool World::render_world(Renderer& renderer){
 	if (!current_level->render_level(renderer)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level!" << std::endl;
+		errorlogger("ERROR: Failed to render level!");
 		return false;
 	}
 	renderer.present();

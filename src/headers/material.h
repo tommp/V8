@@ -27,6 +27,7 @@ typedef std::shared_ptr<Shader> Shader_ptr;
 
 class Material{
 private:
+	std::string name;
 	Texture_ptr diffuse;
 	Texture_ptr specular;
 	GLuint shininess;
@@ -34,7 +35,7 @@ public:
 	Material();
 	bool is_complete()const;
 	bool load_from_file(Resource_manager& manager, const std::string& name);
-	void use(const Shader_ptr& shader);
+	bool use(const Shader_ptr& shader);
 };
 
 typedef std::shared_ptr<Material> Material_ptr;

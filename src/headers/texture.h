@@ -36,8 +36,8 @@ class Texture
     public:
         Texture();
         ~Texture();
-        void free_texture();
-        void use(const std::string& uniform_name, GLuint texture_unit, const Shader_ptr& shader);
+        bool free_texture();
+       bool use(const std::string& uniform_name, GLuint texture_unit, const Shader_ptr& shader);
 
         bool load_from_file(const std::string& name);
         unsigned char* load_binary_texture(const std::string& name);
