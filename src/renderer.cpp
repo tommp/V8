@@ -1394,17 +1394,51 @@ bool Renderer::apply_bloom(GLuint amount)const{
 	return true;
 }
 
-bool Renderer::render_quad()const{
-	glBindVertexArray(quad_VAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
+void Renderer::toggle_bloom() {
+	if (use_bloom) {
+		use_bloom = false;
+	}
+	else{
+		use_bloom = true;
+	}
+}
+
+/* ================================================================== AAAA */
+
+bool Renderer::apply_AA()const{
+	glBindFramebuffer(GL_FRAMEBUFFER, AA_fbo);
+	clear();
+
+	FXAA_shader->use();
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(FXAA_shader->load_uniform_location("colortexture"), 0);
+	glBindTexture(GL_TEXTURE_2D, g_albedo_spec); 
+	
 	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind quad!" << std::endl;
-		errorlogger("ERROR: Failed to bind quad!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffer!" << std::endl;
+		errorlogger("ERROR: Failed to bind bloom buffer!");
 		return false;
 	}
+
+	if (!render_quad()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom quad!" << std::endl;
+		errorlogger("ERROR: Failed to render bloom quad!");
+		return false;
+	}
+
 	return true;
 }
+
+void Renderer::toggle_aliasing() {
+	if(use_AA) {
+		use_AA = false;
+	}
+	else{
+		use_AA = true;
+	}
+}
+
+/* ======================================================= GenericGeneric */
 
 bool Renderer::ppe_blend()const{
 	if (use_bloom) {
@@ -1460,28 +1494,14 @@ bool Renderer::ppe_blend()const{
 	return true;
 }
 
-/* ================================================================== AAAA */
-
-bool Renderer::apply_AA()const{
-	glBindFramebuffer(GL_FRAMEBUFFER, AA_fbo);
-	clear();
-
-	FXAA_shader->use();
-	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(FXAA_shader->load_uniform_location("colortexture"), 0);
-	glBindTexture(GL_TEXTURE_2D, g_albedo_spec); 
-	
+bool Renderer::render_quad()const{
+	glBindVertexArray(quad_VAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
 	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffer!" << std::endl;
-		errorlogger("ERROR: Failed to bind bloom buffer!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind quad!" << std::endl;
+		errorlogger("ERROR: Failed to bind quad!");
 		return false;
 	}
-
-	if (!render_quad()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom quad!" << std::endl;
-		errorlogger("ERROR: Failed to render bloom quad!");
-		return false;
-	}
-
 	return true;
 }

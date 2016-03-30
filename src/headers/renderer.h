@@ -191,6 +191,9 @@ class Renderer{
 		void present()const;
 
 		bool render_all(const Camera_ptr& camera);
+
+		void toggle_aliasing();
+		void toggle_bloom();
 };
 
 typedef std::shared_ptr<Renderer> Renderer_ptr;

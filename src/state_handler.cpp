@@ -1,7 +1,8 @@
 #include "state_handler.h"
 
-State_handler::State_handler(const Resource_manager& init_manager){
+State_handler::State_handler(const Resource_manager& init_manager, Renderer& init_renderer){
 	manager = &init_manager;
+	renderer = &init_renderer;
 	game_running = true;
 	menu_open = false;
 	paused = false;
@@ -16,6 +17,12 @@ void State_handler::handle_events(){
 		else if (ehandler.type == SDL_KEYDOWN) {
 			if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", QUIT)) {
 				game_running = false;
+			}
+			else if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", A0)) {
+				renderer->toggle_aliasing();
+			}
+			else if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", A1)) {
+				renderer->toggle_bloom();
 			}
 		}
 		else if (ehandler.type == SDL_WINDOWEVENT) {

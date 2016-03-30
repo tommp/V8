@@ -22,12 +22,13 @@ private:
 	SDL_Event ehandler;
 
 	const Resource_manager* manager;
+	Renderer* renderer;
 
 	bool game_running;
 	bool menu_open;
 	bool paused;
 public:
-	State_handler(const Resource_manager& init_manager);
+	State_handler(const Resource_manager& init_manager, Renderer& init_renderer);
 	void handle_events();
 	bool game_is_running(){return game_running;};
 };
