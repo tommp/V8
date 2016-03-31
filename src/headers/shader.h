@@ -25,9 +25,9 @@
 /*Header content*/
 /*=============================================*/
 
-/* STATIC LINKAGE, CHANGE TO DYNAMIC LATER */
-#define GLEW_STATIC
-#define OPENGL_VERSION "#version 330 core\n"
+namespace Shader_vars{
+	extern std::string opengl_version;
+}
 
 class Shader{
 private:

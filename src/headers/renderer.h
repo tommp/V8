@@ -29,14 +29,14 @@
 /*Header content*/
 /*=============================================*/
 
-const unsigned int OPENGL_MAJOR_VERSION =	3;
-const unsigned int OPENGL_MINOR_VERSION =	3;
-
 namespace Renderer_consts{
-	const GLuint BATCH_SIZE = 100;
+	const GLuint BATCH_SIZE = 			100;
+	const GLuint OPENGL_MAJOR_VERSION =	3;
+	const GLuint OPENGL_MINOR_VERSION =	2;
+	const glm::vec4 CLEARCOLOR = 		{0.0, 0.0, 0.0, 1.0};
 }
 
-const glm::vec4 CLEARCOLOR = 				{0.0, 0.0, 0.0, 1.0};
+
 
 class Resource_manager;
 
@@ -113,7 +113,7 @@ class Renderer{
 		bool init_shaders(Resource_manager& resource_manager);
 		bool init_bloom_data();
 
-		bool delete_g_buffer();
+		bool delete_buffers();
 
 		bool use_g_buffer()const;
 		bool use_default_buffer()const;

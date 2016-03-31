@@ -54,7 +54,7 @@ Mesh::~Mesh(){
 }
 
 bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::string& material_name){
-	std::string mesh_path = MESH_DATA_PATH + name + ".mesh";
+	std::string mesh_path = Utility_vars::folder_path + MESH_DATA_PATH + name + ".mesh";
 
 	this->name = name;
 

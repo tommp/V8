@@ -4,7 +4,7 @@
 /*Included headers*/
 /*---------------------------------------------*/
 #include "SOIL.h"
-#include "paths.h"
+#include "DEFINES.h"
 #include "errorlogger.h"
 #include "vertex.h"
 #include "Importer.hpp"
@@ -24,21 +24,27 @@
 #include <vector>
 #include <glob.h>
 #include <cstdio>
+#include <unistd.h>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
-#define DISABLE_VSYNC 0
 
-const unsigned int TILESIZE = 				32;
-const unsigned int SCREEN_FPS = 			60;
-const int SCREEN_TICKS_PER_FRAME =			1000 / SCREEN_FPS;
-const GLuint TRUE_BOOL = 					1;
-const GLuint FALSE_BOOL = 					0;
+namespace Utility_vars{
+	extern std::string folder_path;
+}
+
+namespace Utility_consts{
+	const GLuint SCREEN_FPS = 				60;
+	const GLuint SCREEN_TICKS_PER_FRAME =	1000 / SCREEN_FPS;
+	const GLuint TRUE_BOOL = 				1;
+	const GLuint FALSE_BOOL = 				0;
+}
+
+
 
 inline GLboolean file_exists(const std::string& name);
 
-/* Waits for user input and quits when detected */
 void wait_for_event();
 
 GLboolean write_string_to_binary_file(std::ofstream& fstream, const std::string& string);
@@ -134,6 +140,10 @@ GLint check_ogl_error();
 void discard_ogl_errors();
 
 void print_framebuffer_error_in_fucking_english();
+
+bool init_utility_vars();
+
+bool set_folder_path();
 /*=============================================*/
 
 #endif

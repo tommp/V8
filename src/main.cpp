@@ -25,6 +25,16 @@ int main(int argc, char** argv){
 	}
 	std::cout << "SDL initialized!\n" << std::endl;
 	std::cout << "=======================================\n" << std::endl;
+
+	std::cout << "Initializing utility variables..." << std::endl;
+	if (!init_utility_vars()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to initialize utility variables!"<<std::endl;
+		errorlogger("FATAL ERROR: Failed to initialize utility variables!");
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "Utility variables initialized!\n" << std::endl;
+	std::cout << "=======================================\n" << std::endl;
+
 #ifdef REBUILD_ASSETS
 	std::cout << "Converting images..." << std::endl;
 	if (!convert_all_images()){
@@ -122,9 +132,9 @@ int main(int argc, char** argv){
 #if DISABLE_VSYNC
 		/* If frame finished early */
 		int frame_ticks = cap_timer.get_ticks();
-		if (frame_ticks < SCREEN_TICKS_PER_FRAME) {
+		if (frame_ticks < Utility_consts::SCREEN_TICKS_PER_FRAME) {
 			/* Wait remaining time */
-			SDL_Delay(SCREEN_TICKS_PER_FRAME - frame_ticks);
+			SDL_Delay(Utility_consts::SCREEN_TICKS_PER_FRAME - frame_ticks);
 		}
 #endif
 		GLint performance_ticks = performance_timer.get_ticks();

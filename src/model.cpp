@@ -13,7 +13,7 @@ Model::Model(){
 }
 
 bool Model::load_binary_model(Resource_manager& manager, const std::string& name, std::vector<std::string>& meshes){
-	std::string model_path = MODEL_DATA_PATH + name + ".model";
+	std::string model_path = Utility_vars::folder_path + MODEL_DATA_PATH + name + ".model";
 
 	std::ifstream contentf (model_path.c_str(), std::ios::binary);
 	if (!contentf.is_open()){

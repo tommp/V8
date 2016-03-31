@@ -1,5 +1,7 @@
 #include "shader.h"
 
+std::string Shader_vars::opengl_version = "#version 330 core\n";
+
 Shader::Shader(){
     program = 0;
 }
@@ -43,7 +45,7 @@ GLuint Shader::create_shader(const char* filename, GLenum type) {
 
     /* Create the shader */
     GLuint res = glCreateShader(type);
-    const GLchar* sources[] = {OPENGL_VERSION, source};
+    const GLchar* sources[] = {Shader_vars::opengl_version.c_str(), source};
     glShaderSource(res, 2, sources, NULL);
 
     /* Delete the buffered source code */
@@ -70,8 +72,8 @@ bool Shader::load_from_file(const std::string& name){
         errorlogger("ERROR: Shader not found!: ", name.c_str());
         return false;
     }
-    std::string vertex_path = SHADER_PATH + WORLD_SHADERS.find(name)->second.first;
-    std::string fragment_path = SHADER_PATH + WORLD_SHADERS.find(name)->second.second;
+    std::string vertex_path = Utility_vars::folder_path + SHADER_PATH + WORLD_SHADERS.find(name)->second.first;
+    std::string fragment_path = Utility_vars::folder_path + SHADER_PATH + WORLD_SHADERS.find(name)->second.second;
     
     const GLchar* vertex_shader_path = vertex_path.c_str();
     const GLchar* fragment_shader_path = fragment_path.c_str();

@@ -4,9 +4,11 @@ Renderer::Renderer(){
 };
 
 Renderer::~Renderer() {
-	delete_g_buffer();
+	delete_buffers();
 	glDeleteBuffers(1, &uniform_buffer_matrices);
 	glDeleteBuffers(1, &uniform_buffer_light_data);
+
+	SDL_GL_DeleteContext(gl_context); 
 }
 
 Renderer::Renderer(Resource_manager& resource_manager){
@@ -114,10 +116,11 @@ bool Renderer::init_settings(){
 }
 
 bool Renderer::init_window(){
+
 	/* Set to enable opengl window context */
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OPENGL_MAJOR_VERSION);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OPENGL_MINOR_VERSION);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, Renderer_consts::OPENGL_MAJOR_VERSION);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, Renderer_consts::OPENGL_MINOR_VERSION);
 
 	/*Initializes a window to render graphics in*/
 	window = SDL_CreateWindow("V8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_size.x, window_size.y, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
@@ -186,18 +189,21 @@ bool Renderer::init_openGL(){
 	}
 
 	/* Initialize clear color */
-	glClearColor(CLEARCOLOR[0], CLEARCOLOR[1], CLEARCOLOR[2], CLEARCOLOR[3]);
+	glClearColor(Renderer_consts::CLEARCOLOR[0], 
+				Renderer_consts::CLEARCOLOR[1], 
+				Renderer_consts::CLEARCOLOR[2], 
+				Renderer_consts::CLEARCOLOR[3]);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize clearcolour in Display::init_openGL()!" << std::endl;
 		errorlogger("ERROR: Failed to Initialize clearcolour in Display::init_openGL()!");
 		return false;
 	}
 
-	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize openGL in Display::init_openGL()!" << std::endl;
-		errorlogger("ERROR: Failed to Initialize openGL in Display::init_openGL()!");
-		return false;
-	}
+	GLint minor;
+	GLint major;
+	glGetIntegerv(GL_MAJOR_VERSION, &major); 
+	glGetIntegerv(GL_MINOR_VERSION, &minor);
+	std::cout << minor << ":" << major << ":" << glGetString(GL_VERSION) << std::endl;
 
 	return true;
 }
@@ -1204,7 +1210,7 @@ bool Renderer::render_quad()const{
 
 bool Renderer::save_settings(){
 	std::cout << "Saving display settings...\n" << std::endl;
-	std::ofstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
+	std::ofstream contentf (Utility_vars::folder_path + DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
 
 	if (!contentf.is_open()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for display settings!" << std::endl;
@@ -1228,7 +1234,7 @@ bool Renderer::save_settings(){
 }
 
 bool Renderer::load_settings(){
-	std::ifstream contentf (DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
+	std::ifstream contentf (Utility_vars::folder_path + DISPLAY_SETTINGS_FILE_PATH, std::ios::binary);
 
 	if (!contentf.is_open()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for display settings!" << std::endl;
@@ -1416,7 +1422,7 @@ bool Renderer::update_screen_size(){
 			errorlogger("ERROR: Failed to reset viewport!");
 			return false;
 		}
-		delete_g_buffer();
+		delete_buffers();
 		init_framebuffers();
 		if(check_ogl_error()) {
 			std::cout << "ERROR: Failed to reset g_buffer!" << std::endl;
@@ -1469,10 +1475,11 @@ void Renderer::present()const{
 	SDL_GL_SwapWindow(window);
 }
 
-bool Renderer::delete_g_buffer() {
+bool Renderer::delete_buffers() {
 	glDeleteTextures(1, &g_position);
 	glDeleteTextures(1, &g_normal);
 	glDeleteTextures(1, &g_albedo_spec);
+	glDeleteTextures(1, &g_bloom);
 	glDeleteRenderbuffers(1, &g_rbo_depth);
 	glDeleteFramebuffers(1, &g_buffer);
 	if(check_ogl_error()){
@@ -1480,6 +1487,32 @@ bool Renderer::delete_g_buffer() {
 		errorlogger("ERROR: Failed delete g_buffer objects!");
 		return false;
 	}
+
+	glDeleteFramebuffers(1, &AA_fbo);
+	glDeleteTextures(1, &AA_buffer);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete AA_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed delete AA_buffer objects!");
+		return false;
+	}
+
+	glDeleteFramebuffers(2, &bb_fbos[0]);
+	glDeleteTextures(2, &bb_buffers[0]);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete bloom_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed delete bloom_buffer objects!");
+		return false;
+	}
+
+	glDeleteFramebuffers(1, &light_fbo);
+	glDeleteTextures(1, &light_buffer);
+	glDeleteRenderbuffers(1, &light_rbo_depth);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete light_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed delete light_buffer objects!");
+		return false;
+	}
+
 	return true;
 }
 

@@ -13,7 +13,7 @@ bool Animation::load_from_file(const std::string& name){
 }
 
 bool Animation::load_binary_animation(const std::string& name){
-	std::string anim_path = ANIMATION_DATA_PATH + name + ".anim";
+	std::string anim_path = Utility_vars::folder_path + ANIMATION_DATA_PATH + name + ".anim";
 	std::ifstream contentf(anim_path.c_str(), std::ios::binary);
 	GLuint num_channels;
 

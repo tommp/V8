@@ -14,7 +14,7 @@ bool Animation_set::load_from_file(Resource_manager& resource_manager, const std
 }
 
 bool Animation_set::load_binary_animation_set(Resource_manager& resource_manager, const std::string& name){
-	std::string anim_set_path = ANIMATION_DATA_PATH + name + ".anims";
+	std::string anim_set_path = Utility_vars::folder_path + ANIMATION_DATA_PATH + name + ".anims";
 	std::ifstream contentf(anim_set_path.c_str(), std::ios::binary);
 	std::vector<std::string> animation_set_nodes;
 

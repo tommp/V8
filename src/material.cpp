@@ -26,7 +26,7 @@ bool Material::use(const Shader_ptr& shader){
 }
 
 bool Material::load_from_file(Resource_manager& manager, const std::string& name){
-	std::string material_path = MATERIAL_DATA_PATH + name + ".mat";
+	std::string material_path = Utility_vars::folder_path + MATERIAL_DATA_PATH + name + ".mat";
 
 	this->name = name;
 
