@@ -12,24 +12,16 @@ Mob::Mob(Resource_manager& manager, const std::string& model_name, const std::st
 
 	scale = {50.0f, 50.0f, 50.0f};
 
-
 	velocity = {0.0f, 0.0f, 0.0f};
 	last_move = 0;
 	move_duration = 4000;
 	speed = 400;
 
 	mass = 100.0f;
-	fall_inertia = {0.0, 0.0, 0.0};
-	collision_shape = new btSphereShape(50);
-	collision_shape->calculateLocalInertia(mass, fall_inertia);
-	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
-														btVector3(0, 0, 0)));
-	
-	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, 
-															motion_state, 
-															collision_shape, 
-															btVector3(0, 0, 0));
-	collision_body = new btRigidBody(collision_body_CI);
+	glm::vec3 inertia = {0.0, 0.0, 0.0};
+	btQuaternion rotation = {0.0, 1.0, 0.0, 0.0};
+	generate_collision_volume(model_name, BOX, scale);
+	generate_collision_body(mass, inertia, rotation, position);
 }
 
 Mob::~Mob(){

@@ -1,28 +1,24 @@
-#ifndef ENUM_SHADER_TYPE_H
-#define ENUM_SHADER_TYPE_H
-
+#ifndef LINE_DATA_H
+#define LINE_DATA_H
 
 /*Included headers*/
 /*---------------------------------------------*/
+#include "glm.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
+#include <SDL2/SDL.h>
+#include <GL/glew.h>
+#include <memory>
+#include <unordered_map>
 /*---------------------------------------------*/
 
 /*Header content*/
 /*=============================================*/
-enum Shader_type{
-	NO_SHADER = 0,
-	GEOMETRY_ANIMATED = 1,
-	GEOMETRY_STATIC = 2,
-	GEOMETRY_ANIMATED_COLORED = 3,
-	GEOMETRY_STATIC_COLORED = 4,
-	LIGHT_POINT = 5,
-	LIGHT_SPOT = 6,
-	LIGHT_DIRECTIONAL = 7,
-
-	GEOMETRY_LINES = 8,
+struct Line_data{
+	glm::mat4 model_matrix;
+	glm::vec3 color;
 };
 /*=============================================*/
 

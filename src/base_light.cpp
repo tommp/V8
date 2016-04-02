@@ -50,6 +50,7 @@ bool Base_light::init_light_volume(){
 	base_light_context->render_elements = true;
 	base_light_context->shader_type = NO_SHADER;
 	base_light_context->render_mode = GL_FILL;
+	base_light_context->primitive_type = GL_TRIANGLES;
 
 	glGenVertexArrays(1, &base_light_context->VAO);
 	glGenBuffers(1, &quad_VBO);

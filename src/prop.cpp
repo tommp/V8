@@ -8,28 +8,18 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 
 	model->bind_context(model_matrix, normal_model_matrix, context_name);
 
-	position[0] = 2000.0f;
-
-	position[1] = -100.0f;
-
-	position[2] = 0.0f;
-
+	position = {0, 0, 0};
 	direction = {0.0f, 0.0f, -1.0f};
+	scale = {200.0f, 10.0f, 200.0f};
 
-	scale = {2000.0f, 10.0f, 2000.0f};
-
-	btVector3 box_size = {scale.x, scale.y, scale.z};
+	prev_position = position * 2.0f;
 
 	/* Physics */
-	mass = 0;
-	fall_inertia = {0, 0, 0};
-	collision_shape = new btBoxShape(box_size);
-	collision_shape->calculateLocalInertia(mass, fall_inertia);
-	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
-														btVector3(0, -10, 0)));
-	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, 
-															btVector3(0, 0, 0));
-	collision_body = new btRigidBody(collision_body_CI);
+	GLfloat mass = 0;
+	glm::vec3 inertia = {0.0, 0.0, 0.0};
+	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
+	generate_collision_volume(model_name, BOX, scale);
+	generate_collision_body(mass, inertia, rotation, position);
 
 	update_matrices();
 }
@@ -74,12 +64,12 @@ bool Prop::update_matrices(){
 		model_matrix = glm::translate(model_matrix, position);  
 
 		/* TODO:: 3D rotation */
-		GLfloat dot = glm::dot(direction, model->get_init_direction());
-		GLfloat det =  model->get_init_direction().x*direction.z - model->get_init_direction().z*direction.x;
-		GLfloat rotation = -1 * glm::atan(det, dot);
+		//GLfloat dot = glm::dot(direction, model->get_init_direction());
+		//GLfloat det =  model->get_init_direction().x*direction.z - model->get_init_direction().z*direction.x;
+		//GLfloat rotation = -1 * glm::atan(det, dot);
 
 	    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
-	    model_matrix = glm::rotate(model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
+	    //model_matrix = glm::rotate(model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
 	    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
 
 	    model_matrix = glm::scale(model_matrix, glm::vec3(scale));

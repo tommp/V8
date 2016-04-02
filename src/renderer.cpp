@@ -82,6 +82,14 @@ Renderer::Renderer(Resource_manager& resource_manager){
 	}
 	std::cout << "------------ Bloom data initialized!\n" << std::endl;
 
+	std::cout << "------------ Initializing primitives..." << std::endl;
+	if (!init_primitives(resource_manager)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize primitives!" << std::endl;
+		errorlogger("ERROR: Failed to initialize primitives!");
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "------------ Primitives initialized!\n" << std::endl;
+
 	/* Set projection matrix */
 	update_projection_matrix();
 	if (!upload_projection_matrix()) {
@@ -309,6 +317,13 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 	if (!static_geometry_shader) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load geometry shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load geometry shader in renderer");
+		return false;
+	}
+
+	primitive_line_shader = resource_manager.load_shader("primitive_line_shader");
+	if (!primitive_line_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load primitive line shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load primitive line shader in renderer");
 		return false;
 	}
 
@@ -548,6 +563,16 @@ bool Renderer::init_bloom_data(){
 		errorlogger("ERROR: Failed to set vertex attributes for geometry VAO in renderer!");
 		glDeleteBuffers(1, &quad_VBO);
 		glDeleteVertexArrays(1, &quad_VAO);
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::init_primitives(Resource_manager& resource_manager){
+	if (!(line = resource_manager.load_mesh("LINE"))) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load line mesh primitive!" << std::endl;
+		errorlogger("ERROR: Failed to load line mesh primitive!");
 		return false;
 	}
 
@@ -871,6 +896,13 @@ bool Renderer::render_geometry(const Camera_ptr& camera){
 		errorlogger("ERROR: Failed to render animated colored geometry!");
 		return false;
 	}
+
+	primitive_line_shader->use();
+	if (!render_primitive_line_geometry()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render primitive line geometry!" << std::endl;
+		errorlogger("ERROR: Failed to render primitive line geometry!");
+		return false;
+	}
 	
 	if (!detach_geometry_rendering()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;
@@ -961,6 +993,54 @@ bool Renderer::render_animated_colored_geomety()const{
 	return true;
 }
 
+bool Renderer::render_primitive_line_geometry(){
+	if (!line->setup_base_uniforms(primitive_line_shader)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup base uniform for line primitive!" << std::endl;
+		errorlogger("ERROR: Failed to setup base uniform for line primitive!");
+		return false;
+	}
+
+	GLuint num_instances = lines.size();
+	GLuint num_batches = num_instances / Renderer_consts::BATCH_SIZE;
+	GLuint last_batch_instances = num_instances % Renderer_consts::BATCH_SIZE;
+	auto context_iterator = lines.begin();
+
+	for (GLuint batch = 0; batch < num_batches; ++batch) {
+		for (GLuint instance = 0; instance < Renderer_consts::BATCH_SIZE; ++instance) {
+			glUniform3fv(primitive_line_shader->load_uniform_location("colors", instance), 1, (float*)&(context_iterator->color));
+			glUniformMatrix4fv(primitive_line_shader->load_uniform_location("models", instance),
+						 1, 
+						 GL_FALSE, 
+						 glm::value_ptr(context_iterator->model_matrix));
+			lines.erase(context_iterator++);
+		}
+
+		if (!ogl_render_geometry(line->get_main_context(), Renderer_consts::BATCH_SIZE)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render batch geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render batch geometry!");
+			return false;
+		}
+	}
+
+	for (GLuint instance = 0; instance < last_batch_instances; ++instance) {
+		glUniform4fv(primitive_line_shader->load_uniform_location("color"), 1, (float*)&(context_iterator->color));
+		glUniformMatrix4fv(primitive_line_shader->load_uniform_location("models", instance),
+					 1, 
+					 GL_FALSE, 
+					 glm::value_ptr(context_iterator->model_matrix));
+
+		lines.erase(context_iterator++);
+	}
+
+	if (!ogl_render_geometry(line->get_main_context(), last_batch_instances)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last batch geometry!" << std::endl;
+		errorlogger("ERROR: Failed to render last batch geometry!");
+		return false;
+	}
+   
+	return true;
+}
+
 
 bool Renderer::render_base_geometry(const Rendering_context_ptr& context, 
 								const Shader_ptr& shader)const{
@@ -1013,14 +1093,14 @@ bool Renderer::ogl_render_geometry(const Rendering_context_ptr& context, GLuint 
 	glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
 	glBindVertexArray(context->VAO);
 	if (context->render_elements) {
-		glDrawElementsInstanced(GL_TRIANGLES, 
+		glDrawElementsInstanced(context->primitive_type, 
 								context->num_vertices, 
 								GL_UNSIGNED_INT, 
 								0, 
 								instances);
 	}
 	else{
-		glDrawArraysInstanced(GL_TRIANGLES, 0, context->num_vertices, instances);
+		glDrawArraysInstanced(context->primitive_type, 0, context->num_vertices, instances);
 	}
 
 	glBindVertexArray(0);
@@ -1264,6 +1344,12 @@ bool Renderer::set_clear_color_black(){
 		errorlogger("ERROR: Failed to set clear color to black!");
 		return false;
 	}
+	return true;
+}
+
+bool Renderer::add_context(Line_data context){
+	lines.push_back(context);
+
 	return true;
 }
 

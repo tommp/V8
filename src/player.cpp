@@ -32,17 +32,10 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	prev_direction = direction;
 
 	mass = 100.0f;
-	fall_inertia = {0.0, 0.0, 0.0};
-	collision_shape = new btSphereShape(20);
-	collision_shape->calculateLocalInertia(mass, fall_inertia);
-	motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), 
-														btVector3(position.x, position.y, position.z)));
-	
-	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, 
-															motion_state, 
-															collision_shape, 
-															btVector3(0, 0, 0));
-	collision_body = new btRigidBody(collision_body_CI);
+	glm::vec3 inertia = {0.0, 0.0, 0.0};
+	btQuaternion rotation = {0.0, 1.0, 0.0, 0.0};
+	generate_collision_volume(model_name, SPHERE, scale * 2.0f);
+	generate_collision_body(mass, inertia, rotation, position);
 }
 
 Player::~Player(){

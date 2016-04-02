@@ -12,6 +12,7 @@
 #include "enum_light_type.h"
 #include "material.h"
 #include "resource_manager.h"
+#include "line_data.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -79,6 +80,8 @@ class Renderer{
 		GLuint quad_VAO;
 		GLuint quad_VBO;
 
+		Mesh_ptr line;
+
 		GLuint uniform_buffer_matrices;
 		GLuint uniform_buffer_light_data;
 
@@ -93,6 +96,8 @@ class Renderer{
 		std::list<Rendering_context_weak> point_lights;
 		std::list<Rendering_context_weak> spot_lights;
 
+		std::list<Line_data> lines;
+
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
 		Shader_ptr spot_light_shader;
@@ -100,6 +105,7 @@ class Renderer{
 		Shader_ptr static_geometry_shader_colored;
 		Shader_ptr animated_geometry_shader;
 		Shader_ptr animated_geometry_shader_colored;
+		Shader_ptr primitive_line_shader;
 		Shader_ptr vertical_blur_shader;
 		Shader_ptr horizontal_blur_shader;
 		Shader_ptr bloom_shader;
@@ -112,6 +118,7 @@ class Renderer{
 		bool init_framebuffers();
 		bool init_shaders(Resource_manager& resource_manager);
 		bool init_bloom_data();
+		bool init_primitives(Resource_manager& resource_manager);
 
 		bool delete_buffers();
 
@@ -129,6 +136,7 @@ class Renderer{
 		bool render_static_colored_geomety()const;
 		bool render_animated_geomety()const;
 		bool render_animated_colored_geomety()const;
+		bool render_primitive_line_geometry();
 		bool render_base_geometry(const Rendering_context_ptr& context, 
 								const Shader_ptr& shader)const;
 		bool ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const;
@@ -156,6 +164,7 @@ class Renderer{
 		~Renderer();
 		
 		bool add_context(const Rendering_context_ptr& context);
+		bool add_context(Line_data context);
 
 		glm::mat4 get_projection_matrix()const{return projection;};
 		glm::mat4 get_view_matrix()const{return view;};

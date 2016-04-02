@@ -36,6 +36,7 @@ private:
 	glm::vec3 velocity;
 
 	GLfloat speed;
+	
 	Resource_manager* manager;
 
 	/* Used for optimization */

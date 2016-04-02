@@ -1,5 +1,9 @@
 #include "level.h"
 
+#if ENABLE_BULLET_DEBUG
+Debug_drawer debugDrawer;
+#endif
+
 Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	mousepicker = std::make_shared<Mousepicker>();
 
@@ -44,6 +48,10 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		errorlogger("FATAL ERROR: Failed to add level contexts to renderer!");
 		exit(EXIT_FAILURE);
 	}
+
+#if ENABLE_BULLET_DEBUG
+	debugDrawer.set_renderer(&renderer);
+#endif
 }
 
 Level::~Level(){
@@ -115,6 +123,9 @@ bool Level::init_physics(){
 	gravity = {0.0f, -10.0f, 0.0f};
 	update_gravity();
 
+#if ENABLE_BULLET_DEBUG
+	physics_world->setDebugDrawer(&debugDrawer);
+#endif
 	return true;
 }
 
@@ -157,6 +168,10 @@ bool Level::render_level(Renderer& renderer)const{
 		errorlogger("ERROR: Renderer failed to render level!");
 		return false;
 	}
+
+#if ENABLE_BULLET_DEBUG
+	physics_world->debugDrawWorld();
+#endif
 
 	return true;
 }

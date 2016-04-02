@@ -6,14 +6,15 @@
 /*---------------------------------------------*/
 #include "btBulletDynamicsCommon.h"
 #include "errorlogger.h"
-#include "actor.h"
 #include "renderer.h"
-#include "animation_set.h"
+#include "line_data.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
 /*---------------------------------------------*/
+#include <GL/glew.h>
 #include <string>
+#include <cmath>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -27,11 +28,22 @@ typedef std::shared_ptr<Animation_set> Animation_set_ptr;
 class Debug_drawer: public btIDebugDraw {
 	private:
 		Renderer* renderer;
+		GLint debug_mode;
 	public:
 		Debug_drawer();
 		void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color);
 		void draw3dText(const btVector3 &location, const char* textString);
+		void drawContactPoint(const btVector3& PointOnB,
+								const btVector3& normalOnB,
+								btScalar distance,
+								int lifeTime,
+								const btVector3& color);
+      	void reportErrorWarning(const char* warningString);
+      	void setDebugMode(int debugMode);
+      	int getDebugMode()const;
+      	void set_renderer(Renderer* renderer){this->renderer = renderer;};
 };
+
 typedef std::shared_ptr<Debug_drawer> Debug_drawer_ptr;
 /*=============================================*/
 

@@ -19,6 +19,10 @@
 #include "dir_light.h"
 #include "point_light.h"
 #include "spot_light.h"
+
+#if ENABLE_BULLET_DEBUG
+#include "debug_drawer.h"
+#endif
 /*---------------------------------------------*/
 
 /*Included dependencies*/

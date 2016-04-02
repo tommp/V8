@@ -11,6 +11,7 @@ Mesh::Mesh(){
 	base_context = std::make_shared<Rendering_context>();
 	base_context->VAO = 0;
 	base_context->render_mode = GL_FILL;
+	base_context->primitive_type = GL_TRIANGLES;
 	base_context->shader_type = GEOMETRY_STATIC_COLORED;
 	base_context->render_elements = true;
 	base_context->setup_base_uniforms = [&](const Shader_ptr& shader) {
@@ -34,6 +35,8 @@ Mesh::Mesh(){
 			break;
 		case GEOMETRY_STATIC_COLORED:
 			glUniform4fv(shader->load_uniform_location("object_color"), 1, (float*)&(object_color));
+			break;
+		case GEOMETRY_LINES:
 			break;
 		default:
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unknown shader type when rendering mesh!" << std::endl;
@@ -183,6 +186,25 @@ bool Mesh::load_base_box(std::vector<Vertex>& vertices,
 	return true;
 }
 
+bool Mesh::load_base_line(std::vector<Vertex>& vertices) {
+	base_context->shader_type = GEOMETRY_LINES;
+	std::vector<glm::vec3> line_v_positions = {
+		glm::vec3(0.0, 0.0,  0.0),
+		glm::vec3(1.0, 0.0,  0.0),
+	};
+
+	Vertex vertex;
+	for (GLuint i = 0; i < line_v_positions.size(); ++i) {
+		vertex.position = line_v_positions[i];
+		vertices.push_back(vertex);
+	}
+
+	base_context->render_elements = false;
+	base_context->primitive_type = GL_LINES;
+
+	return true;
+}
+
 bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 	if( VBO != 0 ){
 		free_mesh();
@@ -194,6 +216,14 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 
 	if (name == Mesh_vars::BOX) {
 		if (!load_base_box(vertices, indices)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load base box mesh!" << std::endl;
+			errorlogger("ERROR: Failed to load base box mesh!");
+			return false;
+		}
+	}
+
+	else if (name == Mesh_vars::LINE) {
+		if (!load_base_line(vertices)) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load base box mesh!" << std::endl;
 			errorlogger("ERROR: Failed to load base box mesh!");
 			return false;
@@ -222,6 +252,8 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 				break;
 			case GEOMETRY_STATIC:
 				base_context->shader_type = GEOMETRY_STATIC_COLORED;
+				break;
+			case GEOMETRY_LINES:
 				break;
 			default:
 				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid shader type in context of mesh: " << name << std::endl;
@@ -338,4 +370,18 @@ bool Mesh::add_context_to_renderer(Renderer& renderer){
 	}
 
 	return true;
+}
+
+bool Mesh::setup_base_uniforms(const Shader_ptr& shader){
+	if (!base_context->setup_base_uniforms(shader)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup base uniforms for mesh: " << name << std::endl;
+		errorlogger("ERROR: Failed to setup base uniforms for mesh: ", name.c_str());
+		return false;
+	}
+
+	return true;
+}
+
+Rendering_context_ptr Mesh::get_main_context()const{
+	return base_context;
 }

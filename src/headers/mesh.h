@@ -66,14 +66,16 @@ class Mesh {
 							std::vector<GLuint>& indices,
 							std::string& material);
 
-		bool load_base_box(std::vector<Vertex>& vertices, 
-				std::vector<GLuint>& indices);
+		bool load_base_box(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
+		bool load_base_line(std::vector<Vertex>& vertices);
 	public:
 		Mesh();
 		~Mesh();
 		
 		bool load_from_file(Resource_manager& manager, const std::string& name);
 		Rendering_context_weak get_context()const;
+		Rendering_context_ptr get_main_context()const;
+		bool setup_base_uniforms(const Shader_ptr& shader);
 
 		bool add_context_to_renderer(Renderer& renderer);
 		bool add_uniform_setup(const std::string& modelname, 

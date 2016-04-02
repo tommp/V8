@@ -29,6 +29,7 @@ class Rendering_context{
 		GLuint num_vertices;
 		Shader_type shader_type;
 		GLenum render_mode;
+		GLenum primitive_type;
 		GLboolean render_elements;
 
 		std::function<GLboolean(const Shader_ptr& shader)> setup_base_uniforms;

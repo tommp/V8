@@ -31,6 +31,7 @@ class Object{
 		
 		btScalar mass;
 		btVector3 fall_inertia;
+		btQuaternion init_rotation;
 
 		bool delete_collision_data();
 	public:
@@ -38,7 +39,13 @@ class Object{
 		~Object();
 		virtual bool update_position(GLfloat timedelta) = 0;
 		virtual bool touch_object(Object& object) = 0;
-		bool generate_collision_volume(const std::string& modelname, Collision_shape type, const glm::vec3& scale);
+		bool generate_collision_volume(const std::string& modelname, 
+				Collision_shape type, 
+				const glm::vec3& scale);
+		bool generate_collision_body(GLfloat mass, 
+				const glm::vec3& inertia, 
+				const btQuaternion& rotation, 
+				const glm::vec3& position);
 		bool load_model_vertices(const std::string& modelname, std::vector<Vertex>& vertices);
 
 		btRigidBody* get_collision_body()const;

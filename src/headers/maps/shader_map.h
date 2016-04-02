@@ -5,17 +5,18 @@
 #include <string>
 
 const std::unordered_map<std::string, std::pair<std::string, std::string>> WORLD_SHADERS = {
-	{"geometry_shader_static", {"vertex_geometry_static.vs", "fragment_geometry_static.fs"}},
-	{"geometry_shader_static_colored", {"vertex_geometry_static_colored.vs", "fragment_geometry_static_colored.fs"}},
-	{"geometry_shader_animated", {"vertex_geometry_animated.vs", "fragment_geometry_animated.fs"}},
-	{"geometry_shader_animated_colored", {"vertex_geometry_animated_colored.vs", "fragment_geometry_animated_colored.fs"}},
-	{"point_light_shader", {"vertex_point_light.vs", "fragment_point_light.fs"}},
-	{"spot_light_shader", {"vertex_spot_light.vs", "fragment_spot_light.fs"}},
-	{"dir_light_shader", {"vertex_dir_light.vs", "fragment_dir_light.fs"}},
-	{"vertical_blur_shader", {"vertex_blur.vs", "fragment_vertical_blur.fs"}},
-	{"horizontal_blur_shader", {"vertex_blur.vs", "fragment_horizontal_blur.fs"}},
-	{"bloom_shader", {"vertex_blur.vs", "fragment_final.fs"}},
-	{"FXAA_shader", {"vertex_FXAA.vs", "fragment_FXAA.fs"}},
+	{"geometry_shader_static", 				{"vertex/geometry_static.vs", 			"fragment/geometry_static.fs"}},
+	{"geometry_shader_static_colored", 		{"vertex/geometry_static_colored.vs", 	"fragment/geometry_static_colored.fs"}},
+	{"geometry_shader_animated", 			{"vertex/geometry_animated.vs", 		"fragment/geometry_animated.fs"}},
+	{"geometry_shader_animated_colored", 	{"vertex/geometry_animated_colored.vs", "fragment/geometry_animated_colored.fs"}},
+	{"primitive_line_shader", 				{"vertex/primitive_line.vs", 			"fragment/primitive_line.fs"}},
+	{"point_light_shader", 					{"vertex/point_light.vs", 				"fragment/point_light.fs"}},
+	{"spot_light_shader", 					{"vertex/spot_light.vs", 				"fragment/spot_light.fs"}},
+	{"dir_light_shader", 					{"vertex/fullscreen_quad.vs", 			"fragment/dir_light.fs"}},
+	{"vertical_blur_shader", 				{"vertex/fullscreen_quad.vs", 			"fragment/vertical_blur.fs"}},
+	{"horizontal_blur_shader", 				{"vertex/fullscreen_quad.vs", 			"fragment/horizontal_blur.fs"}},
+	{"bloom_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/final.fs"}},
+	{"FXAA_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/FXAA.fs"}},
 };
 
 #endif
