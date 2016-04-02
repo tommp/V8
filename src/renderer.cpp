@@ -570,11 +570,13 @@ bool Renderer::init_bloom_data(){
 }
 
 bool Renderer::init_primitives(Resource_manager& resource_manager){
+#if ENABLE_BULLET_DEBUG
 	if (!(line = resource_manager.load_mesh("LINE"))) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load line mesh primitive!" << std::endl;
 		errorlogger("ERROR: Failed to load line mesh primitive!");
 		return false;
 	}
+#endif
 
 	return true;
 }
@@ -897,12 +899,14 @@ bool Renderer::render_geometry(const Camera_ptr& camera){
 		return false;
 	}
 
+#if ENABLE_BULLET_DEBUG
 	primitive_line_shader->use();
 	if (!render_primitive_line_geometry()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render primitive line geometry!" << std::endl;
 		errorlogger("ERROR: Failed to render primitive line geometry!");
 		return false;
 	}
+#endif
 	
 	if (!detach_geometry_rendering()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;
@@ -993,6 +997,7 @@ bool Renderer::render_animated_colored_geomety()const{
 	return true;
 }
 
+#if ENABLE_BULLET_DEBUG
 bool Renderer::render_primitive_line_geometry(){
 	if (!line->setup_base_uniforms(primitive_line_shader)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup base uniform for line primitive!" << std::endl;
@@ -1040,6 +1045,7 @@ bool Renderer::render_primitive_line_geometry(){
    
 	return true;
 }
+#endif
 
 
 bool Renderer::render_base_geometry(const Rendering_context_ptr& context, 
@@ -1347,11 +1353,13 @@ bool Renderer::set_clear_color_black(){
 	return true;
 }
 
+#if ENABLE_BULLET_DEBUG
 bool Renderer::add_context(Line_data context){
 	lines.push_back(context);
 
 	return true;
 }
+#endif
 
 bool Renderer::add_context(const Rendering_context_ptr& context) {
 

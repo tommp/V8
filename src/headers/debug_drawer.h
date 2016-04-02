@@ -41,10 +41,11 @@ class Debug_drawer: public btIDebugDraw {
       	void reportErrorWarning(const char* warningString);
       	void setDebugMode(int debugMode);
       	int getDebugMode()const;
+#if ENABLE_BULLET_DEBUG
       	void set_renderer(Renderer* renderer){this->renderer = renderer;};
+#endif
 };
 
 typedef std::shared_ptr<Debug_drawer> Debug_drawer_ptr;
 /*=============================================*/
-
 #endif

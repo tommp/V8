@@ -95,6 +95,7 @@ int main(int argc, char** argv){
 	GLuint pooled_render_time = 0;
 	GLuint num_frames_average = 30;
 	GLuint frame_counter = 0;
+	GLuint peak_ms = 0;
 	while(state_handler.game_is_running()){
 		performance_timer.restart();
 #if DISABLE_VSYNC
@@ -146,10 +147,13 @@ int main(int argc, char** argv){
 		else{
 			frame_counter = 0;
 			average_render_time = pooled_render_time / num_frames_average;
+			if (average_render_time > peak_ms) {
+				peak_ms = average_render_time;
+			}
 			pooled_render_time = 0;
 		}
-		
-		std::cout << '\r' << std::setw(5) << std::setfill('0') << "Avg. render time: "<< average_render_time << " ms" << std::flush;
+
+		std::cout << '\r' << std::setw(5) << std::setfill('0') << "Avg. render time: "<< average_render_time << " ms" << "      Peak render time: " << peak_ms << "ms" << std::flush;
 	}
 	/*=======================================================*/
 	std::cout << "\n=======================================" << std::endl;

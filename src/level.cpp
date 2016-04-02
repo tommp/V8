@@ -1,9 +1,5 @@
 #include "level.h"
 
-#if ENABLE_BULLET_DEBUG
-Debug_drawer debugDrawer;
-#endif
-
 Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	mousepicker = std::make_shared<Mousepicker>();
 
@@ -15,13 +11,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	
-	for (int i = 0; i < 20; ++i) {
-		Mob_ptr cube = std::make_shared<Mob>(init_manager, "BOX", "larva");
-		add_object(cube);
-	}
-	
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 0; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_light(point_light);
 	}
@@ -34,8 +24,56 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	Light_ptr dir_light = std::make_shared<Directional_light>();
 	add_light(dir_light);
 
-	Prop_ptr prop = std::make_shared<Prop>(init_manager, "engine_base_cube");
+	
+	for (int i = 0; i < 5; ++i) {
+		glm::vec3 position;
+		position.x = rand() % 2000 - 1000;
+		position.y = 0.0;
+		position.z = rand() % 2000 - 1000;
+		Mob_ptr cube = std::make_shared<Mob>(init_manager, "BOX", "larva",
+										position, 
+										glm::vec3(20.0, 20.0, 20.0),
+										glm::vec3(0.0, 0.0, -1.0),
+										100.0f,
+										glm::vec3(0.0, 0.0, 0.0));
+		add_object(cube);
+	}
+
+	Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
+										glm::vec3(0.0, 0.0, 0.0), 
+										glm::vec3(1000.0, 2.0, 1000.0),
+										glm::vec3(0.0, 0.0, -1.0),
+										0.0f,
+										glm::vec3(0.0, 0.0, 0.0));
 	add_object(prop);
+
+	for (GLuint i = 0; i < 10; ++i) {
+		glm::vec3 position;
+		position.x = rand() % 2000 - 1000;
+		position.y = rand() % 500;
+		position.z = rand() % 2000 - 1000;
+		Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
+										position, 
+										glm::vec3(10.0, 30.0, 10.0),
+										glm::vec3(0.0, 0.0, -1.0),
+										100.0f,
+										glm::vec3(10.0, 10.0, 10.0));
+		add_object(prop);
+	}
+
+	for (GLuint i = 0; i < 5; ++i) {
+		glm::vec3 position;
+		position.x = rand() % 2000 - 1000;
+		position.y = rand() % 500;
+		position.z = rand() % 2000 - 1000;
+		Prop_ptr prop = std::make_shared<Prop>(init_manager, "sphere_colored", 
+										position, 
+										glm::vec3(10.0, 30.0, 10.0),
+										glm::vec3(0.0, 0.0, -1.0),
+										1000.0f,
+										glm::vec3(1000.0, 1000.0, 1000.0));
+		add_object(prop);
+	}
 
 	if (!add_objects_to_physics_world()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to add level objects to physics world!"<< std::endl;
@@ -120,7 +158,7 @@ bool Level::init_physics(){
 		return false;
 	}
 
-	gravity = {0.0f, -10.0f, 0.0f};
+	gravity = {0.0f, -100.0f, 0.0f};
 	update_gravity();
 
 #if ENABLE_BULLET_DEBUG
@@ -207,7 +245,6 @@ bool Level::add_objects_to_physics_world()const{
 
 	for (auto mob : mobs) {
 		physics_world->addRigidBody(mob->get_collision_body());
-		mob->get_collision_body()->setActivationState(DISABLE_DEACTIVATION);
 	}
 
 	return true;

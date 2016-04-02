@@ -70,6 +70,9 @@ class Level {
 		btDefaultCollisionConfiguration* collisionConfiguration;
 		btCollisionDispatcher* dispatcher;
 		btSequentialImpulseConstraintSolver* solver;
+#if ENABLE_BULLET_DEBUG
+		Debug_drawer debugDrawer;
+#endif
 
 		glm::vec3 gravity;
 		/* ======================================================== */

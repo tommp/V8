@@ -10,7 +10,7 @@ Object::~Object() {
 
 Object::Object() {
 	mass = 0;
-	fall_inertia = {0.0, 0.0, 0.0};
+	inertia = {0.0, 0.0, 0.0};
 	init_rotation = {0.0, 0.0, 0.0, 1.0};
 	/* TODO::Properly set this */
 	collision_shape = nullptr;
@@ -84,15 +84,17 @@ bool Object::generate_collision_body(GLfloat mass,
 	}
 
 	this->mass = mass;
-	this->fall_inertia = btVector3(inertia.x, inertia.y, inertia.z);
+	this->inertia = btVector3(inertia.x, inertia.y, inertia.z);
 	this->init_rotation = rotation;
 
-	collision_shape->calculateLocalInertia(mass, fall_inertia);
+	collision_shape->calculateLocalInertia(mass, this->inertia);
 	btTransform trans = btTransform(init_rotation, btVector3(position.x, position.y, position.z));
 	motion_state = new btDefaultMotionState(trans);
 	
 	
-	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, btVector3(0.0, 0.0, 0.0));
+	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, this->inertia);
+	collision_body_CI.m_friction = 10.0;
+	collision_body_CI.m_rollingFriction = 10.0;
 	collision_body = new btRigidBody(collision_body_CI);
 
 	return true;

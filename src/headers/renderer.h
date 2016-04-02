@@ -12,7 +12,10 @@
 #include "enum_light_type.h"
 #include "material.h"
 #include "resource_manager.h"
+#if ENABLE_BULLET_DEBUG
 #include "line_data.h"
+#endif
+#include "mesh.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -37,6 +40,9 @@ namespace Renderer_consts{
 	const glm::vec4 CLEARCOLOR = 		{0.0, 0.0, 0.0, 1.0};
 }
 
+class Mesh;
+
+typedef std::shared_ptr<Mesh> Mesh_ptr;
 
 
 class Resource_manager;
@@ -80,7 +86,9 @@ class Renderer{
 		GLuint quad_VAO;
 		GLuint quad_VBO;
 
+#if ENABLE_BULLET_DEBUG
 		Mesh_ptr line;
+#endif
 
 		GLuint uniform_buffer_matrices;
 		GLuint uniform_buffer_light_data;
@@ -96,7 +104,9 @@ class Renderer{
 		std::list<Rendering_context_weak> point_lights;
 		std::list<Rendering_context_weak> spot_lights;
 
+#if ENABLE_BULLET_DEBUG
 		std::list<Line_data> lines;
+#endif
 
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
@@ -136,7 +146,9 @@ class Renderer{
 		bool render_static_colored_geomety()const;
 		bool render_animated_geomety()const;
 		bool render_animated_colored_geomety()const;
+#if ENABLE_BULLET_DEBUG
 		bool render_primitive_line_geometry();
+#endif
 		bool render_base_geometry(const Rendering_context_ptr& context, 
 								const Shader_ptr& shader)const;
 		bool ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const;
@@ -164,7 +176,10 @@ class Renderer{
 		~Renderer();
 		
 		bool add_context(const Rendering_context_ptr& context);
+
+#if ENABLE_BULLET_DEBUG
 		bool add_context(Line_data context);
+#endif
 
 		glm::mat4 get_projection_matrix()const{return projection;};
 		glm::mat4 get_view_matrix()const{return view;};

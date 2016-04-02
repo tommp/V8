@@ -30,7 +30,7 @@ class Object{
 		btDefaultMotionState* motion_state;
 		
 		btScalar mass;
-		btVector3 fall_inertia;
+		btVector3 inertia;
 		btQuaternion init_rotation;
 
 		bool delete_collision_data();

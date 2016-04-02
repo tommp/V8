@@ -31,7 +31,9 @@ void Debug_drawer::drawLine(const btVector3 &from, const btVector3 &to, const bt
 		errorlogger("FATAL ERROR: Renderer not initialized in debug drawer!");
 		exit(EXIT_FAILURE);
 	}
+#if ENABLE_BULLET_DEBUG
 	renderer->add_context({model_matrix, draw_color});
+#endif
 }
 
 void Debug_drawer::draw3dText(const btVector3 &location, const char* textString){

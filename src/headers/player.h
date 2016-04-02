@@ -47,6 +47,7 @@ private:
 	bool update_matrices();
 public:
 	~Player();
+	Player();
 	Player(Resource_manager& init_manager, const std::string& model_name);
 	bool update_position(GLfloat timedelta);
 	bool touch_object(Object& object);

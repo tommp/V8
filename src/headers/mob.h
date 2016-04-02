@@ -44,7 +44,16 @@ private:
 	bool update_matrices();
 
 public:
+	Mob();
 	Mob(Resource_manager& manager, const std::string& model_name, const std::string& mob_name);
+	Mob(Resource_manager& manager, 
+		const std::string& model_name, 
+		const std::string& mob_name,
+		const glm::vec3& position,
+		const glm::vec3& scale,
+		const glm::vec3& direction,
+		GLfloat mass,
+		const glm::vec3& inertia);
 	~Mob();
 	bool update_position(GLfloat timedelta);
 	bool touch_object(Object& object);

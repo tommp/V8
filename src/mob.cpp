@@ -1,6 +1,15 @@
 #include "mob.h"
 
-Mob::Mob(Resource_manager& manager, const std::string& model_name, const std::string& mob_name){
+Mob::Mob(){
+	std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: No default mob constructor!" << std::endl;
+	errorlogger("FATAL ERROR: No default mob constructor!");
+	exit(EXIT_FAILURE);
+}
+
+Mob::Mob(Resource_manager& manager, 
+		const std::string& model_name, 
+		const std::string& mob_name){
+	
 	name = mob_name;
 	if ( !(model = manager.load_model(model_name) ) ){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Mob constructor failed to load model: " << model_name << std::endl;
@@ -10,18 +19,53 @@ Mob::Mob(Resource_manager& manager, const std::string& model_name, const std::st
 
 	model->bind_context(model_matrix, normal_model_matrix, context_name);
 
-	scale = {50.0f, 50.0f, 50.0f};
+	position = {0.0, 0.0, 0.0};
+	scale = {20.0f, 20.0f, 20.0f};
 
 	velocity = {0.0f, 0.0f, 0.0f};
 	last_move = 0;
 	move_duration = 4000;
 	speed = 400;
 
-	mass = 100.0f;
+	mass = 10.0f;
 	glm::vec3 inertia = {0.0, 0.0, 0.0};
-	btQuaternion rotation = {0.0, 1.0, 0.0, 0.0};
+	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
 	generate_collision_volume(model_name, BOX, scale);
 	generate_collision_body(mass, inertia, rotation, position);
+	collision_body->setActivationState(DISABLE_DEACTIVATION);
+}
+
+Mob::Mob(Resource_manager& manager, 
+	const std::string& model_name, 
+	const std::string& mob_name,
+	const glm::vec3& position,
+	const glm::vec3& scale,
+	const glm::vec3& direction,
+	GLfloat mass,
+	const glm::vec3& inertia){
+
+	name = mob_name;
+	if ( !(model = manager.load_model(model_name) ) ){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Mob constructor failed to load model: " << model_name << std::endl;
+		errorlogger("FATAL ERROR: Mob constructor failed to load model: ", model_name.c_str());
+		exit(EXIT_FAILURE);
+	}
+
+	model->bind_context(model_matrix, normal_model_matrix, context_name);
+
+	this->position = position;
+	this->direction = direction;
+	this->scale = scale;
+
+	velocity = {0.0f, 0.0f, 0.0f};
+	last_move = 0;
+	move_duration = 4000;
+	speed = 400;
+
+	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
+	generate_collision_volume(model_name, BOX, scale);
+	generate_collision_body(mass, inertia, rotation, position);
+	collision_body->setActivationState(DISABLE_DEACTIVATION);
 }
 
 Mob::~Mob(){

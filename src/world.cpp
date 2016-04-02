@@ -97,7 +97,6 @@ bool World::add_players_to_physics_world()const{
 			errorlogger("ERROR: Could not add player collision body");
 			return false;
 		}
-		player->get_collision_body()->setActivationState(DISABLE_DEACTIVATION);
 	}
 	return true;
 }

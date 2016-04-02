@@ -1,5 +1,11 @@
 #include "player.h"
 
+Player::Player(){
+	std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: No default mob constructor!" << std::endl;
+	errorlogger("FATAL ERROR: No default mob constructor!");
+	exit(EXIT_FAILURE);
+}
+
 Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	if (!(model = init_manager.load_model(model_name))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Player constructor failed to load model: " << model_name << std::endl;
@@ -12,7 +18,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	speed = 400.0f;
 	velocity = {0.0f, 0.0f, 0.0f};
 
-	position = {0.0f, 0.0f, -100.0f};
+	position = {0.0f, 100.0f, 0.0f};
 	scale = {20.0f, 20.0f, 20.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 
@@ -34,8 +40,9 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	mass = 100.0f;
 	glm::vec3 inertia = {0.0, 0.0, 0.0};
 	btQuaternion rotation = {0.0, 1.0, 0.0, 0.0};
-	generate_collision_volume(model_name, SPHERE, scale * 2.0f);
+	generate_collision_volume(model_name, SPHERE, scale);
 	generate_collision_body(mass, inertia, rotation, position);
+	collision_body->setActivationState(DISABLE_DEACTIVATION);
 }
 
 Player::~Player(){
