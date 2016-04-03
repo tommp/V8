@@ -61,7 +61,6 @@ class Model{
 		bool unbind_context(std::string& context_name);
 		bool add_contexts_to_renderer(Renderer& renderer)const;
 
-		glm::vec3& get_init_direction();
 	};
 
 typedef std::shared_ptr<Model> Model_ptr;

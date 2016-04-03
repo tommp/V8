@@ -195,7 +195,3 @@ bool Model::add_contexts_to_renderer(Renderer& renderer)const{
 
 	return true;
 }
-
-glm::vec3& Model::get_init_direction(){
-	return init_direction;
-}
