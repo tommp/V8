@@ -65,7 +65,7 @@ Prop::Prop(Resource_manager& manager,
 
 	/* Physics */
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
-	generate_collision_volume(model_name, BOX, scale);
+	generate_collision_volume(model_name, shape, scale);
 	generate_collision_body(mass, rotation, position);
 
 	update_matrices();

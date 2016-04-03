@@ -52,7 +52,8 @@ public:
 		const glm::vec3& position,
 		const glm::vec3& scale,
 		const glm::vec3& direction,
-		GLfloat mass);
+		GLfloat mass,
+		Collision_shape shape);
 	~Mob();
 	bool update_position(GLfloat timedelta);
 	bool touch_object(Object& object);

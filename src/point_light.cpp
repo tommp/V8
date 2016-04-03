@@ -27,7 +27,7 @@ Point_light::Point_light(GLfloat radius,
 Point_light::Point_light(){
 	base_light_context->shader_type = LIGHT_POINT;
 	radius = rand() % 500;
-	randomize_position(glm::i16vec3(4000, 1, 4000), glm::i16vec3(2000, -100, 2000));
+	randomize_position(glm::i16vec3(1000, 1, 1000), glm::i16vec3(0, -100, 0));
 	randomize_color(5);
 	color_components = {0.0f, 1.0f, 1.0f};
 

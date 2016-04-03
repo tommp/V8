@@ -46,7 +46,8 @@ Mob::Mob(Resource_manager& manager,
 	const glm::vec3& position,
 	const glm::vec3& scale,
 	const glm::vec3& direction,
-	GLfloat mass){
+	GLfloat mass,
+	Collision_shape shape){
 
 	name = mob_name;
 	if ( !(model = manager.load_model(model_name) ) ){
@@ -67,7 +68,7 @@ Mob::Mob(Resource_manager& manager,
 	speed = 400;
 
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
-	generate_collision_volume(model_name, BOX, scale);
+	generate_collision_volume(model_name, shape, scale);
 	generate_collision_body(mass, rotation, position);
 	collision_body->setActivationState(DISABLE_DEACTIVATION);
 }

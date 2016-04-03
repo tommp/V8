@@ -37,7 +37,7 @@ Spot_light::Spot_light(){
 	direction.x = ((rand() % 1500) / 501) - 1;
 	direction.z = ((rand() % 1500) / 501) - 1;
 
-	randomize_position(glm::i16vec3(4000, 50, 4000), glm::i16vec3(2000, -100, 2000));
+	randomize_position(glm::i16vec3(1000, 50, 1000), glm::i16vec3(0, -100, 0));
 	randomize_color(5);
 	color_components = {0.0f, 1.0f, 1.0f};
 
