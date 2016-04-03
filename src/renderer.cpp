@@ -624,12 +624,8 @@ bool Renderer::bind_g_data(Shader_type light_type)const{
 	
 	glActiveTexture(GL_TEXTURE0 + 2);
 	glUniform1i(current_shader->load_uniform_location("g_albedo_spec"), 2);
-	if (use_AA) {
-		glBindTexture(GL_TEXTURE_2D, AA_buffer);
-	}
-	else{
-		glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
-	}
+	glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
+	
 	
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_albedo_spec buffer!" << std::endl;
@@ -1170,7 +1166,7 @@ bool Renderer::apply_AA()const{
 	FXAA_shader->use();
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(FXAA_shader->load_uniform_location("colortexture"), 0);
-	glBindTexture(GL_TEXTURE_2D, g_albedo_spec); 
+	glBindTexture(GL_TEXTURE_2D, light_buffer); 
 	
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffer!" << std::endl;
@@ -1205,18 +1201,18 @@ bool Renderer::render_all(const Camera_ptr& camera){
 		return false;
 	}
 
+	if(!render_lights(camera->get_position_refrence()) || check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
+		errorlogger("ERROR: Failed to render lights!");
+		return false;
+	}
+
 	if (use_AA) {
 		if (!apply_AA()){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply anti aliasing!"<< std::endl;
 			errorlogger("ERROR: Failed to apply anti aliasing!");
 			return false;
 		}
-	}
-
-	if(!render_lights(camera->get_position_refrence()) || check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
-		errorlogger("ERROR: Failed to render lights!");
-		return false;
 	}
 
 	if (!ppe_blend()){
@@ -1262,8 +1258,13 @@ bool Renderer::ppe_blend()const{
 		}
 	}
 
-
-	glBindTexture(GL_TEXTURE_2D, light_buffer);
+	if (use_AA) {
+		glBindTexture(GL_TEXTURE_2D, AA_buffer);
+	}
+	else{
+		glBindTexture(GL_TEXTURE_2D, light_buffer);
+	}
+	
 
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffer!" << std::endl;

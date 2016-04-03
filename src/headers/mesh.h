@@ -70,6 +70,7 @@ class Mesh {
 		bool load_base_line(std::vector<Vertex>& vertices);
 	public:
 		Mesh();
+		Mesh(const glm::vec4& color);
 		~Mesh();
 		
 		bool load_from_file(Resource_manager& manager, const std::string& name);

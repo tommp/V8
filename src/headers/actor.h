@@ -23,8 +23,6 @@ class Actor{
 		glm::vec3 init_direction;
 	public:
 		Actor();
-		const glm::vec3* get_position()const {return &position;};
-		const glm::vec3* get_size()const {return &scale;};
 
 		float get_x()const{return position[0];};
 		float get_y()const{return position[1];};

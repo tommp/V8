@@ -50,7 +50,7 @@ bool World::update_positions(GLfloat timedelta, Renderer& renderer){
 
 	/* TODO:: MOVE THIS */
 	if(!players.empty()){
-		if (!current_level->camera->center_camera(*(players.front()->get_position()))) {
+		if (!current_level->camera->center_camera(players.front()->get_position())) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to center camera" << std::endl;
 			errorlogger("ERROR: Failed to center camera");
 			return false;

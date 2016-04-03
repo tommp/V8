@@ -12,7 +12,6 @@ Object::Object() {
 	mass = 0;
 	inertia = {0.0, 0.0, 0.0};
 	init_rotation = {0.0, 0.0, 0.0, 1.0};
-	/* TODO::Properly set this */
 	collision_shape = nullptr;
 	motion_state = nullptr;
 	collision_body = nullptr;
@@ -74,7 +73,6 @@ bool Object::load_model_vertices(const std::string& modelname, std::vector<Verte
 }
 
 bool Object::generate_collision_body(GLfloat mass, 
-				const glm::vec3& inertia, 
 				const btQuaternion& rotation, 
 				const glm::vec3& position){
 	if (!collision_shape) {
@@ -84,18 +82,45 @@ bool Object::generate_collision_body(GLfloat mass,
 	}
 
 	this->mass = mass;
-	this->inertia = btVector3(inertia.x, inertia.y, inertia.z);
 	this->init_rotation = rotation;
 
-	collision_shape->calculateLocalInertia(mass, this->inertia);
+	collision_shape->calculateLocalInertia(mass, inertia);
 	btTransform trans = btTransform(init_rotation, btVector3(position.x, position.y, position.z));
 	motion_state = new btDefaultMotionState(trans);
 	
 	
-	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, this->inertia);
+	btRigidBody::btRigidBodyConstructionInfo collision_body_CI(mass, motion_state, collision_shape, inertia);
 	collision_body_CI.m_friction = 10.0;
 	collision_body_CI.m_rollingFriction = 10.0;
 	collision_body = new btRigidBody(collision_body_CI);
 
+	trans.getOpenGLMatrix(&raw_model_matrix[0]);
+
 	return true;
+}
+
+bool Object::update_model_matrix(){
+	transform.getOpenGLMatrix(&raw_model_matrix[0]);
+	return true;
+}
+
+bool Object::update_transform(){
+	motion_state->getWorldTransform(transform);
+	return true;
+}
+
+bool Object::fill_glm_matrix(glm::mat4& matrix)const{
+	for (GLuint i = 0; i < 4; ++i) {
+		for (GLuint j = 0; j < 4; ++j) {
+			matrix[i][j] = raw_model_matrix[i * 4 + j];
+		}
+	}
+	return true;
+}
+
+glm::vec3 Object::get_position()const{
+	btVector3 origin = transform.getOrigin();
+	glm::vec3 position = glm::vec3(origin.getX(), origin.getY(), origin.getZ());
+
+	return position;
 }

@@ -54,6 +54,7 @@ class Model{
 	public:
 		Model();
 		bool load_from_file(Resource_manager& manager, const std::string& name);
+		bool load_from_file(Resource_manager& manager, const std::string& name, const glm::vec4& color);
 		bool bind_context(const glm::mat4& model_matrix,
 								const glm::mat3& normal_model_matrix, 
 								std::string& context_name);

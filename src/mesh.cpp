@@ -3,7 +3,55 @@
 Mesh::Mesh(){
 	VBO = 0;
 	EBO = 0;
-	object_color = {5.0f, 0.0f, 0.0f, 1.0f};
+	object_color = {1.0f, 1.0f, 1.0f, 1.0f};
+	material = nullptr;
+
+	mesh_in_renderer = false;
+
+	base_context = std::make_shared<Rendering_context>();
+	base_context->VAO = 0;
+	base_context->render_mode = GL_FILL;
+	base_context->primitive_type = GL_TRIANGLES;
+	base_context->shader_type = GEOMETRY_STATIC_COLORED;
+	base_context->render_elements = true;
+	base_context->setup_base_uniforms = [&](const Shader_ptr& shader) {
+		switch (base_context->shader_type) {
+		case GEOMETRY_ANIMATED:
+			if (!material->use(shader)) {
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to use material for mesh: " << name << std::endl;
+				errorlogger("ERROR: Failed to use material for mesh: ", name.c_str());
+				return false;
+			}
+			break;
+		case GEOMETRY_ANIMATED_COLORED:
+			glUniform4fv(shader->load_uniform_location("object_color"), 1, (float*)&(object_color));
+			break;
+		case GEOMETRY_STATIC:
+			if (!material->use(shader)) {
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to use material for mesh: " << name << std::endl;
+				errorlogger("ERROR: Failed to use material for mesh: ", name.c_str());
+				return false;
+			}
+			break;
+		case GEOMETRY_STATIC_COLORED:
+			glUniform4fv(shader->load_uniform_location("object_color"), 1, (float*)&(object_color));
+			break;
+		case GEOMETRY_LINES:
+			break;
+		default:
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unknown shader type when rendering mesh!" << std::endl;
+			errorlogger("ERROR: Unknown shader type when rendering mesh!");
+			return false;
+		}
+
+		return true;
+	};
+}
+
+Mesh::Mesh(const glm::vec4& color){
+	VBO = 0;
+	EBO = 0;
+	object_color = color;
 	material = nullptr;
 
 	mesh_in_renderer = false;

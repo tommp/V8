@@ -11,7 +11,13 @@ Mob::Mob(Resource_manager& manager,
 		const std::string& mob_name){
 	
 	name = mob_name;
-	if ( !(model = manager.load_model(model_name) ) ){
+
+	glm::vec4 color;
+	color.x = (rand()%100) /100.0f;
+	color.y = (rand()%100) /100.0f;
+	color.z = (rand()%100) /100.0f;
+	color.w = 0.0;
+	if ( !(model = manager.load_model(model_name, color))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Mob constructor failed to load model: " << model_name << std::endl;
 		errorlogger("FATAL ERROR: Mob constructor failed to load model: ", model_name.c_str());
 		exit(EXIT_FAILURE);
@@ -28,10 +34,9 @@ Mob::Mob(Resource_manager& manager,
 	speed = 400;
 
 	mass = 10.0f;
-	glm::vec3 inertia = {0.0, 0.0, 0.0};
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
 	generate_collision_volume(model_name, BOX, scale);
-	generate_collision_body(mass, inertia, rotation, position);
+	generate_collision_body(mass, rotation, position);
 	collision_body->setActivationState(DISABLE_DEACTIVATION);
 }
 
@@ -41,8 +46,7 @@ Mob::Mob(Resource_manager& manager,
 	const glm::vec3& position,
 	const glm::vec3& scale,
 	const glm::vec3& direction,
-	GLfloat mass,
-	const glm::vec3& inertia){
+	GLfloat mass){
 
 	name = mob_name;
 	if ( !(model = manager.load_model(model_name) ) ){
@@ -64,7 +68,7 @@ Mob::Mob(Resource_manager& manager,
 
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
 	generate_collision_volume(model_name, BOX, scale);
-	generate_collision_body(mass, inertia, rotation, position);
+	generate_collision_body(mass, rotation, position);
 	collision_body->setActivationState(DISABLE_DEACTIVATION);
 }
 
@@ -130,38 +134,10 @@ bool Mob::add_contexts_to_renderer(Renderer& renderer)const{
 }
 
 bool Mob::update_matrices(){
-	GLboolean should_update_model = false;
-	if (position != prev_position) {
-		should_update_model = true;
-	}
-	else if (direction != prev_direction) {
-		should_update_model = true;
-	}
+	update_model_matrix();
+	fill_glm_matrix(model_matrix);
+	model_matrix = glm::scale(model_matrix, scale);
+	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
 
-	else if (scale != prev_scale) {
-		should_update_model = true;
-	}
-
-	if (should_update_model) {
-		model_matrix = glm::mat4();
-		model_matrix = glm::translate(model_matrix, position);  
-
-		/* TODO:: 3D rotation */
-		GLfloat dot = glm::dot(direction, model->get_init_direction());
-		GLfloat det =  model->get_init_direction().x*direction.z - model->get_init_direction().z*direction.x;
-		GLfloat rotation = -1 * glm::atan(det, dot);
-
-	    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
-	    model_matrix = glm::rotate(model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
-	    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
-
-	    model_matrix = glm::scale(model_matrix, glm::vec3(scale));
-
-	    normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
-
-		prev_position = position;
-		prev_scale = scale;
-		prev_direction = direction;
-	}
 	return true;
 }

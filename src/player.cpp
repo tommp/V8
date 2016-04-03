@@ -7,7 +7,12 @@ Player::Player(){
 }
 
 Player::Player(Resource_manager& init_manager, const std::string& model_name){
-	if (!(model = init_manager.load_model(model_name))){
+	glm::vec4 color;
+	color.x = (rand()%100) /100.0f;
+	color.y = (rand()%100) /100.0f;
+	color.z = (rand()%100) /100.0f;
+	color.w = 0.0;
+	if (!(model = init_manager.load_model(model_name, color))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Player constructor failed to load model: " << model_name << std::endl;
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
 	}
@@ -38,10 +43,9 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	prev_direction = direction;
 
 	mass = 100.0f;
-	glm::vec3 inertia = {0.0, 0.0, 0.0};
 	btQuaternion rotation = {0.0, 1.0, 0.0, 0.0};
 	generate_collision_volume(model_name, SPHERE, scale);
-	generate_collision_body(mass, inertia, rotation, position);
+	generate_collision_body(mass, rotation, position);
 	collision_body->setActivationState(DISABLE_DEACTIVATION);
 }
 
@@ -54,14 +58,6 @@ Player::~Player(){
 }
 
 bool Player::update_position(GLfloat timedelta){
-
-    btVector3 phys_position = collision_body->getCenterOfMassPosition();
-
-    position[0] = phys_position.getX();
-    position[1] = phys_position.getY();
-    position[2] = phys_position.getZ();
-
-    //std::cout <<"player: " << position[0] << ":" << position[1] << ":" << position[2] << std::endl;
 
 	velocity = {0.0f, 0.0f, 0.0f};
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
@@ -94,7 +90,7 @@ bool Player::update_position(GLfloat timedelta){
 
 	update_matrices();
 	flashlight->set_direction(direction);
-	flashlight->set_position(position);
+	flashlight->set_position(get_position());
 	flashlight->calculate_light_uniforms();
 	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
 	return true;
@@ -117,38 +113,11 @@ bool Player::add_contexts_to_renderer(Renderer& renderer)const{
 }
 
 bool Player::update_matrices(){
-	GLboolean should_update_model = false;
-	if (position != prev_position) {
-		should_update_model = true;
-	}
-	else if (direction != prev_direction) {
-		should_update_model = true;
-	}
+	update_transform();
+	update_model_matrix();
+	fill_glm_matrix(model_matrix);
+	model_matrix = glm::scale(model_matrix, scale);
+	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
 
-	else if (scale != prev_scale) {
-		should_update_model = true;
-	}
-
-	if (should_update_model) {
-		model_matrix = glm::mat4();
-		model_matrix = glm::translate(model_matrix, position);  
-
-		/* TODO:: 3D rotation */
-		GLfloat dot = glm::dot(direction, model->get_init_direction());
-		GLfloat det =  model->get_init_direction().x*direction.z - model->get_init_direction().z*direction.x;
-		GLfloat rotation = -1 * glm::atan(det, dot);
-
-	    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); 
-	    model_matrix = glm::rotate(model_matrix, rotation, glm::vec3(0.0f, 1.0f, 0.0f)); 
-	    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.5f * size.z));
-
-	    model_matrix = glm::scale(model_matrix, glm::vec3(scale));
-
-	    normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
-
-		prev_position = position;
-		prev_scale = scale;
-		prev_direction = direction;
-	}
 	return true;
 }

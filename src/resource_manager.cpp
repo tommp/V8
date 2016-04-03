@@ -82,6 +82,23 @@ Mesh_ptr Resource_manager::load_mesh(const std::string& name){
 	}
 }
 
+Mesh_ptr Resource_manager::load_mesh(const std::string& name, const glm::vec4& color){
+	if (meshes.find(name) != meshes.end()){
+		return meshes.find(name)->second;
+	}
+	else{
+		Mesh_ptr new_mesh = std::make_shared<Mesh>(color);
+		if ( !(new_mesh->load_from_file(*this, name)) ){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Resource manager failed to load new mesh with keyname: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new mesh: ", name.c_str());
+			return nullptr;
+		}
+		meshes.insert({name, new_mesh});
+		return new_mesh;
+	}
+}
+
+
 Model_ptr Resource_manager::load_model(const std::string& name){
 	if (models.find(name) != models.end()){
 		return models[name];
@@ -89,6 +106,22 @@ Model_ptr Resource_manager::load_model(const std::string& name){
 	else{
 		Model_ptr new_model = std::make_shared<Model>();
 		if ( !(new_model->load_from_file(*this, name)) ){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Resource manager failed to load new model with keyname: " << name << std::endl;
+			errorlogger("ERROR: Resource manager failed to load new model: ", name.c_str());
+			return nullptr;
+		}
+		models.insert({name, new_model});
+		return new_model;
+	}
+}
+
+Model_ptr Resource_manager::load_model(const std::string& name, const glm::vec4& color){
+	if (models.find(name) != models.end()){
+		return models[name];
+	}
+	else{
+		Model_ptr new_model = std::make_shared<Model>();
+		if ( !(new_model->load_from_file(*this, name, color)) ){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Resource manager failed to load new model with keyname: " << name << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new model: ", name.c_str());
 			return nullptr;

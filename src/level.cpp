@@ -11,21 +11,21 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	for (int i = 0; i < 0; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_light(point_light);
 	}
 
-	/*for (int i = 0; i < 20; ++i) {
+	for (int i = 0; i < 1; ++i) {
 		Light_ptr spot_light = std::make_shared<Spot_light>();
 		add_light(spot_light);
-	}*/
+	}
 
 	Light_ptr dir_light = std::make_shared<Directional_light>();
 	add_light(dir_light);
 
 	
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 0; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = 0.0;
@@ -34,8 +34,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 										position, 
 										glm::vec3(20.0, 20.0, 20.0),
 										glm::vec3(0.0, 0.0, -1.0),
-										100.0f,
-										glm::vec3(0.0, 0.0, 0.0));
+										100.0f);
 		add_object(cube);
 	}
 
@@ -43,35 +42,32 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 										glm::vec3(0.0, 0.0, 0.0), 
 										glm::vec3(1000.0, 2.0, 1000.0),
 										glm::vec3(0.0, 0.0, -1.0),
-										0.0f,
-										glm::vec3(0.0, 0.0, 0.0));
+										0.0f);
 	add_object(prop);
 
-	for (GLuint i = 0; i < 10; ++i) {
+	for (GLuint i = 0; i < 100; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = rand() % 500;
 		position.z = rand() % 2000 - 1000;
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
 										position, 
-										glm::vec3(10.0, 30.0, 10.0),
+										glm::vec3(10.0, 130.0, 10.0),
 										glm::vec3(0.0, 0.0, -1.0),
-										100.0f,
-										glm::vec3(10.0, 10.0, 10.0));
+										1000.0f);
 		add_object(prop);
 	}
 
-	for (GLuint i = 0; i < 5; ++i) {
+	for (GLuint i = 0; i < 0; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
-		position.y = rand() % 500;
+		position.y = 0;
 		position.z = rand() % 2000 - 1000;
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, "sphere_colored", 
 										position, 
-										glm::vec3(10.0, 30.0, 10.0),
+										glm::vec3(10.0, 10.0, 10.0),
 										glm::vec3(0.0, 0.0, -1.0),
-										1000.0f,
-										glm::vec3(1000.0, 1000.0, 1000.0));
+										1000.0f);
 		add_object(prop);
 	}
 

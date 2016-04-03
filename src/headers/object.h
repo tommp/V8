@@ -28,6 +28,10 @@ class Object{
 		btRigidBody* collision_body;
 		btCollisionShape* collision_shape;
 		btDefaultMotionState* motion_state;
+
+		btScalar raw_model_matrix[16];
+
+		btTransform transform;
 		
 		btScalar mass;
 		btVector3 inertia;
@@ -43,12 +47,15 @@ class Object{
 				Collision_shape type, 
 				const glm::vec3& scale);
 		bool generate_collision_body(GLfloat mass, 
-				const glm::vec3& inertia, 
 				const btQuaternion& rotation, 
 				const glm::vec3& position);
 		bool load_model_vertices(const std::string& modelname, std::vector<Vertex>& vertices);
 
 		btRigidBody* get_collision_body()const;
+		glm::vec3 get_position()const;
+		bool update_model_matrix();
+		bool update_transform();
+		bool fill_glm_matrix(glm::mat4& matrix)const;
 };
 
 typedef std::shared_ptr<Object> Object_ptr;

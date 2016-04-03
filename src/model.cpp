@@ -6,7 +6,7 @@ Model::Model(){
 	name = "";
 	is_complete = false;
 
-	init_direction = {0.0f, 0.0f, -1.0f};
+	init_direction = {0.0f, 0.0f, 1.0f};
 
 	is_animated = false;
 	animations = nullptr;
@@ -68,6 +68,35 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 
 	for (auto mesh : mesh_names) {
 		Mesh_ptr new_mesh = manager.load_mesh(mesh);
+		if (!new_mesh) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load mesh in model from resource handler: " << mesh << std::endl;
+			errorlogger("ERROR: Unable to load mesh in model from resource handler: ", mesh.c_str());
+			return false;
+		}
+
+		meshes.push_back(new_mesh);
+	}
+
+	return true;
+}
+
+bool Model::load_from_file(Resource_manager& manager, const std::string& name, const glm::vec4& color){
+	this->name = name;
+	std::vector<std::string> mesh_names;
+
+	if (name == Mesh_vars::BOX) {
+		mesh_names.push_back(name);
+	}
+	else{
+		if (!load_binary_model(manager, name, mesh_names)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load binary model with name: " << name << std::endl;
+			errorlogger("ERROR: Unable to load binary model with name: ", name.c_str());
+			return false;
+		}
+	}
+
+	for (auto mesh : mesh_names) {
+		Mesh_ptr new_mesh = manager.load_mesh(mesh, color);
 		if (!new_mesh) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load mesh in model from resource handler: " << mesh << std::endl;
 			errorlogger("ERROR: Unable to load mesh in model from resource handler: ", mesh.c_str());

@@ -29,7 +29,6 @@ typedef std::shared_ptr<Shader> Shader_ptr;
 
 class Base_light: public Actor{
 	protected:
-		/* Light rendering specifics */
 		glm::vec3 color;
 
 		/* x is ambient, y is diffuse, z is specular */
