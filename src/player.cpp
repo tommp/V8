@@ -23,7 +23,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	speed = 400.0f;
 	velocity = {0.0f, 0.0f, 0.0f};
 
-	position = {0.0f, 100.0f, 0.0f};
+	position = {100.0f, 100.0f, 100.0f};
 	scale = {20.0f, 20.0f, 20.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 
@@ -116,8 +116,9 @@ bool Player::update_matrices(){
 	update_transform();
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
+	normal_model_matrix = glm::mat3(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
-	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
+	
 
 	return true;
 }

@@ -159,7 +159,10 @@ int main(int argc, char** argv){
 	std::cout << "\n=======================================" << std::endl;
 	std::cout << "=======================================\n" << std::endl;
 	std::cout << "Engine shutting down...\n" << std::endl;
+
+	renderer.save_settings();
 	SDL_Quit();
+
 	std::cout << "Shutdown complete!\n" << std::endl;
 	return 0;
 }

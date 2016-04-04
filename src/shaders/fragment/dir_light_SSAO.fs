@@ -10,6 +10,7 @@ out vec4 color;
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
 uniform sampler2D g_albedo_spec;
+uniform sampler2D SSAO_buffer;
 
 uniform vec3 view_position;
 
@@ -29,6 +30,7 @@ void main(){
 	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
 	vec3 result = vec3(0.0f, 0.0f, 0.0f);
 	vec3 frag_position = texture(g_position, frag_tex_coord).rgb;
+	float ambient_occlusion = texture(SSAO_buffer, frag_tex_coord).r;
 
 	vec3 light_direction = normalize(-light.direction);
 
@@ -37,7 +39,7 @@ void main(){
 	vec3 reflect_direction = reflect(-light_direction, normal);
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
-	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb) * ambient_occlusion;
 	vec3 diffuse = (light.color * light.color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
 	vec3 specular = (light.color * light.color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
   

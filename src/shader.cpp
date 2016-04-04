@@ -159,6 +159,19 @@ bool Shader::load_from_file(const std::string& name){
         }        
     }
 
+    GLuint uniform_block_index_plane_data = glGetUniformBlockIndex(program, "plane_data");
+    if (uniform_block_index_plane_data == GL_INVALID_INDEX) {
+        SDL_Log("No plane data uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    }
+    else{
+        glUniformBlockBinding(program, uniform_block_index_plane_data, 4);
+        if(check_ogl_error()){
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind plane datauniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind plane data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
+            return false;;
+        }        
+    }
+
     return true;
 }
 
@@ -193,8 +206,8 @@ GLuint Shader::load_uniform_location(const std::string& uniform){
     else{
         GLuint new_uniform_location = glGetUniformLocation(program, uniform.c_str());
         if(check_ogl_error()) {
-            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_position buffer!" << std::endl;
-            errorlogger("ERROR: Failed to bind g_position buffer!");
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load uniform loacation: " << uniform << std::endl;
+            errorlogger("ERROR: Failed to load uniform loacation: ", uniform.c_str());
             return -1;
         }
         uniform_locations[uniform] = new_uniform_location;

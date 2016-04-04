@@ -24,6 +24,9 @@ void State_handler::handle_events(){
 			else if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", A1)) {
 				renderer->toggle_bloom();
 			}
+			else if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", A2)) {
+				renderer->toggle_ambient_occlusion();
+			}
 		}
 		else if (ehandler.type == SDL_WINDOWEVENT) {
 			switch (ehandler.window.event) {

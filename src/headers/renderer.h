@@ -62,6 +62,8 @@ class Renderer{
 	    GLboolean ortographic;
 
 	    GLuint SSAO_kernel_size;
+	    GLfloat near_plane;
+	    GLfloat far_plane;
 
 	    glm::vec2 window_size;
 
@@ -99,6 +101,7 @@ class Renderer{
 		GLuint uniform_buffer_matrices;
 		GLuint uniform_buffer_light_data;
 		GLuint uniform_buffer_SSAO_kernel;
+		GLuint uniform_buffer_plane_data;
 
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
@@ -118,6 +121,9 @@ class Renderer{
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
 		Shader_ptr spot_light_shader;
+		Shader_ptr dir_light_SSAO_shader;
+		Shader_ptr point_light_SSAO_shader;
+		Shader_ptr spot_light_SSAO_shader;
 		Shader_ptr static_geometry_shader;
 		Shader_ptr static_geometry_shader_colored;
 		Shader_ptr animated_geometry_shader;
@@ -145,7 +151,8 @@ class Renderer{
 		bool use_default_buffer()const;
 
 		bool upload_light_data()const;
-		bool upload_SSAO_kernel(const std::vector<glm::vec4>& SSAO_kernel)const;
+		bool upload_plane_data()const;
+		bool upload_SSAO_kernel(const std::vector<glm::vec3>& SSAO_kernel)const;
 		bool upload_view_matrix()const;
 		bool upload_projection_matrix()const;
 		void update_projection_matrix();

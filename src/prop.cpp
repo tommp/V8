@@ -111,6 +111,7 @@ bool Prop::update_matrices(){
 	update_transform();
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
+	normal_model_matrix = glm::mat3(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
 	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
 

@@ -194,14 +194,14 @@ bool Mesh::load_base_box(std::vector<Vertex>& vertices,
 	};
 
 	std::vector<glm::vec3> cube_normals = {
-		glm::vec3(-1.0, -1.0,  1.0),
-		glm::vec3(1.0, -1.0,  1.0),
-		glm::vec3(1.0,  1.0,  1.0),
-		glm::vec3(-1.0,  1.0,  1.0),
-		glm::vec3(-1.0, -1.0, -1.0),
-		glm::vec3(1.0, -1.0, -1.0),
-		glm::vec3(1.0,  1.0, -1.0),
-		glm::vec3(-1.0,  1.0, -1.0),
+		glm::normalize(glm::vec3(-1.0, -1.0,  1.0)),
+		glm::normalize(glm::vec3(1.0, -1.0,  1.0)),
+		glm::normalize(glm::vec3(1.0,  1.0,  1.0)),
+		glm::normalize(glm::vec3(-1.0,  1.0,  1.0)),
+		glm::normalize(glm::vec3(-1.0, -1.0, -1.0)),
+		glm::normalize(glm::vec3(1.0, -1.0, -1.0)),
+		glm::normalize(glm::vec3(1.0,  1.0, -1.0)),
+		glm::normalize(glm::vec3(-1.0,  1.0, -1.0)),
 	};
 
 	GLushort cube_elements[] = {

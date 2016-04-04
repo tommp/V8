@@ -99,6 +99,14 @@ Renderer::Renderer(Resource_manager& resource_manager){
 	}
 	std::cout << "------------ Ambient occlusion data initialized!\n" << std::endl;
 
+	std::cout << "------------ Uploading plane data..." << std::endl;
+	if (!upload_plane_data()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to upload plane data in renderer!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to upload plane data in renderer!");
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "------------ Plane data initialized!\n" << std::endl;
+
 	/* Set projection matrix */
 	update_projection_matrix();
 	if (!upload_projection_matrix()) {
@@ -120,7 +128,9 @@ bool Renderer::init_settings(){
 		use_SSAO = true;
 		use_bloom = false;
 
-		SSAO_kernel_size = 64;
+		SSAO_kernel_size = 32;
+		near_plane = 10.0;
+		far_plane = 3000.0;
 
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to load display settings, restoring defaults." << std::endl;
 		errorlogger("WARNING: Failed to load display settings, restoring defaults.");
@@ -219,12 +229,6 @@ bool Renderer::init_openGL(){
 		return false;
 	}
 
-	GLint minor;
-	GLint major;
-	glGetIntegerv(GL_MAJOR_VERSION, &major); 
-	glGetIntegerv(GL_MINOR_VERSION, &minor);
-	std::cout << minor << ":" << major << ":" << glGetString(GL_VERSION) << std::endl;
-
 	return true;
 }
 
@@ -254,7 +258,7 @@ bool Renderer::init_uniform_buffers(){
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize liht data uniform buffer in renderer! " << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize light data uniform buffer in renderer! " << std::endl;
 		errorlogger("ERROR: Failed to initialize light data uniform buffer in renderer!");
 		glDeleteBuffers(1, &uniform_buffer_light_data);
 		return false;
@@ -271,19 +275,38 @@ bool Renderer::init_uniform_buffers(){
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize liht data uniform buffer in renderer! " << std::endl;
-		errorlogger("ERROR: Failed to initialize light data uniform buffer in renderer!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize SSAO kernel uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize SSAO kernel uniform buffer in renderer!");
 		glDeleteBuffers(1, &uniform_buffer_SSAO_kernel);
 		return false;
 	}
 
 	uniform_buffers["SSAO_kernel"] = uniform_buffer_SSAO_kernel;
+
+
+	glGenBuffers(1, &uniform_buffer_plane_data);
+	  
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_plane_data);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(GLfloat) * 2, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 4, uniform_buffer_plane_data, 0, sizeof(GLfloat) * 2);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize plane data uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize plane data uniform buffer in renderer!");
+		glDeleteBuffers(1, &uniform_buffer_plane_data);
+		return false;
+	}
+
+	uniform_buffers["plane_data"] = uniform_buffer_plane_data;
+
 	return true;
 }
 
 bool Renderer::init_shaders(Resource_manager& resource_manager){
+	dir_light_SSAO_shader = resource_manager.load_shader("dir_light_SSAO_shader");
 	dir_light_shader = resource_manager.load_shader("dir_light_shader");
-	if (dir_light_shader == nullptr) {
+	if (dir_light_shader == nullptr || dir_light_SSAO_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load directional light shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load directional light shader in renderer");
 		return false;
@@ -296,8 +319,9 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 	}
 
 
+	point_light_SSAO_shader = resource_manager.load_shader("point_light_SSAO_shader");
 	point_light_shader = resource_manager.load_shader("point_light_shader");
-	if (point_light_shader == nullptr) {
+	if (point_light_shader == nullptr || point_light_SSAO_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load point light shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load point light shader in renderer");
 		return false;
@@ -309,8 +333,9 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
+	spot_light_SSAO_shader = resource_manager.load_shader("spot_light_SSAO_shader");
 	spot_light_shader = resource_manager.load_shader("spot_light_shader");
-	if (spot_light_shader == nullptr) {
+	if (spot_light_shader == nullptr || spot_light_SSAO_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load spot light shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load spot light shader in renderer");
 		return false;
@@ -650,7 +675,7 @@ bool Renderer::init_primitives(Resource_manager& resource_manager){
 bool Renderer::init_ambient_occlusion(){
 	std::uniform_real_distribution<GLfloat> random_floats(0.0, 1.0);
 	std::default_random_engine generator;
-	std::vector<glm::vec4> SSAO_kernel;
+	std::vector<glm::vec3> SSAO_kernel;
 	for (GLuint i = 0; i < SSAO_kernel_size; ++i){
 	    glm::vec3 sample(
 	        random_floats(generator) * 2.0 - 1.0, 
@@ -662,7 +687,7 @@ bool Renderer::init_ambient_occlusion(){
 	    GLfloat scale = GLfloat(i) / SSAO_kernel_size; 
 	    scale = lerp(0.1f, 1.0f, scale * scale);
    		sample *= scale;
-	    SSAO_kernel.push_back(glm::vec4(sample, 0.0));  
+	    SSAO_kernel.push_back(sample);  
 	}
 
 	if (!upload_SSAO_kernel(SSAO_kernel)) {
@@ -677,12 +702,14 @@ bool Renderer::init_ambient_occlusion(){
 	        random_floats(generator) * 2.0 - 1.0, 
 	        random_floats(generator) * 2.0 - 1.0, 
 	        0.0f); 
+	    glm::normalize(noise);
+
 	    SSAO_noise.push_back(noise);
 	} 
 
 	glGenTextures(1, &SSAO_noise_buffer);
 	glBindTexture(GL_TEXTURE_2D, SSAO_noise_buffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &SSAO_noise[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 4, 4, 0, GL_RGB, GL_FLOAT, &SSAO_noise[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -701,15 +728,30 @@ bool Renderer::init_ambient_occlusion(){
 bool Renderer::bind_g_data(Shader_type light_type)const{
 	Shader_ptr current_shader;
 	if(light_type == LIGHT_DIRECTIONAL) {
-		current_shader = dir_light_shader;
+		if (use_SSAO) {
+			current_shader = dir_light_SSAO_shader;
+		}
+		else{
+			current_shader = dir_light_shader;
+		}
 	}
 
 	else if(light_type == LIGHT_POINT) {
-		current_shader = point_light_shader;
+		if (use_SSAO) {
+			current_shader = point_light_SSAO_shader;
+		}
+		else{
+			current_shader = point_light_shader;
+		}
 	}
 
 	else if(light_type == LIGHT_SPOT) {
-		current_shader = spot_light_shader;
+		if (use_SSAO) {
+			current_shader = spot_light_SSAO_shader;
+		}
+		else{
+			current_shader = spot_light_shader;
+		}
 	}
 	else{
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid light type when binding light shader!" << std::endl;
@@ -738,39 +780,57 @@ bool Renderer::bind_g_data(Shader_type light_type)const{
 	}
 	
 	glActiveTexture(GL_TEXTURE0 + 2);
-	glUniform1i(current_shader->load_uniform_location("g_albedo_spec"), 2);
 	glBindTexture(GL_TEXTURE_2D, g_albedo_spec);
+	glUniform1i(current_shader->load_uniform_location("g_albedo_spec"), 2);
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_albedo_spec buffer!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_albedo_spec buffer!");
 		return false;
 	}
 
-	glActiveTexture(GL_TEXTURE0 + 3);
-	glUniform1i(current_shader->load_uniform_location("SSAO_buffer"), 3);
-	glBindTexture(GL_TEXTURE_2D, SSAO_buffer);
-	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind SSAO_buffer buffer!" << std::endl;
-		errorlogger("ERROR: Failed to bind SSAO_buffer buffer!");
-		return false;
+	if (use_SSAO) {
+		glActiveTexture(GL_TEXTURE0 + 3);
+		glBindTexture(GL_TEXTURE_2D, SSAO_buffer);
+		glUniform1i(current_shader->load_uniform_location("SSAO_buffer"), 3);
+		if(check_ogl_error()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind SSAO_buffer buffer!" << std::endl;
+			errorlogger("ERROR: Failed to bind SSAO_buffer buffer!");
+			return false;
+		}
 	}
+
 	return true;
 }
 
 bool Renderer::upload_view_position(Shader_type shader_type, 
 								const glm::vec3& position)const{
 	if(shader_type == LIGHT_DIRECTIONAL) {
-		glUniform3fv(dir_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
+		if (use_SSAO){
+			glUniform3fv(dir_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&position);
+		}
+		else{
+			glUniform3fv(dir_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
+		}
 	}
 
 	else if(shader_type == LIGHT_POINT) {
-		glUniform3fv(point_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
+		if (use_SSAO){
+			glUniform3fv(point_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&position);
+		}
+		else{
+			glUniform3fv(point_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
+		}
 	}
 
 	else if(shader_type == LIGHT_SPOT) {
-		glUniform3fv(spot_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
-
+		if (use_SSAO){
+			glUniform3fv(spot_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&position);
+		}
+		else{
+			glUniform3fv(spot_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
+		}
 	}
+
 	else{
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid shader type for light view position update!" << std::endl;
 		errorlogger("ERROR: Invalid shader type for light view position update!");
@@ -854,7 +914,14 @@ bool Renderer::render_dir_lights(){
 			dir_lights.erase(light_context);
 			continue;
 		}
-		else if (!render_dir_light(context, dir_light_shader)){
+		else if(use_SSAO) {
+			if (!render_dir_light(context, dir_light_SSAO_shader)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render directional light!" << std::endl;
+				errorlogger("ERROR: Failed to render directional light!");
+				return false;
+			}
+		}
+		else if(!render_dir_light(context, dir_light_shader)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render directional light!" << std::endl;
 			errorlogger("ERROR: Failed to render directional light!");
 			return false;
@@ -868,10 +935,17 @@ bool Renderer::render_point_lights(){
 		auto context = light_context->lock();
 		if (!context) {
 			SDL_Log("Point light context expired, removing from renderer...");
-			//point_lights.erase(light_context);
+			point_lights.erase(light_context);
 			continue;
 		}
-		else if (!render_light(context, point_light_shader)) {
+		else if(use_SSAO) {
+			if (!render_light(context, point_light_SSAO_shader)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render directional light!" << std::endl;
+				errorlogger("ERROR: Failed to render directional light!");
+				return false;
+			}
+		}
+		else if(!render_light(context, point_light_shader)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render point light!" << std::endl;
 			errorlogger("ERROR: Failed to render point light!");
 			return false;
@@ -885,10 +959,17 @@ bool Renderer::render_spot_lights(){
 		auto context = light_context->lock();
 		if (!context) {
 			SDL_Log("Spot light context expired, removing from renderer...");
-			//spot_lights.erase(light_context);
+			spot_lights.erase(light_context);
 			continue;
 		}
-		else if (!render_light(context, spot_light_shader)) {
+		else if(use_SSAO) {
+			if (!render_light(context, spot_light_SSAO_shader)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render spot light!" << std::endl;
+				errorlogger("ERROR: Failed to render spot light!");
+				return false;
+			}
+		}
+		else if(!render_light(context, spot_light_shader)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render spot light!" << std::endl;
 			errorlogger("ERROR: Failed to render spot light!");
 			return false;
@@ -960,6 +1041,20 @@ bool Renderer::upload_light_data()const{
 }
 
 /* ================================================================== GeomGeom */
+
+bool Renderer::upload_plane_data()const{
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("plane_data")->second);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLfloat), &near_plane);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(GLfloat), sizeof(GLfloat), &far_plane);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload plane data!" << std::endl;
+		errorlogger("ERROR: Failed to upload plane data!");
+		return false;
+	}
+	return true;
+}
 
 bool Renderer::setup_geometry_rendering(const Camera_ptr& camera){
 	update_view_matrix(camera->get_position_refrence(), 
@@ -1316,7 +1411,7 @@ void Renderer::toggle_aliasing() {
 
 /* ======================================================= SSAOSSAO */
 
-bool Renderer::upload_SSAO_kernel(const std::vector<glm::vec4>& SSAO_kernel)const{
+bool Renderer::upload_SSAO_kernel(const std::vector<glm::vec3>& SSAO_kernel)const{
 	if (uniform_buffers.find("SSAO_kernel") == uniform_buffers.end()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: SSAO kernel uniform buffer not initialized!" << std::endl;
 		errorlogger("ERROR: SSAO kernel uniform buffer not initialized!");
@@ -1325,7 +1420,7 @@ bool Renderer::upload_SSAO_kernel(const std::vector<glm::vec4>& SSAO_kernel)cons
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("SSAO_kernel")->second);
 	for (GLuint i = 0; i < SSAO_kernel_size; ++i) {
-		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4) * i, sizeof(glm::vec4), glm::value_ptr(SSAO_kernel[i]));
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4) * i, sizeof(glm::vec3), glm::value_ptr(SSAO_kernel[i]));
 	}
 	
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
@@ -1345,7 +1440,7 @@ GLfloat Renderer::lerp(GLfloat a, GLfloat b, GLfloat f)const{
 
 bool Renderer::apply_SSAO()const{
 	glBindFramebuffer(GL_FRAMEBUFFER, SSAO_fbo);
-	glClear(GL_COLOR_BUFFER_BIT);
+	clear();
 
 	SSAO_shader->use();
 	glActiveTexture(GL_TEXTURE0);
@@ -1396,7 +1491,7 @@ bool Renderer::render_all(const Camera_ptr& camera){
 
 	if (use_SSAO) {
 		if (!apply_SSAO()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply anti ambient occlusion!"<< std::endl;
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply ambient occlusion!"<< std::endl;
 			errorlogger("ERROR: Failed to apply ambient occlusion!");
 			return false;
 		}
@@ -1512,8 +1607,12 @@ bool Renderer::save_settings(){
 	contentf.write(reinterpret_cast<const char *>(&mouse_visible), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_bloom), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_AA), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_SSAO), sizeof(GLboolean));
 
 	contentf.write(reinterpret_cast<const char *>(&SSAO_kernel_size), sizeof(GLuint));
+
+	contentf.write(reinterpret_cast<const char *>(&near_plane), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&far_plane), sizeof(GLfloat));
 
 	contentf.write(reinterpret_cast<const char *>(&window_size.x), sizeof(GLfloat));
 	contentf.write(reinterpret_cast<const char *>(&window_size.y), sizeof(GLfloat));
@@ -1538,8 +1637,12 @@ bool Renderer::load_settings(){
 	contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_bloom), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_AA), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_SSAO), sizeof(GLboolean));
 
 	contentf.read(reinterpret_cast<char *>(&SSAO_kernel_size), sizeof(GLuint));
+
+	contentf.read(reinterpret_cast<char *>(&near_plane), sizeof(GLfloat));
+	contentf.read(reinterpret_cast<char *>(&far_plane), sizeof(GLfloat));
 
 	contentf.read(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
 	contentf.read(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
@@ -1656,10 +1759,10 @@ bool Renderer::render_line(const glm::vec3& start,
 
 void Renderer::update_projection_matrix(){
 	if (ortographic) {
-		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, 10.0f, 3000.0f);
+		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, near_plane, far_plane);
 	}
 	else{
-		projection = glm::perspective(45.0f, window_size.x / window_size.y, 10.0f, 3000.0f);
+		projection = glm::perspective(45.0f, window_size.x / window_size.y, near_plane, far_plane);
 	}
 }
 

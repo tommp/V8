@@ -68,7 +68,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		glm::vec3 position = glm::vec3(0.0, 0.0, 0.0);
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
 										position, 
-										glm::vec3(20.0, 20.0, 20.0),
+										glm::vec3(20.0, 2.0, 20.0),
 										glm::vec3(0.0, 0.0, -1.0),
 										60.0f,
 										BOX);
@@ -103,7 +103,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_object(prop);
 	}
 
-	for (GLuint i = 0; i < 200; ++i) {
+	for (GLuint i = 0; i < 20; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = rand() % 400;
