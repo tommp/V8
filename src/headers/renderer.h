@@ -55,10 +55,13 @@ class Renderer{
 
 	    GLboolean use_vsync;
 	    GLboolean use_AA;
+	    GLboolean use_SSAO;
 	    GLboolean use_bloom;
 	    GLboolean use_fullscreen;
 	    GLboolean mouse_visible;
 	    GLboolean ortographic;
+
+	    GLuint SSAO_kernel_size;
 
 	    glm::vec2 window_size;
 
@@ -69,6 +72,7 @@ class Renderer{
 	    /* TODO::Optimize lots here, wasting a ton of res. */
 		GLuint g_buffer;
 		GLuint AA_fbo;
+		GLuint SSAO_fbo;
 		GLuint bb_fbos[2];
 		GLuint light_fbo;
 
@@ -79,6 +83,8 @@ class Renderer{
 		GLuint g_rbo_depth;
 		GLuint bb_buffers[2];
 		GLuint AA_buffer;
+		GLuint SSAO_buffer;
+		GLuint SSAO_noise_buffer;
 		GLuint light_buffer;
 		GLuint light_rbo_depth;
 		/* =============================================== */
@@ -92,6 +98,7 @@ class Renderer{
 
 		GLuint uniform_buffer_matrices;
 		GLuint uniform_buffer_light_data;
+		GLuint uniform_buffer_SSAO_kernel;
 
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
@@ -120,6 +127,7 @@ class Renderer{
 		Shader_ptr horizontal_blur_shader;
 		Shader_ptr bloom_shader;
 		Shader_ptr FXAA_shader;
+		Shader_ptr SSAO_shader;
 
 		bool init_window();
 		bool init_openGL();
@@ -129,6 +137,7 @@ class Renderer{
 		bool init_shaders(Resource_manager& resource_manager);
 		bool init_bloom_data();
 		bool init_primitives(Resource_manager& resource_manager);
+		bool init_ambient_occlusion();
 
 		bool delete_buffers();
 
@@ -136,6 +145,7 @@ class Renderer{
 		bool use_default_buffer()const;
 
 		bool upload_light_data()const;
+		bool upload_SSAO_kernel(const std::vector<glm::vec4>& SSAO_kernel)const;
 		bool upload_view_matrix()const;
 		bool upload_projection_matrix()const;
 		void update_projection_matrix();
@@ -169,6 +179,7 @@ class Renderer{
 						const Shader_ptr& shader)const;
 
 		bool set_clear_color_black();
+		GLfloat lerp(GLfloat a, GLfloat b, GLfloat f)const;
 		
 	public:
 		Renderer();
@@ -201,6 +212,7 @@ class Renderer{
 		bool ppe_blend()const;
 
 		bool apply_AA()const;
+		bool apply_SSAO()const;
 
 		bool save_settings();
 		bool load_settings();
@@ -217,6 +229,7 @@ class Renderer{
 		bool render_all(const Camera_ptr& camera);
 
 		void toggle_aliasing();
+		void toggle_ambient_occlusion();
 		void toggle_bloom();
 };
 

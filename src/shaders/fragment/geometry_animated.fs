@@ -1,4 +1,4 @@
-layout (location = 0) out vec3 g_position;
+layout (location = 0) out vec4 g_position;
 layout (location = 1) out vec3 g_normal;
 layout (location = 2) out vec4 g_albedo_spec;
 layout (location = 3) out vec4 g_bloom;
@@ -14,9 +14,20 @@ struct Material {
 
 uniform Material material;
 
+const float NEAR = 10.0; // projection matrix's near plane
+const float FAR = 3000.0f; // projection matrix's far plane
+
+float linearize_depth(float depth)
+{
+    float z = depth * 2.0 - 1.0;
+    return (2.0 * NEAR * FAR) / (FAR + NEAR - z * (FAR - NEAR));    
+}
+
 void main()
 {    
-    g_position = frag_position;
+    g_position.xyz = frag_position;
+
+    g_position.a = linearize_depth(gl_FragCoord.z);
 
     g_normal = normalize(frag_normal);
 

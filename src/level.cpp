@@ -98,7 +98,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 										position, 
 										glm::vec3(50.0, 50.0, 50.0),
 										glm::vec3(0.0, 0.0, -1.0),
-										60000.0f,
+										6000.0f,
 										BOX);
 		add_object(prop);
 	}
