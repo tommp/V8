@@ -18,12 +18,15 @@ layout (std140) uniform Matrices
 
 void main()
 {
-    gl_Position = projection * view * models[gl_InstanceID] * vec4(position, 1.0f);
+    vec4 view_pos = view * models[gl_InstanceID] * vec4(position, 1.0f);
+
+    frag_position = view_pos.xyz; 
+
+    gl_Position = projection * view_pos;
 
     frag_tex_coord = tex_coord;
 
-    frag_normal = normal_models[gl_InstanceID] * normal;
+    frag_normal = (view * vec4(normal_models[gl_InstanceID] * normal, 1.0)).xyz;
 
-    frag_position = vec3(models[gl_InstanceID] * vec4(position, 1.0f));
 
 }

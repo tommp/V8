@@ -18,7 +18,7 @@ const std::unordered_map<std::string, std::pair<std::string, std::string>> WORLD
 	{"dir_light_SSAO_shader", 				{"vertex/fullscreen_quad.vs", 			"fragment/dir_light_SSAO.fs"}},
 	{"vertical_blur_shader", 				{"vertex/fullscreen_quad.vs", 			"fragment/vertical_blur.fs"}},
 	{"horizontal_blur_shader", 				{"vertex/fullscreen_quad.vs", 			"fragment/horizontal_blur.fs"}},
-	{"bloom_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/final.fs"}},
+	{"final_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/final.fs"}},
 	{"FXAA_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/FXAA.fs"}},
 	{"SSAO_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/SSAO.fs"}},
 };

@@ -131,7 +131,7 @@ class Renderer{
 		Shader_ptr primitive_line_shader;
 		Shader_ptr vertical_blur_shader;
 		Shader_ptr horizontal_blur_shader;
-		Shader_ptr bloom_shader;
+		Shader_ptr final_shader;
 		Shader_ptr FXAA_shader;
 		Shader_ptr SSAO_shader;
 

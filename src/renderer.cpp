@@ -128,7 +128,7 @@ bool Renderer::init_settings(){
 		use_SSAO = true;
 		use_bloom = false;
 
-		SSAO_kernel_size = 32;
+		SSAO_kernel_size = 64;
 		near_plane = 10.0;
 		far_plane = 3000.0;
 
@@ -396,10 +396,10 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
-	bloom_shader = resource_manager.load_shader("bloom_shader");
-	if (!bloom_shader) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bloom_shader shader in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to load bloom_shader in renderer");
+	final_shader = resource_manager.load_shader("final_shader");
+	if (!final_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to final_shader shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load final_shader in renderer");
 		return false;
 	}
 
@@ -566,7 +566,7 @@ bool Renderer::init_framebuffers() {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, SSAO_fbo);
 	glBindTexture(GL_TEXTURE_2D, SSAO_buffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, window_size.x, window_size.y, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1535,9 +1535,9 @@ bool Renderer::ppe_blend()const{
 	glBlendFunc(GL_ONE, GL_ONE);
 	clear();
 
-	bloom_shader->use();
+	final_shader->use();
 	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(bloom_shader->load_uniform_location("bloom"), 0);
+	glUniform1i(final_shader->load_uniform_location("colors"), 0);
 	
 	if (use_bloom) {
 		glBindTexture(GL_TEXTURE_2D, bb_buffers[0]);

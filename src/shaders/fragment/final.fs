@@ -1,6 +1,6 @@
 out vec4 color;
 
-uniform sampler2D bloom;
+uniform sampler2D colors;
 
 layout (std140) uniform Light_data
 {
@@ -13,7 +13,7 @@ const float exposure = 1.0;
 void main(){   
 	vec2 frag_tex_coord = gl_FragCoord.xy / screen_size;
 
-    vec3 hdr_color = texture(bloom, frag_tex_coord).xyz;
+    vec3 hdr_color = texture(colors, frag_tex_coord).rgb;
   
     vec3 mapped = vec3(1.0) - exp(-hdr_color * exposure);
     mapped = pow(mapped, vec3(1.0 / gamma));

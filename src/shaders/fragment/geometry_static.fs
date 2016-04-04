@@ -30,7 +30,7 @@ void main()
 {    
     g_position.xyz = frag_position;
 
-    g_position.a = linearize_depth(gl_FragCoord.z);
+    g_position.w = linearize_depth(gl_FragCoord.z);
 
     g_normal = normalize(frag_normal);
 

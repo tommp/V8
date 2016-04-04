@@ -24,7 +24,7 @@ Directional_light::Directional_light(const glm::vec3& dir,
 Directional_light::Directional_light(){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
 	direction = {0.0f, -1.0f, 1.0f};
-	color = {0.03f, 0.03f, 0.03f};
+	color = {0.06f, 0.06f, 0.06f};
 	color_components = {1.0f, 1.0f, 0.0f};
 
 	if (!init_light_quad()) {

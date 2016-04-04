@@ -22,7 +22,7 @@ float linearize_depth(float depth)
 
 void main()
 {    
-    g_position.a = linearize_depth(gl_FragCoord.z);
+    g_position.w = linearize_depth(gl_FragCoord.z);
     
 	g_position.xyz = frag_position;
 
