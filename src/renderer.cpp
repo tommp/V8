@@ -804,21 +804,23 @@ bool Renderer::bind_g_data(Shader_type light_type)const{
 
 bool Renderer::upload_view_position(Shader_type shader_type, 
 								const glm::vec3& position)const{
+	glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
+
 	if(shader_type == LIGHT_DIRECTIONAL) {
 		if (use_SSAO){
-			glUniform3fv(dir_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&position);
+			glUniform3fv(dir_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
 		}
 		else{
-			glUniform3fv(dir_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
+			glUniform3fv(dir_light_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
 		}
 	}
 
 	else if(shader_type == LIGHT_POINT) {
 		if (use_SSAO){
-			glUniform3fv(point_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&position);
+			glUniform3fv(point_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
 		}
 		else{
-			glUniform3fv(point_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
+			glUniform3fv(point_light_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
 		}
 	}
 
@@ -978,8 +980,8 @@ bool Renderer::render_spot_lights(){
 	return true;
 }
 
-bool Renderer::render_dir_light(const Rendering_context_ptr& context, const Shader_ptr& shader)const{
-	if (!context->setup_base_uniforms(shader)) {
+bool Renderer::render_dir_light(const Rendering_context_light_ptr& context, const Shader_ptr& shader)const{
+	if (!context->setup_base_uniforms(shader, view)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup base uniforms for light" << std::endl;
 		errorlogger("ERROR: Failed to setup base uniforms for light!");
 		return false;
@@ -996,9 +998,9 @@ bool Renderer::render_dir_light(const Rendering_context_ptr& context, const Shad
 	return true;
 }
 
-bool Renderer::render_light(const Rendering_context_ptr& context, const Shader_ptr& shader)const{
+bool Renderer::render_light(const Rendering_context_light_ptr& context, const Shader_ptr& shader)const{
 
-	if (!context->setup_base_uniforms(shader)) {
+	if (!context->setup_base_uniforms(shader, view)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup base uniforms for light" << std::endl;
 		errorlogger("ERROR: Failed to setup base uniforms for light!");
 		return false;
@@ -1057,9 +1059,9 @@ bool Renderer::upload_plane_data()const{
 }
 
 bool Renderer::setup_geometry_rendering(const Camera_ptr& camera){
-	update_view_matrix(camera->get_position_refrence(), 
-						camera->get_target_refrence(), 
-						camera->get_up_dir_refrence());
+	update_view_matrix(camera->get_position(), 
+						camera->get_target(), 
+						camera->get_up_dir());
 	upload_view_matrix();
 
 	use_g_buffer();
@@ -1497,7 +1499,7 @@ bool Renderer::render_all(const Camera_ptr& camera){
 		}
 	}
 
-	if(!render_lights(camera->get_position_refrence()) || check_ogl_error()){
+	if(!render_lights(camera->get_position())){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");
 		return false;
@@ -1688,6 +1690,32 @@ bool Renderer::add_context(const Rendering_context_ptr& context) {
 			case GEOMETRY_STATIC_COLORED:
 				static_colored_geom.push_back(context_weak);
 				break;
+			case NO_SHADER:
+				std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: No shader type set for rendering context!" << std::endl;
+				errorlogger("ERROR: No shader type set for rendering context!");
+				return false;
+			default:
+				std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Unknown shader type for rendering context!" << std::endl;
+				errorlogger("ERROR: Unknown shader type for rendering context!");
+				return false;
+		}
+		
+	}
+	else{
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Cannot add nullptr to targets!" << std::endl;
+		errorlogger("ERROR: Cannot add nullptr to targets!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::add_context(const Rendering_context_light_ptr& context) {
+
+	Rendering_context_light_weak context_weak = context;
+
+	if (context){
+		switch (context->shader_type) {
 			case LIGHT_POINT:
 				point_lights.push_back(context_weak);
 				break;

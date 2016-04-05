@@ -44,9 +44,9 @@ class Camera {
 		void set_position(const glm::vec3& pos){position = pos;};
 		void set_world_up(const glm::vec3& w_up) {world_up = w_up;};
 		bool center_camera(const glm::vec3& poition);
-		const glm::vec3& get_position_refrence()const{return position;};
-		const glm::vec3& get_up_dir_refrence()const{return camera_up;};
-		const glm::vec3& get_target_refrence()const{return target;};
+		glm::vec3 get_position()const{return position;};
+		glm::vec3 get_up_dir()const{return camera_up;};
+		glm::vec3 get_target()const{return target;};
 
 		GLfloat get_x(){return position.x;};
 		GLfloat get_y(){return position.y;};

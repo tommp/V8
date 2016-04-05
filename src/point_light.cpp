@@ -27,7 +27,7 @@ Point_light::Point_light(GLfloat radius,
 Point_light::Point_light(){
 	base_light_context->shader_type = LIGHT_POINT;
 	radius = rand() % 500;
-	randomize_position(glm::i16vec3(1000, 1, 1000), glm::i16vec3(0, -100, 0));
+	randomize_position(glm::i16vec3(1000, 10, 1000), glm::i16vec3(500, -70, 500));
 	randomize_color(5);
 	color_components = {0.0f, 1.0f, 1.0f};
 
@@ -45,7 +45,7 @@ Point_light::Point_light(){
 }
 
 bool Point_light::bind_lambda_expression()const{
-	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader) {
+	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view) {
 		if (!shader) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Null shader passed when rendering point light!" << std::endl;
 			errorlogger("ERROR: Null shader passed when rendering point light!");
@@ -62,8 +62,9 @@ bool Point_light::bind_lambda_expression()const{
 			errorlogger("ERROR: Failed to set model matrix for point light!");
 			return false;
 		}
+		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
 
-		glUniform3fv(shader->load_uniform_location("light.position"), 1, (float*)&(position));
+		glUniform3fv(shader->load_uniform_location("light.position"), 1, (float*)&(view_position));
 		glUniform1f(shader->load_uniform_location("light.radius"), radius);
 
 		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(color));
@@ -82,7 +83,7 @@ bool Point_light::bind_lambda_expression()const{
 
 bool Point_light::calculate_light_uniforms(){
 
-	scale = {radius * 2, radius * 2, radius * 2};
+	scale = {radius, radius, radius};
 
 	quad_model_matrix = glm::mat4();
 	quad_model_matrix = glm::translate(quad_model_matrix, position);  

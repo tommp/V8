@@ -25,7 +25,7 @@ class Terrain : public Object{
     private:
         Rendering_context_ptr base_context;
     public:
-        bool update_position(float timedelta);
+        bool update_position(float timedelta, const glm::mat4& view_matrix);
         bool update_context();
         bool touch_object(Object& object);
         bool add_bases_to_context();

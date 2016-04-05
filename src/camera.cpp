@@ -8,7 +8,7 @@ Camera::Camera(){
 	offset = {0.0f,0.0f,0.0f};//{-640.0f, 0.0f, 320.0f};
 	ortographic = false;
 
-	camera_direction = glm::normalize( position - target);
+	camera_direction = glm::normalize(position - target);
 	right = glm::normalize(glm::cross(world_up, camera_direction));
 	camera_up = glm::normalize(glm::cross(camera_direction, right));
 }

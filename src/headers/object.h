@@ -41,7 +41,7 @@ class Object{
 	public:
 		Object();
 		~Object();
-		virtual bool update_position(GLfloat timedelta) = 0;
+		virtual bool update_position(GLfloat timedelta, const glm::mat4& view_matrix) = 0;
 		virtual bool touch_object(Object& object) = 0;
 		bool generate_collision_volume(const std::string& modelname, 
 				Collision_shape type, 

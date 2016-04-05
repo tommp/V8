@@ -57,7 +57,7 @@ Player::~Player(){
 	}
 }
 
-bool Player::update_position(GLfloat timedelta){
+bool Player::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
 
 	velocity = {0.0f, 0.0f, 0.0f};
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
@@ -88,7 +88,7 @@ bool Player::update_position(GLfloat timedelta){
 		velocity *= speed;
 	}
 
-	update_matrices();
+	update_matrices(view_matrix);
 	flashlight->set_direction(direction);
 	flashlight->set_position(get_position());
 	flashlight->calculate_light_uniforms();
@@ -112,12 +112,12 @@ bool Player::add_contexts_to_renderer(Renderer& renderer)const{
 	return true;
 }
 
-bool Player::update_matrices(){
+bool Player::update_matrices(const glm::mat4& view_matrix){
 	update_transform();
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
-	normal_model_matrix = glm::mat3(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
+	normal_model_matrix = glm::inverseTranspose(glm::mat3(view_matrix * model_matrix));
 	
 
 	return true;

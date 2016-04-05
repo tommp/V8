@@ -110,9 +110,9 @@ class Renderer{
 		std::list<Rendering_context_weak> static_geom;
 		std::list<Rendering_context_weak> static_colored_geom;
 
-		std::list<Rendering_context_weak> dir_lights;
-		std::list<Rendering_context_weak> point_lights;
-		std::list<Rendering_context_weak> spot_lights;
+		std::list<Rendering_context_light_weak> dir_lights;
+		std::list<Rendering_context_light_weak> point_lights;
+		std::list<Rendering_context_light_weak> spot_lights;
 
 #if ENABLE_BULLET_DEBUG
 		std::list<Line_data> lines;
@@ -180,9 +180,9 @@ class Renderer{
 		bool render_dir_lights();
 		bool render_point_lights();
 		bool render_spot_lights();
-		bool render_light(const Rendering_context_ptr& context, 
+		bool render_light(const Rendering_context_light_ptr& context, 
 						const Shader_ptr& shader)const;
-		bool render_dir_light(const Rendering_context_ptr& context, 
+		bool render_dir_light(const Rendering_context_light_ptr& context, 
 						const Shader_ptr& shader)const;
 
 		bool set_clear_color_black();
@@ -194,6 +194,7 @@ class Renderer{
 		~Renderer();
 		
 		bool add_context(const Rendering_context_ptr& context);
+		bool add_context(const Rendering_context_light_ptr& context);
 
 #if ENABLE_BULLET_DEBUG
 		bool add_context(Line_data context);

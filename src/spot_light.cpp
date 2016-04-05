@@ -39,7 +39,7 @@ Spot_light::Spot_light(){
 
 	randomize_position(glm::i16vec3(1000, 50, 1000), glm::i16vec3(0, -100, 0));
 	randomize_color(5);
-	color_components = {0.0f, 1.0f, 1.0f};
+	color_components = {1.0f, 1.0f, 1.0f};
 
 	radius = (rand() % 400) + 200;
 
@@ -61,7 +61,7 @@ Spot_light::Spot_light(){
 
 
 bool Spot_light::bind_lambda_expression()const{
-	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader) {
+	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view) {
 		if (!shader) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: ERROR: Null shader passed when rendering spot light!" << std::endl;
 			errorlogger("ERROR: Null shader passed when rendering spot light!");
@@ -79,7 +79,9 @@ bool Spot_light::bind_lambda_expression()const{
 			return false;
 		}
 
-		glUniform3fv(shader->load_uniform_location("light.position"), 1, (float*)&(position));
+		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
+
+		glUniform3fv(shader->load_uniform_location("light.position"), 1, (float*)&(view_position));
 		glUniform3fv(shader->load_uniform_location("light.direction"), 1, (float*)&(direction));
 		glUniform1f(shader->load_uniform_location("light.cut_off"), cutoff);
 		glUniform1f(shader->load_uniform_location("light.outer_cut_off"), outer_cutoff);
@@ -102,7 +104,7 @@ bool Spot_light::bind_lambda_expression()const{
 bool Spot_light::calculate_light_uniforms(){
 
 	/* TODO::Optimize based on direction */
-	scale = {radius * 2, radius * 2, radius * 2};
+	scale = {radius, radius, radius};
 
 	quad_model_matrix = glm::mat4();
 	quad_model_matrix = glm::translate(quad_model_matrix, position);  

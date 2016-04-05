@@ -88,7 +88,7 @@ bool Directional_light::init_light_quad(){
 }
 
 bool Directional_light::bind_lambda_expression()const{
-	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader) {
+	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view) {
 		if (!shader) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: ERROR: Null shader passed when rendering directional light!" << std::endl;
 			errorlogger("ERROR: Null shader passed when rendering directional light!");

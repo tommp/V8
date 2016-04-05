@@ -31,8 +31,6 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
 	generate_collision_volume(model_name, BOX, scale);
 	generate_collision_body(mass, rotation, position);
-
-	update_matrices();
 }
 
 Prop::Prop(Resource_manager& manager, 
@@ -67,8 +65,6 @@ Prop::Prop(Resource_manager& manager,
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
 	generate_collision_volume(model_name, shape, scale);
 	generate_collision_body(mass, rotation, position);
-
-	update_matrices();
 }
 
 
@@ -82,9 +78,9 @@ Prop::~Prop(){
 	}
 }
 
-bool Prop::update_position(GLfloat timedelta){
+bool Prop::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
 
-	if (!update_matrices()) {
+	if (!update_matrices(view_matrix)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to update matrices for prop!" << std::endl;
 		errorlogger("ERROR: Failed to update matrices for prop!");
 		return false;
@@ -107,13 +103,12 @@ bool Prop::add_contexts_to_renderer(Renderer& renderer)const{
 	return true;
 }
 
-bool Prop::update_matrices(){
+bool Prop::update_matrices(const glm::mat4& view_matrix){
 	update_transform();
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
-	normal_model_matrix = glm::mat3(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
-	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
+	normal_model_matrix = glm::inverseTranspose(glm::mat3(view_matrix * model_matrix));
 
 	return true;
 }

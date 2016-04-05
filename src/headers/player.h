@@ -44,12 +44,12 @@ private:
 	glm::vec3 prev_scale;
 	glm::vec3 prev_direction;
 
-	bool update_matrices();
+	bool update_matrices(const glm::mat4& view_matrix);
 public:
 	~Player();
 	Player();
 	Player(Resource_manager& init_manager, const std::string& model_name);
-	bool update_position(GLfloat timedelta);
+	bool update_position(GLfloat timedelta, const glm::mat4& view_matrix);
 	bool touch_object(Object& object);
 	bool add_contexts_to_renderer(Renderer& renderer)const;
 };

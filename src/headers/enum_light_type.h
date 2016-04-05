@@ -18,6 +18,12 @@ enum Light_type{
 	POINT = 2,
 	SPOT = 3,
 };
+
+enum Light_dynamic{
+	STAIC = 0,
+	STATIONARY = 1,
+	DYNAMIC = 2,
+};
 /*=============================================*/
 
 #endif

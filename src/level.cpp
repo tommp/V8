@@ -11,12 +11,12 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	for (int i = 0; i < 3; ++i) {
+	for (int i = 0; i < 13; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_light(point_light);
 	}
 
-	for (int i = 0; i < 1; ++i) {
+	for (int i = 0; i < 0; ++i) {
 		Light_ptr spot_light = std::make_shared<Spot_light>();
 		add_light(spot_light);
 	}
@@ -219,7 +219,7 @@ void Level::update_gravity(){
 
 bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	for (auto object : props) {
-		if (!object->update_position(timedelta)){
+		if (!object->update_position(timedelta, renderer.get_view_matrix())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
 			errorlogger("ERROR: Failed to update object position!");
 			return false;
@@ -227,7 +227,7 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	}
 
 	for (auto object : mobs) {
-		if (!object->update_position(timedelta)){
+		if (!object->update_position(timedelta, renderer.get_view_matrix())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
 			errorlogger("ERROR: Failed to update object position!");
 			return false;

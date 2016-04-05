@@ -10,7 +10,7 @@ Base_light::Base_light(){
 	quad_model_matrix = glm::translate(quad_model_matrix, position);  
 	quad_model_matrix = glm::scale(quad_model_matrix, scale); 
 
-	base_light_context = std::make_shared<Rendering_context>();
+	base_light_context = std::make_shared<Rendering_context_light>();
 
 	if (!init_light_volume()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize light volume!!" << std::endl;
