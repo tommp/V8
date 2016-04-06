@@ -11,7 +11,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 0; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_light(point_light);
 	}

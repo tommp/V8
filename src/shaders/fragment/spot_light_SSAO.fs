@@ -34,7 +34,7 @@ void main()
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).rgb);
 	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
 	vec3 frag_position = texture(g_position, frag_tex_coord).rgb;
-	vec3 ambient_occlusion = texture(SSAO_buffer, frag_tex_coord).rgb;
+	float ambient_occlusion = texture(SSAO_buffer, frag_tex_coord).r;
 
 	vec3 light_direction = normalize(light.position - frag_position); 
  

@@ -61,6 +61,8 @@ class Renderer{
 	    GLboolean mouse_visible;
 	    GLboolean ortographic;
 
+	    GLuint last_blurred;
+
 	    GLuint SSAO_kernel_size;
 	    GLfloat near_plane;
 	    GLfloat far_plane;
@@ -76,6 +78,7 @@ class Renderer{
 		GLuint AA_fbo;
 		GLuint SSAO_fbo;
 		GLuint bb_fbos[2];
+		GLuint blurred_output;
 		GLuint light_fbo;
 
 		GLuint g_position;
@@ -86,7 +89,6 @@ class Renderer{
 		GLuint bb_buffers[2];
 		GLuint AA_buffer;
 		GLuint SSAO_buffer;
-		GLuint SSAO_noise_buffer;
 		GLuint light_buffer;
 		GLuint light_rbo_depth;
 		/* =============================================== */
@@ -100,7 +102,6 @@ class Renderer{
 
 		GLuint uniform_buffer_matrices;
 		GLuint uniform_buffer_light_data;
-		GLuint uniform_buffer_SSAO_kernel;
 		GLuint uniform_buffer_plane_data;
 
 		std::unordered_map<std::string, GLuint> uniform_buffers;
@@ -131,6 +132,7 @@ class Renderer{
 		Shader_ptr primitive_line_shader;
 		Shader_ptr vertical_blur_shader;
 		Shader_ptr horizontal_blur_shader;
+		Shader_ptr blur_shader;
 		Shader_ptr final_shader;
 		Shader_ptr FXAA_shader;
 		Shader_ptr SSAO_shader;
@@ -143,7 +145,6 @@ class Renderer{
 		bool init_shaders(Resource_manager& resource_manager);
 		bool init_bloom_data();
 		bool init_primitives(Resource_manager& resource_manager);
-		bool init_ambient_occlusion();
 
 		bool delete_buffers();
 
@@ -152,7 +153,6 @@ class Renderer{
 
 		bool upload_light_data()const;
 		bool upload_plane_data()const;
-		bool upload_SSAO_kernel(const std::vector<glm::vec3>& SSAO_kernel)const;
 		bool upload_view_matrix()const;
 		bool upload_projection_matrix()const;
 		void update_projection_matrix();
@@ -170,7 +170,6 @@ class Renderer{
 								const Shader_ptr& shader)const;
 		bool ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const;
 
-		bool apply_bloom(GLuint amount)const;
 		bool render_quad()const;
 
 		bool bind_g_data(Shader_type light_type)const;
@@ -187,6 +186,7 @@ class Renderer{
 
 		bool set_clear_color_black();
 		GLfloat lerp(GLfloat a, GLfloat b, GLfloat f)const;
+		bool blur_texture(GLuint amount, GLuint texture);
 		
 	public:
 		Renderer();
@@ -217,10 +217,10 @@ class Renderer{
 
 		bool render_geometry(const Camera_ptr& camera);
 		bool render_lights(const glm::vec3& position);
-		bool ppe_blend()const;
+		bool ppe_blend();
 
 		bool apply_AA()const;
-		bool apply_SSAO()const;
+		bool apply_SSAO();
 
 		bool save_settings();
 		bool load_settings();

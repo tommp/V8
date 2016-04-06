@@ -7,7 +7,6 @@ Renderer::~Renderer() {
 	delete_buffers();
 	glDeleteBuffers(1, &uniform_buffer_matrices);
 	glDeleteBuffers(1, &uniform_buffer_light_data);
-	glDeleteBuffers(1, &uniform_buffer_SSAO_kernel);
 
 	SDL_GL_DeleteContext(gl_context); 
 }
@@ -91,14 +90,6 @@ Renderer::Renderer(Resource_manager& resource_manager){
 	}
 	std::cout << "------------ Primitives initialized!\n" << std::endl;
 
-	std::cout << "------------ Initializing ambient occlusion data..." << std::endl;
-	if (!init_ambient_occlusion()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize ambient occlusion data!" << std::endl;
-		errorlogger("ERROR: Failed to initialize ambient occlusion data!");
-		exit(EXIT_FAILURE);
-	}
-	std::cout << "------------ Ambient occlusion data initialized!\n" << std::endl;
-
 	std::cout << "------------ Uploading plane data..." << std::endl;
 	if (!upload_plane_data()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to upload plane data in renderer!" << std::endl;
@@ -107,7 +98,6 @@ Renderer::Renderer(Resource_manager& resource_manager){
 	}
 	std::cout << "------------ Plane data initialized!\n" << std::endl;
 
-	/* Set projection matrix */
 	update_projection_matrix();
 	if (!upload_projection_matrix()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload projection matrix!" << std::endl;
@@ -282,23 +272,6 @@ bool Renderer::init_uniform_buffers(){
 	}
 
 	uniform_buffers["plane_data"] = uniform_buffer_plane_data;
-	
-
-	glGenBuffers(1, &uniform_buffer_SSAO_kernel);
-	  
-	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_SSAO_kernel);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4) * SSAO_kernel_size, NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 4, uniform_buffer_SSAO_kernel, 0, sizeof(glm::vec4) * SSAO_kernel_size);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize SSAO kernel uniform buffer in renderer! " << std::endl;
-		errorlogger("ERROR: Failed to initialize SSAO kernel uniform buffer in renderer!");
-		glDeleteBuffers(1, &uniform_buffer_SSAO_kernel);
-		return false;
-	}
-
-	uniform_buffers["SSAO_kernel"] = uniform_buffer_SSAO_kernel;
 
 	return true;
 }
@@ -393,6 +366,13 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 	if (!horizontal_blur_shader) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to horizontal_blur_shader shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load horizontal_blur_shader in renderer");
+		return false;
+	}
+
+	blur_shader = resource_manager.load_shader("blur_shader");
+	if (!blur_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to blur_shader shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load blur_shader in renderer");
 		return false;
 	}
 
@@ -534,6 +514,8 @@ bool Renderer::init_framebuffers() {
 		}
 	}
 
+	blurred_output = bb_buffers[0];
+
 	glGenFramebuffers(1, &AA_fbo);
 	glGenTextures(1, &AA_buffer);
 
@@ -567,7 +549,7 @@ bool Renderer::init_framebuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, SSAO_fbo);
 	glBindTexture(GL_TEXTURE_2D, SSAO_buffer);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, window_size.x, window_size.y, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -673,57 +655,6 @@ bool Renderer::init_primitives(Resource_manager& resource_manager){
 	return true;
 }
 
-bool Renderer::init_ambient_occlusion(){
-	std::uniform_real_distribution<GLfloat> random_floats(0.0, 1.0);
-	std::default_random_engine generator;
-	std::vector<glm::vec3> SSAO_kernel;
-	for (GLuint i = 0; i < SSAO_kernel_size; ++i){
-	    glm::vec3 sample(
-	        random_floats(generator) * 2.0 - 1.0, 
-	        random_floats(generator) * 2.0 - 1.0, 
-	        random_floats(generator)
-	    );
-	    sample = glm::normalize(sample);
-	    sample *= random_floats(generator);
-	    GLfloat scale = GLfloat(i) / SSAO_kernel_size; 
-	    scale = lerp(0.1f, 1.0f, scale * scale);
-   		sample *= scale;
-	    SSAO_kernel.push_back(sample);  
-	}
-
-	if (!upload_SSAO_kernel(SSAO_kernel)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload SSAO kernel!" << std::endl;
-		errorlogger("ERROR: Failed to upload SSAO kernel");
-		return false;
-	}
-
-	std::vector<glm::vec3> SSAO_noise;
-	for (GLuint i = 0; i < 16; i++){
-	    glm::vec3 noise(
-	        random_floats(generator) * 2.0 - 1.0, 
-	        random_floats(generator) * 2.0 - 1.0, 
-	        0.0f); 
-	    glm::normalize(noise);
-
-	    SSAO_noise.push_back(noise);
-	} 
-
-	glGenTextures(1, &SSAO_noise_buffer);
-	glBindTexture(GL_TEXTURE_2D, SSAO_noise_buffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 4, 4, 0, GL_RGB, GL_FLOAT, &SSAO_noise[0]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
-	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload SSAO noise texture!" << std::endl;
-		errorlogger("ERROR: Failed to upload SSAO noise texture");
-		return false;
-	}
-
-	return true;
-}
-
 /* ================================================================== LightLight */
 
 bool Renderer::bind_g_data(Shader_type light_type)const{
@@ -791,7 +722,14 @@ bool Renderer::bind_g_data(Shader_type light_type)const{
 
 	if (use_SSAO) {
 		glActiveTexture(GL_TEXTURE0 + 3);
-		glBindTexture(GL_TEXTURE_2D, SSAO_buffer);
+		if (last_blurred != SSAO_buffer) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: SSAO_buffer not blurred before light pass, artifacts will occur!" << std::endl;
+			errorlogger("WARNING: SSAO_buffer not blurred before light pass, artifacts will occur!");
+			glBindTexture(GL_TEXTURE_2D, SSAO_buffer);
+		}
+		else{
+			glBindTexture(GL_TEXTURE_2D, blurred_output);
+		}
 		glUniform1i(current_shader->load_uniform_location("SSAO_buffer"), 3);
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind SSAO_buffer buffer!" << std::endl;
@@ -1337,37 +1275,6 @@ bool Renderer::ogl_render_geometry(const Rendering_context_ptr& context, GLuint 
 
 /* ================================================================== BloomBloom */
 
-bool Renderer::apply_bloom(GLuint amount)const{
-	if ((amount % 2) != 0) {
-		++amount;
-	}
-
-	GLboolean first_shader_set = false;
-	GLboolean second_shader_set = false;
-
-	for (GLuint i = 0; i < amount; i++) {
-		if (!first_shader_set && (i < amount/2)) {
-			first_shader_set = true;
-			vertical_blur_shader->use();
-		}
-		else if (!second_shader_set && (i >= amount/2)) {
-			second_shader_set = true;
-			horizontal_blur_shader->use();
-		}
-
-		glBindFramebuffer(GL_FRAMEBUFFER, bb_fbos[1 - (i % 2)]); 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, (i == 0) ? g_bloom : bb_buffers[i % 2]); 
-		if (!render_quad()) {
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render light quad for bloom calculations!" << std::endl;
-			errorlogger("ERROR: Failed to render light quad for bloom calculations!");
-			return false;
-		}
-	}
-
-	return true;
-}
-
 void Renderer::toggle_bloom() {
 	if (use_bloom) {
 		use_bloom = false;
@@ -1414,34 +1321,11 @@ void Renderer::toggle_aliasing() {
 
 /* ======================================================= SSAOSSAO */
 
-bool Renderer::upload_SSAO_kernel(const std::vector<glm::vec3>& SSAO_kernel)const{
-	if (uniform_buffers.find("SSAO_kernel") == uniform_buffers.end()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: SSAO kernel uniform buffer not initialized!" << std::endl;
-		errorlogger("ERROR: SSAO kernel uniform buffer not initialized!");
-		return false;
-	}
-
-	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("SSAO_kernel")->second);
-	for (GLuint i = 0; i < SSAO_kernel_size; ++i) {
-		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4) * i, sizeof(glm::vec3), glm::value_ptr(SSAO_kernel[i]));
-	}
-	
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
-
-	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind SSAO kernel uniform buffer!" << std::endl;
-		errorlogger("ERROR: Failed to bind SSAO kernel uniform buffer!");
-		return false;
-	}
-
-	return true;
-}
-
 GLfloat Renderer::lerp(GLfloat a, GLfloat b, GLfloat f)const{
     return a + f * (b - a);
 } 
 
-bool Renderer::apply_SSAO()const{
+bool Renderer::apply_SSAO(){
 	glBindFramebuffer(GL_FRAMEBUFFER, SSAO_fbo);
 	clear();
 
@@ -1450,14 +1334,10 @@ bool Renderer::apply_SSAO()const{
 	glUniform1i(SSAO_shader->load_uniform_location("g_position"), 0);
 	glBindTexture(GL_TEXTURE_2D, g_position);
 
-	/*
+	
     glActiveTexture(GL_TEXTURE0 + 1);
-    glUniform1i(SSAO_shader->load_uniform_location("g_normal"), 1);
+    glUniform1i(SSAO_shader->load_uniform_location("g_albedo_spec"), 1);
     glBindTexture(GL_TEXTURE_2D, g_normal);
-
-    glActiveTexture(GL_TEXTURE0 + 2);
-    glUniform1i(SSAO_shader->load_uniform_location("SSAO_noise_buffer"), 2);
-    glBindTexture(GL_TEXTURE_2D, SSAO_noise_buffer);*/
 
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup SSAO rendering!" << std::endl;
@@ -1468,6 +1348,12 @@ bool Renderer::apply_SSAO()const{
 	if (!render_quad()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render SSAO quad!" << std::endl;
 		errorlogger("ERROR: Failed to render SSAO quad!");
+		return false;
+	}
+
+	if (!blur_texture(4, SSAO_buffer)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to blur SSAO_buffer!" << std::endl;
+		errorlogger("ERROR: Failed to blur SSAO_buffer!");
 		return false;
 	}
 
@@ -1500,6 +1386,8 @@ bool Renderer::render_all(const Camera_ptr& camera){
 		}
 	}
 
+
+
 	if(!render_lights(camera->get_position())){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");
@@ -1523,9 +1411,9 @@ bool Renderer::render_all(const Camera_ptr& camera){
 	return true;
 }
 
-bool Renderer::ppe_blend()const{
+bool Renderer::ppe_blend(){
 	if (use_bloom) {
-		if (!apply_bloom(2)) {
+		if (!blur_texture(2, g_bloom)) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!" << std::endl;
 			errorlogger("ERROR: Failed to render bloom!");
 			return false;
@@ -1543,7 +1431,12 @@ bool Renderer::ppe_blend()const{
 	glUniform1i(final_shader->load_uniform_location("colors"), 0);
 	
 	if (use_bloom) {
-		glBindTexture(GL_TEXTURE_2D, bb_buffers[0]);
+		if (last_blurred != g_bloom) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Bloom buffer was not blurred before rendering!" << std::endl;
+			errorlogger("ERROR: Bloom buffer was not blurred before rendering!");
+			return false;
+		}
+		glBindTexture(GL_TEXTURE_2D, blurred_output);
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffer!" << std::endl;
 			errorlogger("ERROR: Failed to bind bloom buffer!");
@@ -1976,6 +1869,39 @@ bool Renderer::upload_view_matrix()const{
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload view matrix!" << std::endl;
 		errorlogger("ERROR: Failed to upload view matrix!");
 		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::blur_texture(GLuint amount, GLuint texture){
+	if ((amount % 2) != 0) {
+		++amount;
+	}
+
+	last_blurred = texture;
+
+	GLboolean first_shader_set = false;
+	GLboolean second_shader_set = false;
+
+	for (GLuint i = 0; i < amount; i++) {
+		if (!first_shader_set && (i < amount/2)) {
+			first_shader_set = true;
+			vertical_blur_shader->use();
+		}
+		else if (!second_shader_set && (i >= amount/2)) {
+			second_shader_set = true;
+			horizontal_blur_shader->use();
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, bb_fbos[1 - (i % 2)]); 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, (i == 0) ? texture : bb_buffers[i % 2]); 
+		if (!render_quad()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render light quad for blur calculations!" << std::endl;
+			errorlogger("ERROR: Failed to render light quad for blur calculations!");
+			return false;
+		}
 	}
 
 	return true;

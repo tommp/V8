@@ -16,6 +16,7 @@ Spot_light::Spot_light(GLfloat radius,
 	this->color_components = color_components;
 	this->cutoff = cutoff;
 	this->outer_cutoff = outer_cutoff;
+	this->intensity = 1.0;
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for spot light!" << std::endl;
@@ -33,13 +34,14 @@ Spot_light::Spot_light(GLfloat radius,
 Spot_light::Spot_light(){
 	base_light_context->shader_type = LIGHT_SPOT;
 	direction = {0.0f, -1.0f, 0.0f};
+	intensity = 1.0;
 
 	direction.x = ((rand() % 1500) / 501) - 1;
 	direction.z = ((rand() % 1500) / 501) - 1;
 
 	randomize_position(glm::i16vec3(1000, 50, 1000), glm::i16vec3(0, -100, 0));
 	randomize_color(5);
-	color_components = {1.0f, 1.0f, 1.0f};
+	color_components = {0.0f, 1.0f, 1.0f};
 
 	radius = (rand() % 400) + 200;
 
@@ -87,7 +89,9 @@ bool Spot_light::bind_lambda_expression()const{
 		glUniform1f(shader->load_uniform_location("light.outer_cut_off"), outer_cutoff);
 		glUniform1f(shader->load_uniform_location("light.radius"), radius);
 
-		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(color));
+		glm::vec3 scaled_color = color * intensity;
+
+		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(scaled_color));
 		glUniform3fv(shader->load_uniform_location("light.color_components"), 1, (float*)&(color_components));
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind spot light uniforms!" << std::endl;
@@ -109,6 +113,21 @@ bool Spot_light::calculate_light_uniforms(){
 	quad_model_matrix = glm::mat4();
 	quad_model_matrix = glm::translate(quad_model_matrix, position);  
 	quad_model_matrix = glm::scale(quad_model_matrix, scale);  
+
+	return true;
+}
+
+bool Spot_light::set_intensity(GLfloat intensity){
+	if (intensity > 1.0) {
+		this->intensity = 1.0;
+		return false;
+	}
+	else if (intensity < 0.0) {
+		this->intensity = 0.0;
+		return false;
+	}
+
+	this->intensity = intensity;
 
 	return true;
 }

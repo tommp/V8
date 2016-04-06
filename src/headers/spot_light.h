@@ -30,9 +30,12 @@ class Spot_light : public Base_light{
 	  
 		GLfloat radius;
 
+		GLfloat intensity;
+
 		bool bind_lambda_expression()const;
 	public:
 		Spot_light();
+		bool set_intensity(GLfloat intensity);
 		Spot_light(GLfloat radius, 
 				const glm::vec3& pos,
 				const glm::vec3& dir,
