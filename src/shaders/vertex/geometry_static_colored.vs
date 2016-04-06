@@ -22,7 +22,5 @@ void main()
 
     gl_Position = projection * view_pos;
 
-    //mat3 normalMatrix = transpose(inverse(mat3(view * models[gl_InstanceID])));
-
     frag_normal = normal_models[gl_InstanceID] * normal;
 }

@@ -49,14 +49,19 @@ void main()
 
 	attenuation *= attenuation; 
 
-	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb) * ambient_occlusion;
+	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+
+	ambient *= ambient_occlusion;
+
 	vec3 diffuse = (light.color * light.color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+
 	vec3 specular = (light.color * light.color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 	
 	float theta = degrees(acos(dot(light_direction, normalize(-light.direction)))); 
 	float epsilon = (light.cut_off - light.outer_cut_off);
 	float intensity = clamp((theta - light.outer_cut_off) / epsilon, 0.0, 1.0);
 
+	ambient	 *= intensity;
 	diffuse  *= intensity;
 	specular *= intensity;
 	ambient  *= attenuation; 

@@ -46,8 +46,12 @@ void main()
 
 	attenuation *= attenuation;
 
-	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb) * ambient_occlusion;
+	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+
+	ambient *= ambient_occlusion;
+
 	vec3 diffuse = (light.color * light.color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+
 	vec3 specular = (light.color * light.color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 
 	ambient *= attenuation;

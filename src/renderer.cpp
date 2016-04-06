@@ -128,7 +128,7 @@ bool Renderer::init_settings(){
 		use_SSAO = true;
 		use_bloom = false;
 
-		SSAO_kernel_size = 64;
+		SSAO_kernel_size = 32;
 		near_plane = 10.0;
 		far_plane = 3000.0;
 
@@ -267,28 +267,11 @@ bool Renderer::init_uniform_buffers(){
 	uniform_buffers["light_data"] = uniform_buffer_light_data;
 
 
-	glGenBuffers(1, &uniform_buffer_SSAO_kernel);
-	  
-	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_SSAO_kernel);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4) * SSAO_kernel_size, NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 3, uniform_buffer_SSAO_kernel, 0, sizeof(glm::vec4) * SSAO_kernel_size);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize SSAO kernel uniform buffer in renderer! " << std::endl;
-		errorlogger("ERROR: Failed to initialize SSAO kernel uniform buffer in renderer!");
-		glDeleteBuffers(1, &uniform_buffer_SSAO_kernel);
-		return false;
-	}
-
-	uniform_buffers["SSAO_kernel"] = uniform_buffer_SSAO_kernel;
-
-
 	glGenBuffers(1, &uniform_buffer_plane_data);
 	  
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_plane_data);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(GLfloat) * 2, NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 4, uniform_buffer_plane_data, 0, sizeof(GLfloat) * 2);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec2), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 3, uniform_buffer_plane_data, 0, sizeof(glm::vec2));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){
@@ -299,6 +282,23 @@ bool Renderer::init_uniform_buffers(){
 	}
 
 	uniform_buffers["plane_data"] = uniform_buffer_plane_data;
+	
+
+	glGenBuffers(1, &uniform_buffer_SSAO_kernel);
+	  
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_SSAO_kernel);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4) * SSAO_kernel_size, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 4, uniform_buffer_SSAO_kernel, 0, sizeof(glm::vec4) * SSAO_kernel_size);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize SSAO kernel uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize SSAO kernel uniform buffer in renderer!");
+		glDeleteBuffers(1, &uniform_buffer_SSAO_kernel);
+		return false;
+	}
+
+	uniform_buffers["SSAO_kernel"] = uniform_buffer_SSAO_kernel;
 
 	return true;
 }
@@ -566,6 +566,7 @@ bool Renderer::init_framebuffers() {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, SSAO_fbo);
 	glBindTexture(GL_TEXTURE_2D, SSAO_buffer);
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, window_size.x, window_size.y, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1045,9 +1046,9 @@ bool Renderer::upload_light_data()const{
 /* ================================================================== GeomGeom */
 
 bool Renderer::upload_plane_data()const{
+	glm::vec2 plane_data = {near_plane, far_plane};
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("plane_data")->second);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLfloat), &near_plane);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(GLfloat), sizeof(GLfloat), &far_plane);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec2), glm::value_ptr(plane_data));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
 
 	if(check_ogl_error()){
@@ -1447,16 +1448,16 @@ bool Renderer::apply_SSAO()const{
 	SSAO_shader->use();
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(SSAO_shader->load_uniform_location("g_position"), 0);
-	glBindTexture(GL_TEXTURE_2D, g_position); 
-	
+	glBindTexture(GL_TEXTURE_2D, g_position);
+
+	/*
     glActiveTexture(GL_TEXTURE0 + 1);
     glUniform1i(SSAO_shader->load_uniform_location("g_normal"), 1);
     glBindTexture(GL_TEXTURE_2D, g_normal);
 
     glActiveTexture(GL_TEXTURE0 + 2);
     glUniform1i(SSAO_shader->load_uniform_location("SSAO_noise_buffer"), 2);
-    glBindTexture(GL_TEXTURE_2D, SSAO_noise_buffer);
-    
+    glBindTexture(GL_TEXTURE_2D, SSAO_noise_buffer);*/
 
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup SSAO rendering!" << std::endl;
@@ -1792,6 +1793,8 @@ void Renderer::update_projection_matrix(){
 	else{
 		projection = glm::perspective(45.0f, window_size.x / window_size.y, near_plane, far_plane);
 	}
+
+	upload_plane_data();
 }
 
 bool Renderer::upload_projection_matrix()const{

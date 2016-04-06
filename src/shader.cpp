@@ -146,28 +146,28 @@ bool Shader::load_from_file(const std::string& name){
         }        
     }
 
+    GLuint uniform_block_index_plane_data = glGetUniformBlockIndex(program, "Plane_data");
+    if (uniform_block_index_plane_data == GL_INVALID_INDEX) {
+        SDL_Log("No plane data uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    }
+    else{
+        glUniformBlockBinding(program, uniform_block_index_plane_data, 3);
+        if(check_ogl_error()){
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind plane datauniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind plane data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
+            return false;;
+        }        
+    }
+
     GLuint uniform_block_index_SSAO_kernel = glGetUniformBlockIndex(program, "SSAO_kernel");
     if (uniform_block_index_SSAO_kernel == GL_INVALID_INDEX) {
         SDL_Log("No SSAO kernel uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
     }
     else{
-        glUniformBlockBinding(program, uniform_block_index_SSAO_kernel, 3);
+        glUniformBlockBinding(program, uniform_block_index_SSAO_kernel, 4);
         if(check_ogl_error()){
             std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind SSAO kernel uniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
             errorlogger("ERROR: Failed to bind SSAO kernel uniform buffer in shader load_from_file(), shader name: ", name.c_str());
-            return false;;
-        }        
-    }
-
-    GLuint uniform_block_index_plane_data = glGetUniformBlockIndex(program, "plane_data");
-    if (uniform_block_index_plane_data == GL_INVALID_INDEX) {
-        SDL_Log("No plane data uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
-    }
-    else{
-        glUniformBlockBinding(program, uniform_block_index_plane_data, 4);
-        if(check_ogl_error()){
-            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind plane datauniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
-            errorlogger("ERROR: Failed to bind plane data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
             return false;;
         }        
     }

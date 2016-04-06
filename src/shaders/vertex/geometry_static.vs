@@ -26,7 +26,5 @@ void main()
 
     frag_tex_coord = tex_coord;
 
-    mat3 normalMatrix = transpose(inverse(mat3(view * models[gl_InstanceID])));
-
-    frag_normal = normalMatrix * normal;
+    frag_normal = normal_models[gl_InstanceID] * normal;
 }

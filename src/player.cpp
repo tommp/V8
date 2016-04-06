@@ -28,7 +28,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	direction = {0.0f, 0.0f, -1.0f};
 
 	glm::vec3 lightcolor = {1.0f, 1.0f, 1.0f};
-	glm::vec3 lightcomponents = {0.0f, 1.0f, 1.0f};
+	glm::vec3 lightcomponents = {1.0f, 1.0f, 1.0f};
 
 	flashlight = std::make_shared<Spot_light>(600, 
 				position,

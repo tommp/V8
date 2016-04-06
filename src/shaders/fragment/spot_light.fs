@@ -54,6 +54,7 @@ void main()
 	float attenuation = clamp(1.0 - distance/light.radius, 0.0, 1.0);
 	attenuation *= attenuation;
 
+	ambient	 *= intensity;
 	diffuse  *= intensity;
 	specular *= intensity;
 	ambient  *= attenuation; 

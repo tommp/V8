@@ -11,7 +11,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	for (int i = 0; i < 13; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		Light_ptr point_light = std::make_shared<Point_light>();
 		add_light(point_light);
 	}
@@ -200,7 +200,7 @@ bool Level::init_physics(){
 		return false;
 	}
 
-	gravity = {0.0f, -100.0f, 0.0f};
+	gravity = {0.0f, -1000.0f, 0.0f};
 	update_gravity();
 
 #if ENABLE_BULLET_DEBUG

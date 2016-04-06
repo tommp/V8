@@ -4,10 +4,10 @@ uniform sampler2D g_position;
 uniform sampler2D g_normal;
 uniform sampler2D SSAO_noise_buffer;
 
-const int KERNELSIZE = 64;
+const int KERNELSIZE = 32;
 const int NOISESIZE = 4;
 float radius = 20.0;
-float power = 10.0;
+float power = 1.0;
 
 layout (std140) uniform SSAO_kernel
 {
@@ -31,7 +31,7 @@ vec2 noise_scale = vec2(screen_size.x/NOISESIZE, screen_size.y/NOISESIZE);
 void main(){
     vec2 frag_tex_coord = gl_FragCoord.xy / screen_size;
     vec4 frag_position = texture(g_position, frag_tex_coord);
-    vec3 normal = texture(g_normal, frag_tex_coord).xyz;
+    vec3 normal = normalize(texture(g_normal, frag_tex_coord).xyz);
 	vec3 random_vec = texture(SSAO_noise_buffer, frag_tex_coord * noise_scale).xyz; 
 
 	vec3 tangent = normalize(random_vec - normal * dot(random_vec, normal));
@@ -51,7 +51,7 @@ void main(){
         float sample_depth = -texture(g_position, offset.xy).a;
         
         float range_check = smoothstep(0.0, 1.0, radius / abs(frag_position.z - sample_depth));
-        occlusion += (sample_depth >= sample.z * 50000 ? 1.0 : 0.0);// * range_check;           
+        occlusion += (sample_depth >= sample.z * 50000 ? 1.0 : 0.0) * range_check;           
     }
 
     occlusion = 1.0 - (occlusion / KERNELSIZE);
