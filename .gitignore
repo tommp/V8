@@ -44,6 +44,7 @@ projects/*
 !projects/engine
 
 assets/materials/*
+assets/animations/*
 assets/models/*
 assets/meshes/*
 assets/config/*
@@ -53,6 +54,7 @@ assets/raw_models/*
 assets/dump/*
 
 !assets/materials/engine_base*
+!assets/animations/engine_base*
 !assets/models/engine_base*
 !assets/meshes/engine_base*
 !assets/config/engine_base*
