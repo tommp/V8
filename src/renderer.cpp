@@ -1334,11 +1334,6 @@ bool Renderer::apply_SSAO(){
 	glUniform1i(SSAO_shader->load_uniform_location("g_position"), 0);
 	glBindTexture(GL_TEXTURE_2D, g_position);
 
-	
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glUniform1i(SSAO_shader->load_uniform_location("g_albedo_spec"), 1);
-    glBindTexture(GL_TEXTURE_2D, g_normal);
-
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup SSAO rendering!" << std::endl;
 		errorlogger("ERROR: Failed to setup SSAO rendering!");
@@ -1351,7 +1346,7 @@ bool Renderer::apply_SSAO(){
 		return false;
 	}
 
-	if (!blur_texture(4, SSAO_buffer)){
+	if (!blur_texture(2, SSAO_buffer)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to blur SSAO_buffer!" << std::endl;
 		errorlogger("ERROR: Failed to blur SSAO_buffer!");
 		return false;
