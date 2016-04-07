@@ -64,6 +64,8 @@ bool Point_light::bind_lambda_expression()const{
 		}
 		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
 
+		//std::cout << view_position.x << ":" << view_position.y << ":" << view_position.z << std::endl;
+
 		glUniform3fv(shader->load_uniform_location("light.position"), 1, (float*)&(view_position));
 		glUniform1f(shader->load_uniform_location("light.radius"), radius);
 

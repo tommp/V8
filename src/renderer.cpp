@@ -397,6 +397,13 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
+	shadow_shader = resource_manager.load_shader("shadow_shader");
+	if (!shadow_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to shadow_shader shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load shadow_shader in renderer");
+		return false;
+	}
+
 	return true;
 }
 

@@ -138,6 +138,7 @@ class Renderer{
 		Shader_ptr final_shader;
 		Shader_ptr FXAA_shader;
 		Shader_ptr SSAO_shader;
+		Shader_ptr shadow_shader;
 
 		bool init_window();
 		bool init_openGL();

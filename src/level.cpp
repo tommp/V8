@@ -12,7 +12,16 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	}
 
 	for (int i = 0; i < 10; ++i) {
-		Light_ptr point_light = std::make_shared<Point_light>();
+		glm::vec3 position;
+		position.x = rand() % 2000 - 1000;
+		position.y = rand() % 300;
+		position.z = rand() % 2000 - 1000;
+		glm::vec3 color = {0.5, 0.5, 0.3};
+		glm::vec3 color_components = {0.2, 0.8, 0.0};
+		Light_ptr point_light = std::make_shared<Point_light>(400, 
+						position, 
+						color, 
+						color_components);
 		add_light(point_light);
 	}
 
@@ -64,7 +73,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_object(prop);
 	}
 
-	for (GLuint i = 0; i < 30; ++i) {
+	for (GLuint i = 0; i < 0; ++i) {
 		glm::vec3 position = glm::vec3(0.0, 0.0, 0.0);
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
 										position, 

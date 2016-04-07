@@ -32,6 +32,11 @@ class Spot_light : public Base_light{
 
 		GLfloat intensity;
 
+		/* Shadow info */
+		GLfloat stepsize;
+		GLfloat shadow_slack;
+		GLfloat loop_offset;
+
 		bool bind_lambda_expression()const;
 	public:
 		Spot_light();
