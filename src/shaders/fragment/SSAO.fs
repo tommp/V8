@@ -7,11 +7,18 @@ layout (std140) uniform Light_data
 {
 	vec2 screen_size;
 };
+
+layout (std140) uniform Plane_data
+{
+    vec2 plane_data;
+};
  
 int samples = 16;
-float radius = 4.0;
+float radius = 2.0;
+float depth_exponent = 3.0;
 float power = 2.0;
 float slack = 0.00001;
+
  
 void main(){
 	vec2 frag_tex_coord = gl_FragCoord.xy / screen_size;
@@ -60,7 +67,7 @@ void main(){
 		float diff_mirror_sign = sign(diff_mirror);
 		float sum = clamp(-1 + diff_sign + diff_mirror_sign, 0.0, 1.0);
 
-		float range_check = smoothstep(0.0, 1.0, radius / abs(depth - max(sample_depth, sample_depth2)));
+		float range_check = clamp(radius - pow(abs(max(diff + slack, diff_mirror + slack)), depth_exponent), 0.0, 1.0);
 
 		ao += range_check * sum;
 		

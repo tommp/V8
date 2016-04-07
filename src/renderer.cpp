@@ -561,6 +561,12 @@ bool Renderer::init_framebuffers() {
 		return false;
 	}
 
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
+		print_framebuffer_error_in_fucking_english();
+		errorlogger( "ERROR: SSAO framebuffer not complete!");
+		return false;
+	}
+
 	glGenFramebuffers(1, &light_fbo);
 	glGenTextures(1, &light_buffer);
 
@@ -595,6 +601,35 @@ bool Renderer::init_framebuffers() {
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
 		print_framebuffer_error_in_fucking_english();
 		errorlogger( "ERROR: Light framebuffer not complete!");
+		return false;
+	}
+
+	glGenFramebuffers(1, &shadow_fbo);
+	glGenTextures(1, &shadow_depth_buffer);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, shadow_fbo);
+	glBindTexture(GL_TEXTURE_2D, shadow_depth_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+	             window_size.x, window_size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	GLfloat border_color[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_depth_buffer, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize SSAO_buffer in SSAO_fbo!" << std::endl;
+		errorlogger("ERROR: Failed to initialize SSAO_buffer in SSAO_fbo!");
+		return false;
+	}
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
+		print_framebuffer_error_in_fucking_english();
+		errorlogger( "ERROR: Shadow framebuffer not complete!");
 		return false;
 	}
 

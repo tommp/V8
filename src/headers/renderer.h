@@ -80,6 +80,7 @@ class Renderer{
 		GLuint bb_fbos[2];
 		GLuint blurred_output;
 		GLuint light_fbo;
+		GLuint shadow_fbo;
 
 		GLuint g_position;
 		GLuint g_normal;
@@ -91,6 +92,7 @@ class Renderer{
 		GLuint SSAO_buffer;
 		GLuint light_buffer;
 		GLuint light_rbo_depth;
+		GLuint shadow_depth_buffer;
 		/* =============================================== */
 
 		GLuint quad_VAO;
