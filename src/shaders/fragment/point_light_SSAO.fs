@@ -17,16 +17,15 @@ uniform sampler2D SSAO_buffer;
 uniform vec3 view_position;
 uniform Point_light light;
 
-layout (std140) uniform Light_data
-{
+layout (std140) uniform Light_data{
 	vec2 screen_size;
+	vec2 resolution;
 };
 
 const int shininess = 32;
 
-void main()
-{    
-	vec2 frag_tex_coord = gl_FragCoord.xy / screen_size;
+void main(){    
+	vec2 frag_tex_coord = (gl_FragCoord.xy / resolution);
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).rgb);
 	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
 	vec3 result = vec3(0.0f, 0.0f, 0.0f);

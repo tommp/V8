@@ -63,11 +63,11 @@ class Renderer{
 
 	    GLuint last_blurred;
 
-	    GLuint SSAO_kernel_size;
 	    GLfloat near_plane;
 	    GLfloat far_plane;
 
 	    glm::vec2 window_size;
+	    glm::vec2 resolution;
 
 	    glm::mat4 projection;
 	    glm::mat4 view;
@@ -90,13 +90,18 @@ class Renderer{
 		GLuint bb_buffers[2];
 		GLuint AA_buffer;
 		GLuint SSAO_buffer;
-		GLuint light_buffer;
+		GLuint light_color_buffer;
+		GLuint light_ambient_buffer;
 		GLuint light_rbo_depth;
-		GLuint shadow_depth_buffer;
+		GLuint shadow_buffer;
 		/* =============================================== */
 
 		GLuint quad_VAO;
 		GLuint quad_VBO;
+
+		GLuint cube_VAO;
+		GLuint cube_VBO;
+		GLuint cube_EBO;
 
 #if ENABLE_BULLET_DEBUG
 		Mesh_ptr line;
@@ -146,15 +151,20 @@ class Renderer{
 		bool init_uniform_buffers();
 		bool init_framebuffers();
 		bool init_shaders(Resource_manager& resource_manager);
-		bool init_bloom_data();
+		bool init_quad();
+		bool init_cube();
 		bool init_primitives(Resource_manager& resource_manager);
 
 		bool delete_buffers();
 
+		bool set_viewport_window()const;
+		bool set_viewport_resolution()const;
+
 		bool use_g_buffer()const;
 		bool use_default_buffer()const;
 
-		bool upload_light_data()const;
+		bool upload_res_data()const;
+		bool upload_res_data_final_pass()const;
 		bool upload_plane_data()const;
 		bool upload_view_matrix()const;
 		bool upload_projection_matrix()const;
@@ -224,12 +234,14 @@ class Renderer{
 
 		bool apply_AA()const;
 		bool apply_SSAO();
+		bool apply_shadows()const;
 
 		bool save_settings();
 		bool load_settings();
 		bool enable_fullscreen();
-		bool set_screen_size(GLuint width, GLuint height);
-		bool update_screen_size();
+		bool set_window_size(GLuint width, GLuint height);
+		bool update_window_size();
+		bool update_resolution(const glm::vec2& new_res);
 		bool enable_vsync();
 		bool disable_vsync();
 

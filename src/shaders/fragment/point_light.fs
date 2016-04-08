@@ -16,13 +16,12 @@ uniform sampler2D g_albedo_spec;
 uniform vec3 view_position;
 uniform Point_light light;
 
-layout (std140) uniform Light_data
-{
+layout (std140) uniform Light_data{
 	vec2 screen_size;
+	vec2 resolution;
 };
 
-layout (std140) uniform Matrices
-{
+layout (std140) uniform Matrices{
     mat4 projection;
     mat4 view;
     mat4 unrotated_view;
@@ -30,9 +29,8 @@ layout (std140) uniform Matrices
 
 const int shininess = 32;
 
-void main()
-{    
-	vec2 frag_tex_coord = gl_FragCoord.xy / screen_size;
+void main(){    
+	vec2 frag_tex_coord = (gl_FragCoord.xy / resolution);
 	vec3 frag_position = texture(g_position, frag_tex_coord).xyz;
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).xyz);
 	float distance = length(light.position - frag_position);

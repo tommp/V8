@@ -1,10 +1,12 @@
 out vec4 AA_buffer;
 
+in vec2 frag_tex_coord;
+
 uniform sampler2D colortexture;
 
-layout (std140) uniform Light_data
-{
-	vec2 screen_size;
+layout (std140) uniform Light_data{
+    vec2 screen_size;
+    vec2 resolution;
 };
 
 const float FXAA_span_max = 9.0;
@@ -12,8 +14,6 @@ const float FXAA_reduce_mul = 1.0/8.0;
 const float FXAA_reduce_min = (1.0/128.0);
 
 void main(){
-	vec2 frag_tex_coord = gl_FragCoord.xy / screen_size;
-
 	vec3 rgb_NW = textureOffset(colortexture, frag_tex_coord, ivec2(-1,-1)).xyz;
     vec3 rgb_NE = textureOffset(colortexture, frag_tex_coord, ivec2(1,-1)).xyz;
     vec3 rgb_SW = textureOffset(colortexture, frag_tex_coord, ivec2(-1,1)).xyz;
@@ -39,7 +39,7 @@ void main(){
     float rcp_dir_min = 1.0/(min(abs(dir.x), abs(dir.y)) + dir_reduce);
     dir = min(vec2( FXAA_span_max,  FXAA_span_max), 
           max(vec2(-FXAA_span_max, -FXAA_span_max), 
-          dir * rcp_dir_min)) * 1/screen_size;
+          dir * rcp_dir_min)) * 1/resolution;
 
     vec3 result_1 = (1.0/2.0) * (
         texture(colortexture, frag_tex_coord + dir * (1.0/3.0 - 0.5)).xyz +

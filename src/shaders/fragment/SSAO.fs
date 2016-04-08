@@ -1,11 +1,13 @@
 
-layout (location = 0) out float SSAO_buffer;
+out float SSAO_buffer;
+
+in vec2 frag_tex_coord;
 
 uniform sampler2D g_position;
 
-layout (std140) uniform Light_data
-{
+layout (std140) uniform Light_data{
 	vec2 screen_size;
+	vec2 resolution;
 };
 
 layout (std140) uniform Plane_data
@@ -20,11 +22,10 @@ float depth_exponent = 2.0; //Used to non-linearly kill AO at large depth differ
 float slack = 0.00001; //Used to avoid self shadowing at flat planes, should be very small (but not 0).
 
 void main(){
-	vec2 frag_tex_coord = gl_FragCoord.xy / screen_size;
 	float depth = texture(g_position, frag_tex_coord).w;
 
-	float w = (1.0 / screen_size.x);
-	float h = (1.0 / screen_size.y);
+	float w = (1.0 / resolution.x);
+	float h = (1.0 / resolution.y);
 
    	float dz = 1.0/float(samples);
     float z = 1.0 - dz/2.0;

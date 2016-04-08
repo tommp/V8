@@ -20,16 +20,15 @@ uniform sampler2D g_albedo_spec;
 uniform vec3 view_position;
 uniform Spot_light light;
 
-layout (std140) uniform Light_data
-{
+layout (std140) uniform Light_data{
 	vec2 screen_size;
+	vec2 resolution;
 };
 
 const int shininess = 32;
 
-void main()
-{    
-	vec2 frag_tex_coord = gl_FragCoord.xy / screen_size;
+void main(){   
+	vec2 frag_tex_coord = (gl_FragCoord.xy / resolution);
 	vec3 frag_position = texture(g_position, frag_tex_coord).rgb;
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).rgb);
 	float distance = length(light.position - frag_position);

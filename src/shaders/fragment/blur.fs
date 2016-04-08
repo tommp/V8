@@ -1,8 +1,10 @@
 out float fragColor;
 
-layout (std140) uniform Light_data
-{
+in vec2 frag_tex_coord;
+
+layout (std140) uniform Light_data{
     vec2 screen_size;
+    vec2 resolution;
 };
 
 uniform sampler2D SSAO_buffer;
@@ -10,7 +12,6 @@ const int BLUR_SIZE = 4;
 
 void main() 
 {
-   vec2 frag_tex_coord = gl_FragCoord.xy / screen_size;
    vec2 texel_size = 1.0 / vec2(textureSize(SSAO_buffer, 0));
    float result = 0.0;
    for (int x = 0; x < BLUR_SIZE; ++x) 
