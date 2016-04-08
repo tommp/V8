@@ -93,6 +93,14 @@ bool Spot_light::bind_lambda_expression()const{
 
 		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(scaled_color));
 		glUniform3fv(shader->load_uniform_location("light.color_components"), 1, (float*)&(color_components));
+		
+		glUniform1i(shader->load_uniform_location("light.render_shadows"), render_shadows);
+		if (render_shadows) {
+			glUniform1f(shader->load_uniform_location("light.stepsize"), stepsize);
+			glUniform1f(shader->load_uniform_location("light.shadow_slack"), shadow_slack);
+			glUniform1f(shader->load_uniform_location("light.loop_offset"), loop_offset);
+		}
+
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind spot light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to bind spot light uniforms!");

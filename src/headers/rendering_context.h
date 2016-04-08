@@ -47,9 +47,9 @@ class Rendering_context_light{
 		GLenum render_mode;
 		GLenum primitive_type;
 		GLboolean render_elements;
+		GLboolean render_shadows;
 
 		std::function<GLboolean(const Shader_ptr& shader, const glm::mat4& view)> setup_base_uniforms;
-		std::function<GLboolean(const Shader_ptr& shader, const glm::mat4& view)> setup_shadow_uniforms;
 };
 
 typedef std::shared_ptr<Rendering_context_light> Rendering_context_light_ptr;

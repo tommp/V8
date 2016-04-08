@@ -24,6 +24,13 @@ class Light;
 
 class Directional_light : public Base_light {
 	private:
+		/* Shadow info */
+		GLboolean render_shadows;
+		GLfloat stepsize;
+		GLfloat shadow_slack;
+		GLfloat loop_offset;
+		GLfloat probe_length;
+		
 		bool bind_lambda_expression()const;
 		bool init_light_quad();
 	public:

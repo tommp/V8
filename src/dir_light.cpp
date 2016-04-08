@@ -8,6 +8,12 @@ Directional_light::Directional_light(const glm::vec3& dir,
 	this->color = color;
 	this->color_components = color_components;
 
+	render_shadows = false;
+	stepsize = 5.0;
+	shadow_slack = 15.0;
+	loop_offset = 4.0;
+	probe_length = 100.0;
+
 	if (!init_light_quad()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize light quad!" << std::endl;
 		errorlogger("FATAL ERROR: Failed to initialize light quad!");
@@ -26,6 +32,12 @@ Directional_light::Directional_light(){
 	direction = {0.0f, -1.0f, 1.0f};
 	color = {0.1f, 0.1f, 0.1f};
 	color_components = {1.0f, 1.0f, 0.0f};
+
+	render_shadows = false;
+	stepsize = 5.0;
+	shadow_slack = 15.0;
+	loop_offset = 4.0;
+	probe_length = 100.0;
 
 	if (!init_light_quad()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize light quad!" << std::endl;
@@ -98,6 +110,17 @@ bool Directional_light::bind_lambda_expression()const{
 		glUniform3fv(shader->load_uniform_location("light.direction"), 1, (float*)&(direction));
 		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(color));
 		glUniform3fv(shader->load_uniform_location("light.color_components"), 1, (float*)&(color_components));
+		
+		glUniform1i(shader->load_uniform_location("light.render_shadows"), render_shadows);
+		if (render_shadows) {
+			glUniform1f(shader->load_uniform_location("light.stepsize"), stepsize);
+			glUniform1f(shader->load_uniform_location("light.shadow_slack"), shadow_slack);
+			glUniform1f(shader->load_uniform_location("light.loop_offset"), loop_offset);
+
+			GLfloat number_of_steps = probe_length / stepsize;
+			glUniform1f(shader->load_uniform_location("light.num_steps"), number_of_steps);
+		}
+		
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind directional light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to bind directional light uniforms!");

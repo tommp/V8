@@ -28,6 +28,7 @@ class Point_light : public Base_light {
 		GLfloat radius;
 
 		/* Shadow info */
+		GLboolean render_shadows;
 		GLfloat stepsize;
 		GLfloat shadow_slack;
 		GLfloat loop_offset;

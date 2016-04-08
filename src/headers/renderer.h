@@ -63,11 +63,11 @@ class Renderer{
 
 	    GLuint last_blurred;
 
-	    GLuint SSAO_kernel_size;
 	    GLfloat near_plane;
 	    GLfloat far_plane;
 
 	    glm::vec2 window_size;
+	    glm::vec2 resolution;
 
 	    glm::mat4 projection;
 	    glm::mat4 view;
@@ -80,7 +80,6 @@ class Renderer{
 		GLuint bb_fbos[2];
 		GLuint blurred_output;
 		GLuint light_fbo;
-		GLuint shadow_fbo;
 
 		GLuint g_position;
 		GLuint g_normal;
@@ -90,13 +89,17 @@ class Renderer{
 		GLuint bb_buffers[2];
 		GLuint AA_buffer;
 		GLuint SSAO_buffer;
-		GLuint light_buffer;
+		GLuint light_color_buffer;
+		GLuint light_ambient_buffer;
 		GLuint light_rbo_depth;
-		GLuint shadow_depth_buffer;
 		/* =============================================== */
 
 		GLuint quad_VAO;
 		GLuint quad_VBO;
+
+		GLuint cube_VAO;
+		GLuint cube_VBO;
+		GLuint cube_EBO;
 
 #if ENABLE_BULLET_DEBUG
 		Mesh_ptr line;
@@ -138,7 +141,6 @@ class Renderer{
 		Shader_ptr final_shader;
 		Shader_ptr FXAA_shader;
 		Shader_ptr SSAO_shader;
-		Shader_ptr shadow_shader;
 
 		bool init_window();
 		bool init_openGL();
@@ -146,15 +148,20 @@ class Renderer{
 		bool init_uniform_buffers();
 		bool init_framebuffers();
 		bool init_shaders(Resource_manager& resource_manager);
-		bool init_bloom_data();
+		bool init_quad();
+		bool init_cube();
 		bool init_primitives(Resource_manager& resource_manager);
 
 		bool delete_buffers();
 
+		bool set_viewport_window()const;
+		bool set_viewport_resolution()const;
+
 		bool use_g_buffer()const;
 		bool use_default_buffer()const;
 
-		bool upload_light_data()const;
+		bool upload_res_data()const;
+		bool upload_res_data_final_pass()const;
 		bool upload_plane_data()const;
 		bool upload_view_matrix()const;
 		bool upload_projection_matrix()const;
@@ -174,6 +181,7 @@ class Renderer{
 		bool ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const;
 
 		bool render_quad()const;
+		bool render_cube(GLuint instances)const;
 
 		bool bind_g_data(Shader_type light_type)const;
 		bool upload_view_position(Shader_type shader_type, 
@@ -228,8 +236,9 @@ class Renderer{
 		bool save_settings();
 		bool load_settings();
 		bool enable_fullscreen();
-		bool set_screen_size(GLuint width, GLuint height);
-		bool update_screen_size();
+		bool set_window_size(GLuint width, GLuint height);
+		bool update_window_size();
+		bool update_resolution(const glm::vec2& new_res);
 		bool enable_vsync();
 		bool disable_vsync();
 

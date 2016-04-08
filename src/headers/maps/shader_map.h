@@ -22,7 +22,7 @@ const std::unordered_map<std::string, std::pair<std::string, std::string>> WORLD
 	{"final_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/final.fs"}},
 	{"FXAA_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/FXAA.fs"}},
 	{"SSAO_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/SSAO.fs"}},
-	{"shadow_shader", 						{"vertex/light_quad.vs", 			"fragment/shadow_trace.fs"}},
+	{"shadow_shader", 						{"vertex/instanced_quads.vs",			"fragment/shadow_trace.fs"}},
 };
 
 #endif
