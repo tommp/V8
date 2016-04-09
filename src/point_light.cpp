@@ -11,17 +11,10 @@ Point_light::Point_light(GLfloat radius,
 	this->color_components = color_components;
 	this->position = pos;
 
-<<<<<<< HEAD
 	render_shadows = true;
 	stepsize = 5.0;
 	shadow_slack = 15.0;
 	loop_offset = 4.0;
-=======
-	stepsize = 2.0;
-	shadow_slack = 2.0;
-	loop_offset = 5.0;
-
->>>>>>> 4701e3d2761d62dc26c41a71d247e97ba78926b6
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for point light!" << std::endl;
@@ -99,39 +92,6 @@ bool Point_light::bind_lambda_expression()const{
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind point light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to bind point light uniforms!");
-			return false;
-		}
-
-		return true;
-	};
-
-	base_light_context->setup_shadow_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view, GLuint instance) {
-		if (!shader) {
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Null shader passed when rendering point light!" << std::endl;
-			errorlogger("ERROR: Null shader passed when rendering point light!");
-			return false;
-		}
-
-		glUniformMatrix4fv(shader->load_uniform_location("models", instance),
-						 1, 
-						 GL_FALSE, 
-						 glm::value_ptr(quad_model_matrix));
-		
-		if(check_ogl_error()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix for point light!" << std::endl;
-			errorlogger("ERROR: Failed to set model matrix for point light!");
-			return false;
-		}
-		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
-
-		glUniform3fv(shader->load_uniform_location("light_positions", instance), 1, (float*)&(view_position));
-		glUniform1f(shader->load_uniform_location("stepsizes", instance), stepsize);
-
-		glUniform1f(shader->load_uniform_location("shadow_slacks", instance), shadow_slack);
-		glUniform1f(shader->load_uniform_location("loop_offsets", instance), loop_offset);
-		if(check_ogl_error()) {
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind point light shadow uniforms!" << std::endl;
-			errorlogger("ERROR: Failed to bind point light shadow uniforms!");
 			return false;
 		}
 
