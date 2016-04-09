@@ -37,9 +37,11 @@ class Point_light : public Base_light {
 	public:
 		Point_light();
 		Point_light(GLfloat radius, 
-					const glm::vec3& pos,
+					const glm::vec3& pos, 
 					const glm::vec3& color, 
-					const glm::vec3& color_components);
+					const glm::vec3& color_components,
+					GLfloat shadow_step_size = 5.0,
+					GLboolean render_shadows = false);
 		bool calculate_light_uniforms();
 };
 typedef std::shared_ptr<Point_light> Point_light_ptr;

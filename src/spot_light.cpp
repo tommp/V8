@@ -63,14 +63,14 @@ Spot_light::Spot_light(){
 
 
 bool Spot_light::bind_lambda_expression()const{
-	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view) {
+	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view, GLuint instance) {
 		if (!shader) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: ERROR: Null shader passed when rendering spot light!" << std::endl;
 			errorlogger("ERROR: Null shader passed when rendering spot light!");
 			return false;
 		}
 
-		glUniformMatrix4fv(shader->load_uniform_location("model"),
+		glUniformMatrix4fv(shader->load_uniform_location("models", instance),
 						 1, 
 						 GL_FALSE, 
 						 glm::value_ptr(quad_model_matrix));
@@ -83,22 +83,22 @@ bool Spot_light::bind_lambda_expression()const{
 
 		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
 
-		glUniform3fv(shader->load_uniform_location("light.position"), 1, (float*)&(view_position));
-		glUniform3fv(shader->load_uniform_location("light.direction"), 1, (float*)&(direction));
-		glUniform1f(shader->load_uniform_location("light.cut_off"), cutoff);
-		glUniform1f(shader->load_uniform_location("light.outer_cut_off"), outer_cutoff);
-		glUniform1f(shader->load_uniform_location("light.radius"), radius);
+		glUniform3fv(shader->load_uniform_location("lights", instance, "position"), 1, (float*)&(view_position));
+		glUniform3fv(shader->load_uniform_location("lights", instance, "direction"), 1, (float*)&(direction));
+		glUniform1f(shader->load_uniform_location("lights", instance, "cut_off"), cutoff);
+		glUniform1f(shader->load_uniform_location("lights", instance, "outer_cut_off"), outer_cutoff);
+		glUniform1f(shader->load_uniform_location("lights", instance, "radius"), radius);
 
 		glm::vec3 scaled_color = color * intensity;
 
-		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(scaled_color));
-		glUniform3fv(shader->load_uniform_location("light.color_components"), 1, (float*)&(color_components));
+		glUniform3fv(shader->load_uniform_location("lights", instance, "color"), 1, (float*)&(scaled_color));
+		glUniform3fv(shader->load_uniform_location("lights", instance, "color_components"), 1, (float*)&(color_components));
 		
-		glUniform1i(shader->load_uniform_location("light.render_shadows"), render_shadows);
+		glUniform1i(shader->load_uniform_location("lights", instance, "render_shadows"), render_shadows);
 		if (render_shadows) {
-			glUniform1f(shader->load_uniform_location("light.stepsize"), stepsize);
-			glUniform1f(shader->load_uniform_location("light.shadow_slack"), shadow_slack);
-			glUniform1f(shader->load_uniform_location("light.loop_offset"), loop_offset);
+			glUniform1f(shader->load_uniform_location("lights", instance, "stepsize"), stepsize);
+			glUniform1f(shader->load_uniform_location("lights", instance, "shadow_slack"), shadow_slack);
+			glUniform1f(shader->load_uniform_location("lights", instance, "loop_offset"), loop_offset);
 		}
 
 		if(check_ogl_error()) {

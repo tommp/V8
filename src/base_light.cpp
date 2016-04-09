@@ -11,83 +11,7 @@ Base_light::Base_light(){
 	quad_model_matrix = glm::scale(quad_model_matrix, scale); 
 
 	base_light_context = std::make_shared<Rendering_context_light>();
-
-	if (!init_light_volume()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize light volume!!" << std::endl;
-		errorlogger("FATAL ERROR: Failed to initialize light volume!");
-		exit(EXIT_FAILURE);
-	}
-}
-
-bool Base_light::init_light_volume(){
-	GLfloat quad_vertices[] = {
-		-1.0f, -1.0f, -1.0f, // 0
-	     1.0f, -1.0f, -1.0f, // 1
-	     1.0f,  1.0f, -1.0f, // 2
-	    -1.0f,  1.0f, -1.0f, // 3
-	    -1.0f, -1.0f,  1.0f, // 4
-	     1.0f, -1.0f,  1.0f, // 5
-	     1.0f,  1.0f,  1.0f, // 6
-	    -1.0f,  1.0f,  1.0f // 7
-	};
-
-	GLuint quad_indices[] = {
-		0,2,1,
-        0,3,2,
-        1,2,6,
-        6,5,1,
-        4,5,6,
-        6,7,4,
-        2,3,6,
-        6,3,7,
-        0,7,3,
-        0,4,7,
-        0,1,5,
-        0,5,4,
-	};
-
-	base_light_context->num_vertices = 36;
-	base_light_context->render_elements = true;
 	base_light_context->shader_type = NO_SHADER;
-	base_light_context->render_mode = GL_FILL;
-	base_light_context->primitive_type = GL_TRIANGLES;
-
-	glGenVertexArrays(1, &base_light_context->VAO);
-	glGenBuffers(1, &quad_VBO);
-	glGenBuffers(1, &quad_EBO);
-	glBindVertexArray(base_light_context->VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_EBO);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind geometry VAO in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to geometry VAO in renderer!");
-		glDeleteBuffers(1, &quad_VBO);
-		glDeleteBuffers(1, &quad_EBO);
-		glDeleteVertexArrays(1, &base_light_context->VAO);
-		return false;
-	}
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertices), &quad_vertices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quad_indices), &quad_indices, GL_STATIC_DRAW);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to buffer vertex data for geometry VAO in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to buffer vertex data for geometry VAO in renderer!");
-		glDeleteBuffers(1, &quad_VBO);
-		glDeleteBuffers(1, &quad_EBO);
-		glDeleteVertexArrays(1, &base_light_context->VAO);
-		return false;
-	}
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glBindVertexArray(0);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to set vertex attributes for geometry VAO in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to set vertex attributes for geometry VAO in renderer!");
-		glDeleteBuffers(1, &quad_VBO);
-		glDeleteBuffers(1, &quad_EBO);
-		glDeleteVertexArrays(1, &base_light_context->VAO);
-		return false;
-	}
-	return true;
 }
 
 bool Base_light::randomize_position(const glm::i16vec3& maxpos, const glm::i16vec3& offset){
@@ -121,19 +45,6 @@ bool Base_light::randomize_ambient(){
 
 bool Base_light::randomize_specular(){
 	color_components.z = (rand() % 1000) / 1000.0f;
-	return true;
-}
-
-bool Base_light::free_buffers(){
-	glDeleteBuffers(1, &quad_VBO);
-	glDeleteBuffers(1, &quad_EBO);
-	glDeleteVertexArrays(1, &base_light_context->VAO);
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to free buffers in base light!" << std::endl;
-		errorlogger("ERROR: Failed to free buffers in base light!");
-		return false;
-	}
-
 	return true;
 }
 

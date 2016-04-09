@@ -39,8 +39,6 @@ class Base_light: public Actor{
 		GLuint quad_EBO;
 		glm::mat4 quad_model_matrix;
 		
-		bool init_light_volume();
-		bool free_buffers();
 	public:
 		Base_light();
 		Shader_type get_type(){return base_light_context->shader_type;};

@@ -32,7 +32,6 @@ class Directional_light : public Base_light {
 		GLfloat probe_length;
 		
 		bool bind_lambda_expression()const;
-		bool init_light_quad();
 	public:
 		Directional_light();
 		Directional_light(const glm::vec3& dir, 

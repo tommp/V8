@@ -13,13 +13,15 @@ struct Directional_light {
 
 out vec4 color;
 
+flat in int instance;
+
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
 uniform sampler2D g_albedo_spec;
 
 uniform vec3 view_position;
 
-uniform Directional_light light;
+uniform Directional_light lights[100];
 
 layout (std140) uniform Light_data{
 	vec2 screen_size;
@@ -40,10 +42,10 @@ void render_shadows(vec3 frag_position,
 	float shadow_occlusion = 1.0;
 	float diff;
 
-	vec3 light_direction = normalize(-light.direction);
+	vec3 light_direction = normalize(-lights[instance].direction);
 
-	vec3 trace_offset = light_direction * light.stepsize;
-	vec3 trace_position = frag_position + trace_offset * light.loop_offset;
+	vec3 trace_offset = light_direction * lights[instance].stepsize;
+	vec3 trace_position = frag_position + trace_offset * lights[instance].loop_offset;
 
 	vec3 sample_position = trace_position;
 
@@ -55,7 +57,7 @@ void render_shadows(vec3 frag_position,
 
     vec3 final_coords;
 
-	for (float counter = light.loop_offset; counter < light.num_steps - light.loop_offset; counter += light.stepsize) {
+	for (float counter = lights[instance].loop_offset; counter < lights[instance].num_steps - lights[instance].loop_offset; counter += lights[instance].stepsize) {
 		trace_position += trace_offset;
 		sample_coords += sample_offset;
 
@@ -66,7 +68,7 @@ void render_shadows(vec3 frag_position,
 
 		diff = length(sample_position - trace_position);
 
-		shadow_occlusion -= (1 - step(light.shadow_slack, diff));
+		shadow_occlusion -= (1 - step(lights[instance].shadow_slack, diff));
 	}
 
 	shadow_occlusion = clamp(shadow_occlusion, 0.0, 1.0);
@@ -81,19 +83,19 @@ void main(){
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).rgb);
 
 	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
-	vec3 light_direction = normalize(-light.direction);
+	vec3 light_direction = normalize(-lights[instance].direction);
 	vec3 reflect_direction = reflect(-light_direction, normal);
 
 	float diff = max(dot(normal, light_direction), 0.0);
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
-	vec3 ambient = (light.color * light.color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 ambient = (lights[instance].color * lights[instance].color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
 
-	vec3 diffuse = (light.color * light.color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 diffuse = (lights[instance].color * lights[instance].color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
 
-	vec3 specular = (light.color * light.color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+	vec3 specular = (lights[instance].color * lights[instance].color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 
-	if (light.render_shadows) {
+	if (lights[instance].render_shadows) {
 		render_shadows(frag_position, diffuse, specular);
 	}
   

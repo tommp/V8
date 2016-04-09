@@ -180,6 +180,8 @@ class Renderer{
 		bool ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const;
 
 		bool render_quad()const;
+		bool render_quad(GLuint instances)const;
+
 		bool render_cube(GLuint instances)const;
 
 		bool bind_g_data(Shader_type light_type)const;

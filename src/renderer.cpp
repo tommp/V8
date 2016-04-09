@@ -102,7 +102,7 @@ bool Renderer::init_settings(){
 	if (!load_settings()) {
 		ortographic = false;
 		mouse_visible = true;
-		use_vsync = false;
+		use_vsync = true;
 		use_fullscreen = false;
 		window_size.x = 640.0f * 2;
 		window_size.y = 320.0f * 2;
@@ -933,30 +933,54 @@ bool Renderer::render_lights(const glm::vec3& position){
 }
 
 bool Renderer::render_dir_lights(){
+	GLuint instance = 0;
 	for (auto light_context = dir_lights.begin(); light_context != dir_lights.end(); ++light_context) {
 		auto context = light_context->lock();
 		if (!context) {
 			SDL_Log("Directional light context expired, removing from renderer...");
-			dir_lights.erase(light_context);
+			point_lights.erase(light_context);
 			continue;
 		}
-		else if(use_SSAO) {
-			if (!render_dir_light(context, dir_light_SSAO_shader)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render directional light!" << std::endl;
-				errorlogger("ERROR: Failed to render directional light!");
+
+		if(use_SSAO) {
+			if (!context->setup_base_uniforms(dir_light_SSAO_shader, view, instance)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup directional light uniforms!" << std::endl;
+				errorlogger("ERROR: Failed to setup directional light uniforms!");
 				return false;
 			}
 		}
-		else if(!render_dir_light(context, dir_light_shader)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render directional light!" << std::endl;
-			errorlogger("ERROR: Failed to render directional light!");
+		else if(!context->setup_base_uniforms(dir_light_shader, view, instance)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup directional light uniforms!" << std::endl;
+			errorlogger("ERROR: Failed to setup directional light uniforms!");
+			return false;
+		}
+
+		++instance;
+
+		if (instance >= Renderer_consts::BATCH_SIZE) {
+			instance = 0;
+			if (!render_quad(Renderer_consts::BATCH_SIZE)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render quad batch for directional lights!" << std::endl;
+				errorlogger("ERROR: Failed to render quad batch for directional lights!");
+				return false;
+			}
+		}
+		
+	}
+
+	if (instance != 0) {
+		if (!render_quad(instance)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last quad batch for directional lights!" << std::endl;
+			errorlogger("ERROR: Failed to render last quad batch for directional lights!");
 			return false;
 		}
 	}
+   
 	return true;
 }
 
 bool Renderer::render_point_lights(){
+	GLuint instance = 0;
 	for (auto light_context = point_lights.begin(); light_context != point_lights.end(); ++light_context) {
 		auto context = light_context->lock();
 		if (!context) {
@@ -964,92 +988,87 @@ bool Renderer::render_point_lights(){
 			point_lights.erase(light_context);
 			continue;
 		}
-		else if(use_SSAO) {
-			if (!render_light(context, point_light_SSAO_shader)){
+
+		if(use_SSAO) {
+			if (!context->setup_base_uniforms(point_light_SSAO_shader, view, instance)){
 				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render directional light!" << std::endl;
 				errorlogger("ERROR: Failed to render directional light!");
 				return false;
 			}
 		}
-		else if(!render_light(context, point_light_shader)){
+		else if(!context->setup_base_uniforms(point_light_shader, view, instance)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render point light!" << std::endl;
 			errorlogger("ERROR: Failed to render point light!");
 			return false;
 		}
+
+		++instance;
+
+		if (instance >= Renderer_consts::BATCH_SIZE) {
+			instance = 0;
+			if (!render_cube(Renderer_consts::BATCH_SIZE)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cube batch for point lights!" << std::endl;
+				errorlogger("ERROR: Failed to render cube batch for point lights!");
+				return false;
+			}
+		}
+		
 	}
+
+	if (instance != 0) {
+		if (!render_cube(instance)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last cube batch!" << std::endl;
+			errorlogger("ERROR: Failed to render last cube batch!");
+			return false;
+		}
+	}
+   
 	return true;
 }
 
-bool Renderer::render_spot_lights(){
+bool Renderer::render_spot_lights(){GLuint instance = 0;
 	for (auto light_context = spot_lights.begin(); light_context != spot_lights.end(); ++light_context) {
 		auto context = light_context->lock();
 		if (!context) {
 			SDL_Log("Spot light context expired, removing from renderer...");
-			spot_lights.erase(light_context);
+			point_lights.erase(light_context);
 			continue;
 		}
-		else if(use_SSAO) {
-			if (!render_light(context, spot_light_SSAO_shader)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render spot light!" << std::endl;
-				errorlogger("ERROR: Failed to render spot light!");
+
+		if(use_SSAO) {
+			if (!context->setup_base_uniforms(spot_light_SSAO_shader, view, instance)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup spot light uniforms!" << std::endl;
+				errorlogger("ERROR: Failed to setup spot light uniforms!");
 				return false;
 			}
 		}
-		else if(!render_light(context, spot_light_shader)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render spot light!" << std::endl;
-			errorlogger("ERROR: Failed to render spot light!");
+		else if(!context->setup_base_uniforms(spot_light_shader, view, instance)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup spot light uniforms!" << std::endl;
+			errorlogger("ERROR: Failed to setup spot light uniforms!");
+			return false;
+		}
+
+		++instance;
+
+		if (instance >= Renderer_consts::BATCH_SIZE) {
+			instance = 0;
+			if (!render_cube(Renderer_consts::BATCH_SIZE)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cube batch for spot lights!" << std::endl;
+				errorlogger("ERROR: Failed to render cube batch for spot lights!");
+				return false;
+			}
+		}
+		
+	}
+
+	if (instance != 0) {
+		if (!render_cube(instance)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last cube batch!" << std::endl;
+			errorlogger("ERROR: Failed to render last cube batch!");
 			return false;
 		}
 	}
-	return true;
-}
-
-bool Renderer::render_dir_light(const Rendering_context_light_ptr& context, const Shader_ptr& shader)const{
-	if (!context->setup_base_uniforms(shader, view)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup base uniforms for light" << std::endl;
-		errorlogger("ERROR: Failed to setup base uniforms for light!");
-		return false;
-	}
-
-	glBindVertexArray(context->VAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render light quad for directional light!" << std::endl;
-		errorlogger("ERROR: Failed to render light quad for directional light!");
-		return false;
-	}
-	return true;
-}
-
-bool Renderer::render_light(const Rendering_context_light_ptr& context, const Shader_ptr& shader)const{
-
-	if (!context->setup_base_uniforms(shader, view)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup base uniforms for light" << std::endl;
-		errorlogger("ERROR: Failed to setup base uniforms for light!");
-		return false;
-	}
-	
-	glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
-	glBindVertexArray(context->VAO);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
-	glFrontFace(GL_CCW); 
-	if (context->render_elements) {
-		glDrawElements(GL_TRIANGLES, context->num_vertices, GL_UNSIGNED_INT, 0);
-	}
-	else{
-		glDrawArrays(GL_TRIANGLES, 0, context->num_vertices);
-	}
-	glDisable(GL_CULL_FACE);
-	glBindVertexArray(0);
-	
-	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render light!" << std::endl;
-		errorlogger("ERROR: Failed to render light!");
-		return false;
-	}
-
+   
 	return true;
 }
 
@@ -1920,24 +1939,24 @@ bool Renderer::delete_buffers() {
 	glDeleteFramebuffers(1, &AA_fbo);
 	glDeleteTextures(1, &AA_buffer);
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete AA_buffer objects!" << std::endl;
-		errorlogger("ERROR: Failed delete AA_buffer objects!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to delete AA_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed to delete AA_buffer objects!");
 		return false;
 	}
 
 	glDeleteFramebuffers(1, &SSAO_fbo);
 	glDeleteTextures(1, &SSAO_buffer);
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete SSAO_buffer objects!" << std::endl;
-		errorlogger("ERROR: Failed delete SSAO_buffer objects!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to delete SSAO_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed to delete SSAO_buffer objects!");
 		return false;
 	}
 
 	glDeleteFramebuffers(2, &bb_fbos[0]);
 	glDeleteTextures(2, &bb_buffers[0]);
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete bloom_buffer objects!" << std::endl;
-		errorlogger("ERROR: Failed delete bloom_buffer objects!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to delete bloom_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed to delete bloom_buffer objects!");
 		return false;
 	}
 
@@ -1945,8 +1964,8 @@ bool Renderer::delete_buffers() {
 	glDeleteTextures(1, &light_color_buffer);
 	glDeleteRenderbuffers(1, &light_rbo_depth);
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete light_buffer objects!" << std::endl;
-		errorlogger("ERROR: Failed delete light_buffer objects!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to delete light_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed to delete light_buffer objects!");
 		return false;
 	}
 
@@ -2069,5 +2088,17 @@ bool Renderer::render_cube(GLuint instances)const{
 		return false;
 	}
 
+	return true;
+}
+
+bool Renderer::render_quad(GLuint instances)const{
+	glBindVertexArray(quad_VAO);
+	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, instances);
+	glBindVertexArray(0);
+	if(check_ogl_error()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind quad!" << std::endl;
+		errorlogger("ERROR: Failed to bind quad!");
+		return false;
+	}
 	return true;
 }

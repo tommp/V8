@@ -16,7 +16,7 @@ layout (std140) uniform Plane_data
 };
  
 int samples = 8;
-float radius = 2.0;
+float radius = 1.0;
 float power = 4.0;
 float depth_exponent = 2.0; //Used to non-linearly kill AO at large depth differences
 float slack = 0.00001; //Used to avoid self shadowing at flat planes, should be very small (but not 0).

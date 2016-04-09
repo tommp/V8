@@ -193,8 +193,8 @@ GLuint Shader::load_uniform_location(const std::string& uniform){
     else{
         GLuint new_uniform_location = glGetUniformLocation(program, uniform.c_str());
         if(check_ogl_error()) {
-            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load uniform loacation: " << uniform << std::endl;
-            errorlogger("ERROR: Failed to load uniform loacation: ", uniform.c_str());
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load uniform loacation for uniform: " << uniform << std::endl;
+            errorlogger("ERROR: Failed to load uniform loacation for uniform: ", uniform.c_str());
             return -1;
         }
         uniform_locations[uniform] = new_uniform_location;
@@ -210,8 +210,25 @@ GLuint Shader::load_uniform_location(const std::string& uniform, GLuint uniform_
     else{
         GLuint new_uniform_location = glGetUniformLocation(program, uniform_name.c_str());
         if(check_ogl_error()) {
-            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_position buffer!" << std::endl;
-            errorlogger("ERROR: Failed to bind g_position buffer!");
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get uniform location for uniform: " << uniform_name << std::endl;
+            errorlogger("ERROR: Failed to get uniform location for uniform: ", uniform_name.c_str());
+            return -1;
+        }
+        uniform_locations[uniform_name] = new_uniform_location;
+        return new_uniform_location;
+    }
+}
+
+GLuint Shader::load_uniform_location(const std::string& uniform, GLuint uniform_index, const std::string& uniform_member){
+    std::string uniform_name = static_cast<std::ostringstream*>( &(std::ostringstream() << uniform << "[" << uniform_index << "]" << "." << uniform_member) )->str();
+    if (uniform_locations.find(uniform_name) != uniform_locations.end()){
+        return uniform_locations[uniform_name];
+    }
+    else{
+        GLuint new_uniform_location = glGetUniformLocation(program, uniform_name.c_str());
+        if(check_ogl_error()) {
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to get uniform location for uniform: " << uniform_name << std::endl;
+            errorlogger("ERROR: Failed to get uniform location for uniform: ", uniform_name.c_str());
             return -1;
         }
         uniform_locations[uniform_name] = new_uniform_location;

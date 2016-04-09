@@ -3,7 +3,9 @@
 Point_light::Point_light(GLfloat radius, 
 						const glm::vec3& pos, 
 						const glm::vec3& color, 
-						const glm::vec3& color_components) {
+						const glm::vec3& color_components,
+						GLfloat shadow_step_size,
+						GLboolean render_shadows) {
 	base_light_context->shader_type = LIGHT_POINT;
 
 	this->radius = radius;
@@ -11,10 +13,10 @@ Point_light::Point_light(GLfloat radius,
 	this->color_components = color_components;
 	this->position = pos;
 
-	render_shadows = true;
-	stepsize = 5.0;
-	shadow_slack = 15.0;
-	loop_offset = 4.0;
+	this->render_shadows = render_shadows;
+	stepsize = shadow_step_size;
+	shadow_slack = stepsize * SHADOW_FACTOR;
+	loop_offset = stepsize;
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for point light!" << std::endl;
@@ -36,10 +38,11 @@ Point_light::Point_light(){
 	randomize_color(5);
 	color_components = {0.0f, 1.0f, 1.0f};
 
-	stepsize = 2.0;
-	shadow_slack = 2.0;
-	loop_offset = 5.0;
 	render_shadows = true;
+	stepsize = 2.0;
+	shadow_slack = stepsize * SHADOW_FACTOR;
+	loop_offset = stepsize;
+	
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for point light!" << std::endl;
@@ -55,14 +58,14 @@ Point_light::Point_light(){
 }
 
 bool Point_light::bind_lambda_expression()const{
-	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view) {
+	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view, GLuint instance) {
 		if (!shader) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Null shader passed when rendering point light!" << std::endl;
 			errorlogger("ERROR: Null shader passed when rendering point light!");
 			return false;
 		}
 
-		glUniformMatrix4fv(shader->load_uniform_location("model"),
+		glUniformMatrix4fv(shader->load_uniform_location("models", instance),
 						 1, 
 						 GL_FALSE, 
 						 glm::value_ptr(quad_model_matrix));
@@ -76,17 +79,17 @@ bool Point_light::bind_lambda_expression()const{
 
 		//std::cout << view_position.x << ":" << view_position.y << ":" << view_position.z << std::endl;
 
-		glUniform3fv(shader->load_uniform_location("light.position"), 1, (float*)&(view_position));
-		glUniform1f(shader->load_uniform_location("light.radius"), radius);
+		glUniform3fv(shader->load_uniform_location("lights", instance, "position"), 1, (float*)&(view_position));
+		glUniform1f(shader->load_uniform_location("lights", instance, "radius"), radius);
 
-		glUniform3fv(shader->load_uniform_location("light.color"), 1, (float*)&(color));
-		glUniform3fv(shader->load_uniform_location("light.color_components"), 1, (float*)&(color_components));
+		glUniform3fv(shader->load_uniform_location("lights", instance, "color"), 1, (float*)&(color));
+		glUniform3fv(shader->load_uniform_location("lights", instance, "color_components"), 1, (float*)&(color_components));
 		
-		glUniform1i(shader->load_uniform_location("light.render_shadows"), render_shadows);
+		glUniform1i(shader->load_uniform_location("lights", instance, "render_shadows"), render_shadows);
 		if (render_shadows) {
-			glUniform1f(shader->load_uniform_location("light.stepsize"), stepsize);
-			glUniform1f(shader->load_uniform_location("light.shadow_slack"), shadow_slack);
-			glUniform1f(shader->load_uniform_location("light.loop_offset"), loop_offset);
+			glUniform1f(shader->load_uniform_location("lights", instance, "stepsize"), stepsize);
+			glUniform1f(shader->load_uniform_location("lights", instance, "shadow_slack"), shadow_slack);
+			glUniform1f(shader->load_uniform_location("lights", instance, "loop_offset"), loop_offset);
 		}
 
 		if(check_ogl_error()) {
