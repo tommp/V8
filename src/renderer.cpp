@@ -1950,6 +1950,14 @@ bool Renderer::delete_buffers() {
 		return false;
 	}
 
+	glDeleteFramebuffers(1, &shadow_fbo);
+	glDeleteRenderbuffers(1, &shadow_buffer);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed delete light_buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed delete light_buffer objects!");
+		return false;
+	}
+
 	return true;
 }
 
@@ -2071,3 +2079,92 @@ bool Renderer::render_cube(GLuint instances)const{
 
 	return true;
 }
+=======
+
+bool Renderer::apply_shadows()const{
+	glBindFramebuffer(GL_FRAMEBUFFER, shadow_fbo);
+	clear();
+
+	shadow_shader->use();
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(shadow_shader->load_uniform_location("g_position"), 0);
+	glBindTexture(GL_TEXTURE_2D, g_position); 
+
+	glActiveTexture(GL_TEXTURE0 + 1);
+	glUniform1i(shadow_shader->load_uniform_location("g_normal"), 1);
+	glBindTexture(GL_TEXTURE_2D, g_normal); 
+
+	glActiveTexture(GL_TEXTURE0 + 2);
+	glUniform1i(shadow_shader->load_uniform_location("ambient_color"), 2);
+	glBindTexture(GL_TEXTURE_2D, light_ambient_buffer); 
+
+	glActiveTexture(GL_TEXTURE0 + 3);
+	glUniform1i(shadow_shader->load_uniform_location("shadowed_color"), 3);
+	glBindTexture(GL_TEXTURE_2D, light_color_buffer); 
+	
+	if(check_ogl_error()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffer!" << std::endl;
+		errorlogger("ERROR: Failed to bind bloom buffer!");
+		return false;
+	}
+
+
+
+	if (!render_quad()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom quad!" << std::endl;
+		errorlogger("ERROR: Failed to render bloom quad!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::render_point_shadows()const{
+	return true;
+}
+
+bool Renderer::render_base_shadows(const Rendering_context_light_ptr& context, 
+								const Shader_ptr& shader, GLuint instance)const{
+
+	GLuint num_instances = context->instance_uniform_setups.size();
+	GLuint num_batches = num_instances / Renderer_consts::BATCH_SIZE;
+	GLuint last_batch_instances = num_instances % Renderer_consts::BATCH_SIZE;
+	auto context_iterator = context->instance_uniform_setups.begin();
+
+	for (GLuint batch = 0; batch < num_batches; ++batch) {
+		for (GLuint instance = 0; instance < Renderer_consts::BATCH_SIZE; ++instance) {
+			if (!context_iterator->second(shader, instance)) {
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
+				errorlogger("ERROR: Failed to setup instance uniforms!");
+				return false;
+			}
+
+			++context_iterator;
+		}
+
+		if (!ogl_render_geometry(context, Renderer_consts::BATCH_SIZE)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render batch geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render batch geometry!");
+			return false;
+		}
+	}
+
+	for (GLuint instance = 0; instance < last_batch_instances; ++instance) {
+		if (!context_iterator->second(shader, instance)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
+			errorlogger("ERROR: Failed to setup instance uniforms!");
+			return false;
+		}
+
+		++context_iterator;
+	}
+
+	if (!ogl_render_geometry(context, last_batch_instances)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last batch geometry!" << std::endl;
+		errorlogger("ERROR: Failed to render last batch geometry!");
+		return false;
+	}
+   
+	return true;
+}
+>>>>>>> 4701e3d2761d62dc26c41a71d247e97ba78926b6

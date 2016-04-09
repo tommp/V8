@@ -92,7 +92,6 @@ class Renderer{
 		GLuint light_color_buffer;
 		GLuint light_ambient_buffer;
 		GLuint light_rbo_depth;
-		/* =============================================== */
 
 		GLuint quad_VAO;
 		GLuint quad_VBO;
@@ -232,6 +231,7 @@ class Renderer{
 
 		bool apply_AA()const;
 		bool apply_SSAO();
+		bool apply_shadows()const;
 
 		bool save_settings();
 		bool load_settings();

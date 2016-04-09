@@ -10,8 +10,7 @@ layout (std140) uniform Matrices{
 
 flat out int instance;
 
-void main()
-{
+void main(){
 	gl_Position = projection * view * models[gl_InstanceID] * vec4(position, 1.0f);
 	instance = gl_InstanceID;
 }
