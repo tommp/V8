@@ -106,8 +106,8 @@ bool Renderer::init_settings(){
 		use_fullscreen = false;
 		window_size.x = 640.0f * 2;
 		window_size.y = 320.0f * 2;
-		resolution.x = 640.0f * 2;
-		resolution.y = 320.0f * 2;
+		resolution.x = 640.0f * 1.5;
+		resolution.y = 320.0f * 1.5;
 		use_AA = true;
 		use_SSAO = true;
 		use_bloom = false;
@@ -1201,7 +1201,7 @@ bool Renderer::detach_geometry_rendering()const{
 }
 
 bool Renderer::render_static_geomety()const{
-	for (auto static_context : static_geom) {
+	for (auto& static_context : static_geom) {
 		auto context = static_context.lock();
 		if (!context) {
 			SDL_Log("Static geometry context expired, removing from renderer...");
@@ -1218,7 +1218,7 @@ bool Renderer::render_static_geomety()const{
 }
 
 bool Renderer::render_static_colored_geomety()const{
-	for (auto static_colored_context : static_colored_geom) {
+	for (auto& static_colored_context : static_colored_geom) {
 		auto context = static_colored_context.lock();
 		if (!context) {
 			SDL_Log("Static colored geometry context expired, removing from renderer...");
@@ -1235,7 +1235,7 @@ bool Renderer::render_static_colored_geomety()const{
 }
 
 bool Renderer::render_animated_geomety()const{
-	for (auto anim_context : animated_geom) {
+	for (auto& anim_context : animated_geom) {
 		auto context = anim_context.lock();
 		if (!context) {
 			SDL_Log("Animated geometry context expired, removing from renderer...");
@@ -1252,7 +1252,7 @@ bool Renderer::render_animated_geomety()const{
 }
 
 bool Renderer::render_animated_colored_geomety()const{
-	for (auto anim_colored_context : animated_colored_geom) {
+	for (auto& anim_colored_context : animated_colored_geom) {
 		auto context = anim_colored_context.lock();
 		if (!context) {
 			SDL_Log("Animated colored geometry context expired, removing from renderer...");

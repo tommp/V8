@@ -46,7 +46,7 @@ bool Object::generate_collision_volume(const std::string& modelname, Collision_s
 			load_model_vertices(modelname, vertices);
 			btConvexHullShape* shape = new btConvexHullShape();
 
-			for (auto vertex : vertices) {
+			for (auto& vertex : vertices) {
 				btVector3 vpos = btVector3(vertex.position[0], vertex.position[1], vertex.position[2]);
 				shape->addPoint(vpos);
 			}

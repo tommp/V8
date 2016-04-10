@@ -81,6 +81,7 @@ void main(){
 	vec2 frag_tex_coord = (gl_FragCoord.xy / resolution);
 	vec3 frag_position = texture(g_position, frag_tex_coord).rgb;
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).rgb);
+	vec3 sample_color = texture(g_albedo_spec, frag_tex_coord).rgb;
 
 	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
 	vec3 light_direction = normalize(-lights[instance].direction);
@@ -89,9 +90,9 @@ void main(){
 	float diff = max(dot(normal, light_direction), 0.0);
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
-	vec3 ambient = (lights[instance].color * lights[instance].color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 ambient = (lights[instance].color * lights[instance].color_components.x) * sample_color;
 
-	vec3 diffuse = (lights[instance].color * lights[instance].color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 diffuse = (lights[instance].color * lights[instance].color_components.y) * diff * sample_color;
 
 	vec3 specular = (lights[instance].color * lights[instance].color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 

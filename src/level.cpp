@@ -11,7 +11,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 0; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = rand() % 200 + 100;
@@ -26,6 +26,20 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 						false);
 		add_light(point_light);
 	}
+
+	glm::vec3 position;
+	position.x = 0.0;
+	position.y = 300.0;
+	position.z = 0.0;
+	glm::vec3 color = {0.5, 0.5, 0.3};
+	glm::vec3 color_components = {0.2, 0.8, 0.0};
+	Light_ptr point_light = std::make_shared<Point_light>(400, 
+					position, 
+					color, 
+					color_components,
+					5.0,
+					false);
+	add_light(point_light);
 
 	for (int i = 0; i < 0; ++i) {
 		Light_ptr spot_light = std::make_shared<Spot_light>();
@@ -75,13 +89,13 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_object(prop);
 	}
 
-	for (GLuint i = 0; i < 0; ++i) {
-		glm::vec3 position = glm::vec3(0.0, 0.0, 0.0);
+	for (GLuint i = 0; i < 10; ++i) {
+		glm::vec3 position = glm::vec3(0.0, 200.0, 0.0);
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
 										position, 
-										glm::vec3(20.0, 2.0, 20.0),
+										glm::vec3(20.0, 10.0, 20.0),
 										glm::vec3(0.0, 0.0, -1.0),
-										60.0f,
+										10.0f,
 										BOX);
 		add_object(prop);
 	}
@@ -229,7 +243,7 @@ void Level::update_gravity(){
 }
 
 bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
-	for (auto object : props) {
+	for (auto& object : props) {
 		if (!object->update_position(timedelta, renderer.get_view_matrix())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
 			errorlogger("ERROR: Failed to update object position!");
@@ -237,7 +251,7 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 		}
 	}
 
-	for (auto object : mobs) {
+	for (auto& object : mobs) {
 		if (!object->update_position(timedelta, renderer.get_view_matrix())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
 			errorlogger("ERROR: Failed to update object position!");
@@ -292,11 +306,11 @@ bool Level::resolve_collisions(){
 }
 
 bool Level::add_objects_to_physics_world()const{
-	for (auto prop : props) {
+	for (auto& prop : props) {
 		physics_world->addRigidBody(prop->get_collision_body());
 	}
 
-	for (auto mob : mobs) {
+	for (auto& mob : mobs) {
 		physics_world->addRigidBody(mob->get_collision_body());
 	}
 
@@ -304,7 +318,7 @@ bool Level::add_objects_to_physics_world()const{
 }
 
 bool Level::add_contexts_to_renderer(Renderer& renderer)const{
-	for (auto light : lights) {
+	for (auto& light : lights) {
 		if (!light->add_context(renderer)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add light context to renderer!" << std::endl;
 			errorlogger("ERROR: Failed to add light context to renderer!");
@@ -312,7 +326,7 @@ bool Level::add_contexts_to_renderer(Renderer& renderer)const{
 		}
 	}
 
-	for (auto prop : props) {
+	for (auto& prop : props) {
 		if (!prop->add_contexts_to_renderer(renderer)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add prop context to renderer!" << std::endl;
 			errorlogger("ERROR: Failed to add prop context to renderer!");
@@ -320,7 +334,7 @@ bool Level::add_contexts_to_renderer(Renderer& renderer)const{
 		}
 	}
 
-	for (auto mob : mobs) {
+	for (auto& mob : mobs) {
 		if (!mob->add_contexts_to_renderer(renderer)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add mob context to renderer!" << std::endl;
 			errorlogger("ERROR: Failed to add mob context to renderer!");

@@ -86,35 +86,33 @@ void render_shadows(float distance,
 
 void main(){   
 	vec2 frag_tex_coord = (gl_FragCoord.xy / resolution);
-	vec3 normal = normalize(texture(g_normal, frag_tex_coord).rgb);
-	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
 	vec3 frag_position = texture(g_position, frag_tex_coord).rgb;
+	vec3 normal = normalize(texture(g_normal, frag_tex_coord).rgb);
+	vec3 sample_color = texture(g_albedo_spec, frag_tex_coord).rgb;
+
+	float distance = length(lights[instance].position - frag_position);
 	float ambient_occlusion = texture(SSAO_buffer, frag_tex_coord).r;
 
 	vec3 light_direction = normalize(lights[instance].position - frag_position); 
- 
-	float diff = max(dot(normal, light_direction), 0.0);
-	  
-	vec3 reflect_direction = reflect(-light_direction, normal);  
+	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
+	vec3 reflect_direction = reflect(-light_direction, normal); 
+
+	float diff = max(dot(normal, light_direction), 0.0); 
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
-
-	float distance = length(lights[instance].position - frag_position);
 	
-	float attenuation = clamp(1.0 - distance/lights[instance].radius, 0.0, 1.0);
-
-	attenuation *= attenuation; 
-
-	vec3 ambient = (lights[instance].color * lights[instance].color_components.x) * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
-
+	vec3 ambient = (lights[instance].color * lights[instance].color_components.x) * sample_color;
 	ambient *= ambient_occlusion;
 
-	vec3 diffuse = (lights[instance].color * lights[instance].color_components.y) * diff * vec3(texture(g_albedo_spec, frag_tex_coord).rgb);
+	vec3 diffuse = (lights[instance].color * lights[instance].color_components.y) * diff * sample_color;
 
 	vec3 specular = (lights[instance].color * lights[instance].color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 	
 	float theta = degrees(acos(dot(light_direction, normalize(-lights[instance].direction)))); 
 	float epsilon = (lights[instance].cut_off - lights[instance].outer_cut_off);
 	float intensity = clamp((theta - lights[instance].outer_cut_off) / epsilon, 0.0, 1.0);
+
+	float attenuation = clamp(1.0 - distance/lights[instance].radius, 0.0, 1.0);
+	attenuation *= attenuation; 
 
 	ambient	 *= intensity;
 	diffuse  *= intensity;

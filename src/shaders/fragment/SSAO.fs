@@ -15,7 +15,7 @@ layout (std140) uniform Plane_data
     vec2 plane_data;
 };
  
-int samples = 8;
+const int samples = 8;
 float radius = 1.0;
 float power = 4.0;
 float depth_exponent = 2.0; //Used to non-linearly kill AO at large depth differences
@@ -52,7 +52,6 @@ void main(){
 		float coordw2 = frag_tex_coord.x - pw * w * dd;
 		float coordh2 = frag_tex_coord.y - ph * h * dd;
 		vec2 coord2 = vec2(coordw2, coordh2);
-
 		
 	   	float sample_depth = texture(g_position, coord).a;
 	   	float sample_depth2 = texture(g_position, coord2).a;

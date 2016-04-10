@@ -91,7 +91,7 @@ bool World::resolve_collisions(){
 }
 
 bool World::add_players_to_physics_world()const{
-	for (auto player : players) {
+	for (auto& player : players) {
 		if (!current_level->add_to_physics_world(player->get_collision_body())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Could not add player collision body" << std::endl;
 			errorlogger("ERROR: Could not add player collision body");
@@ -102,7 +102,7 @@ bool World::add_players_to_physics_world()const{
 }
 
 bool World::add_player_contexts_to_renderer(Renderer& renderer)const{
-	for (auto player : players) {
+	for (auto& player : players) {
 		if (!player->add_contexts_to_renderer(renderer)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Could not add player contexts to renderer!" << std::endl;
 			errorlogger("ERROR: Could not add player contexts to renderer!");

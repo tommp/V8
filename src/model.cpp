@@ -66,7 +66,7 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 		}
 	}
 
-	for (auto mesh : mesh_names) {
+	for (auto& mesh : mesh_names) {
 		Mesh_ptr new_mesh = manager.load_mesh(mesh);
 		if (!new_mesh) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load mesh in model from resource handler: " << mesh << std::endl;
@@ -95,7 +95,7 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name, c
 		}
 	}
 
-	for (auto mesh : mesh_names) {
+	for (auto& mesh : mesh_names) {
 		Mesh_ptr new_mesh = manager.load_mesh(mesh, color);
 		if (!new_mesh) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Unable to load mesh in model from resource handler: " << mesh << std::endl;
@@ -134,7 +134,7 @@ bool Model::bind_context(const glm::mat4& model_matrix,
 
 	context_name = static_cast<std::ostringstream*>( &(std::ostringstream() << name << "_" << context_count++) )->str();
 
-	for (auto mesh : meshes) {
+	for (auto& mesh : meshes) {
 		if (!mesh->add_uniform_setup(context_name, expression)) {
 			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind uniforms to mesh context!" << std::endl;
 			errorlogger("ERROR: Failed to bind uniforms to mesh context!");
@@ -148,7 +148,7 @@ bool Model::bind_context(const glm::mat4& model_matrix,
 }
 
 bool Model::unbind_context(std::string& context_name){
-	for (auto mesh : meshes) {
+	for (auto& mesh : meshes) {
 		if (!mesh->remove_uniform_setup(context_name)) {
 			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to remove model mesh context: " << context_name << std::endl;
 			errorlogger("ERROR: Failed to remove model mesh context: ", context_name.c_str());
@@ -160,7 +160,7 @@ bool Model::unbind_context(std::string& context_name){
 }
 
 bool Model::add_mesh_contexts_to_renderer(Renderer& renderer)const{
-	for (auto mesh : meshes) {
+	for (auto& mesh : meshes) {
 		if (!mesh->add_context_to_renderer(renderer)) {
 			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to add mesh context to renderer!" << std::endl;
 			errorlogger("ERROR: Failed to add mesh context to renderer!");
