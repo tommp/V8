@@ -5,7 +5,7 @@ in vec2 frag_tex_coord;
 
 uniform sampler2D g_position;
 
-layout (std140) uniform Light_data{
+layout (std140) uniform Resolution_data{
 	vec2 screen_size;
 	vec2 resolution;
 };
@@ -15,7 +15,7 @@ layout (std140) uniform Plane_data
     vec2 plane_data;
 };
  
-const int samples = 8;
+const int samples = 4;
 float radius = 1.0;
 float power = 4.0;
 float depth_exponent = 2.0; //Used to non-linearly kill AO at large depth differences
@@ -71,7 +71,7 @@ void main(){
 	}
    
 	ao /= samples + 0.1;
-	ao = 1.0 - ao;
+	ao = clamp(1.0 - ao, 0.0, 1.0);
 
 	SSAO_buffer =  pow(ao, power);	   
 }

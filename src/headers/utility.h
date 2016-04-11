@@ -92,6 +92,7 @@ void store_binary_mesh(const std::vector<Vertex>& vertices,
 						const std::string& material_name,
 						std::string& meshname,
 						const std::string& modelname);
+
 void store_binary_mesh(const aiScene* scene,
 						const std::vector<Vertex>& vertices, 
 						const std::vector<GLuint>& indices, 
@@ -139,7 +140,7 @@ GLint check_ogl_error();
 
 void discard_ogl_errors();
 
-void print_framebuffer_error_in_fucking_english();
+void print_framebuffer_error_in_english();
 
 bool init_utility_vars();
 

@@ -133,15 +133,15 @@ bool Shader::load_from_file(const std::string& name){
         }
     }
 
-    GLuint uniform_block_index_light_data = glGetUniformBlockIndex(program, "Light_data");
-    if (uniform_block_index_light_data == GL_INVALID_INDEX) {
-        SDL_Log("No light data uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    GLuint uniform_block_index_res_data = glGetUniformBlockIndex(program, "Resolution_data");
+    if (uniform_block_index_res_data == GL_INVALID_INDEX) {
+        SDL_Log("No resolution data uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
     }
     else{
-        glUniformBlockBinding(program, uniform_block_index_light_data, 2);
+        glUniformBlockBinding(program, uniform_block_index_res_data, 2);
         if(check_ogl_error()){
-            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
-            errorlogger("ERROR: Failed to bind light data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind resolution data uniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind resolution data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
             return false;;
         }        
     }

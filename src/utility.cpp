@@ -869,7 +869,7 @@ void waitForEvent(){
 	}
 }
 
-void print_framebuffer_error_in_fucking_english(){
+void print_framebuffer_error_in_english(){
 	switch(glCheckFramebufferStatus(GL_FRAMEBUFFER)){
 		case GL_FRAMEBUFFER_UNDEFINED:
 			std::cout <<  "FRAMEBUFFER ERROR: Default framebuffer does not exist." << std::endl;

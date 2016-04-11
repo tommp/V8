@@ -27,7 +27,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_light(point_light);
 	}
 
-	glm::vec3 position;
+	/*glm::vec3 position;
 	position.x = 0.0;
 	position.y = 300.0;
 	position.z = 0.0;
@@ -39,7 +39,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 					color_components,
 					5.0,
 					false);
-	add_light(point_light);
+	add_light(point_light);*/
 
 	for (int i = 0; i < 0; ++i) {
 		Light_ptr spot_light = std::make_shared<Spot_light>();

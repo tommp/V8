@@ -14,17 +14,20 @@ struct Directional_light {
 out vec4 color;
 
 flat in int instance;
+const int shininess = 32;
+const int SHADOW_LAYERS = 3;
 
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
 uniform sampler2D g_albedo_spec;
 uniform sampler2D SSAO_buffer;
+uniform sampler2D shadow_layers[SHADOW_LAYERS];
 
 uniform vec3 view_position;
 
 uniform Directional_light lights[100];
 
-layout (std140) uniform Light_data{
+layout (std140) uniform Resolution_data{
 	vec2 screen_size;
 	vec2 resolution;
 };
@@ -35,12 +38,11 @@ layout (std140) uniform Matrices{
     mat4 unrotated_view;
 };
 
-const int shininess = 32;
 
 void render_shadows(vec3 frag_position, 
 					inout vec3 diffuse, 
 					inout vec3 specular){
-	float shadow_occlusion = 1.0;
+	float shadow_occlusion = 2.0;
 	float diff;
 
 	vec3 light_direction = normalize(-lights[instance].direction);
@@ -65,9 +67,12 @@ void render_shadows(vec3 frag_position,
 		final_coords = sample_coords.xyz / sample_coords.w;
 		final_coords = final_coords * 0.5 + 0.5;
 
+		for (int i = 0; i < SHADOW_LAYERS; ++i) {
+		//sample layer and compare with z
+		}
 		sample_position = texture(g_position, final_coords.xy).xyz;
 
-		diff = length(sample_position - trace_position);
+		diff = abs(sample_position.z - trace_position.z);
 
 		shadow_occlusion -= (1 - step(lights[instance].shadow_slack, diff));
 	}
@@ -86,7 +91,7 @@ void main(){
 
 	float ambient_occlusion = texture(SSAO_buffer, frag_tex_coord).r;
 
-	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
+	vec3 view_direction = normalize(view_position - frag_position);
 	vec3 light_direction = normalize(-lights[instance].direction);
 	vec3 reflect_direction = reflect(-light_direction, normal);
 

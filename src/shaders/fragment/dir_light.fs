@@ -23,7 +23,7 @@ uniform vec3 view_position;
 
 uniform Directional_light lights[100];
 
-layout (std140) uniform Light_data{
+layout (std140) uniform Resolution_data{
 	vec2 screen_size;
 	vec2 resolution;
 };
@@ -66,7 +66,7 @@ void render_shadows(vec3 frag_position,
 
 		sample_position = texture(g_position, final_coords.xy).xyz;
 
-		diff = length(sample_position - trace_position);
+		diff = abs(sample_position.z - trace_position.z);
 
 		shadow_occlusion -= (1 - step(lights[instance].shadow_slack, diff));
 	}
@@ -83,7 +83,7 @@ void main(){
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).rgb);
 	vec3 sample_color = texture(g_albedo_spec, frag_tex_coord).rgb;
 
-	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
+	vec3 view_direction = normalize(view_position - frag_position);
 	vec3 light_direction = normalize(-lights[instance].direction);
 	vec3 reflect_direction = reflect(-light_direction, normal);
 

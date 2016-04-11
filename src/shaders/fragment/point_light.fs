@@ -24,7 +24,7 @@ uniform vec3 view_position;
 
 uniform Point_light lights[100];
 
-layout (std140) uniform Light_data{
+layout (std140) uniform Resolution_data{
 	vec2 screen_size;
 	vec2 resolution;
 };

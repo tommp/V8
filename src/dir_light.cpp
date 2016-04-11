@@ -23,14 +23,15 @@ Directional_light::Directional_light(const glm::vec3& dir,
 
 Directional_light::Directional_light(){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
-	direction = {0.0f, -1.0f, 1.0f};
+	direction = {0.0f, -1.0f, 0.0f};
+	direction = glm::normalize(direction);
 	color = {0.1f, 0.1f, 0.1f};
 	color_components = {1.0f, 1.0f, 0.0f};
 
 	render_shadows = false;
-	stepsize = 5.0;
-	shadow_slack = 15.0;
-	loop_offset = 4.0;
+	stepsize = 3.0;
+	shadow_slack = stepsize * SHADOW_FACTOR;
+	loop_offset = stepsize;
 	probe_length = 100.0;
 
 	if (!bind_lambda_expression()) {

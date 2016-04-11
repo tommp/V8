@@ -34,6 +34,7 @@
 /*=============================================*/
 
 namespace Renderer_consts{
+	const GLuint SHADOW_LAYERS = 		3;
 	const GLuint BATCH_SIZE = 			100;
 	const GLuint OPENGL_MAJOR_VERSION =	3;
 	const GLuint OPENGL_MINOR_VERSION =	2;
@@ -41,11 +42,9 @@ namespace Renderer_consts{
 }
 
 class Mesh;
+class Resource_manager;
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;
-
-
-class Resource_manager;
 
 class Renderer{
 	private:
@@ -93,6 +92,16 @@ class Renderer{
 		GLuint light_ambient_buffer;
 		GLuint light_rbo_depth;
 
+		/* LFST fbos */
+		GLuint shadow_layer_fbos[Renderer_consts::SHADOW_LAYERS];
+		GLuint shadow_front_cull_fbos[Renderer_consts::SHADOW_LAYERS];
+		GLuint shadow_back_cull_fbos[Renderer_consts::SHADOW_LAYERS];
+
+		/* LFST buffers */
+		GLuint shadow_layers[Renderer_consts::SHADOW_LAYERS];
+		GLuint shadow_front_cull_buffers[Renderer_consts::SHADOW_LAYERS];
+		GLuint shadow_back_cull_buffers[Renderer_consts::SHADOW_LAYERS];
+
 		GLuint quad_VAO;
 		GLuint quad_VBO;
 
@@ -103,10 +112,6 @@ class Renderer{
 #if ENABLE_BULLET_DEBUG
 		Mesh_ptr line;
 #endif
-
-		GLuint uniform_buffer_matrices;
-		GLuint uniform_buffer_light_data;
-		GLuint uniform_buffer_plane_data;
 
 		std::unordered_map<std::string, GLuint> uniform_buffers;
 
@@ -136,7 +141,6 @@ class Renderer{
 		Shader_ptr primitive_line_shader;
 		Shader_ptr vertical_blur_shader;
 		Shader_ptr horizontal_blur_shader;
-		Shader_ptr blur_shader;
 		Shader_ptr final_shader;
 		Shader_ptr FXAA_shader;
 		Shader_ptr SSAO_shader;
@@ -144,14 +148,21 @@ class Renderer{
 		bool init_window();
 		bool init_openGL();
 		bool init_settings();
-		bool init_uniform_buffers();
+		bool init_g_buffer();
+		bool init_blur_buffers();
+		bool init_AA_buffer();
+		bool init_SSAO_buffer();
+		bool init_light_buffer();
+		bool init_shadow_buffers();
 		bool init_framebuffers();
+		bool init_uniform_buffers();
 		bool init_shaders(Resource_manager& resource_manager);
 		bool init_quad();
 		bool init_cube();
 		bool init_primitives(Resource_manager& resource_manager);
 
 		bool delete_buffers();
+		bool delete_uniform_buffers();
 
 		bool set_viewport_window()const;
 		bool set_viewport_resolution()const;
@@ -199,6 +210,15 @@ class Renderer{
 		bool set_clear_color_black();
 		GLfloat lerp(GLfloat a, GLfloat b, GLfloat f)const;
 		bool blur_texture(GLuint amount, GLuint texture);
+		bool update_window_size();
+
+		bool render_geometry(const Camera_ptr& camera);
+		bool render_lights(const glm::vec3& position);
+		bool ppe_blend();
+
+		bool apply_AA()const;
+		bool apply_SSAO();
+		bool apply_shadows()const;
 		
 	public:
 		Renderer();
@@ -227,19 +247,10 @@ class Renderer{
 							const glm::vec3& target, 
 							const glm::vec3& camera_up);
 
-		bool render_geometry(const Camera_ptr& camera);
-		bool render_lights(const glm::vec3& position);
-		bool ppe_blend();
-
-		bool apply_AA()const;
-		bool apply_SSAO();
-		bool apply_shadows()const;
-
 		bool save_settings();
 		bool load_settings();
 		bool enable_fullscreen();
 		bool set_window_size(GLuint width, GLuint height);
-		bool update_window_size();
 		bool update_resolution(const glm::vec2& new_res);
 		bool enable_vsync();
 		bool disable_vsync();

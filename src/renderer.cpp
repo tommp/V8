@@ -4,9 +4,14 @@ Renderer::Renderer(){
 };
 
 Renderer::~Renderer() {
-	delete_buffers();
-	glDeleteBuffers(1, &uniform_buffer_matrices);
-	glDeleteBuffers(1, &uniform_buffer_light_data);
+	if (!delete_buffers()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to delete buffers!" << std::endl;
+		errorlogger("WARNING: Failed to delete buffers!");
+	}
+	if (!delete_uniform_buffers()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Failed to delete uniform buffers!" << std::endl;
+		errorlogger("WARNING: Failed to delete uniform buffers!");
+	}
 
 	SDL_GL_DeleteContext(gl_context); 
 }
@@ -100,14 +105,15 @@ Renderer::Renderer(Resource_manager& resource_manager){
 
 bool Renderer::init_settings(){
 	if (!load_settings()) {
+		/* These are the default settings */
 		ortographic = false;
 		mouse_visible = true;
 		use_vsync = true;
 		use_fullscreen = false;
 		window_size.x = 640.0f * 2;
 		window_size.y = 320.0f * 2;
-		resolution.x = 640.0f * 1.5;
-		resolution.y = 320.0f * 1.5;
+		resolution.x = 640.0f * 2;
+		resolution.y = 320.0f * 2;
 		use_AA = true;
 		use_SSAO = true;
 		use_bloom = false;
@@ -184,7 +190,6 @@ bool Renderer::init_openGL(){
 	/* Discard all ogl-errors set by glewinit */
 	discard_ogl_errors();
 
-	/* Define the viewport dimensions */
 	glViewport(0, 0, resolution.x, resolution.y);
 	if(check_ogl_error()) {
 		std::cout << "ERROR: Failed to Initialize viewport in Display::init_openGL(): " << glewGetErrorString(err) << std::endl;
@@ -192,7 +197,6 @@ bool Renderer::init_openGL(){
 		return false;
 	}
 
-	/* Setup OpenGL options */
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	if(check_ogl_error()) {
@@ -201,11 +205,11 @@ bool Renderer::init_openGL(){
 		return false;
 	}
 
-	/* Initialize clear color */
 	glClearColor(Renderer_consts::CLEARCOLOR[0], 
 				Renderer_consts::CLEARCOLOR[1], 
 				Renderer_consts::CLEARCOLOR[2], 
 				Renderer_consts::CLEARCOLOR[3]);
+
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to Initialize clearcolour in Display::init_openGL()!" << std::endl;
 		errorlogger("ERROR: Failed to Initialize clearcolour in Display::init_openGL()!");
@@ -216,6 +220,7 @@ bool Renderer::init_openGL(){
 }
 
 bool Renderer::init_uniform_buffers(){
+	GLuint uniform_buffer_matrices;
 	glGenBuffers(1, &uniform_buffer_matrices);
 	  
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_matrices);
@@ -232,24 +237,24 @@ bool Renderer::init_uniform_buffers(){
 
 	uniform_buffers["matrices"] = uniform_buffer_matrices;
 
-
-	glGenBuffers(1, &uniform_buffer_light_data);
+	GLuint uniform_buffer_res_data;
+	glGenBuffers(1, &uniform_buffer_res_data);
 	  
-	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_light_data);
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_res_data);
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::vec2), NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 2, uniform_buffer_light_data, 0, 2 * sizeof(glm::vec2));
+	glBindBufferRange(GL_UNIFORM_BUFFER, 2, uniform_buffer_res_data, 0, 2 * sizeof(glm::vec2));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize light data uniform buffer in renderer! " << std::endl;
 		errorlogger("ERROR: Failed to initialize light data uniform buffer in renderer!");
-		glDeleteBuffers(1, &uniform_buffer_light_data);
+		glDeleteBuffers(1, &uniform_buffer_res_data);
 		return false;
 	}
 
-	uniform_buffers["light_data"] = uniform_buffer_light_data;
+	uniform_buffers["resolution_data"] = uniform_buffer_res_data;
 
-
+	GLuint uniform_buffer_plane_data;
 	glGenBuffers(1, &uniform_buffer_plane_data);
 	  
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_plane_data);
@@ -278,13 +283,6 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
-	if(!bind_g_data(LIGHT_DIRECTIONAL)){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind g_data in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to bind g_data in renderer");
-		return false;
-	}
-
-
 	point_light_SSAO_shader = resource_manager.load_shader("point_light_SSAO_shader");
 	point_light_shader = resource_manager.load_shader("point_light_shader");
 	if (point_light_shader == nullptr || point_light_SSAO_shader == nullptr) {
@@ -293,23 +291,11 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
-	if(!bind_g_data(LIGHT_POINT)){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind g_data in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to bind g_data in renderer");
-		return false;
-	}
-
 	spot_light_SSAO_shader = resource_manager.load_shader("spot_light_SSAO_shader");
 	spot_light_shader = resource_manager.load_shader("spot_light_shader");
 	if (spot_light_shader == nullptr || spot_light_SSAO_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load spot light shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load spot light shader in renderer");
-		return false;
-	}
-
-	if(!bind_g_data(LIGHT_SPOT)){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to bind g_data in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to bind g_data in renderer");
 		return false;
 	}
 
@@ -362,13 +348,6 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
-	blur_shader = resource_manager.load_shader("blur_shader");
-	if (!blur_shader) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to blur_shader shader in renderer!" << std::endl;
-		errorlogger("ERROR: Failed to load blur_shader in renderer");
-		return false;
-	}
-
 	final_shader = resource_manager.load_shader("final_shader");
 	if (!final_shader) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to final_shader shader in renderer!" << std::endl;
@@ -393,13 +372,7 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 	return true;
 }
 
-bool Renderer::init_framebuffers() {
-	if ((window_size.x <= 0) || (window_size.y <= 0)) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Display not initialized, cannot initialize framebuffers!" << std::endl;
-		errorlogger("ERROR: Display not initialized, cannot initialize framebuffers!");
-		return false;
-	}
-
+bool Renderer::init_g_buffer(){
 	glGenFramebuffers(1, &g_buffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
 	  
@@ -473,11 +446,15 @@ bool Renderer::init_framebuffers() {
 	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
-		print_framebuffer_error_in_fucking_english();
+		print_framebuffer_error_in_english();
 		errorlogger( "ERROR: G-framebuffer not complete!");
 		return false;
 	}
 
+	return true;
+}
+
+bool Renderer::init_blur_buffers(){
 	glGenFramebuffers(2, bb_fbos);
 	glGenTextures(2, bb_buffers);
 	for (GLuint i = 0; i < 2; i++)
@@ -491,8 +468,8 @@ bool Renderer::init_framebuffers() {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bb_buffers[i], 0);
 		if(check_ogl_error()){
-			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize bloom color buffer in bloom buffer!" << std::endl;
-			errorlogger("ERROR: Failed to initialize bloom color buffer in bloom buffer!");
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize blur color buffer in blur fbo!" << std::endl;
+			errorlogger("ERROR: Failed to initialize blur color buffer in blur fbo!");
 			glDeleteRenderbuffers(1, &g_rbo_depth);
 			return false;
 		}
@@ -501,7 +478,7 @@ bool Renderer::init_framebuffers() {
 		glDrawBuffers(1, &bb_attachment);
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
-			print_framebuffer_error_in_fucking_english();
+			print_framebuffer_error_in_english();
 			errorlogger( "ERROR: Bloom framebuffers not complete!");
 			return false;
 		}
@@ -509,6 +486,10 @@ bool Renderer::init_framebuffers() {
 
 	blurred_output = bb_buffers[0];
 
+	return true;
+}
+
+bool Renderer::init_AA_buffer(){
 	glGenFramebuffers(1, &AA_fbo);
 	glGenTextures(1, &AA_buffer);
 
@@ -522,8 +503,8 @@ bool Renderer::init_framebuffers() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, AA_buffer, 0);
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize AA_buffer in AA_fbo!" << std::endl;
-		errorlogger("ERROR: Failed to initialize AA_buffer in AA_fbo!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize color buffer in AA_fbo!" << std::endl;
+		errorlogger("ERROR: Failed to initialize color buffer in AA_fbo!");
 		return false;
 	}
 
@@ -531,11 +512,15 @@ bool Renderer::init_framebuffers() {
 	glDrawBuffers(1, &aa_attachment);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
-		print_framebuffer_error_in_fucking_english();
+		print_framebuffer_error_in_english();
 		errorlogger( "ERROR: AA framebuffer not complete!");
 		return false;
 	}
 
+	return true;
+}
+
+bool Renderer::init_SSAO_buffer(){
 	glGenFramebuffers(1, &SSAO_fbo);
 	glGenTextures(1, &SSAO_buffer);
 
@@ -558,11 +543,15 @@ bool Renderer::init_framebuffers() {
 	glDrawBuffers(1, &SSAO_attachment);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
-		print_framebuffer_error_in_fucking_english();
+		print_framebuffer_error_in_english();
 		errorlogger( "ERROR: SSAO framebuffer not complete!");
 		return false;
 	}
 
+	return true;
+}
+
+bool Renderer::init_light_buffer(){
 	glGenFramebuffers(1, &light_fbo);
 	glGenTextures(1, &light_color_buffer);
 
@@ -595,8 +584,132 @@ bool Renderer::init_framebuffers() {
 	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
-		print_framebuffer_error_in_fucking_english();
+		print_framebuffer_error_in_english();
 		errorlogger( "ERROR: Light framebuffer not complete!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::init_shadow_buffers(){
+	for (GLuint i = 0; i < Renderer_consts::SHADOW_LAYERS; ++i) {
+		glGenFramebuffers(1, &shadow_layer_fbos[i]);
+	    glGenTextures(1, &shadow_layers[i]);
+	    glBindTexture(GL_TEXTURE_2D, shadow_layers[i]);
+
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, resolution.x, resolution.y, 0, GL_RG, GL_FLOAT, NULL);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	    glBindFramebuffer(GL_FRAMEBUFFER, shadow_layer_fbos[i]);
+	    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, shadow_layers[i], 0);
+
+	    GLuint shadow_attachment = GL_COLOR_ATTACHMENT0;
+		glDrawBuffers(1, &shadow_attachment);
+
+	    if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize shadow layer buffer!" << std::endl;
+			errorlogger("ERROR: Failed to initialize shadow layer buffer!");
+			return false;
+		}
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
+			print_framebuffer_error_in_english();
+			errorlogger( "ERROR: Shadow layer framebuffer not complete!");
+			return false;
+		}
+
+		glGenFramebuffers(1, &shadow_front_cull_fbos[i]);
+	    glGenTextures(1, &shadow_front_cull_buffers[i]);
+	    glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i]);
+
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, resolution.x, resolution.y, 0, GL_RED, GL_FLOAT, NULL);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	    glBindFramebuffer(GL_FRAMEBUFFER, shadow_front_cull_fbos[i]);
+	    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, shadow_front_cull_buffers[i], 0);
+
+	    shadow_attachment = GL_COLOR_ATTACHMENT0;
+		glDrawBuffers(1, &shadow_attachment);
+
+	    if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize shadow front cull buffer!" << std::endl;
+			errorlogger("ERROR: Failed to initialize shadow front cull buffer!");
+			return false;
+		}
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
+			print_framebuffer_error_in_english();
+			errorlogger( "ERROR: Shadow front cull framebuffer not complete!");
+			return false;
+		}
+
+		glGenFramebuffers(1, &shadow_back_cull_fbos[i]);
+	    glGenTextures(1, &shadow_back_cull_buffers[i]);
+	    glBindTexture(GL_TEXTURE_2D, shadow_back_cull_buffers[i]);
+
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, resolution.x, resolution.y, 0, GL_RED, GL_FLOAT, NULL);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	    glBindFramebuffer(GL_FRAMEBUFFER, shadow_back_cull_fbos[i]);
+	    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, shadow_back_cull_buffers[i], 0);
+
+	    shadow_attachment = GL_COLOR_ATTACHMENT0;
+		glDrawBuffers(1, &shadow_attachment);
+
+	    if(check_ogl_error()){
+			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize shadow back cull buffer!" << std::endl;
+			errorlogger("ERROR: Failed to initialize shadow back cull buffer!");
+			return false;
+		}
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
+			print_framebuffer_error_in_english();
+			errorlogger( "ERROR: Shadow back cull framebuffer not complete!");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Renderer::init_framebuffers() {
+	if ((window_size.x <= 0) || (window_size.y <= 0)) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Display not initialized, cannot initialize framebuffers!" << std::endl;
+		errorlogger("ERROR: Display not initialized, cannot initialize framebuffers!");
+		return false;
+	}
+
+	if (!init_g_buffer()){
+		return false;
+	}
+
+	if (!init_blur_buffers()){
+		return false;
+	}
+
+	if (!init_AA_buffer()){
+		return false;
+	}
+
+	if (!init_SSAO_buffer()) {
+		return false;
+	}
+
+	if (!init_light_buffer()) {
+		return false;
+	}
+
+	if (!init_shadow_buffers()){
 		return false;
 	}
 
@@ -1086,7 +1199,7 @@ bool Renderer::set_viewport_resolution()const{
 
 
 bool Renderer::upload_res_data()const{
-	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("light_data")->second);
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("resolution_data")->second);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec2), glm::value_ptr(window_size));
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec2), sizeof(glm::vec2), glm::value_ptr(resolution));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
@@ -1798,8 +1911,6 @@ bool Renderer::render_line(const glm::vec3& start,
 	return true;
 }
 
-//DISPFUNCS
-
 void Renderer::update_projection_matrix(){
 	if (ortographic) {
 		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, near_plane, far_plane);
@@ -1972,6 +2083,20 @@ bool Renderer::delete_buffers() {
 	return true;
 }
 
+bool Renderer::delete_uniform_buffers(){
+	for (auto& buffer : uniform_buffers) {
+		glDeleteBuffers(1, &buffer.second);
+	}
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to delete uniform buffer objects!" << std::endl;
+		errorlogger("ERROR: Failed to delete uniform buffer objects!");
+		return false;
+	}
+
+	return true;
+}
+
 void Renderer::update_view_matrix(const glm::vec3& position, const glm::vec3& target, const glm::vec3& camera_up) {
 	/*std::cout << "POS: " << position.x << " : " << position.y << " : " << position.z << std::endl;
 	std::cout << "TARG: " << target.x << " : " << target.y << " : " << target.z << std::endl;
@@ -2027,48 +2152,6 @@ bool Renderer::blur_texture(GLuint amount, GLuint texture){
 
 	return true;
 }
-
-/*bool Renderer::render_base_shadows(){
-
-	GLuint instance = 0;
-	for (auto light_context = dir_lights.begin(); light_context != dir_lights.end(); ++light_context) {
-		auto context = light_context->lock();
-		if (!context) {
-			SDL_Log("Point light context expired, removing from renderer...");
-			point_lights.erase(light_context);
-			continue;
-		}
-
-		if (context->render_shadows){
-			if (!context->setup_shadow_uniforms(shadow_shader, view, instance)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup shadow uniforms for point light instance!" << std::endl;
-				errorlogger("ERROR: Failed to setup shadow uniforms for point light instance!");
-				return false;
-			}
-
-			++instance;
-
-			if (instance >= Renderer_consts::BATCH_SIZE) {
-				instance = 0;
-				if (!render_cube(instance)){
-					std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cube batch!" << std::endl;
-					errorlogger("ERROR: Failed to render cube batch!");
-					return false;
-				}
-			}
-		}
-	}
-
-	if (instance != 0) {
-		if (!render_cube(instance)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last cube batch!" << std::endl;
-			errorlogger("ERROR: Failed to render last cube batch!");
-			return false;
-		}
-	}
-   
-	return true;
-}*/
 
 bool Renderer::render_cube(GLuint instances)const{
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
