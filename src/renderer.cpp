@@ -107,7 +107,7 @@ bool Renderer::init_settings(){
 	if (!load_settings()) {
 		/* These are the default settings */
 		ortographic = false;
-		mouse_visible = true;
+		use_mouse = true;
 		
 		window_size.x = 640.0f * 2;
 		window_size.y = 320.0f * 2;
@@ -168,7 +168,7 @@ bool Renderer::init_window(){
 		enable_vsync();
 	}
 
-	if (!mouse_visible) {
+	if (!use_mouse) {
 		SDL_ShowCursor(0);
 	}
 	else{
@@ -1946,7 +1946,7 @@ bool Renderer::save_settings(){
 	contentf.write(reinterpret_cast<const char *>(&ortographic), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_vsync), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_fullscreen), sizeof(GLboolean));
-	contentf.write(reinterpret_cast<const char *>(&mouse_visible), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_mouse), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_bloom), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_AA), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_SSAO), sizeof(GLboolean));
@@ -1978,7 +1978,7 @@ bool Renderer::load_settings(){
 	contentf.read(reinterpret_cast<char *>(&ortographic), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_vsync), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_fullscreen), sizeof(GLboolean));
-	contentf.read(reinterpret_cast<char *>(&mouse_visible), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_mouse), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_bloom), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_AA), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_SSAO), sizeof(GLboolean));
@@ -2159,11 +2159,13 @@ bool Renderer::upload_projection_matrix()const{
 	return true;
 }
 
-void Renderer::toggle_mouse()const{
-	if (mouse_visible) {
+void Renderer::toggle_mouse(){
+	if (use_mouse) {
+		use_mouse = false;
 		SDL_ShowCursor(0);
 	}
 	else{
+		use_mouse = true;
 		SDL_ShowCursor(1);
 	}
 }

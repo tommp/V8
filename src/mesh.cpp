@@ -182,41 +182,83 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 bool Mesh::load_base_box(std::vector<Vertex>& vertices, 
 				std::vector<GLuint>& indices) {
 	base_context->shader_type = GEOMETRY_STATIC;
+	base_context->render_elements = false;
 	std::vector<glm::vec3> cube_v_positions = {
-		glm::vec3(-1.0, -1.0,  1.0),
-		glm::vec3(1.0, -1.0,  1.0),
-		glm::vec3(1.0,  1.0,  1.0),
-		glm::vec3(-1.0,  1.0,  1.0),
-		glm::vec3(-1.0, -1.0, -1.0),
-		glm::vec3(1.0, -1.0, -1.0),
-		glm::vec3(1.0,  1.0, -1.0),
-		glm::vec3(-1.0,  1.0, -1.0),
+			glm::vec3(-1.0f, -1.0f, -1.0f),
+			glm::vec3( 1.0f,  1.0f, -1.0f),
+			glm::vec3( 1.0f, -1.0f, -1.0f),
+			glm::vec3( 1.0f,  1.0f, -1.0f),
+			glm::vec3(-1.0f, -1.0f, -1.0f),
+			glm::vec3(-1.0f,  1.0f, -1.0f),
+			glm::vec3(-1.0f, -1.0f,  1.0f),
+			glm::vec3( 1.0f, -1.0f,  1.0f),
+			glm::vec3( 1.0f,  1.0f,  1.0f),
+			glm::vec3( 1.0f,  1.0f,  1.0f),
+			glm::vec3(-1.0f,  1.0f,  1.0f),
+			glm::vec3(-1.0f, -1.0f,  1.0f),
+			glm::vec3(-1.0f,  1.0f,  1.0f),
+			glm::vec3(-1.0f,  1.0f, -1.0f),
+			glm::vec3(-1.0f, -1.0f, -1.0f),
+			glm::vec3(-1.0f, -1.0f, -1.0f),
+			glm::vec3(-1.0f, -1.0f,  1.0f),
+			glm::vec3(-1.0f,  1.0f,  1.0f),
+			glm::vec3( 1.0f,  1.0f,  1.0f),
+			glm::vec3( 1.0f, -1.0f, -1.0f),
+			glm::vec3( 1.0f,  1.0f, -1.0f),
+			glm::vec3( 1.0f, -1.0f, -1.0f),
+			glm::vec3( 1.0f,  1.0f,  1.0f),
+			glm::vec3( 1.0f, -1.0f,  1.0f),
+			glm::vec3(-1.0f, -1.0f, -1.0f),
+			glm::vec3( 1.0f, -1.0f, -1.0f),
+			glm::vec3( 1.0f, -1.0f,  1.0f),
+			glm::vec3( 1.0f, -1.0f,  1.0f),
+			glm::vec3(-1.0f, -1.0f,  1.0f),
+			glm::vec3(-1.0f, -1.0f, -1.0f),
+			glm::vec3(-1.0f,  1.0f, -1.0f),
+			glm::vec3( 1.0f,  1.0f,  1.0f),
+			glm::vec3( 1.0f,  1.0f, -1.0f),
+			glm::vec3( 1.0f,  1.0f,  1.0f),
+			glm::vec3(-1.0f,  1.0f, -1.0f),
+			glm::vec3(-1.0f,  1.0f,  1.0f),
 	};
 
 	std::vector<glm::vec3> cube_normals = {
-		glm::normalize(glm::vec3(-1.0, -1.0,  1.0)),
-		glm::normalize(glm::vec3(1.0, -1.0,  1.0)),
-		glm::normalize(glm::vec3(1.0,  1.0,  1.0)),
-		glm::normalize(glm::vec3(-1.0,  1.0,  1.0)),
-		glm::normalize(glm::vec3(-1.0, -1.0, -1.0)),
-		glm::normalize(glm::vec3(1.0, -1.0, -1.0)),
-		glm::normalize(glm::vec3(1.0,  1.0, -1.0)),
-		glm::normalize(glm::vec3(-1.0,  1.0, -1.0)),
-	};
-
-	GLushort cube_elements[] = {
-		// front
-		0, 1, 2, 2, 3, 0,
-		// top
-		1, 5, 6, 6, 2, 1,
-		// back
-		7, 6, 5, 5, 4, 7,
-		// bottom
-		4, 0, 3, 3, 7, 4,
-		// left
-		4, 5, 1, 1, 0, 4,
-		// right
-		3, 2, 6, 6, 7, 3,
+			glm::normalize(glm::vec3( 0.0f,  0.0f, -1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f, -1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f, -1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f, -1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f, -1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f, -1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f,  1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f,  1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f,  1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f,  1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f,  1.0f)),
+			glm::normalize(glm::vec3( 0.0f,  0.0f,  1.0f)),
+			glm::normalize(glm::vec3(-1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3(-1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3(-1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3(-1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3(-1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3(-1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3( 1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3( 1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3( 1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3( 1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3( 1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3( 1.0f,  0.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f, -1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f, -1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f, -1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f, -1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f, -1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f, -1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f,  1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f,  1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f,  1.0f,  0.0f)),  
+			glm::normalize(glm::vec3( 0.0f,  1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f,  1.0f,  0.0f)),
+			glm::normalize(glm::vec3( 0.0f,  1.0f,  0.0f)),   
 	};
 
 	Vertex vertex;
@@ -225,10 +267,6 @@ bool Mesh::load_base_box(std::vector<Vertex>& vertices,
 		vertex.normal = cube_normals[i];
 		vertex.tex_coords = {0.0f, 0.0f};
 		vertices.push_back(vertex);
-	}
-
-	for (GLushort i = 0; i < 36; ++i) {
-		indices.push_back(cube_elements[i]);
 	}
 
 	return true;
@@ -319,16 +357,19 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 
 	glGenVertexArrays(1, &(base_context->VAO));
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
   
 	glBindVertexArray(base_context->VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), 
 				 &vertices[0], GL_DYNAMIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), 
-				 &indices[0], GL_DYNAMIC_DRAW);
+
+	if (base_context->render_elements){
+		glGenBuffers(1, &EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), 
+					 &indices[0], GL_DYNAMIC_DRAW);
+	}
 
 	/* Position attribute */
 	glEnableVertexAttribArray(0);

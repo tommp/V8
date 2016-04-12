@@ -58,7 +58,7 @@ class Renderer{
 	    GLboolean use_bloom;
 	    GLboolean use_shadows;
 	    GLboolean use_fullscreen;
-	    GLboolean mouse_visible;
+	    GLboolean use_mouse;
 	    GLboolean ortographic;
 
 	    GLuint last_blurred;
@@ -265,10 +265,9 @@ class Renderer{
 		
 		void clear()const;
 		void present()const;
-
 		bool render_all(const Camera_ptr& camera);
 
-		void toggle_mouse()const;
+		void toggle_mouse();
 		void toggle_aliasing();
 		void toggle_ambient_occlusion();
 		void toggle_bloom();
