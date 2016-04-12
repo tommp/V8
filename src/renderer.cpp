@@ -108,15 +108,18 @@ bool Renderer::init_settings(){
 		/* These are the default settings */
 		ortographic = false;
 		mouse_visible = true;
-		use_vsync = true;
-		use_fullscreen = false;
+		
 		window_size.x = 640.0f * 2;
 		window_size.y = 320.0f * 2;
 		resolution.x = 640.0f * 2;
 		resolution.y = 320.0f * 2;
+
+		use_vsync = true;
+		use_fullscreen = false;
 		use_AA = true;
 		use_SSAO = true;
 		use_bloom = false;
+		use_shadows = true;
 
 		near_plane = 10.0;
 		far_plane = 3000.0;
@@ -690,26 +693,38 @@ bool Renderer::init_framebuffers() {
 	}
 
 	if (!init_g_buffer()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: failed to initialize g_buffer!" << std::endl;
+		errorlogger("ERROR: Failed to initialize g_buffer!");
 		return false;
 	}
 
 	if (!init_blur_buffers()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: failed to initialize blur buffers!" << std::endl;
+		errorlogger("ERROR: Failed to initialize blur buffers!");
 		return false;
 	}
 
 	if (!init_AA_buffer()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: failed to initialize AA buffer!" << std::endl;
+		errorlogger("ERROR: Failed to initialize AA buffer!");
 		return false;
 	}
 
 	if (!init_SSAO_buffer()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: failed to initialize SSAO buffer!" << std::endl;
+		errorlogger("ERROR: Failed to initialize SSAO buffer!");
 		return false;
 	}
 
 	if (!init_light_buffer()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: failed to initialize light buffer!" << std::endl;
+		errorlogger("ERROR: Failed to initialize light buffer!");
 		return false;
 	}
 
 	if (!init_shadow_buffers()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: failed to initialize shadow buffers!" << std::endl;
+		errorlogger("ERROR: Failed to initialize shadow buffers!");
 		return false;
 	}
 
@@ -1389,42 +1404,34 @@ bool Renderer::render_primitive_line_geometry(){
 		return false;
 	}
 
-	GLuint num_instances = lines.size();
-	GLuint num_batches = num_instances / Renderer_consts::BATCH_SIZE;
-	GLuint last_batch_instances = num_instances % Renderer_consts::BATCH_SIZE;
+	GLuint instance = 0;
 	auto context_iterator = lines.begin();
-
-	for (GLuint batch = 0; batch < num_batches; ++batch) {
-		for (GLuint instance = 0; instance < Renderer_consts::BATCH_SIZE; ++instance) {
-			glUniform3fv(primitive_line_shader->load_uniform_location("colors", instance), 1, (float*)&(context_iterator->color));
-			glUniformMatrix4fv(primitive_line_shader->load_uniform_location("models", instance),
-						 1, 
-						 GL_FALSE, 
-						 glm::value_ptr(context_iterator->model_matrix));
-			lines.erase(context_iterator++);
-		}
-
-		if (!ogl_render_geometry(line->get_main_context(), Renderer_consts::BATCH_SIZE)) {
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render batch geometry!" << std::endl;
-			errorlogger("ERROR: Failed to render batch geometry!");
-			return false;
-		}
-	}
-
-	for (GLuint instance = 0; instance < last_batch_instances; ++instance) {
-		glUniform4fv(primitive_line_shader->load_uniform_location("color"), 1, (float*)&(context_iterator->color));
+	while(context_iterator != lines.end()){
+		glUniform3fv(primitive_line_shader->load_uniform_location("colors", instance), 1, (float*)&(context_iterator->color));
 		glUniformMatrix4fv(primitive_line_shader->load_uniform_location("models", instance),
 					 1, 
 					 GL_FALSE, 
 					 glm::value_ptr(context_iterator->model_matrix));
-
 		lines.erase(context_iterator++);
+		++instance;
+
+		if (instance >= Renderer_consts::BATCH_SIZE){
+			if (!ogl_render_geometry(line->get_main_context(), instance)) {
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render line batch geometry!" << std::endl;
+				errorlogger("ERROR: Failed to render line batch geometry!");
+				return false;
+			}
+
+			instance = 0;
+		}
 	}
 
-	if (!ogl_render_geometry(line->get_main_context(), last_batch_instances)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last batch geometry!" << std::endl;
-		errorlogger("ERROR: Failed to render last batch geometry!");
-		return false;
+	if (instance > 0){
+		if (!ogl_render_geometry(line->get_main_context(), instance)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render line batch geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render line batch geometry!");
+			return false;
+		}
 	}
    
 	return true;
@@ -1434,46 +1441,35 @@ bool Renderer::render_primitive_line_geometry(){
 
 bool Renderer::render_base_geometry(const Rendering_context_ptr& context, 
 								const Shader_ptr& shader)const{
-
 	context->setup_base_uniforms(shader);
 
-	GLuint num_instances = context->instance_uniform_setups.size();
-	GLuint num_batches = num_instances / Renderer_consts::BATCH_SIZE;
-	GLuint last_batch_instances = num_instances % Renderer_consts::BATCH_SIZE;
-	auto context_iterator = context->instance_uniform_setups.begin();
-
-	for (GLuint batch = 0; batch < num_batches; ++batch) {
-		for (GLuint instance = 0; instance < Renderer_consts::BATCH_SIZE; ++instance) {
-			if (!context_iterator->second(shader, instance)) {
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
-				errorlogger("ERROR: Failed to setup instance uniforms!");
-				return false;
-			}
-
-			++context_iterator;
-		}
-
-		if (!ogl_render_geometry(context, Renderer_consts::BATCH_SIZE)) {
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render batch geometry!" << std::endl;
-			errorlogger("ERROR: Failed to render batch geometry!");
-			return false;
-		}
-	}
-
-	for (GLuint instance = 0; instance < last_batch_instances; ++instance) {
-		if (!context_iterator->second(shader, instance)) {
+	GLuint instance = 0;
+	for (auto context_iterator = context->instance_uniform_setups.begin(); context_iterator != context->instance_uniform_setups.end(); ++context_iterator) {
+		if (!context_iterator->second(shader, instance, false)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup instance uniforms!");
 			return false;
 		}
 
-		++context_iterator;
-	}
+		++instance;
 
-	if (!ogl_render_geometry(context, last_batch_instances)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last batch geometry!" << std::endl;
-		errorlogger("ERROR: Failed to render last batch geometry!");
-		return false;
+		if (instance >= Renderer_consts::BATCH_SIZE){
+			if (!ogl_render_geometry(context, instance)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render ogl shadow geometry!" << std::endl;
+				errorlogger("ERROR: Failed to render ogl shadow geometry!");
+				return false;
+			}
+
+			instance = 0;
+		}
+	} 
+
+	if (instance > 0){
+		if (!ogl_render_geometry(context, instance)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render ogl shadow geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render ogl shadow geometry!");
+			return false;
+		}
 	}
    
 	return true;
@@ -1591,6 +1587,231 @@ void Renderer::toggle_ambient_occlusion() {
 	}
 	else{
 		use_SSAO = true;
+	}
+}
+
+/* ================================================================== ShadowShadow */
+
+bool Renderer::render_shadow_geometry(const Rendering_context_ptr& context)const{
+	GLuint instance = 0;
+	for (auto context_iterator = context->instance_uniform_setups.begin(); context_iterator != context->instance_uniform_setups.end(); ++context_iterator) {
+		if (!context_iterator->second(LFST_cull_shader, instance, true)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
+			errorlogger("ERROR: Failed to setup instance uniforms!");
+			return false;
+		}
+
+		++instance;
+
+		if (instance >= Renderer_consts::BATCH_SIZE){
+			if (!ogl_render_shadow_geometry(context, instance)){
+				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render ogl shadow geometry!" << std::endl;
+				errorlogger("ERROR: Failed to render ogl shadow geometry!");
+				return false;
+			}
+
+			instance = 0;
+		}
+	} 
+
+	if (instance > 0){
+		if (!ogl_render_shadow_geometry(context, instance)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render ogl shadow geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render ogl shadow geometry!");
+			return false;
+		}
+	}
+   
+	return true;
+}
+
+bool Renderer::ogl_render_shadow_geometry(const Rendering_context_ptr& context, GLuint instances)const{
+	glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
+	glBindVertexArray(context->VAO);
+
+	for (GLuint i = 0; i < Renderer_consts::SHADOW_LAYERS; ++i) {
+		if (i == 0) {
+			glUniform1i(LFST_cull_shader->load_uniform_location("use_mask"), 0);
+		}
+		else if (i == 1) {
+			glUniform1i(LFST_cull_shader->load_uniform_location("use_mask"), 1);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i-1]);
+			glUniform1i(LFST_cull_shader->load_uniform_location("discard_mask"), 0);
+		}
+		else{
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i-1]);
+			glUniform1i(LFST_cull_shader->load_uniform_location("discard_mask"), 0);
+		}
+
+		if(check_ogl_error()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind discard mask!" << std::endl;
+			errorlogger("ERROR: Failed to bind discard mask!");
+			return false;
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, shadow_front_cull_fbos[i]);
+		glCullFace(GL_FRONT);
+		clear();
+
+		if (context->render_elements) {
+			glDrawElementsInstanced(context->primitive_type, 
+								context->num_vertices, 
+								GL_UNSIGNED_INT, 
+								0, 
+								instances);
+		}
+		else{
+			glDrawArraysInstanced(context->primitive_type, 0, context->num_vertices, instances);
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, shadow_back_cull_fbos[i]);
+		glCullFace(GL_BACK);
+		clear();
+
+		if (context->render_elements) {
+			glDrawElementsInstanced(context->primitive_type, 
+								context->num_vertices, 
+								GL_UNSIGNED_INT, 
+								0, 
+								instances);
+		}
+		else{
+			glDrawArraysInstanced(context->primitive_type, 0, context->num_vertices, instances);
+		}
+	}
+
+	glBindVertexArray(0);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: OpenGL error, failed to draw shadow geometry!" << std::endl;
+		errorlogger("ERROR: OpenGL error, failed to draw shadow geometry!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::render_shadow_cull_layers(){
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	LFST_cull_shader->use();
+	for (auto& object_context : animated_geom){
+		auto context = object_context.lock();
+		if (!context) {
+			SDL_Log("Animated geometry context expired, removing from renderer...");
+			/* TODO::Remove context */
+			continue;
+		}
+		else if (!render_shadow_geometry(context)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cull layers for animated geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render cull layers for animated geometry!");
+			return false;
+		}
+	}
+
+	for (auto& object_context : animated_colored_geom){
+		auto context = object_context.lock();
+		if (!context) {
+			SDL_Log("Animated colored geometry context expired, removing from renderer...");
+			/* TODO::Remove context */
+			continue;
+		}
+		else if (!render_shadow_geometry(context)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cull layers for animated colored geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render cull layers for animated colored geometry!");
+			return false;
+		}
+	}
+
+	for (auto& object_context : static_geom){
+		auto context = object_context.lock();
+		if (!context) {
+			SDL_Log("Static geometry context expired, removing from renderer...");
+			/* TODO::Remove context */
+			continue;
+		}
+		else if (!render_shadow_geometry(context)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cull layers for static geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render cull layers for static geometry!");
+			return false;
+		}
+	}
+
+	for (auto& object_context : static_colored_geom){
+		auto context = object_context.lock();
+		if (!context) {
+			SDL_Log("Static colored geometry context expired, removing from renderer...");
+			/* TODO::Remove context */
+			continue;
+		}
+		else if (!render_shadow_geometry(context)) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cull layers for animated geometry!" << std::endl;
+			errorlogger("ERROR: Failed to render cull layes for static colored geometry!");
+			return false;
+		}
+	}
+
+	glDisable(GL_CULL_FACE);
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+
+	return true;
+}
+
+bool Renderer::generate_shadow_layers(){
+	LFST_layer_shader->use();
+	for (GLuint i = 0; i < Renderer_consts::SHADOW_LAYERS; ++i) {
+		glBindFramebuffer(GL_FRAMEBUFFER, shadow_layer_fbos[i]);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i]);
+		glUniform1i(LFST_cull_shader->load_uniform_location("front_culled_map"), 0);
+
+		glActiveTexture(GL_TEXTURE0 + 1);
+		glBindTexture(GL_TEXTURE_2D, shadow_back_cull_buffers[i]);
+		glUniform1i(LFST_cull_shader->load_uniform_location("back_culled_map"), 1);
+
+		if(check_ogl_error()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind culled depth buffers for shadow layer pass!" << std::endl;
+			errorlogger("ERROR: Failed to bind culled depth buffers for shadow layer pass!");
+			return false;
+		}
+
+		if (!render_quad()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render shadow layer quad!" << std::endl;
+			errorlogger("ERROR: Failed to render shadow layer quad!");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Renderer::apply_shadows(){
+	if (!render_shadow_cull_layers()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render shadow cull layers!" << std::endl;
+		errorlogger("ERROR: Failed to render shadow cull layers!");
+		return false;
+	}
+
+	if (!generate_shadow_layers()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to generate shadow layers!" << std::endl;
+		errorlogger("ERROR: Failed to generate shadow layers!");
+		return false;
+	}
+
+	return true;
+}
+
+void Renderer::toggle_shadows(){
+	if (use_shadows){
+		use_shadows = false;
+	}
+	else{
+		use_shadows = true;
 	}
 }
 
@@ -1729,6 +1950,7 @@ bool Renderer::save_settings(){
 	contentf.write(reinterpret_cast<const char *>(&use_bloom), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_AA), sizeof(GLboolean));
 	contentf.write(reinterpret_cast<const char *>(&use_SSAO), sizeof(GLboolean));
+	contentf.write(reinterpret_cast<const char *>(&use_shadows), sizeof(GLboolean));
 
 	contentf.write(reinterpret_cast<const char *>(&near_plane), sizeof(GLfloat));
 	contentf.write(reinterpret_cast<const char *>(&far_plane), sizeof(GLfloat));
@@ -1760,6 +1982,7 @@ bool Renderer::load_settings(){
 	contentf.read(reinterpret_cast<char *>(&use_bloom), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_AA), sizeof(GLboolean));
 	contentf.read(reinterpret_cast<char *>(&use_SSAO), sizeof(GLboolean));
+	contentf.read(reinterpret_cast<char *>(&use_shadows), sizeof(GLboolean));
 
 	contentf.read(reinterpret_cast<char *>(&near_plane), sizeof(GLfloat));
 	contentf.read(reinterpret_cast<char *>(&far_plane), sizeof(GLfloat));

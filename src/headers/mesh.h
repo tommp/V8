@@ -80,7 +80,7 @@ class Mesh {
 
 		bool add_context_to_renderer(Renderer& renderer);
 		bool add_uniform_setup(const std::string& modelname, 
-					std::function<GLboolean(const Shader_ptr& shader, GLuint instance)> expression);
+					std::function<GLboolean(const Shader_ptr& shader, GLuint instance, GLboolean only_model)> expression);
 		bool remove_uniform_setup(const std::string& modelname);
 		std::string& get_name(){return name;};
 };

@@ -33,7 +33,7 @@ class Rendering_context{
 		GLboolean render_elements;
 
 		std::function<GLboolean(const Shader_ptr& shader)> setup_base_uniforms;
-		std::unordered_map<std::string, std::function<GLboolean(const Shader_ptr& shader, GLuint instance)>> instance_uniform_setups;
+		std::unordered_map<std::string, std::function<GLboolean(const Shader_ptr& shader, GLuint instance, GLboolean only_model)>> instance_uniform_setups;
 };
 
 typedef std::shared_ptr<Rendering_context> Rendering_context_ptr;

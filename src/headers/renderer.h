@@ -56,6 +56,7 @@ class Renderer{
 	    GLboolean use_AA;
 	    GLboolean use_SSAO;
 	    GLboolean use_bloom;
+	    GLboolean use_shadows;
 	    GLboolean use_fullscreen;
 	    GLboolean mouse_visible;
 	    GLboolean ortographic;
@@ -144,6 +145,8 @@ class Renderer{
 		Shader_ptr final_shader;
 		Shader_ptr FXAA_shader;
 		Shader_ptr SSAO_shader;
+		Shader_ptr LFST_cull_shader;
+		Shader_ptr LFST_layer_shader;
 
 		bool init_window();
 		bool init_openGL();
@@ -189,11 +192,15 @@ class Renderer{
 		bool render_base_geometry(const Rendering_context_ptr& context, 
 								const Shader_ptr& shader)const;
 		bool ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const;
+		bool ogl_render_shadow_geometry(const Rendering_context_ptr& context, GLuint instances)const;
 
 		bool render_quad()const;
 		bool render_quad(GLuint instances)const;
-
 		bool render_cube(GLuint instances)const;
+
+		bool render_shadow_cull_layers();
+		bool render_shadow_geometry(const Rendering_context_ptr& context)const;
+		bool generate_shadow_layers();
 
 		bool bind_g_data(Shader_type light_type)const;
 		bool upload_view_position(Shader_type shader_type, 
@@ -218,7 +225,7 @@ class Renderer{
 
 		bool apply_AA()const;
 		bool apply_SSAO();
-		bool apply_shadows()const;
+		bool apply_shadows();
 		
 	public:
 		Renderer();
@@ -255,15 +262,17 @@ class Renderer{
 		bool enable_vsync();
 		bool disable_vsync();
 
-		void toggle_mouse()const;
+		
 		void clear()const;
 		void present()const;
 
 		bool render_all(const Camera_ptr& camera);
 
+		void toggle_mouse()const;
 		void toggle_aliasing();
 		void toggle_ambient_occlusion();
 		void toggle_bloom();
+		void toggle_shadows();
 };
 
 typedef std::shared_ptr<Renderer> Renderer_ptr;

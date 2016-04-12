@@ -112,16 +112,18 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name, c
 bool Model::bind_context(const glm::mat4& model_matrix,
 								const glm::mat3& normal_model_matrix, 
 								std::string& context_name){
-	std::function<GLboolean(const Shader_ptr& shader, GLuint instance)> expression = [&](const Shader_ptr& shader, GLuint instance) ->GLboolean {
+	std::function<GLboolean(const Shader_ptr& shader, GLuint instance, GLboolean only_model)> expression = [&](const Shader_ptr& shader, GLuint instance, GLboolean only_model) ->GLboolean {
 		glUniformMatrix4fv(shader->load_uniform_location("models", instance),
 						 1, 
 						 GL_FALSE, 
 						 glm::value_ptr(model_matrix));
 
-		glUniformMatrix3fv(shader->load_uniform_location("normal_models", instance),
-						 1, 
-						 GL_FALSE, 
-						 glm::value_ptr(normal_model_matrix));
+		if (!only_model) {
+			glUniformMatrix3fv(shader->load_uniform_location("normal_models", instance),
+					 1, 
+					 GL_FALSE, 
+					 glm::value_ptr(normal_model_matrix));
+		}
 
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind uniform matrices for model!" << std::endl;
