@@ -27,6 +27,9 @@ void State_handler::handle_events(){
 			else if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", A2)) {
 				renderer->toggle_ambient_occlusion();
 			}
+			else if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", A3)) {
+				renderer->toggle_shadows();
+			}
 		}
 		else if (ehandler.type == SDL_WINDOWEVENT) {
 			switch (ehandler.window.event) {

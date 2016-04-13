@@ -61,6 +61,8 @@ class Renderer{
 	    GLboolean use_mouse;
 	    GLboolean ortographic;
 
+	    GLboolean clear_shadow_layers[Renderer_consts::SHADOW_LAYERS];
+
 	    GLuint last_blurred;
 
 	    GLfloat near_plane;
@@ -102,6 +104,8 @@ class Renderer{
 		GLuint shadow_layers[Renderer_consts::SHADOW_LAYERS];
 		GLuint shadow_front_cull_buffers[Renderer_consts::SHADOW_LAYERS];
 		GLuint shadow_back_cull_buffers[Renderer_consts::SHADOW_LAYERS];
+		GLuint shadow_front_cull_depth[Renderer_consts::SHADOW_LAYERS];
+		GLuint shadow_back_cull_depth[Renderer_consts::SHADOW_LAYERS];
 
 		GLuint quad_VAO;
 		GLuint quad_VBO;
@@ -192,14 +196,14 @@ class Renderer{
 		bool render_base_geometry(const Rendering_context_ptr& context, 
 								const Shader_ptr& shader)const;
 		bool ogl_render_geometry(const Rendering_context_ptr& context, GLuint instances)const;
-		bool ogl_render_shadow_geometry(const Rendering_context_ptr& context, GLuint instances)const;
+		bool ogl_render_shadow_geometry(const Rendering_context_ptr& context, GLuint instances);
 
 		bool render_quad()const;
 		bool render_quad(GLuint instances)const;
 		bool render_cube(GLuint instances)const;
 
 		bool render_shadow_cull_layers();
-		bool render_shadow_geometry(const Rendering_context_ptr& context)const;
+		bool render_shadow_geometry(const Rendering_context_ptr& context);
 		bool generate_shadow_layers();
 
 		bool bind_g_data(Shader_type light_type)const;
@@ -222,6 +226,8 @@ class Renderer{
 		bool render_geometry(const Camera_ptr& camera);
 		bool render_lights(const glm::vec3& position);
 		bool ppe_blend();
+
+		bool copy_depth(GLuint source_fbo, GLuint target_fbo);
 
 		bool apply_AA()const;
 		bool apply_SSAO();

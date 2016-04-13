@@ -1,15 +1,27 @@
 
-uniform sampler2D float discard_mask;
+uniform sampler2D discard_mask;
 uniform bool use_mask;
 
 out float view_depth;
 
 in float frag_depth;
 
+layout (std140) uniform Resolution_data{
+	vec2 screen_size;
+	vec2 resolution;
+};
+
+const float slack = 1.0;
+
 void main(){
 	if (use_mask) {
-		if (frag_depth >= texture(discard_mask, gl_Frag_Coord.xy / resolution)) {
-			//Write here too
+		float discard_depth = texture(discard_mask, gl_FragCoord.xy / resolution).x;
+
+		if (discard_depth == 0.0) {
+			discard;
+		}
+
+		if (frag_depth >= discard_depth - slack) {
 			discard;
 		}
 	}

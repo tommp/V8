@@ -11,7 +11,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 0; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = rand() % 200 + 100;
@@ -89,7 +89,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_object(prop);
 	}
 
-	for (GLuint i = 0; i < 10; ++i) {
+	for (GLuint i = 0; i < 100; ++i) {
 		glm::vec3 position = glm::vec3(0.0, 200.0, 0.0);
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
 										position, 

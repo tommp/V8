@@ -24,7 +24,7 @@ const std::unordered_map<std::string, std::pair<std::string, std::string>> WORLD
 	{"SSAO_shader", 						{"vertex/fullscreen_quad.vs", 			"fragment/SSAO.fs"}},
 	{"LFST_cull_shader", 					{"vertex/LFST_face_culled_geometry.vs",	"fragment/LFST_face_culled_geometry.fs"}},
 	{"LFST_maskless_cull_shader", 			{"vertex/LFST_face_culled_geometry.vs",	"fragment/LFST_face_culled_geometry_maskless.fs"}},
-	{"LFST_thickness_shader", 				{"vertex/fullscreen_quad.vs",			"fragment/LFST_thickness_map.fs"}},
+	{"LFST_layer_shader", 					{"vertex/fullscreen_quad.vs",			"fragment/LFST_thickness_map.fs"}},
 };
 
 #endif

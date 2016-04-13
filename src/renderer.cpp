@@ -372,6 +372,20 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
+	LFST_cull_shader = resource_manager.load_shader("LFST_cull_shader");
+	if (!LFST_cull_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to LFST_cull_shader shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load LFST_cull_shader in renderer");
+		return false;
+	}
+
+	LFST_layer_shader = resource_manager.load_shader("LFST_layer_shader");
+	if (!LFST_layer_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to LFST_layer_shader shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load LFST_layer_shader in renderer");
+		return false;
+	}
+
 	return true;
 }
 
@@ -601,7 +615,7 @@ bool Renderer::init_shadow_buffers(){
 	    glGenTextures(1, &shadow_layers[i]);
 	    glBindTexture(GL_TEXTURE_2D, shadow_layers[i]);
 
-	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, resolution.x, resolution.y, 0, GL_RG, GL_FLOAT, NULL);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, resolution.x, resolution.y, 0, GL_RG, GL_FLOAT, NULL);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
@@ -629,7 +643,7 @@ bool Renderer::init_shadow_buffers(){
 	    glGenTextures(1, &shadow_front_cull_buffers[i]);
 	    glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i]);
 
-	    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, resolution.x, resolution.y, 0, GL_RED, GL_FLOAT, NULL);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, resolution.x, resolution.y, 0, GL_RED, GL_FLOAT, NULL);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
@@ -640,6 +654,11 @@ bool Renderer::init_shadow_buffers(){
 
 	    shadow_attachment = GL_COLOR_ATTACHMENT0;
 		glDrawBuffers(1, &shadow_attachment);
+
+		glGenRenderbuffers(1, &shadow_front_cull_depth[i]);
+		glBindRenderbuffer(GL_RENDERBUFFER, shadow_front_cull_depth[i]);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, resolution.x, resolution.y);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, shadow_front_cull_depth[i]);
 
 	    if(check_ogl_error()){
 			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize shadow front cull buffer!" << std::endl;
@@ -657,7 +676,7 @@ bool Renderer::init_shadow_buffers(){
 	    glGenTextures(1, &shadow_back_cull_buffers[i]);
 	    glBindTexture(GL_TEXTURE_2D, shadow_back_cull_buffers[i]);
 
-	    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, resolution.x, resolution.y, 0, GL_RED, GL_FLOAT, NULL);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, resolution.x, resolution.y, 0, GL_RED, GL_FLOAT, NULL);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
@@ -668,6 +687,12 @@ bool Renderer::init_shadow_buffers(){
 
 	    shadow_attachment = GL_COLOR_ATTACHMENT0;
 		glDrawBuffers(1, &shadow_attachment);
+
+		glGenRenderbuffers(1, &shadow_back_cull_depth[i]);
+		glBindRenderbuffer(GL_RENDERBUFFER, shadow_back_cull_depth[i]);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, resolution.x, resolution.y);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, shadow_back_cull_depth[i]);
+
 
 	    if(check_ogl_error()){
 			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize shadow back cull buffer!" << std::endl;
@@ -1244,11 +1269,6 @@ bool Renderer::upload_plane_data()const{
 }
 
 bool Renderer::setup_geometry_rendering(const Camera_ptr& camera){
-	update_view_matrix(camera->get_position(), 
-						camera->get_target(), 
-						camera->get_up_dir());
-	upload_view_matrix();
-
 	use_g_buffer();
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
@@ -1592,7 +1612,7 @@ void Renderer::toggle_ambient_occlusion() {
 
 /* ================================================================== ShadowShadow */
 
-bool Renderer::render_shadow_geometry(const Rendering_context_ptr& context)const{
+bool Renderer::render_shadow_geometry(const Rendering_context_ptr& context){
 	GLuint instance = 0;
 	for (auto context_iterator = context->instance_uniform_setups.begin(); context_iterator != context->instance_uniform_setups.end(); ++context_iterator) {
 		if (!context_iterator->second(LFST_cull_shader, instance, true)){
@@ -1625,7 +1645,22 @@ bool Renderer::render_shadow_geometry(const Rendering_context_ptr& context)const
 	return true;
 }
 
-bool Renderer::ogl_render_shadow_geometry(const Rendering_context_ptr& context, GLuint instances)const{
+bool Renderer::copy_depth(GLuint source_fbo, GLuint target_fbo){
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, source_fbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target_fbo);
+	glBlitFramebuffer(0, 0, resolution.x, resolution.y, 0, 0, resolution.x, resolution.y, 
+                  GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+	if(check_ogl_error()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to copy depth buffer!" << std::endl;
+		errorlogger("ERROR: Failed to copy depth buffer!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::ogl_render_shadow_geometry(const Rendering_context_ptr& context, GLuint instances){
 	glPolygonMode(GL_FRONT_AND_BACK, context->render_mode);
 	glBindVertexArray(context->VAO);
 
@@ -1637,13 +1672,13 @@ bool Renderer::ogl_render_shadow_geometry(const Rendering_context_ptr& context, 
 			glUniform1i(LFST_cull_shader->load_uniform_location("use_mask"), 1);
 
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i-1]);
 			glUniform1i(LFST_cull_shader->load_uniform_location("discard_mask"), 0);
+			glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i-1]);
 		}
 		else{
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i-1]);
 			glUniform1i(LFST_cull_shader->load_uniform_location("discard_mask"), 0);
+			glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i-1]);
 		}
 
 		if(check_ogl_error()) {
@@ -1654,7 +1689,9 @@ bool Renderer::ogl_render_shadow_geometry(const Rendering_context_ptr& context, 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, shadow_front_cull_fbos[i]);
 		glCullFace(GL_FRONT);
-		clear();
+		if (clear_shadow_layers[i]) {
+			clear();
+		}
 
 		if (context->render_elements) {
 			glDrawElementsInstanced(context->primitive_type, 
@@ -1669,7 +1706,10 @@ bool Renderer::ogl_render_shadow_geometry(const Rendering_context_ptr& context, 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, shadow_back_cull_fbos[i]);
 		glCullFace(GL_BACK);
-		clear();
+		if (clear_shadow_layers[i]) {
+			clear();
+			clear_shadow_layers[i] = false;
+		}
 
 		if (context->render_elements) {
 			glDrawElementsInstanced(context->primitive_type, 
@@ -1697,6 +1737,10 @@ bool Renderer::render_shadow_cull_layers(){
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
+	glFrontFace(GL_CCW);
+	for (GLuint i = 0; i < Renderer_consts::SHADOW_LAYERS; ++i) {
+		clear_shadow_layers[i] = true;
+	} 
 	LFST_cull_shader->use();
 	for (auto& object_context : animated_geom){
 		auto context = object_context.lock();
@@ -1730,7 +1774,7 @@ bool Renderer::render_shadow_cull_layers(){
 		auto context = object_context.lock();
 		if (!context) {
 			SDL_Log("Static geometry context expired, removing from renderer...");
-			/* TODO::Remove context */
+			// TODO::Remove context 
 			continue;
 		}
 		else if (!render_shadow_geometry(context)) {
@@ -1744,7 +1788,7 @@ bool Renderer::render_shadow_cull_layers(){
 		auto context = object_context.lock();
 		if (!context) {
 			SDL_Log("Static colored geometry context expired, removing from renderer...");
-			/* TODO::Remove context */
+			// TODO::Remove context 
 			continue;
 		}
 		else if (!render_shadow_geometry(context)) {
@@ -1768,11 +1812,11 @@ bool Renderer::generate_shadow_layers(){
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i]);
-		glUniform1i(LFST_cull_shader->load_uniform_location("front_culled_map"), 0);
+		glUniform1i(LFST_layer_shader->load_uniform_location("front_culled_map"), 0);
 
 		glActiveTexture(GL_TEXTURE0 + 1);
 		glBindTexture(GL_TEXTURE_2D, shadow_back_cull_buffers[i]);
-		glUniform1i(LFST_cull_shader->load_uniform_location("back_culled_map"), 1);
+		glUniform1i(LFST_layer_shader->load_uniform_location("back_culled_map"), 1);
 
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind culled depth buffers for shadow layer pass!" << std::endl;
@@ -1820,13 +1864,52 @@ void Renderer::toggle_shadows(){
 bool Renderer::render_all(const Camera_ptr& camera){
 	update_window_size();
 	set_viewport_resolution();
-	if(!render_geometry(camera) || check_ogl_error()){
+	update_view_matrix(camera->get_position(), 
+						camera->get_target(), 
+						camera->get_up_dir());
+	upload_view_matrix();
+
+	if (!apply_shadows()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply shadows!"<< std::endl;
+		errorlogger("ERROR: Failed to apply shadows!");
+		return false;
+	}
+
+	use_default_buffer();
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_ONE, GL_ONE);
+	clear();
+
+	final_shader->use();
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(final_shader->load_uniform_location("colors"), 0);
+	glBindTexture(GL_TEXTURE_2D, shadow_layers[2]);
+
+
+	if (!render_quad()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom quad!" << std::endl;
+		errorlogger("ERROR: Failed to render bloom quad!");
+		return false;
+	}
+
+	glDisable(GL_BLEND);
+
+	/*if(!render_geometry(camera)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
 		errorlogger("ERROR: Failed to render geometry!");
 		return false;
 	}
 
-	if (use_SSAO) {
+	if (use_shadows){
+		if (!apply_shadows()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply shadows!"<< std::endl;
+			errorlogger("ERROR: Failed to apply shadows!");
+			return false;
+		}
+	}
+
+	if (use_SSAO){
 		if (!apply_SSAO()){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply ambient occlusion!"<< std::endl;
 			errorlogger("ERROR: Failed to apply ambient occlusion!");
@@ -1840,7 +1923,7 @@ bool Renderer::render_all(const Camera_ptr& camera){
 		return false;
 	}
 
-	if (use_AA) {
+	if (use_AA){
 		if (!apply_AA()){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply anti aliasing!"<< std::endl;
 			errorlogger("ERROR: Failed to apply anti aliasing!");
@@ -1852,7 +1935,7 @@ bool Renderer::render_all(const Camera_ptr& camera){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!"<< std::endl;
 		errorlogger("ERROR: Failed to render bloom!");
 		return false;
-	}
+	}*/
 
 	return true;
 }
