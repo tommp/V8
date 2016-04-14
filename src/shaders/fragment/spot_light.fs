@@ -19,10 +19,13 @@ struct Spot_light {
 out vec4 color;
 
 flat in int instance;
+const int shininess = 32;
+const int SHADOW_LAYERS = 3;
 
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
 uniform sampler2D g_albedo_spec;
+uniform sampler2D shadow_layers[SHADOW_LAYERS];
 
 uniform vec3 view_position;
 
@@ -39,8 +42,6 @@ layout (std140) uniform Matrices{
     mat4 unrotated_view;
 };
 
-const int shininess = 32;
-
 void render_shadows(float distance, 
 					vec3 light_direction, 
 					vec3 frag_position, 
@@ -48,20 +49,18 @@ void render_shadows(float distance,
 					inout vec3 specular){
 	float shadow_occlusion = 1.0;
 	float num_steps = distance / lights[instance].stepsize;
-	float diff;
 
 	vec3 trace_offset = light_direction * lights[instance].stepsize;
 	vec3 trace_position = frag_position + trace_offset * lights[instance].loop_offset;
 
-	vec3 sample_position = trace_position;
-
 	vec4 sample_offset = vec4(trace_offset, 1.0);
-	sample_offset = projection * sample_offset;
-
 	vec4 sample_coords = vec4(trace_position, 1.0);
+
+	sample_offset = projection * sample_offset;
     sample_coords = projection * sample_coords;
 
     vec3 final_coords;
+    vec2 layer_sample;
 
 	for (float counter = lights[instance].loop_offset; counter < num_steps - lights[instance].loop_offset; counter += lights[instance].stepsize) {
 		trace_position += trace_offset;
@@ -70,11 +69,19 @@ void render_shadows(float distance,
 		final_coords = sample_coords.xyz / sample_coords.w;
 		final_coords = final_coords * 0.5 + 0.5;
 
-		sample_position = texture(g_position, final_coords.xy).xyz;
+		/* UNROLLED LOOP */
+		layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
 
-		diff = length(sample_position - trace_position);
+		if (trace_position.z > (layer_sample.x - layer_sample.y) && trace_position.z < layer_sample.x) {
+			shadow_occlusion = 0;
+		}
 
-		shadow_occlusion -= (1 - step(lights[instance].shadow_slack, diff));
+		layer_sample = texture(shadow_layers[1], final_coords.xy).xy;
+
+		if (trace_position.z > (layer_sample.x - layer_sample.y) && trace_position.z < layer_sample.x) {
+			shadow_occlusion = 0;
+		}
+		/* ==================== */
 	}
 
 	shadow_occlusion = clamp(shadow_occlusion, 0.0, 1.0);

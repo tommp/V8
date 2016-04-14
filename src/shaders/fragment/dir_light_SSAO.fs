@@ -42,23 +42,21 @@ layout (std140) uniform Matrices{
 void render_shadows(vec3 frag_position, 
 					inout vec3 diffuse, 
 					inout vec3 specular){
-	float shadow_occlusion = 2.0;
-	float diff;
+	float shadow_occlusion = 1.0;
 
 	vec3 light_direction = normalize(-lights[instance].direction);
 
 	vec3 trace_offset = light_direction * lights[instance].stepsize;
 	vec3 trace_position = frag_position + trace_offset * lights[instance].loop_offset;
 
-	vec2 layer_sample;
-
 	vec4 sample_offset = vec4(trace_offset, 1.0);
-	sample_offset = projection * sample_offset;
-
 	vec4 sample_coords = vec4(trace_position, 1.0);
+
+	sample_offset = projection * sample_offset;
     sample_coords = projection * sample_coords;
 
     vec3 final_coords;
+    vec2 layer_sample;
 
 	for (float counter = lights[instance].loop_offset; counter < lights[instance].num_steps - lights[instance].loop_offset; counter += lights[instance].stepsize) {
 		trace_position += trace_offset;
@@ -67,17 +65,19 @@ void render_shadows(vec3 frag_position,
 		final_coords = sample_coords.xyz / sample_coords.w;
 		final_coords = final_coords * 0.5 + 0.5;
 
+		/* UNROLLED LOOP */
 		layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
 
 		if (trace_position.z > (layer_sample.x - layer_sample.y) && trace_position.z < layer_sample.x) {
 			shadow_occlusion = 0;
 		}
 
-		/*layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
+		layer_sample = texture(shadow_layers[1], final_coords.xy).xy;
 
 		if (trace_position.z > (layer_sample.x - layer_sample.y) && trace_position.z < layer_sample.x) {
 			shadow_occlusion = 0;
-		}*/
+		}
+		/* ==================== */
 
 	}
 

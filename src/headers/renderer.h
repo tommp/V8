@@ -34,7 +34,7 @@
 /*=============================================*/
 
 namespace Renderer_consts{
-	const GLuint SHADOW_LAYERS = 		3;
+	const GLuint SHADOW_LAYERS = 		2;
 	const GLuint BATCH_SIZE = 			100;
 	const GLuint OPENGL_MAJOR_VERSION =	3;
 	const GLuint OPENGL_MINOR_VERSION =	2;

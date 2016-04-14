@@ -28,7 +28,7 @@ Directional_light::Directional_light(){
 	color = {0.1f, 0.1f, 0.1f};
 	color_components = {1.0f, 1.0f, 0.0f};
 
-	render_shadows = true;
+	render_shadows = false;
 	stepsize = 10.0;
 	shadow_slack = 0;
 	loop_offset = 1;

@@ -153,7 +153,7 @@ int main(int argc, char** argv){
 			pooled_render_time = 0;
 		}
 
-		std::cout << '\r' << std::setw(5) << std::setfill('0') << "Avg. render time: "<< average_render_time << " ms" << "      Peak render time: " << peak_ms << "ms" << std::flush;
+		std::cout << '\r' << std::setw(5) << std::setfill('0') << "Avg. render time: "<< average_render_time << " ms" << "      Peak render time: " << peak_ms << " ms 				" << std::flush;
 	}
 	/*=======================================================*/
 	std::cout << "\n=======================================" << std::endl;

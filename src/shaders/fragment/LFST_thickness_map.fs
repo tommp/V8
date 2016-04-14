@@ -8,6 +8,10 @@ in vec2 frag_tex_coord;
 
 void main(){
 	float back_sample = texture(back_culled_map, frag_tex_coord).x;
-	float thickness = abs(back_sample - texture(front_culled_map, frag_tex_coord).x);
+	float thickness = 0.0;
+	if (back_sample != 0.0) {
+		thickness = abs(back_sample - texture(front_culled_map, frag_tex_coord).x);
+	}
+	
 	map = vec2(back_sample, thickness);
 }
