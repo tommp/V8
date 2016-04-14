@@ -50,7 +50,7 @@ void render_shadows(vec3 frag_position,
 	vec3 trace_offset = light_direction * lights[instance].stepsize;
 	vec3 trace_position = frag_position + trace_offset * lights[instance].loop_offset;
 
-	vec3 sample_position = trace_position;
+	vec2 layer_sample;
 
 	vec4 sample_offset = vec4(trace_offset, 1.0);
 	sample_offset = projection * sample_offset;
@@ -67,17 +67,19 @@ void render_shadows(vec3 frag_position,
 		final_coords = sample_coords.xyz / sample_coords.w;
 		final_coords = final_coords * 0.5 + 0.5;
 
-		for (int i = 0; i < SHADOW_LAYERS; ++i) {
-		//sample layer and compare with z
+		layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
+
+		if (trace_position.z > (layer_sample.x - layer_sample.y) && trace_position.z < layer_sample.x) {
+			shadow_occlusion = 0;
 		}
-		sample_position = texture(g_position, final_coords.xy).xyz;
 
-		diff = abs(sample_position.z - trace_position.z);
+		/*layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
 
-		shadow_occlusion -= (1 - step(lights[instance].shadow_slack, diff));
+		if (trace_position.z > (layer_sample.x - layer_sample.y) && trace_position.z < layer_sample.x) {
+			shadow_occlusion = 0;
+		}*/
+
 	}
-
-	shadow_occlusion = clamp(shadow_occlusion, 0.0, 1.0);
 
 	diffuse *= shadow_occlusion;
 	specular *= shadow_occlusion;

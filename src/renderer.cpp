@@ -976,6 +976,20 @@ bool Renderer::bind_g_data(Shader_type light_type)const{
 		}
 	}
 
+	if (use_shadows){
+		for (GLuint i = 0; i < Renderer_consts::SHADOW_LAYERS; ++i) {
+			glActiveTexture(GL_TEXTURE4 + i);
+			glUniform1i(current_shader->load_uniform_location("shadow_layers", i), 4 + i);
+			glBindTexture(GL_TEXTURE_2D, shadow_layers[i]);
+		}
+
+		if(check_ogl_error()) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind shadow layer buffers!" << std::endl;
+			errorlogger("ERROR: Failed to bind shadow layer buffers!");
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -1869,12 +1883,15 @@ bool Renderer::render_all(const Camera_ptr& camera){
 						camera->get_up_dir());
 	upload_view_matrix();
 
-	if (!apply_shadows()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply shadows!"<< std::endl;
-		errorlogger("ERROR: Failed to apply shadows!");
-		return false;
+	if (use_shadows){
+		if (!apply_shadows()){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply shadows!"<< std::endl;
+			errorlogger("ERROR: Failed to apply shadows!");
+			return false;
+		}
 	}
 
+	/*
 	use_default_buffer();
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
@@ -1893,20 +1910,12 @@ bool Renderer::render_all(const Camera_ptr& camera){
 		return false;
 	}
 
-	glDisable(GL_BLEND);
+	glDisable(GL_BLEND);*/
 
-	/*if(!render_geometry(camera)){
+	if(!render_geometry(camera)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render geometry!"<< std::endl;
 		errorlogger("ERROR: Failed to render geometry!");
 		return false;
-	}
-
-	if (use_shadows){
-		if (!apply_shadows()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to apply shadows!"<< std::endl;
-			errorlogger("ERROR: Failed to apply shadows!");
-			return false;
-		}
 	}
 
 	if (use_SSAO){
@@ -1916,7 +1925,7 @@ bool Renderer::render_all(const Camera_ptr& camera){
 			return false;
 		}
 	}
-
+	
 	if(!render_lights(camera->get_position())){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");
@@ -1935,7 +1944,7 @@ bool Renderer::render_all(const Camera_ptr& camera){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom!"<< std::endl;
 		errorlogger("ERROR: Failed to render bloom!");
 		return false;
-	}*/
+	}
 
 	return true;
 }

@@ -23,16 +23,16 @@ Directional_light::Directional_light(const glm::vec3& dir,
 
 Directional_light::Directional_light(){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
-	direction = {0.0f, -1.0f, -1.0f};
+	direction = {-1.0f, -1.0f, -1.0f};
 	direction = glm::normalize(direction);
 	color = {0.1f, 0.1f, 0.1f};
 	color_components = {1.0f, 1.0f, 0.0f};
 
-	render_shadows = false;
-	stepsize = 3.0;
-	shadow_slack = stepsize * SHADOW_FACTOR;
-	loop_offset = stepsize;
-	probe_length = 100.0;
+	render_shadows = true;
+	stepsize = 10.0;
+	shadow_slack = 0;
+	loop_offset = 1;
+	probe_length = 2000.0;
 
 	if (!bind_lambda_expression()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to bind lambda expression for directional light!" << std::endl;
