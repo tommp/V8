@@ -35,7 +35,7 @@ World::World(Resource_manager& init_manager, Renderer& renderer){
 
 bool World::update_positions(GLfloat timedelta, Renderer& renderer){
 	for (auto it = players.begin(); it != players.end(); ++it) {
-		if (!(*it)->update_position(timedelta, renderer.get_view_matrix())){
+		if (!(*it)->update_position(timedelta, renderer.get_view_matrix(), renderer.get_proj_matrix())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update player position" << std::endl;
 			errorlogger("ERROR: Failed to update player position");
 			return false;

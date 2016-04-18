@@ -18,11 +18,11 @@ layout (std140) uniform Matrices
 
 void main()
 {
-	vec4 view_pos = view * models[gl_InstanceID] * vec4(position, 1.0f);
+	vec4 pos = projection * view * models[gl_InstanceID] * vec4(position, 1.0f);
 
-    frag_position = view_pos.xyz; 
+    frag_position = pos.xyz / pos.w; 
 
-    gl_Position = projection * view_pos;
+    gl_Position = pos;
 
     frag_tex_coord = tex_coord;
 

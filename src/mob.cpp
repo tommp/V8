@@ -81,7 +81,7 @@ Mob::~Mob(){
 	}
 }
 
-bool Mob::update_position(float timedelta, const glm::mat4& view_matrix){
+bool Mob::update_position(float timedelta, const glm::mat4& view_matrix, const glm::mat4& projection_matrix){
 	btTransform transform;
     motion_state->getWorldTransform(transform);
 
@@ -111,7 +111,7 @@ bool Mob::update_position(float timedelta, const glm::mat4& view_matrix){
 
 	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
 
-	if (!update_matrices(view_matrix)) {
+	if (!update_matrices(view_matrix, projection_matrix)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to update mob model matrix!" << std::endl;
 		errorlogger("ERROR: Failed to update mob model matrix!");
 		return false;
@@ -134,7 +134,7 @@ bool Mob::add_contexts_to_renderer(Renderer& renderer)const{
 	return true;
 }
 
-bool Mob::update_matrices(const glm::mat4& view_matrix){
+bool Mob::update_matrices(const glm::mat4& view_matrix, const glm::mat4& projection_matrix){
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);

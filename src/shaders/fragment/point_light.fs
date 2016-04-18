@@ -17,7 +17,7 @@ out vec4 color;
 
 flat in int instance;
 const int shininess = 32;
-const int SHADOW_LAYERS = 3;
+const int SHADOW_LAYERS = 1;
 
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
@@ -60,30 +60,15 @@ void render_shadows(float distance,
 	vec3 trace_offset = light_direction * lights[instance].stepsize;
 	vec3 trace_position = frag_position + trace_offset * lights[instance].loop_offset;
 
-	vec4 sample_offset = vec4(trace_offset, 1.0);
-	vec4 sample_coords = vec4(trace_position, 1.0);
-
-	sample_offset = projection * sample_offset;
-    sample_coords = projection * sample_coords;
-
     vec3 final_coords;
     vec2 layer_sample;
 
 	for (float counter = lights[instance].loop_offset; counter < num_steps - lights[instance].loop_offset; counter += lights[instance].stepsize) {
 		trace_position += trace_offset;
-		sample_coords += sample_offset;
-
-		final_coords = sample_coords.xyz / sample_coords.w;
-		final_coords = final_coords * 0.5 + 0.5;
+		final_coords = trace_position * 0.5 + 0.5;
 
 		/* UNROLLED LOOP */
 		layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
-
-		if (trace_position.z > (layer_sample.x - layer_sample.y) && trace_position.z < layer_sample.x) {
-			shadow_occlusion = 0;
-		}
-
-		layer_sample = texture(shadow_layers[1], final_coords.xy).xy;
 
 		if (trace_position.z > (layer_sample.x - layer_sample.y) && trace_position.z < layer_sample.x) {
 			shadow_occlusion = 0;

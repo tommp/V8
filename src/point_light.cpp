@@ -58,7 +58,7 @@ Point_light::Point_light(){
 }
 
 bool Point_light::bind_lambda_expression()const{
-	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view, GLuint instance) {
+	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view, const glm::mat4& projection, GLuint near, GLuint far, GLuint instance) {
 		if (!shader) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Null shader passed when rendering point light!" << std::endl;
 			errorlogger("ERROR: Null shader passed when rendering point light!");
@@ -75,12 +75,21 @@ bool Point_light::bind_lambda_expression()const{
 			errorlogger("ERROR: Failed to set model matrix for point light!");
 			return false;
 		}
-		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
+
+		glm::vec4 clip_position = projection * view * glm::vec4(position, 1.0);
+		clip_position = clip_position / clip_position.w;
+
+		float linear_depth = (2.0 * near * far) / (far + near - clip_position.z * (far - near));
+		linear_depth /= far;
+
+		glm::vec3 final_position = {clip_position.x, clip_position.y, linear_depth};
+
+		float clip_radius =  0.2;
 
 		//std::cout << view_position.x << ":" << view_position.y << ":" << view_position.z << std::endl;
 
-		glUniform3fv(shader->load_uniform_location("lights", instance, "position"), 1, (float*)&(view_position));
-		glUniform1f(shader->load_uniform_location("lights", instance, "radius"), radius);
+		glUniform3fv(shader->load_uniform_location("lights", instance, "position"), 1, (float*)&(final_position));
+		glUniform1f(shader->load_uniform_location("lights", instance, "radius"), clip_radius);
 
 		glUniform3fv(shader->load_uniform_location("lights", instance, "color"), 1, (float*)&(color));
 		glUniform3fv(shader->load_uniform_location("lights", instance, "color_components"), 1, (float*)&(color_components));

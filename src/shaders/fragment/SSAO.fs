@@ -22,7 +22,7 @@ float depth_exponent = 2.0; //Used to non-linearly kill AO at large depth differ
 float slack = 0.00001; //Used to avoid self shadowing at flat planes, should be very small (but not 0).
 
 void main(){
-	float depth = texture(g_position, frag_tex_coord).w;
+	float depth = texture(g_position, frag_tex_coord).z;
 
 	float w = (1.0 / resolution.x);
 	float h = (1.0 / resolution.y);
@@ -53,10 +53,10 @@ void main(){
 		float coordh2 = frag_tex_coord.y - ph * h * dd;
 		vec2 coord2 = vec2(coordw2, coordh2);
 		
-	   	float sample_depth = texture(g_position, coord).a;
-	   	float sample_depth2 = texture(g_position, coord2).a;
+	   	float sample_depth = texture(g_position, coord).z;
+	   	float sample_depth2 = texture(g_position, coord2).z;
 	 
-		float diff = depth - (sample_depth  + slack);
+		float diff = depth - (sample_depth + slack);
 		float diff_sign = sign(diff);
 		float diff_mirror = depth - (sample_depth2 + slack);
 		float diff_mirror_sign = sign(diff_mirror);

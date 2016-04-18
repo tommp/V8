@@ -31,9 +31,9 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	position.x = 500.0;
 	position.y = 100.0;
 	position.z = 0.0;
-	glm::vec3 color = {1.5, 0.0, 0.0};
+	glm::vec3 color = {3.5, 2.0, 2.0};
 	glm::vec3 color_components = {0.2, 0.8, 0.0};
-	Light_ptr point_light = std::make_shared<Point_light>(400, 
+	Light_ptr point_light = std::make_shared<Point_light>(300, 
 					position, 
 					color, 
 					color_components,
@@ -244,7 +244,7 @@ void Level::update_gravity(){
 
 bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	for (auto& object : props) {
-		if (!object->update_position(timedelta, renderer.get_view_matrix())){
+		if (!object->update_position(timedelta, renderer.get_view_matrix(), renderer.get_proj_matrix())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
 			errorlogger("ERROR: Failed to update object position!");
 			return false;
@@ -252,7 +252,7 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	}
 
 	for (auto& object : mobs) {
-		if (!object->update_position(timedelta, renderer.get_view_matrix())){
+		if (!object->update_position(timedelta, renderer.get_view_matrix(), renderer.get_proj_matrix())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
 			errorlogger("ERROR: Failed to update object position!");
 			return false;

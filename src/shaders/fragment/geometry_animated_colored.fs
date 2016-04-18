@@ -15,19 +15,17 @@ layout (std140) uniform Plane_data
 
 float linearize_depth(float depth)
 {
-    float z = depth * 2.0 - 1.0;
-    float linear_depth = (2.0 * plane_data.x * plane_data.y) / (plane_data.y + plane_data.x - z * (plane_data.y - plane_data.x)); 
+    float linear_depth = (2.0 * plane_data.x * plane_data.y) / (plane_data.y + plane_data.x - depth * (plane_data.y - plane_data.x)); 
 
     linear_depth /= plane_data.y;
     
     return linear_depth;
 }
 
-void main()
-{    
-	g_position.xyz = frag_position;
-
-    g_position.w = linearize_depth(gl_FragCoord.z);
+void main(){    
+	float linear_z = linearize_depth(frag_position.z);
+    
+    g_position.xyz = vec3(frag_position.xy, linear_z);
 
     g_normal = normalize(frag_normal);
 
@@ -37,11 +35,5 @@ void main()
 
     float brightness = dot(object_color.xyz, vec3(0.2126, 0.7152, 0.0722));
     
-    float factor = 0; 
-
-    if(brightness > 1.0){
-    	factor = 1;   
-    }
-
-    g_bloom = vec4(g_albedo_spec.rgb * factor, 1.0);
+    g_bloom = vec4(g_albedo_spec.rgb * step(1.0, brightness), 1.0);
 }

@@ -43,7 +43,7 @@ class Rendering_context_light{
 	public:
 		Shader_type shader_type;
 
-		std::function<GLboolean(const Shader_ptr& shader, const glm::mat4& view, GLuint instance)> setup_base_uniforms;
+		std::function<GLboolean(const Shader_ptr& shader, const glm::mat4& view, const glm::mat4& projection, GLuint near, GLuint far, GLuint instance)> setup_base_uniforms;
 };
 
 typedef std::shared_ptr<Rendering_context_light> Rendering_context_light_ptr;

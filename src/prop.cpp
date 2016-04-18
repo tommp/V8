@@ -78,9 +78,9 @@ Prop::~Prop(){
 	}
 }
 
-bool Prop::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
+bool Prop::update_position(GLfloat timedelta, const glm::mat4& view_matrix, const glm::mat4& projection_matrix){
 
-	if (!update_matrices(view_matrix)) {
+	if (!update_matrices(view_matrix, projection_matrix)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to update matrices for prop!" << std::endl;
 		errorlogger("ERROR: Failed to update matrices for prop!");
 		return false;
@@ -103,7 +103,7 @@ bool Prop::add_contexts_to_renderer(Renderer& renderer)const{
 	return true;
 }
 
-bool Prop::update_matrices(const glm::mat4& view_matrix){
+bool Prop::update_matrices(const glm::mat4& view_matrix, const glm::mat4& projection_matrix){
 	update_transform();
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);

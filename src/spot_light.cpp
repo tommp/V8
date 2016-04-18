@@ -63,7 +63,7 @@ Spot_light::Spot_light(){
 
 
 bool Spot_light::bind_lambda_expression()const{
-	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view, GLuint instance) {
+	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view, const glm::mat4& projection, GLuint near, GLuint far, GLuint instance) {
 		if (!shader) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: ERROR: Null shader passed when rendering spot light!" << std::endl;
 			errorlogger("ERROR: Null shader passed when rendering spot light!");

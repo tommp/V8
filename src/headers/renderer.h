@@ -101,8 +101,6 @@ class Renderer{
 
 		/* LFST buffers */
 		GLuint shadow_layers[Renderer_consts::SHADOW_LAYERS];
-		GLuint shadow_front_cull_buffers[Renderer_consts::SHADOW_LAYERS];
-		GLuint shadow_back_cull_buffers[Renderer_consts::SHADOW_LAYERS];
 		GLuint shadow_front_cull_depth[Renderer_consts::SHADOW_LAYERS];
 		GLuint shadow_back_cull_depth[Renderer_consts::SHADOW_LAYERS];
 
@@ -245,6 +243,7 @@ class Renderer{
 
 		glm::mat4 get_projection_matrix()const{return projection;};
 		glm::mat4 get_view_matrix()const{return view;};
+		glm::mat4 get_proj_matrix()const{return projection;};
 
 		GLuint get_uniform_buffer(const std::string& name)const;
 		GLuint get_window_width()const{return window_size.x;};
