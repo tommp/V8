@@ -33,13 +33,15 @@ class Shader{
 private:
 	GLuint program;
 	std::unordered_map<std::string, GLuint> uniform_locations;
+	bool bind_uniform_buffers(GLuint program, const std::string& name)const;
+	char* read_data_from_file(const char* filename);
 public:
 	Shader();
 	GLuint get_program(){return program;};
 	GLuint load_uniform_location(const std::string& uniform);
 	GLuint load_uniform_location(const std::string& uniform, GLuint uniform_index);
 	GLuint load_uniform_location(const std::string& uniform, GLuint uniform_index, const std::string& uniform_member);
-	char* read_data_from_file(const char* filename);
+	
 	bool load_from_file(const std::string& name);
 	GLuint create_shader(const char* filename, GLenum type);
 	void print_log(GLuint object);

@@ -71,36 +71,57 @@ Renderer::Renderer(Resource_manager& resource_manager){
 	}
 	std::cout << "------------ Shaders initialized!\n" << std::endl;
 
-	std::cout << "------------ Uploading light data..." << std::endl;
-	if (!upload_res_data()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to upload resolution data in renderer!" << std::endl;
-		errorlogger("FATAL ERROR: Failed to upload resolution data in renderer!");
-		exit(EXIT_FAILURE);
-	}
-	std::cout << "------------ Light data initialized!\n" << std::endl;
-
 	std::cout << "------------ Initializing primitives..." << std::endl;
 	if (!init_primitives(resource_manager)) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize primitives!" << std::endl;
-		errorlogger("ERROR: Failed to initialize primitives!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize primitives!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to initialize primitives!");
 		exit(EXIT_FAILURE);
 	}
 	std::cout << "------------ Primitives initialized!\n" << std::endl;
 
-	std::cout << "------------ Uploading plane data..." << std::endl;
-	if (!upload_plane_data()) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to upload plane data in renderer!" << std::endl;
-		errorlogger("FATAL ERROR: Failed to upload plane data in renderer!");
+	std::cout << "------------ Uploading initial uniform data..." << std::endl;
+	if (!init_upload_uniform_data()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to initialize uniform data!" << std::endl;
+		errorlogger("FATAL ERROR: Failed to initialize uniform data!");
 		exit(EXIT_FAILURE);
 	}
-	std::cout << "------------ Plane data initialized!\n" << std::endl;
+	std::cout << "------------ Initial uniform data uploaded!\n" << std::endl;
+}
 
-	update_projection_matrix();
+bool Renderer::init_upload_uniform_data(){
+	std::cout << "Uploading settings..." << std::endl;
+	if (!upload_settings()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload settings in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to upload settings in renderer!");
+		return false;
+	}
+	std::cout << "Settings uploaded!\n" << std::endl;
+
+	std::cout << "Uploading resolution data..." << std::endl;
+	if (!upload_res_data()) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload resolution data in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to upload resolution data in renderer!");
+		return false;
+	}
+	std::cout << "Resolution data uploaded!\n" << std::endl;
+
+	std::cout << "Updating projection matrix..." << std::endl;
+	if (!update_projection_matrix()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to update projection matrix!" << std::endl;
+		errorlogger("ERROR: Failed to update projection matrix!");
+		return false;
+	}
+	std::cout << "Projection matrix updated!\n" << std::endl;
+
+	std::cout << "Uploading projection matrix..." << std::endl;
 	if (!upload_projection_matrix()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload projection matrix!" << std::endl;
 		errorlogger("ERROR: Failed to upload projection matrix!");
-		exit(EXIT_FAILURE);
+		return false;
 	}
+	std::cout << "Projection matrix uploaded!\n" << std::endl;
+
+	return true;
 }
 
 bool Renderer::init_settings(){
@@ -195,8 +216,8 @@ bool Renderer::init_openGL(){
 
 	glViewport(0, 0, resolution.x, resolution.y);
 	if(check_ogl_error()) {
-		std::cout << "ERROR: Failed to Initialize viewport in Display::init_openGL(): " << glewGetErrorString(err) << std::endl;
-		errorlogger("ERROR: Failed to Initialize viewport in Display::init_openGL(): ", (const char*)glewGetErrorString(err));
+		std::cout << "ERROR: Failed to Initialize viewport: " << glewGetErrorString(err) << std::endl;
+		errorlogger("ERROR: Failed to Initialize viewport: ", (const char*)glewGetErrorString(err));
 		return false;
 	}
 
@@ -249,8 +270,8 @@ bool Renderer::init_uniform_buffers(){
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize light data uniform buffer in renderer! " << std::endl;
-		errorlogger("ERROR: Failed to initialize light data uniform buffer in renderer!");
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize resolution data uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize resolution data uniform buffer in renderer!");
 		glDeleteBuffers(1, &uniform_buffer_res_data);
 		return false;
 	}
@@ -274,29 +295,43 @@ bool Renderer::init_uniform_buffers(){
 
 	uniform_buffers["plane_data"] = uniform_buffer_plane_data;
 
+	GLuint uniform_buffer_settings;
+	glGenBuffers(1, &uniform_buffer_settings);
+	  
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_settings);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec2), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 4, uniform_buffer_settings, 0, sizeof(glm::vec2));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize plane data uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize plane data uniform buffer in renderer!");
+		glDeleteBuffers(1, &uniform_buffer_settings);
+		return false;
+	}
+
+	uniform_buffers["settings"] = uniform_buffer_settings;
+
 	return true;
 }
 
 bool Renderer::init_shaders(Resource_manager& resource_manager){
-	dir_light_SSAO_shader = resource_manager.load_shader("dir_light_SSAO_shader");
 	dir_light_shader = resource_manager.load_shader("dir_light_shader");
-	if (dir_light_shader == nullptr || dir_light_SSAO_shader == nullptr) {
+	if (dir_light_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load directional light shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load directional light shader in renderer");
 		return false;
 	}
 
-	point_light_SSAO_shader = resource_manager.load_shader("point_light_SSAO_shader");
 	point_light_shader = resource_manager.load_shader("point_light_shader");
-	if (point_light_shader == nullptr || point_light_SSAO_shader == nullptr) {
+	if (point_light_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load point light shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load point light shader in renderer");
 		return false;
 	}
 
-	spot_light_SSAO_shader = resource_manager.load_shader("spot_light_SSAO_shader");
 	spot_light_shader = resource_manager.load_shader("spot_light_shader");
-	if (spot_light_shader == nullptr || spot_light_SSAO_shader == nullptr) {
+	if (spot_light_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load spot light shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load spot light shader in renderer");
 		return false;
@@ -898,30 +933,15 @@ bool Renderer::init_primitives(Resource_manager& resource_manager){
 bool Renderer::bind_g_data(Shader_type light_type)const{
 	Shader_ptr current_shader;
 	if(light_type == LIGHT_DIRECTIONAL) {
-		if (use_SSAO) {
-			current_shader = dir_light_SSAO_shader;
-		}
-		else{
-			current_shader = dir_light_shader;
-		}
+		current_shader = dir_light_shader;
 	}
 
 	else if(light_type == LIGHT_POINT) {
-		if (use_SSAO) {
-			current_shader = point_light_SSAO_shader;
-		}
-		else{
-			current_shader = point_light_shader;
-		}
+		current_shader = point_light_shader;
 	}
 
 	else if(light_type == LIGHT_SPOT) {
-		if (use_SSAO) {
-			current_shader = spot_light_SSAO_shader;
-		}
-		else{
-			current_shader = spot_light_shader;
-		}
+		current_shader = spot_light_shader;
 	}
 	else{
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid light type when binding light shader!" << std::endl;
@@ -998,30 +1018,15 @@ bool Renderer::upload_view_position(Shader_type shader_type,
 	glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
 
 	if(shader_type == LIGHT_DIRECTIONAL) {
-		if (use_SSAO){
-			glUniform3fv(dir_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
-		}
-		else{
-			glUniform3fv(dir_light_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
-		}
+		glUniform3fv(dir_light_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
 	}
 
 	else if(shader_type == LIGHT_POINT) {
-		if (use_SSAO){
-			glUniform3fv(point_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
-		}
-		else{
-			glUniform3fv(point_light_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
-		}
+		glUniform3fv(point_light_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
 	}
 
 	else if(shader_type == LIGHT_SPOT) {
-		if (use_SSAO){
-			glUniform3fv(spot_light_SSAO_shader->load_uniform_location("view_position"), 1, (float*)&position);
-		}
-		else{
-			glUniform3fv(spot_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
-		}
+		glUniform3fv(spot_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
 	}
 
 	else{
@@ -1109,14 +1114,7 @@ bool Renderer::render_dir_lights(){
 			continue;
 		}
 
-		if(use_SSAO) {
-			if (!context->setup_base_uniforms(dir_light_SSAO_shader, view, instance)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup directional light uniforms!" << std::endl;
-				errorlogger("ERROR: Failed to setup directional light uniforms!");
-				return false;
-			}
-		}
-		else if(!context->setup_base_uniforms(dir_light_shader, view, instance)){
+		if(!context->setup_base_uniforms(dir_light_shader, view, instance)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup directional light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup directional light uniforms!");
 			return false;
@@ -1156,14 +1154,7 @@ bool Renderer::render_point_lights(){
 			continue;
 		}
 
-		if(use_SSAO) {
-			if (!context->setup_base_uniforms(point_light_SSAO_shader, view, instance)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render directional light!" << std::endl;
-				errorlogger("ERROR: Failed to render directional light!");
-				return false;
-			}
-		}
-		else if(!context->setup_base_uniforms(point_light_shader, view, instance)){
+		if(!context->setup_base_uniforms(point_light_shader, view, instance)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render point light!" << std::endl;
 			errorlogger("ERROR: Failed to render point light!");
 			return false;
@@ -1202,14 +1193,7 @@ bool Renderer::render_spot_lights(){GLuint instance = 0;
 			continue;
 		}
 
-		if(use_SSAO) {
-			if (!context->setup_base_uniforms(spot_light_SSAO_shader, view, instance)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup spot light uniforms!" << std::endl;
-				errorlogger("ERROR: Failed to setup spot light uniforms!");
-				return false;
-			}
-		}
-		else if(!context->setup_base_uniforms(spot_light_shader, view, instance)){
+		if(!context->setup_base_uniforms(spot_light_shader, view, instance)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup spot light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup spot light uniforms!");
 			return false;
@@ -1535,13 +1519,15 @@ bool Renderer::ogl_render_geometry(const Rendering_context_ptr& context, GLuint 
 
 /* ================================================================== BloomBloom */
 
-void Renderer::toggle_bloom() {
+bool Renderer::toggle_bloom() {
 	if (use_bloom) {
 		use_bloom = false;
 	}
 	else{
 		use_bloom = true;
 	}
+
+	return true;
 }
 
 /* ================================================================== AAAA */
@@ -1570,13 +1556,15 @@ bool Renderer::apply_AA()const{
 	return true;
 }
 
-void Renderer::toggle_aliasing() {
+bool Renderer::toggle_aliasing() {
 	if(use_AA) {
 		use_AA = false;
 	}
 	else{
 		use_AA = true;
 	}
+
+	return true;
 }
 
 /* ======================================================= SSAOSSAO */
@@ -1615,13 +1603,21 @@ bool Renderer::apply_SSAO(){
 	return true;
 }
 
-void Renderer::toggle_ambient_occlusion() {
+bool Renderer::toggle_ambient_occlusion() {
 	if(use_SSAO) {
 		use_SSAO = false;
 	}
 	else{
 		use_SSAO = true;
 	}
+
+	if (!upload_settings()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload new settings!" << std::endl;
+		errorlogger("ERROR: Failed to upload new settings!");
+		return false;
+	}
+
+	return true;
 }
 
 /* ================================================================== ShadowShadow */
@@ -1864,13 +1860,21 @@ bool Renderer::apply_shadows(){
 	return true;
 }
 
-void Renderer::toggle_shadows(){
+bool Renderer::toggle_shadows(){
 	if (use_shadows){
 		use_shadows = false;
 	}
 	else{
 		use_shadows = true;
 	}
+
+	if (!upload_settings()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload new settings!" << std::endl;
+		errorlogger("ERROR: Failed to upload new settings!");
+		return false;
+	}
+
+	return true;
 }
 
 /* ======================================================= GenericGeneric */
@@ -1925,7 +1929,16 @@ bool Renderer::render_all(const Camera_ptr& camera){
 			return false;
 		}
 	}
-	
+
+	/*glm::vec4 vectortest = {0.0, 100.0, 200.0, 1.0};
+
+	vectortest = projection * view * vectortest;
+
+	vectortest /= vectortest.w;
+	//vectortest *= 0.5;
+	//vectortest += 0.5;
+	std::cout << vectortest.x << " : " << vectortest.y << " : " << vectortest.z << " : " << vectortest.w << " RESULT!" << std::endl; 
+	*/
 	if(!render_lights(camera->get_position())){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render lights!" << std::endl;
 		errorlogger("ERROR: Failed to render lights!");
@@ -2226,7 +2239,7 @@ bool Renderer::render_line(const glm::vec3& start,
 	return true;
 }
 
-void Renderer::update_projection_matrix(){
+bool Renderer::update_projection_matrix(){
 	if (ortographic) {
 		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, near_plane, far_plane);
 	}
@@ -2234,7 +2247,13 @@ void Renderer::update_projection_matrix(){
 		projection = glm::perspective(45.0f, window_size.x / window_size.y, near_plane, far_plane);
 	}
 
-	upload_plane_data();
+	if (!upload_plane_data()) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload plane data!" << std::endl;
+		errorlogger("ERROR: Failed to upload plane data!");
+		return false;
+	}
+
+	return true;
 }
 
 bool Renderer::upload_projection_matrix()const{
@@ -2243,23 +2262,32 @@ bool Renderer::upload_projection_matrix()const{
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);  
 
 	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload projection matix!" << std::endl;
-		errorlogger("ERROR: Failed to upload projection matix!");
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload projection matrix!" << std::endl;
+		errorlogger("ERROR: Failed to upload projection matrix!");
 		return false;
 	}
 
 	return true;
 }
 
-void Renderer::toggle_mouse(){
+bool Renderer::toggle_mouse(){
+	GLint error = 0;
 	if (use_mouse) {
 		use_mouse = false;
-		SDL_ShowCursor(0);
+		error = SDL_ShowCursor(0);
 	}
 	else{
 		use_mouse = true;
-		SDL_ShowCursor(1);
+		error = SDL_ShowCursor(1);
 	}
+
+	if (error < 0){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to toggle mouse visibility!" << std::endl;
+		SDLerrorLogger("SDL_ShowCursor");
+		return false;
+	}
+
+	return true;
 }
 
 bool Renderer::enable_fullscreen(){
@@ -2276,7 +2304,12 @@ bool Renderer::set_window_size(GLuint width, GLuint height){
 	window_size.x = (GLfloat) width;
 	window_size.y = (GLfloat) height;
 	SDL_SetWindowSize(window, width, height);
-	update_projection_matrix();
+	if (!update_projection_matrix()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to update projection matrix!" << std::endl;
+		errorlogger("ERROR: Failed to update projection matrix!");
+		return false;
+	}
+
 	if (!upload_projection_matrix()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload projection matrix!" << std::endl;
 		errorlogger("ERROR: Failed to upload projection matrix!");
@@ -2500,5 +2533,20 @@ bool Renderer::render_quad(GLuint instances)const{
 		errorlogger("ERROR: Failed to bind quad!");
 		return false;
 	}
+	return true;
+}
+
+bool Renderer::upload_settings()const{
+	glm::vec2 shadow_settings = {use_SSAO, use_shadows};
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("settings")->second);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec2), glm::value_ptr(shadow_settings)); 
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload settings!" << std::endl;
+		errorlogger("ERROR: Failed to upload settings!");
+		return false;
+	}
+
 	return true;
 }

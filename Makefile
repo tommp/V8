@@ -30,7 +30,7 @@ program_LIBRARY_DIRS := /usr/local/lib $(current_path)/src/lib/static
 program_RUNTIME_LIBRARY_DIRS := $(current_path)/src/lib/dynamic
 program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) $(SOIL_LIB) $(ASSIMP_LIB) m 
 
-CXXFLAGS += -Wall -g -std=c++11
+CXXFLAGS += -Wall -g -std=c++11 -pg
 CPPFLAGS += $(foreach includedir,$(program_INCLUDE_DIRS),-I$(includedir))
 LDFLAGS += -Wl$(foreach librarydir,$(program_RUNTIME_LIBRARY_DIRS),,-rpath=$(librarydir))
 LDFLAGS += $(foreach librarydir,$(program_LIBRARY_DIRS),-L$(librarydir))

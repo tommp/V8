@@ -10,10 +10,12 @@ struct Spot_light {
 	vec3 color;
 	vec3 color_components;
 
+	bool apply_ssao;
+	bool render_shadows;
 	float stepsize;
 	float shadow_slack;
 	float loop_offset;
-	bool render_shadows;
+
 };
 
 out vec4 color;
@@ -25,6 +27,7 @@ const int SHADOW_LAYERS = 3;
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
 uniform sampler2D g_albedo_spec;
+uniform sampler2D SSAO_buffer;
 uniform sampler2D shadow_layers[SHADOW_LAYERS];
 
 uniform vec3 view_position;
@@ -36,11 +39,20 @@ layout (std140) uniform Resolution_data{
 	vec2 resolution;
 };
 
+layout (std140) uniform Settings{
+	vec2 shadow_settings;
+};
+
 layout (std140) uniform Matrices{
     mat4 projection;
     mat4 view;
     mat4 unrotated_view;
 };
+
+void apply_SSAO(inout vec3 ambient, vec2 sample_coords){
+	float ambient_occlusion = texture(SSAO_buffer, sample_coords).r;
+	ambient *= ambient_occlusion;
+}
 
 void render_shadows(float distance, 
 					vec3 light_direction, 
@@ -125,7 +137,11 @@ void main(){
 	diffuse  *= attenuation;
 	specular *= attenuation;
 
-	if (lights[instance].render_shadows) {
+	if (bool(shadow_settings.x)) {
+		apply_SSAO(ambient, frag_tex_coord);
+	}
+
+	if (lights[instance].render_shadows && bool(shadow_settings.y)) {
 		render_shadows(distance, light_direction, frag_position, diffuse, specular);
 	}
   

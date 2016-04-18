@@ -34,7 +34,7 @@
 /*=============================================*/
 
 namespace Renderer_consts{
-	const GLuint SHADOW_LAYERS = 		2;
+	const GLuint SHADOW_LAYERS = 		1;
 	const GLuint BATCH_SIZE = 			100;
 	const GLuint OPENGL_MAJOR_VERSION =	3;
 	const GLuint OPENGL_MINOR_VERSION =	2;
@@ -49,7 +49,6 @@ typedef std::shared_ptr<Mesh> Mesh_ptr;
 class Renderer{
 	private:
 		SDL_Window* window;
-
 		SDL_GLContext gl_context;
 
 	    GLboolean use_vsync;
@@ -136,9 +135,6 @@ class Renderer{
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
 		Shader_ptr spot_light_shader;
-		Shader_ptr dir_light_SSAO_shader;
-		Shader_ptr point_light_SSAO_shader;
-		Shader_ptr spot_light_SSAO_shader;
 		Shader_ptr static_geometry_shader;
 		Shader_ptr static_geometry_shader_colored;
 		Shader_ptr animated_geometry_shader;
@@ -167,6 +163,7 @@ class Renderer{
 		bool init_quad();
 		bool init_cube();
 		bool init_primitives(Resource_manager& resource_manager);
+		bool init_upload_uniform_data();
 
 		bool delete_buffers();
 		bool delete_uniform_buffers();
@@ -182,7 +179,8 @@ class Renderer{
 		bool upload_plane_data()const;
 		bool upload_view_matrix()const;
 		bool upload_projection_matrix()const;
-		void update_projection_matrix();
+		bool update_projection_matrix();
+		bool upload_settings()const;
 
 		bool setup_geometry_rendering(const Camera_ptr& camera);
 		bool detach_geometry_rendering()const;
@@ -273,11 +271,12 @@ class Renderer{
 		void present()const;
 		bool render_all(const Camera_ptr& camera);
 
-		void toggle_mouse();
-		void toggle_aliasing();
-		void toggle_ambient_occlusion();
-		void toggle_bloom();
-		void toggle_shadows();
+		
+		bool toggle_aliasing();
+		bool toggle_bloom();
+		bool toggle_mouse();
+		bool toggle_ambient_occlusion();
+		bool toggle_shadows();
 };
 
 typedef std::shared_ptr<Renderer> Renderer_ptr;

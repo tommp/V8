@@ -114,12 +114,21 @@ bool Shader::load_from_file(const std::string& name){
     glDeleteShader(fragment_shader);
 
     if(check_ogl_error()){
-        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to delete bound shaders in shader load_from_file()" << std::endl;
+        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to delete bound shaders in shader: " << name << std::endl;
         errorlogger("ERROR: Failed to delete bound shaders in shader load_from_file()!");
         return false;
     }
 
-    /* Bind the uniform buffer object for view and projection matrices */
+    if (!bind_uniform_buffers(program, name)){
+        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind uniform buffers in shader load_from_file()" << std::endl;
+        errorlogger("ERROR: Failed to bind uniform buffers in shader: ", name.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool Shader::bind_uniform_buffers(GLuint program, const std::string& name)const{
     GLuint uniform_block_index_matrices = glGetUniformBlockIndex(program, "Matrices");
     if (uniform_block_index_matrices == GL_INVALID_INDEX) {
         SDL_Log("No matrix data uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
@@ -127,9 +136,9 @@ bool Shader::load_from_file(const std::string& name){
     else{
         glUniformBlockBinding(program, uniform_block_index_matrices, 1);
         if(check_ogl_error()){
-            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind matrix uniform buffer in shader load_from_file()" << std::endl;
-            errorlogger("ERROR: Failed to bind matrix uniform buffer in shader load_from_file()!");
-            return false;;
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind matrix uniform buffer in shader: " << name << std::endl;
+            errorlogger("ERROR: Failed to bind matrix uniform buffer in shader: ", name.c_str());
+            return false;
         }
     }
 
@@ -140,8 +149,8 @@ bool Shader::load_from_file(const std::string& name){
     else{
         glUniformBlockBinding(program, uniform_block_index_res_data, 2);
         if(check_ogl_error()){
-            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind resolution data uniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
-            errorlogger("ERROR: Failed to bind resolution data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind resolution data uniform buffer in shader: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind resolution data uniform buffer in shader: ", name.c_str());
             return false;;
         }        
     }
@@ -153,8 +162,21 @@ bool Shader::load_from_file(const std::string& name){
     else{
         glUniformBlockBinding(program, uniform_block_index_plane_data, 3);
         if(check_ogl_error()){
-            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind plane datauniform buffer in shader load_from_file(), shader name: "<< name  << std::endl;
-            errorlogger("ERROR: Failed to bind plane data uniform buffer in shader load_from_file(), shader name: ", name.c_str());
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind plane datauniform buffer in shader: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind plane data uniform buffer in shader: ", name.c_str());
+            return false;;
+        }        
+    }
+
+    GLuint uniform_block_index_settings = glGetUniformBlockIndex(program, "Settings");
+    if (uniform_block_index_settings == GL_INVALID_INDEX) {
+        SDL_Log("No settings uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    }
+    else{
+        glUniformBlockBinding(program, uniform_block_index_settings, 4);
+        if(check_ogl_error()){
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to settings datauniform buffer in shader: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind settings uniform buffer in shader: ", name.c_str());
             return false;;
         }        
     }
