@@ -24,39 +24,25 @@ float slack = 0.00001; //Used to avoid self shadowing at flat planes, should be 
 void main(){
 	float depth = texture(g_position, frag_tex_coord).w;
 
-	float w = (1.0 / resolution.x);
-	float h = (1.0 / resolution.y);
+	float rand = fract(sin(dot(frag_tex_coord.xy ,vec2(12.9898,78.233))) * 43758.5453);
+	vec2 step_dir = (normalize(vec2(rand)) * 2) / resolution;
 
-   	float dz = 1.0/float(samples);
-    float z = 1.0 - dz/2.0;
-	float dl = 3.14159265 * (3.0 - sqrt(5.0));
-	float lev = 0.0;
-
-	float pw = 0;
-	float ph = 0;
 	float ao = 0;
 
-	for (int i = 0; i <= samples; ++i){    
-		float r = sqrt(1.0 - z);
+	for (int i = 0; i <= 2.0; ++i){    
 
-		//TODO:: Gives sinusoidal artifacts at straight occluded edges, find alternative?
-		pw = sin(lev) * r * (1.0 - depth);
-		ph = cos(lev) * r * (1.0 - depth);
-	
-		float dd = radius-depth;
-
-		float coordw = frag_tex_coord.x + pw * w * dd;
-		float coordh = frag_tex_coord.y + ph * h * dd;
+		float coordw = frag_tex_coord.x + step_dir.x;
+		float coordh = frag_tex_coord.y + step_dir.y;
 		vec2 coord = vec2(coordw, coordh);
 
-		float coordw2 = frag_tex_coord.x - pw * w * dd;
-		float coordh2 = frag_tex_coord.y - ph * h * dd;
+		float coordw2 = frag_tex_coord.x - step_dir.x;
+		float coordh2 = frag_tex_coord.y - step_dir.y;
 		vec2 coord2 = vec2(coordw2, coordh2);
 		
 	   	float sample_depth = texture(g_position, coord).a;
 	   	float sample_depth2 = texture(g_position, coord2).a;
 	 
-		float diff = depth - (sample_depth  + slack);
+		float diff = depth - (sample_depth + slack);
 		float diff_sign = sign(diff);
 		float diff_mirror = depth - (sample_depth2 + slack);
 		float diff_mirror_sign = sign(diff_mirror);
@@ -65,9 +51,6 @@ void main(){
 		float range_check = smoothstep(0.0, 1.0, radius - pow(abs(max(diff + slack, diff_mirror + slack)), depth_exponent));
 
 		ao += range_check * sum;
-		
-		z = z - dz;
-		lev = lev + dl;
 	}
    
 	ao /= samples + 0.1;

@@ -29,11 +29,11 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 
 	glm::vec3 position;
 	position.x = 500.0;
-	position.y = 100.0;
+	position.y = 50.0;
 	position.z = 0.0;
 	glm::vec3 color = {1.5, 0.0, 0.0};
 	glm::vec3 color_components = {0.2, 0.8, 0.0};
-	Light_ptr point_light = std::make_shared<Point_light>(400, 
+	Light_ptr point_light = std::make_shared<Point_light>(200, 
 					position, 
 					color, 
 					color_components,

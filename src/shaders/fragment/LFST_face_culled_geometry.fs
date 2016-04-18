@@ -17,11 +17,7 @@ void main(){
 	if (use_mask) {
 		float discard_depth = texture(discard_mask, gl_FragCoord.xy / resolution).x;
 
-		if (discard_depth == 0.0) {
-			discard;
-		}
-
-		if (frag_depth >= discard_depth - slack) {
+		if ((discard_depth == 0.0) || (frag_depth >= discard_depth - slack)) {
 			discard;
 		}
 	}

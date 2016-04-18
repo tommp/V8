@@ -140,7 +140,7 @@ bool Renderer::init_settings(){
 		use_AA = true;
 		use_SSAO = true;
 		use_bloom = false;
-		use_shadows = true;
+		use_shadows = false;
 
 		near_plane = 10.0;
 		far_plane = 3000.0;
