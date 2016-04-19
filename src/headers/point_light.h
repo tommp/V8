@@ -29,9 +29,6 @@ class Point_light : public Base_light {
 
 		/* Shadow info */
 		GLboolean render_shadows;
-		GLfloat stepsize;
-		GLfloat shadow_slack;
-		GLfloat loop_offset;
 
 		bool bind_lambda_expression()const;
 	public:
@@ -40,7 +37,6 @@ class Point_light : public Base_light {
 					const glm::vec3& pos, 
 					const glm::vec3& color, 
 					const glm::vec3& color_components,
-					GLfloat shadow_step_size = 5.0,
 					GLboolean render_shadows = false);
 		bool calculate_light_uniforms();
 };

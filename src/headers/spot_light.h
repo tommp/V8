@@ -34,9 +34,6 @@ class Spot_light : public Base_light{
 
 		/* Shadow info */
 		GLboolean render_shadows;
-		GLfloat stepsize;
-		GLfloat shadow_slack;
-		GLfloat loop_offset;
 
 		bool bind_lambda_expression()const;
 	public:
@@ -48,7 +45,9 @@ class Spot_light : public Base_light{
 				const glm::vec3& color, 
 				const glm::vec3& color_components,
 				const GLfloat cutoff,
-				const GLfloat outer_cutoff);
+				const GLfloat outer_cutoff,
+				GLfloat intensity,
+				GLboolean render_shadows = false);
 		bool calculate_light_uniforms();
 };
 typedef std::shared_ptr<Spot_light> Spot_light_ptr;

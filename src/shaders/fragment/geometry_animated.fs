@@ -43,11 +43,5 @@ void main()
 
     float brightness = dot(g_albedo_spec.rgb, vec3(0.2126, 0.7152, 0.0722));
     
-    float factor = 0; 
-
-    if(brightness > 1.0){
-    	factor = 1;   
-    }
-
-    g_bloom = vec4(g_albedo_spec.rgb * factor, 1.0);
+    g_bloom = vec4(g_albedo_spec.rgb * step(1.0, brightness), 1.0);
 }

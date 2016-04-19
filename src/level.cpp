@@ -11,7 +11,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	for (int i = 0; i < 0; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = rand() % 200 + 100;
@@ -22,32 +22,17 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 						position, 
 						color, 
 						color_components,
-						5.0,
-						false);
+						true);
 		add_light(point_light);
 	}
-
-	glm::vec3 position;
-	position.x = 500.0;
-	position.y = 50.0;
-	position.z = 0.0;
-	glm::vec3 color = {1.5, 0.0, 0.0};
-	glm::vec3 color_components = {0.2, 0.8, 0.0};
-	Light_ptr point_light = std::make_shared<Point_light>(200, 
-					position, 
-					color, 
-					color_components,
-					5.0,
-					true);
-	add_light(point_light);
 
 	for (int i = 0; i < 0; ++i) {
 		Light_ptr spot_light = std::make_shared<Spot_light>();
 		add_light(spot_light);
 	}
 
-	Light_ptr dir_light = std::make_shared<Directional_light>();
-	add_light(dir_light);
+	/*Light_ptr dir_light = std::make_shared<Directional_light>();
+	add_light(dir_light);*/
 
 	
 	for (int i = 0; i < 0; ++i) {

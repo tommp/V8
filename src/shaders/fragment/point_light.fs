@@ -8,9 +8,6 @@ struct Point_light {
 
 	bool apply_ssao;
 	bool render_shadows;
-	float stepsize;
-	float shadow_slack;
-	float loop_offset;
 };
 
 out vec4 color;
@@ -18,6 +15,9 @@ out vec4 color;
 flat in int instance;
 const int shininess = 32;
 const int SHADOW_LAYERS = 1;
+const float NUM_STEPS = 100.0;
+const float OFFSET = 2.0;
+const float STEPSIZE = 5.0;
 
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
@@ -35,7 +35,7 @@ layout (std140) uniform Resolution_data{
 };
 
 layout (std140) uniform Settings{
-	vec2 shadow_settings;
+	vec4 shadow_settings;
 };
 
 layout (std140) uniform Matrices{
@@ -49,16 +49,11 @@ void apply_SSAO(inout vec3 ambient, vec2 sample_coords){
 	ambient *= ambient_occlusion;
 }
 
-void render_shadows(float distance, 
-					vec3 light_direction, 
-					vec3 frag_position, 
-					inout vec3 diffuse, 
-					inout vec3 specular){
-	float shadow_occlusion = 1.0;
-	float num_steps = distance / lights[instance].stepsize;
+float calc_shadow_occlusion(vec3 light_direction, vec3 frag_position){
+	float shadow_occlusion = 0.0;
 
-	vec3 trace_offset = light_direction * lights[instance].stepsize;
-	vec3 trace_position = frag_position + trace_offset * lights[instance].loop_offset;
+	vec3 trace_offset = light_direction * STEPSIZE;
+	vec3 trace_position = frag_position + trace_offset * OFFSET;
 
 	vec4 sample_offset = vec4(trace_offset, 1.0);
     vec4 sample_coords = projection * vec4(trace_position, 1.0);
@@ -66,24 +61,24 @@ void render_shadows(float distance,
     vec3 final_coords;
     vec2 layer_sample;
 
-	for (float counter = lights[instance].loop_offset; counter < num_steps; counter += lights[instance].stepsize) {
+	for (float counter = OFFSET; counter < NUM_STEPS; counter += STEPSIZE) {
 		trace_position += trace_offset;
 		sample_coords += sample_offset;
 
 		final_coords = (sample_coords.xyz / sample_coords.w) * 0.5 + 0.5;
 
-		/* UNROLLED LOOP */
+		// UNROLLED LOOP 
 		layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
-
-		if (trace_position.z > (layer_sample.x - layer_sample.y) && trace_position.z < layer_sample.x) {
-			shadow_occlusion = 0;
-			break;
-		}
-		/* ==================== */
+		float sign_1 = step(0.0, trace_position.z - (layer_sample.x - layer_sample.y)) * 2 - 1;
+		float sign_2 = step(0.0, layer_sample.x - trace_position.z) * 2 - 1;
+		shadow_occlusion = max(sign_1 + sign_2, shadow_occlusion);
+		// ====================
 	}
 
-	diffuse *= shadow_occlusion;
-	specular *= shadow_occlusion;
+	shadow_occlusion /= 2;
+	shadow_occlusion = 1 - step(1.0, shadow_occlusion); 
+
+	return shadow_occlusion;
 }
 
 void main(){    
@@ -119,7 +114,10 @@ void main(){
 	}
 	
 	if (lights[instance].render_shadows && bool(shadow_settings.y)) {
-		render_shadows(distance, light_direction, frag_position, diffuse, specular);
+		float shadow_occlusion = calc_shadow_occlusion(light_direction, frag_position);
+		diffuse *= shadow_occlusion;
+		specular *= shadow_occlusion;
+
 	}
 
     color = vec4(ambient + diffuse + specular, 1.0);

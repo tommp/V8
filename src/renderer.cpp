@@ -89,6 +89,13 @@ Renderer::Renderer(Resource_manager& resource_manager){
 }
 
 bool Renderer::init_upload_uniform_data(){
+
+	if (!settings_initialized){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Settings not initialized, cannot initialize window!"<<std::endl;
+		errorlogger("ERROR: Settings not initialized, cannot initialize window!");
+		return false;
+	}
+
 	std::cout << "Uploading settings..." << std::endl;
 	if (!upload_settings()){
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to upload settings in renderer!" << std::endl;
@@ -121,6 +128,8 @@ bool Renderer::init_upload_uniform_data(){
 	}
 	std::cout << "Projection matrix uploaded!\n" << std::endl;
 
+	uniform_data_initialized = true;
+
 	return true;
 }
 
@@ -142,6 +151,8 @@ bool Renderer::init_settings(){
 		use_bloom = false;
 		use_shadows = false;
 
+		trace_length = 20.0;
+
 		near_plane = 10.0;
 		far_plane = 3000.0;
 
@@ -155,10 +166,19 @@ bool Renderer::init_settings(){
 		}
 	}
 	SDL_DisableScreenSaver();
+
+	settings_initialized = true;
+
 	return true;
 }
 
 bool Renderer::init_window(){
+
+	if (!settings_initialized){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Settings not initialized, cannot initialize window!"<<std::endl;
+		errorlogger("ERROR: Settings not initialized, cannot initialize window!");
+		return false;
+	}
 
 	/* Set to enable opengl window context */
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -196,10 +216,19 @@ bool Renderer::init_window(){
 		SDL_ShowCursor(1);
 	}
 
+	window_initialized = true;
+
 	return true;
 }
 
 bool Renderer::init_openGL(){
+
+	if (!window_initialized){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Window not initialized, cannot initialize OpenGL!"<<std::endl;
+		errorlogger("ERROR: Window not initialized, cannot initialize OpenGL!");
+		return false;
+	}
+
 	/* Set this to true so GLEW knows to use a modern approach to retrieving 
 	function pointers and extensions*/
 	glewExperimental = GL_TRUE;
@@ -240,10 +269,19 @@ bool Renderer::init_openGL(){
 		return false;
 	}
 
+	ogl_initialized = true;
+
 	return true;
 }
 
 bool Renderer::init_uniform_buffers(){
+
+	if (!ogl_initialized){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: OpenGL not initialized, cannot initialize uniform buffers!"<<std::endl;
+		errorlogger("ERROR: OpenGL not initialized, cannot initialize uniform buffers!");
+		return false;
+	}
+
 	GLuint uniform_buffer_matrices;
 	glGenBuffers(1, &uniform_buffer_matrices);
 	  
@@ -299,8 +337,8 @@ bool Renderer::init_uniform_buffers(){
 	glGenBuffers(1, &uniform_buffer_settings);
 	  
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_settings);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec2), NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 4, uniform_buffer_settings, 0, sizeof(glm::vec2));
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 4, uniform_buffer_settings, 0, sizeof(glm::vec4));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){
@@ -312,10 +350,18 @@ bool Renderer::init_uniform_buffers(){
 
 	uniform_buffers["settings"] = uniform_buffer_settings;
 
+	uniform_buffers_initialized = true;
+
 	return true;
 }
 
 bool Renderer::init_shaders(Resource_manager& resource_manager){
+	if (!ogl_initialized){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: OpenGL not initialized, cannot initialize shaders!"<<std::endl;
+		errorlogger("ERROR: OpenGL not initialized, cannot initialize shaders!");
+		return false;
+	}
+
 	dir_light_shader = resource_manager.load_shader("dir_light_shader");
 	if (dir_light_shader == nullptr) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load directional light shader in renderer!" << std::endl;
@@ -421,6 +467,8 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 		return false;
 	}
 
+	shaders_initialized = true;
+
 	return true;
 }
 
@@ -502,6 +550,8 @@ bool Renderer::init_g_buffer(){
 		errorlogger( "ERROR: G-framebuffer not complete!");
 		return false;
 	}
+
+	framebuffers_initialized = true;
 
 	return true;
 }
@@ -746,6 +796,13 @@ bool Renderer::init_shadow_buffers(){
 }
 
 bool Renderer::init_framebuffers() {
+
+	if (!ogl_initialized){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: OpenGL not initialized, cannot initialize framebuffers!"<<std::endl;
+		errorlogger("ERROR: OpenGL not initialized, cannot initialize framebuffers!");
+		return false;
+	}
+
 	if ((window_size.x <= 0) || (window_size.y <= 0)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Display not initialized, cannot initialize framebuffers!" << std::endl;
 		errorlogger("ERROR: Display not initialized, cannot initialize framebuffers!");
@@ -787,6 +844,8 @@ bool Renderer::init_framebuffers() {
 		errorlogger("ERROR: Failed to initialize shadow buffers!");
 		return false;
 	}
+
+	framebuffers_initialized = true;
 
 	return true;
 }
@@ -905,6 +964,13 @@ bool Renderer::init_cube(){
 }
 
 bool Renderer::init_primitives(Resource_manager& resource_manager){
+
+	if (!ogl_initialized){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: OpenGL not initialized, cannot initialize primitives!"<<std::endl;
+		errorlogger("ERROR: OpenGL not initialized, cannot initialize primitives!");
+		return false;
+	}
+
 #if ENABLE_BULLET_DEBUG
 	if (!(line = resource_manager.load_mesh("LINE"))) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load line mesh primitive!" << std::endl;
@@ -924,6 +990,8 @@ bool Renderer::init_primitives(Resource_manager& resource_manager){
 		errorlogger("ERROR: Failed to initialize cube!");
 		return false;
 	}
+
+	primitives_initialized = true;
 
 	return true;
 }
@@ -2059,6 +2127,7 @@ bool Renderer::save_settings(){
 
 	contentf.write(reinterpret_cast<const char *>(&near_plane), sizeof(GLfloat));
 	contentf.write(reinterpret_cast<const char *>(&far_plane), sizeof(GLfloat));
+	contentf.write(reinterpret_cast<const char *>(&trace_length), sizeof(GLfloat));
 
 	contentf.write(reinterpret_cast<const char *>(&window_size.x), sizeof(GLfloat));
 	contentf.write(reinterpret_cast<const char *>(&window_size.y), sizeof(GLfloat));
@@ -2091,6 +2160,7 @@ bool Renderer::load_settings(){
 
 	contentf.read(reinterpret_cast<char *>(&near_plane), sizeof(GLfloat));
 	contentf.read(reinterpret_cast<char *>(&far_plane), sizeof(GLfloat));
+	contentf.read(reinterpret_cast<char *>(&trace_length), sizeof(GLfloat));
 
 	contentf.read(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
 	contentf.read(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
@@ -2537,9 +2607,9 @@ bool Renderer::render_quad(GLuint instances)const{
 }
 
 bool Renderer::upload_settings()const{
-	glm::vec2 shadow_settings = {use_SSAO, use_shadows};
+	glm::vec4 shadow_settings = {use_SSAO, use_shadows, trace_length, 0.0};
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("settings")->second);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec2), glm::value_ptr(shadow_settings)); 
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(shadow_settings)); 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){

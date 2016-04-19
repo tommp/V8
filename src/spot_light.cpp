@@ -6,7 +6,9 @@ Spot_light::Spot_light(GLfloat radius,
 						const glm::vec3& color, 
 						const glm::vec3& color_components,
 						const GLfloat cutoff,
-						const GLfloat outer_cutoff) {
+						const GLfloat outer_cutoff,
+						GLfloat intensity,
+						GLboolean render_shadows) {
 	base_light_context->shader_type = LIGHT_SPOT;
 
 	this->radius = radius;
@@ -16,7 +18,8 @@ Spot_light::Spot_light(GLfloat radius,
 	this->color_components = color_components;
 	this->cutoff = cutoff;
 	this->outer_cutoff = outer_cutoff;
-	this->intensity = 1.0;
+	this->intensity = intensity;
+	this->render_shadows = render_shadows;
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for spot light!" << std::endl;
@@ -95,11 +98,6 @@ bool Spot_light::bind_lambda_expression()const{
 		glUniform3fv(shader->load_uniform_location("lights", instance, "color_components"), 1, (float*)&(color_components));
 		
 		glUniform1i(shader->load_uniform_location("lights", instance, "render_shadows"), render_shadows);
-		if (render_shadows) {
-			glUniform1f(shader->load_uniform_location("lights", instance, "stepsize"), stepsize);
-			glUniform1f(shader->load_uniform_location("lights", instance, "shadow_slack"), shadow_slack);
-			glUniform1f(shader->load_uniform_location("lights", instance, "loop_offset"), loop_offset);
-		}
 
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind spot light uniforms!" << std::endl;

@@ -34,6 +34,11 @@
 /*=============================================*/
 
 namespace Renderer_consts{
+	/* Not really necessary, but paranoia :] */
+	const GLuint NDC_WIDTH = 			2;
+	const GLuint NDC_HEIGHT = 			2;
+	/* ==================================== */
+	const GLuint TILESIZE = 			16;
 	const GLuint SHADOW_LAYERS = 		1;
 	const GLuint BATCH_SIZE = 			100;
 	const GLuint OPENGL_MAJOR_VERSION =	3;
@@ -46,10 +51,20 @@ class Resource_manager;
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;
 
+class Tile{
+private:
+	std::vector<GLuint> light_indices;
+	GLuint num_lights;
+public:
+
+};
+
 class Renderer{
 	private:
 		SDL_Window* window;
 		SDL_GLContext gl_context;
+
+		std::vector<std::vector<Tile>> tiles;
 
 	    GLboolean use_vsync;
 	    GLboolean use_AA;
@@ -61,6 +76,7 @@ class Renderer{
 	    GLboolean ortographic;
 
 	    GLboolean clear_shadow_layers[Renderer_consts::SHADOW_LAYERS];
+	    GLfloat trace_length;
 
 	    GLuint last_blurred;
 
@@ -69,6 +85,16 @@ class Renderer{
 
 	    glm::vec2 window_size;
 	    glm::vec2 resolution;
+
+	    /* Used for error checking */
+	    GLboolean settings_initialized;
+		GLboolean window_initialized;
+		GLboolean ogl_initialized;
+		GLboolean uniform_buffers_initialized;
+		GLboolean framebuffers_initialized;
+		GLboolean shaders_initialized;
+		GLboolean primitives_initialized;
+		GLboolean uniform_data_initialized;
 
 	    glm::mat4 projection;
 	    glm::mat4 view;

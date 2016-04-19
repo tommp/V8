@@ -2,17 +2,14 @@
 
 Directional_light::Directional_light(const glm::vec3& dir, 
 									const glm::vec3& color, 
-									const glm::vec3& color_components){
+									const glm::vec3& color_components,
+									GLboolean render_shadows){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
+	
 	this->direction = dir;
 	this->color = color;
 	this->color_components = color_components;
-
-	render_shadows = false;
-	stepsize = 5.0;
-	shadow_slack = 15.0;
-	loop_offset = 4.0;
-	probe_length = 100.0;
+	this->render_shadows = render_shadows;
 
 	if (!bind_lambda_expression()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to bind lambda expression for directional light!" << std::endl;
@@ -25,14 +22,9 @@ Directional_light::Directional_light(){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
 	direction = {-1.0f, -1.0f, -1.0f};
 	direction = glm::normalize(direction);
-	color = {0.1f, 0.1f, 0.1f};
+	color = {0.3f, 0.3f, 0.3f};
 	color_components = {1.0f, 1.0f, 0.0f};
-
-	render_shadows = false;
-	stepsize = 10.0;
-	shadow_slack = 0;
-	loop_offset = 1;
-	probe_length = 2000.0;
+	render_shadows = true;
 
 	if (!bind_lambda_expression()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to bind lambda expression for directional light!" << std::endl;
@@ -54,14 +46,6 @@ bool Directional_light::bind_lambda_expression()const{
 		glUniform3fv(shader->load_uniform_location("lights", instance, "color_components"), 1, (float*)&(color_components));
 		
 		glUniform1i(shader->load_uniform_location("lights", instance, "render_shadows"), render_shadows);
-		if (render_shadows) {
-			glUniform1f(shader->load_uniform_location("lights", instance, "stepsize"), stepsize);
-			glUniform1f(shader->load_uniform_location("lights", instance, "shadow_slack"), shadow_slack);
-			glUniform1f(shader->load_uniform_location("lights", instance, "loop_offset"), loop_offset);
-
-			GLfloat number_of_steps = probe_length / stepsize;
-			glUniform1f(shader->load_uniform_location("lights", instance, "num_steps"), number_of_steps);
-		}
 		
 		if(check_ogl_error()) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind directional light uniforms!" << std::endl;

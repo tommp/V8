@@ -15,7 +15,7 @@ layout (std140) uniform Plane_data
     vec2 plane_data;
 };
  
-const int samples = 4;
+const int SAMPLES = 1;
 float radius = 1.0;
 float power = 4.0;
 float depth_exponent = 2.0; //Used to non-linearly kill AO at large depth differences
@@ -29,7 +29,7 @@ void main(){
 
 	float ao = 0;
 
-	for (int i = 0; i <= 2.0; ++i){    
+	for (int i = 0; i <= SAMPLES; ++i){    
 
 		float coordw = frag_tex_coord.x + step_dir.x;
 		float coordh = frag_tex_coord.y + step_dir.y;
@@ -41,11 +41,11 @@ void main(){
 		
 	   	float sample_depth = texture(g_position, coord).a;
 	   	float sample_depth2 = texture(g_position, coord2).a;
-	 
-		float diff = depth - (sample_depth + slack);
-		float diff_sign = sign(diff);
-		float diff_mirror = depth - (sample_depth2 + slack);
-		float diff_mirror_sign = sign(diff_mirror);
+	 	
+	 	float diff = depth - sample_depth - slack;
+		float diff_sign = step(0.0, diff) * 2 - 1;
+		float diff_mirror = depth - sample_depth2 - slack;
+		float diff_mirror_sign = step(0.0, diff_mirror) * 2 - 1;
 		float sum = clamp(-1 + diff_sign + diff_mirror_sign, 0.0, 1.0);
 
 		float range_check = smoothstep(0.0, 1.0, radius - pow(abs(max(diff + slack, diff_mirror + slack)), depth_exponent));
@@ -53,7 +53,7 @@ void main(){
 		ao += range_check * sum;
 	}
    
-	ao /= samples + 0.1;
+	ao /= SAMPLES + 0.1;
 	ao = clamp(1.0 - ao, 0.0, 1.0);
 
 	SSAO_buffer =  pow(ao, power);	   

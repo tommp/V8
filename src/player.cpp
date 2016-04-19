@@ -8,8 +8,8 @@ Player::Player(){
 
 Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	glm::vec4 color;
-	color.x = (rand()%100) /100.0f;
-	color.y = (rand()%100) /100.0f;
+	color.x = (rand()%100) /100.0f ;
+	color.y = (rand()%100) /10.0f;
 	color.z = (rand()%100) /100.0f;
 	color.w = 0.0;
 	if (!(model = init_manager.load_model(model_name, color))){
@@ -36,7 +36,8 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 				lightcolor, 
 				lightcomponents,
 				30,
-				60);
+				60,
+				1.0);
 
 	flashlight->set_intensity(0.0);
 
