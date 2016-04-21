@@ -151,7 +151,7 @@ bool Shader::bind_uniform_buffers(GLuint program, const std::string& name)const{
         if(check_ogl_error()){
             std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind resolution data uniform buffer in shader: "<< name  << std::endl;
             errorlogger("ERROR: Failed to bind resolution data uniform buffer in shader: ", name.c_str());
-            return false;;
+            return false;
         }        
     }
 
@@ -164,7 +164,7 @@ bool Shader::bind_uniform_buffers(GLuint program, const std::string& name)const{
         if(check_ogl_error()){
             std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind plane datauniform buffer in shader: "<< name  << std::endl;
             errorlogger("ERROR: Failed to bind plane data uniform buffer in shader: ", name.c_str());
-            return false;;
+            return false;
         }        
     }
 
@@ -175,9 +175,61 @@ bool Shader::bind_uniform_buffers(GLuint program, const std::string& name)const{
     else{
         glUniformBlockBinding(program, uniform_block_index_settings, 4);
         if(check_ogl_error()){
-            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to settings datauniform buffer in shader: "<< name  << std::endl;
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind settings data uniform buffer in shader: "<< name  << std::endl;
             errorlogger("ERROR: Failed to bind settings uniform buffer in shader: ", name.c_str());
-            return false;;
+            return false;
+        }        
+    }
+
+    GLuint uniform_block_index_cam_data = glGetUniformBlockIndex(program, "Camera_data");
+    if (uniform_block_index_cam_data == GL_INVALID_INDEX) {
+        SDL_Log("No camera data uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    }
+    else{
+        glUniformBlockBinding(program, uniform_block_index_cam_data, 5);
+        if(check_ogl_error()){
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind camera data uniform buffer in shader: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind camera uniform buffer in shader: ", name.c_str());
+            return false;
+        }        
+    }
+
+    GLuint uniform_block_index_dir_lights = glGetUniformBlockIndex(program, "Dir_lights");
+    if (uniform_block_index_dir_lights == GL_INVALID_INDEX) {
+        SDL_Log("No directional light uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    }
+    else{
+        glUniformBlockBinding(program, uniform_block_index_dir_lights, 6);
+        if(check_ogl_error()){
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind directional light uniform buffer in shader: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind directional light uniform buffer in shader: ", name.c_str());
+            return false;
+        }        
+    }
+
+    GLuint uniform_block_index_point_lights = glGetUniformBlockIndex(program, "Point_lights");
+    if (uniform_block_index_point_lights == GL_INVALID_INDEX) {
+        SDL_Log("No point light uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    }
+    else{
+        glUniformBlockBinding(program, uniform_block_index_point_lights, 7);
+        if(check_ogl_error()){
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind point light uniform buffer in shader: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind point light uniform buffer in shader: ", name.c_str());
+            return false;
+        }        
+    }
+
+    GLuint uniform_block_index_spot_lights = glGetUniformBlockIndex(program, "Spot_lights");
+    if (uniform_block_index_spot_lights == GL_INVALID_INDEX) {
+        SDL_Log("No spot light uniform buffer for shader: %s, assuming expected behaviour!", name.c_str());
+    }
+    else{
+        glUniformBlockBinding(program, uniform_block_index_spot_lights, 8);
+        if(check_ogl_error()){
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind spot light uniform buffer in shader: "<< name  << std::endl;
+            errorlogger("ERROR: Failed to bind spot light uniform buffer in shader: ", name.c_str());
+            return false;
         }        
     }
 

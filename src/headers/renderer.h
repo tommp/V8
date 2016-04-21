@@ -76,7 +76,6 @@ class Renderer{
 	    GLboolean ortographic;
 
 	    GLboolean clear_shadow_layers[Renderer_consts::SHADOW_LAYERS];
-	    GLfloat trace_length;
 
 	    GLuint last_blurred;
 
@@ -153,6 +152,10 @@ class Renderer{
 		std::list<Rendering_context_light_weak> dir_lights;
 		std::list<Rendering_context_light_weak> point_lights;
 		std::list<Rendering_context_light_weak> spot_lights;
+
+		GLuint num_active_dir_lights;
+		GLuint num_active_point_lights;
+		GLuint num_active_spot_lights;
 
 #if ENABLE_BULLET_DEBUG
 		std::list<Line_data> lines;
@@ -231,8 +234,13 @@ class Renderer{
 		bool generate_shadow_layers();
 
 		bool bind_g_data(Shader_type light_type)const;
-		bool upload_view_position(Shader_type shader_type, 
-								const glm::vec3& position)const;
+		bool upload_view_position(const glm::vec3& position)const;
+
+		bool upload_light_data();
+
+		bool upload_dir_lights_data();
+		bool upload_spot_lights_data();
+		bool upload_point_lights_data();
 
 		bool render_dir_lights();
 		bool render_point_lights();

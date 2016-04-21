@@ -26,10 +26,7 @@ class Light;
 class Point_light : public Base_light {
 	private:
 		GLfloat radius;
-
-		/* Shadow info */
-		GLboolean render_shadows;
-
+		
 		bool bind_lambda_expression()const;
 	public:
 		Point_light();

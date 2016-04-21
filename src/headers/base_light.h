@@ -34,9 +34,10 @@ class Base_light: public Actor{
 		/* x is ambient, y is diffuse, z is specular */
 		glm::vec3 color_components;
 
+		GLboolean render_shadows;
+		GLboolean apply_SSAO;
+
 		Rendering_context_light_ptr base_light_context;
-		GLuint quad_VBO;
-		GLuint quad_EBO;
 		glm::mat4 quad_model_matrix;
 		
 	public:

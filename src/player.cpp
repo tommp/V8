@@ -37,9 +37,8 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 				lightcomponents,
 				30,
 				60,
-				1.0);
-
-	flashlight->set_intensity(0.0);
+				1.0,
+				true);
 
 	prev_position = position * 2.0f;
 	prev_scale = scale;

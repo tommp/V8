@@ -24,9 +24,6 @@ class Light;
 
 class Directional_light : public Base_light {
 	private:
-		/* Shadow info */
-		GLboolean render_shadows;
-		
 		bool bind_lambda_expression()const;
 	public:
 		Directional_light();

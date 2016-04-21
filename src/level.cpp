@@ -31,8 +31,8 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_light(spot_light);
 	}
 
-	/*Light_ptr dir_light = std::make_shared<Directional_light>();
-	add_light(dir_light);*/
+	Light_ptr dir_light = std::make_shared<Directional_light>();
+	add_light(dir_light);
 
 	
 	for (int i = 0; i < 0; ++i) {

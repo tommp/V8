@@ -1,11 +1,12 @@
 struct Directional_light {
-	vec3 direction;
-	
-	vec3 color;
-	vec3 color_components;
+	vec4 direction;
+	vec4 color;
+	vec4 color_components;
 
-	bool apply_ssao;
 	bool render_shadows;
+	bool apply_ssao;
+
+	vec2 padding;
 };
 
 out vec4 color;
@@ -13,7 +14,7 @@ out vec4 color;
 flat in int instance;
 const int shininess = 32;
 const int SHADOW_LAYERS = 1;
-const float NUM_STEPS = 100.0;
+const float NUM_STEPS = 40.0;
 const float OFFSET = 2.0;
 const float STEPSIZE = 5.0;
 
@@ -23,9 +24,14 @@ uniform sampler2D g_albedo_spec;
 uniform sampler2D SSAO_buffer;
 uniform sampler2D shadow_layers[SHADOW_LAYERS];
 
-uniform vec3 view_position;
+layout (std140) uniform Dir_lights{
+	Directional_light lights[10];
+	int num_lights;
+};
 
-uniform Directional_light lights[100];
+layout (std140) uniform Camera_data{
+	vec3 view_position;
+};
 
 layout (std140) uniform Resolution_data{
 	vec2 screen_size;
@@ -86,19 +92,19 @@ void main(){
 	vec3 sample_color = texture(g_albedo_spec, frag_tex_coord).rgb;
 
 	vec3 view_direction = normalize(view_position - frag_position);
-	vec3 light_direction = normalize(-lights[instance].direction);
+	vec3 light_direction = normalize(-lights[instance].direction.xyz);
 	vec3 reflect_direction = reflect(-light_direction, normal);
 
 	float diff = max(dot(normal, light_direction), 0.0);
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
-	vec3 ambient = (lights[instance].color * lights[instance].color_components.x) * sample_color;
+	vec3 ambient = (lights[instance].color.xyz * lights[instance].color_components.x) * sample_color;
 
-	vec3 diffuse = (lights[instance].color * lights[instance].color_components.y) * diff * sample_color;
+	vec3 diffuse = (lights[instance].color.xyz * lights[instance].color_components.y) * diff * sample_color;
 
-	vec3 specular = (lights[instance].color * lights[instance].color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+	vec3 specular = (lights[instance].color.xyz * lights[instance].color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 
-	if (bool(shadow_settings.x)) {
+	if (lights[instance].apply_ssao && bool(shadow_settings.x)) {
 		apply_SSAO(ambient, frag_tex_coord);
 	}
 

@@ -151,8 +151,6 @@ bool Renderer::init_settings(){
 		use_bloom = false;
 		use_shadows = false;
 
-		trace_length = 20.0;
-
 		near_plane = 10.0;
 		far_plane = 3000.0;
 
@@ -349,6 +347,82 @@ bool Renderer::init_uniform_buffers(){
 	}
 
 	uniform_buffers["settings"] = uniform_buffer_settings;
+
+
+	GLuint uniform_buffer_camera_data;
+	glGenBuffers(1, &uniform_buffer_camera_data);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_camera_data);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec3), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 5, uniform_buffer_camera_data, 0, sizeof(glm::vec3));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize camera data uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize camera data uniform buffer in renderer!");
+		glDeleteBuffers(1, &uniform_buffer_camera_data);
+		return false;
+	}
+
+	uniform_buffers["camera_data"] = uniform_buffer_camera_data;
+
+
+	GLuint uniform_buffer_directional_lights;
+	glGenBuffers(1, &uniform_buffer_directional_lights);
+	GLuint dir_light_buffer_size = Utility_consts::SIZEOF_DIR_LIGHT * Utility_consts::MAX_DIR_LIGHTS;
+
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_directional_lights);
+	glBufferData(GL_UNIFORM_BUFFER, dir_light_buffer_size, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 6, uniform_buffer_directional_lights, 0, dir_light_buffer_size);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize directional light uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize directional light uniform buffer in renderer!");
+		glDeleteBuffers(1, &uniform_buffer_directional_lights);
+		return false;
+	}
+
+	uniform_buffers["dir_lights"] = uniform_buffer_directional_lights;
+
+
+	GLuint uniform_buffer_point_lights;
+	glGenBuffers(1, &uniform_buffer_point_lights);
+	GLuint point_light_buffer_size = Utility_consts::SIZEOF_POINT_LIGHT * Utility_consts::MAX_POINT_LIGHTS + sizeof(GLint);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_point_lights);
+	glBufferData(GL_UNIFORM_BUFFER, point_light_buffer_size, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 7, uniform_buffer_point_lights, 0, point_light_buffer_size);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize directional light uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize directional light uniform buffer in renderer!");
+		glDeleteBuffers(1, &uniform_buffer_point_lights);
+		return false;
+	}
+
+	uniform_buffers["point_lights"] = uniform_buffer_point_lights;
+
+
+	GLuint uniform_buffer_spot_lights;
+	glGenBuffers(1, &uniform_buffer_spot_lights);
+	GLuint spot_light_buffer_size = Utility_consts::SIZEOF_SPOT_LIGHT * Utility_consts::MAX_SPOT_LIGHTS  + sizeof(GLint);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_spot_lights);
+	glBufferData(GL_UNIFORM_BUFFER, spot_light_buffer_size, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 8, uniform_buffer_spot_lights, 0, spot_light_buffer_size);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize directional light uniform buffer in renderer! " << std::endl;
+		errorlogger("ERROR: Failed to initialize directional light uniform buffer in renderer!");
+		glDeleteBuffers(1, &uniform_buffer_spot_lights);
+		return false;
+	}
+
+	uniform_buffers["spot_lights"] = uniform_buffer_spot_lights;
+
 
 	uniform_buffers_initialized = true;
 
@@ -1081,27 +1155,11 @@ bool Renderer::bind_g_data(Shader_type light_type)const{
 	return true;
 }
 
-bool Renderer::upload_view_position(Shader_type shader_type, 
-								const glm::vec3& position)const{
+bool Renderer::upload_view_position(const glm::vec3& position)const{
 	glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
-
-	if(shader_type == LIGHT_DIRECTIONAL) {
-		glUniform3fv(dir_light_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
-	}
-
-	else if(shader_type == LIGHT_POINT) {
-		glUniform3fv(point_light_shader->load_uniform_location("view_position"), 1, (float*)&view_position);
-	}
-
-	else if(shader_type == LIGHT_SPOT) {
-		glUniform3fv(spot_light_shader->load_uniform_location("view_position"), 1, (float*)&position);
-	}
-
-	else{
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid shader type for light view position update!" << std::endl;
-		errorlogger("ERROR: Invalid shader type for light view position update!");
-		return false;
-	}
+	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("camera_data")->second);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(view_position)); 
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload view position!" << std::endl;
@@ -1119,16 +1177,24 @@ bool Renderer::render_lights(const glm::vec3& position){
 	glBlendFunc(GL_ONE, GL_ONE);
 	clear();
 
+	if (!upload_light_data()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload light data!" << std::endl;
+		errorlogger("ERROR: Failed to upload light data!");
+		return false;
+	}
+
+	if (!upload_view_position(position)) {
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind view position for lights!" << std::endl;
+		errorlogger("ERROR: Failed to bind view position for lights!");
+		return false;
+	}
+
 	if (!bind_g_data(LIGHT_DIRECTIONAL)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind g_data for directional lights!" << std::endl;
 		errorlogger("ERROR: Failed to bind g_data for directional lights!");
 		return false;
 	}
-	if (!upload_view_position(LIGHT_DIRECTIONAL, position)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind view position for directional lights!" << std::endl;
-		errorlogger("ERROR: Failed to bind view position for directional lights!");
-		return false;
-	}
+	
 	if (!render_dir_lights()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render directional lights!" << std::endl;
 		errorlogger("ERROR: Failed to render directional lights!");
@@ -1140,11 +1206,7 @@ bool Renderer::render_lights(const glm::vec3& position){
 		errorlogger("ERROR: Failed to bind g_data for point lights!");
 		return false;
 	}
-	if (!upload_view_position(LIGHT_POINT, position)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind view position for point lights!" << std::endl;
-		errorlogger("ERROR: Failed to bind view position for point lights!");
-		return false;
-	}
+
 	if (!render_point_lights()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render point lights!" << std::endl;
 		errorlogger("ERROR: Failed to render point lights!");
@@ -1156,11 +1218,7 @@ bool Renderer::render_lights(const glm::vec3& position){
 		errorlogger("ERROR: Failed to bind g_data for spot lights!");
 		return false;
 	}
-	if (!upload_view_position(LIGHT_SPOT, position)) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind view position for spot lights!" << std::endl;
-		errorlogger("ERROR: Failed to bind view position for spot lights!");
-		return false;
-	}
+	
 	if (!render_spot_lights()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render spot lights!" << std::endl;
 		errorlogger("ERROR: Failed to render spot lights!");
@@ -1172,8 +1230,31 @@ bool Renderer::render_lights(const glm::vec3& position){
 	return true;
 }
 
-bool Renderer::render_dir_lights(){
-	GLuint instance = 0;
+bool Renderer::upload_light_data(){
+	if (!upload_dir_lights_data()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload directional light data!" << std::endl;
+		errorlogger("ERROR: Failed to upload directional light data!");
+		return false;
+	}
+
+	if (!upload_point_lights_data()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload point light data!" << std::endl;
+		errorlogger("ERROR: Failed to upload point light data!");
+		return false;
+	}
+
+	if (!upload_spot_lights_data()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload spot light data!" << std::endl;
+		errorlogger("ERROR: Failed to upload spot light data!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::upload_dir_lights_data(){
+	num_active_dir_lights = 0;
+	GLuint uniform_buffer = uniform_buffers.find("dir_lights")->second;
 	for (auto light_context = dir_lights.begin(); light_context != dir_lights.end(); ++light_context) {
 		auto context = light_context->lock();
 		if (!context) {
@@ -1182,38 +1263,28 @@ bool Renderer::render_dir_lights(){
 			continue;
 		}
 
-		if(!context->setup_base_uniforms(dir_light_shader, view, instance)){
+		if(!context->setup_base_uniforms(uniform_buffer, view, num_active_dir_lights)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup directional light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup directional light uniforms!");
 			return false;
 		}
 
-		++instance;
+		++num_active_dir_lights;
 
-		if (instance >= Renderer_consts::BATCH_SIZE) {
-			instance = 0;
-			if (!render_quad(Renderer_consts::BATCH_SIZE)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render quad batch for directional lights!" << std::endl;
-				errorlogger("ERROR: Failed to render quad batch for directional lights!");
-				return false;
-			}
+		if (num_active_dir_lights == Utility_consts::MAX_DIR_LIGHTS) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Number of directional lights is greater than max, some lights might get culled!" << std::endl;
+			errorlogger("WARNING: Number of directional lights is greater than max, some lights might get culled!");
+			break;
 		}
 		
-	}
-
-	if (instance != 0) {
-		if (!render_quad(instance)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last quad batch for directional lights!" << std::endl;
-			errorlogger("ERROR: Failed to render last quad batch for directional lights!");
-			return false;
-		}
 	}
    
 	return true;
 }
 
-bool Renderer::render_point_lights(){
-	GLuint instance = 0;
+bool Renderer::upload_point_lights_data(){
+	num_active_point_lights = 0;
+	GLuint uniform_buffer = uniform_buffers.find("point_lights")->second;
 	for (auto light_context = point_lights.begin(); light_context != point_lights.end(); ++light_context) {
 		auto context = light_context->lock();
 		if (!context) {
@@ -1222,37 +1293,28 @@ bool Renderer::render_point_lights(){
 			continue;
 		}
 
-		if(!context->setup_base_uniforms(point_light_shader, view, instance)){
+		if(!context->setup_base_uniforms(uniform_buffer, view, num_active_point_lights)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render point light!" << std::endl;
 			errorlogger("ERROR: Failed to render point light!");
 			return false;
 		}
 
-		++instance;
+		++num_active_point_lights;
 
-		if (instance >= Renderer_consts::BATCH_SIZE) {
-			instance = 0;
-			if (!render_cube(Renderer_consts::BATCH_SIZE)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cube batch for point lights!" << std::endl;
-				errorlogger("ERROR: Failed to render cube batch for point lights!");
-				return false;
-			}
+		if (num_active_point_lights == Utility_consts::MAX_POINT_LIGHTS) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Number of point lights is greater than max, some lights might get culled!" << std::endl;
+			errorlogger("WARNING: Number of point lights is greater than max, some lights might get culled!");
+			break;
 		}
 		
-	}
-
-	if (instance != 0) {
-		if (!render_cube(instance)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last cube batch!" << std::endl;
-			errorlogger("ERROR: Failed to render last cube batch!");
-			return false;
-		}
 	}
    
 	return true;
 }
 
-bool Renderer::render_spot_lights(){GLuint instance = 0;
+bool Renderer::upload_spot_lights_data(){
+	num_active_spot_lights = 0;
+	GLuint uniform_buffer = uniform_buffers.find("spot_lights")->second;
 	for (auto light_context = spot_lights.begin(); light_context != spot_lights.end(); ++light_context) {
 		auto context = light_context->lock();
 		if (!context) {
@@ -1261,33 +1323,52 @@ bool Renderer::render_spot_lights(){GLuint instance = 0;
 			continue;
 		}
 
-		if(!context->setup_base_uniforms(spot_light_shader, view, instance)){
+		if(!context->setup_base_uniforms(uniform_buffer, view, num_active_spot_lights)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup spot light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup spot light uniforms!");
 			return false;
 		}
 
-		++instance;
+		++num_active_spot_lights;
 
-		if (instance >= Renderer_consts::BATCH_SIZE) {
-			instance = 0;
-			if (!render_cube(Renderer_consts::BATCH_SIZE)){
-				std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cube batch for spot lights!" << std::endl;
-				errorlogger("ERROR: Failed to render cube batch for spot lights!");
-				return false;
-			}
+		if (num_active_spot_lights == Utility_consts::MAX_SPOT_LIGHTS) {
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "WARNING: Number of directional lights is greater than max, some lights might get culled!" << std::endl;
+			errorlogger("WARNING: Number of directional lights is greater than max, some lights might get culled!");
+			break;
 		}
 		
 	}
-
-	if (instance != 0) {
-		if (!render_cube(instance)){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render last cube batch!" << std::endl;
-			errorlogger("ERROR: Failed to render last cube batch!");
-			return false;
-		}
-	}
    
+	return true;
+}
+
+bool Renderer::render_dir_lights(){
+	if (!render_quad(num_active_dir_lights)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render quad batch for directional lights!" << std::endl;
+		errorlogger("ERROR: Failed to render quad batch for directional lights!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::render_point_lights(){
+	if (!render_cube(num_active_point_lights)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cube batch for point lights!" << std::endl;
+		errorlogger("ERROR: Failed to render cube batch for point lights!");
+		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::render_spot_lights(){
+	if (!render_cube(num_active_spot_lights)){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render cube batch for spot lights!" << std::endl;
+		errorlogger("ERROR: Failed to render cube batch for spot lights!");
+		return false;
+	}
+
 	return true;
 }
 
@@ -2127,7 +2208,6 @@ bool Renderer::save_settings(){
 
 	contentf.write(reinterpret_cast<const char *>(&near_plane), sizeof(GLfloat));
 	contentf.write(reinterpret_cast<const char *>(&far_plane), sizeof(GLfloat));
-	contentf.write(reinterpret_cast<const char *>(&trace_length), sizeof(GLfloat));
 
 	contentf.write(reinterpret_cast<const char *>(&window_size.x), sizeof(GLfloat));
 	contentf.write(reinterpret_cast<const char *>(&window_size.y), sizeof(GLfloat));
@@ -2160,7 +2240,6 @@ bool Renderer::load_settings(){
 
 	contentf.read(reinterpret_cast<char *>(&near_plane), sizeof(GLfloat));
 	contentf.read(reinterpret_cast<char *>(&far_plane), sizeof(GLfloat));
-	contentf.read(reinterpret_cast<char *>(&trace_length), sizeof(GLfloat));
 
 	contentf.read(reinterpret_cast<char *>(&window_size.x), sizeof(GLfloat));
 	contentf.read(reinterpret_cast<char *>(&window_size.y), sizeof(GLfloat));
@@ -2607,7 +2686,7 @@ bool Renderer::render_quad(GLuint instances)const{
 }
 
 bool Renderer::upload_settings()const{
-	glm::vec4 shadow_settings = {use_SSAO, use_shadows, trace_length, 0.0};
+	glm::vec4 shadow_settings = {use_SSAO, use_shadows, 0.0, 0.0};
 	glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffers.find("settings")->second);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(shadow_settings)); 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);

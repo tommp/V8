@@ -26,6 +26,7 @@ void main(){
 
 	float rand = fract(sin(dot(frag_tex_coord.xy ,vec2(12.9898,78.233))) * 43758.5453);
 	vec2 step_dir = (normalize(vec2(rand)) * 2) / resolution;
+	step_dir *= radius;
 
 	float ao = 0;
 

@@ -1,14 +1,3 @@
-struct Point_light {
-	vec3 position;
-	
-	float radius;
-	
-	vec3 color;
-	vec3 color_components;
-
-	bool apply_ssao;
-	bool render_shadows;
-};
 
 out vec4 color;
 
@@ -25,9 +14,28 @@ uniform sampler2D g_albedo_spec;
 uniform sampler2D SSAO_buffer;
 uniform sampler2D shadow_layers[SHADOW_LAYERS];
 
-uniform vec3 view_position;
+struct Point_light {
+	mat4 model_matrix;
 
-uniform Point_light lights[100];
+	vec4 position;
+	vec4 color;
+	vec4 color_components;
+
+	float radius;
+	bool render_shadows;
+	bool apply_ssao;
+
+	float padding;	
+};
+
+layout (std140) uniform Point_lights{
+	Point_light lights[100];
+	int num_lights;
+};
+
+layout (std140) uniform Camera_data{
+	vec3 view_position;
+};
 
 layout (std140) uniform Resolution_data{
 	vec2 screen_size;
@@ -87,20 +95,20 @@ void main(){
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).xyz);
 	vec3 sample_color = texture(g_albedo_spec, frag_tex_coord).rgb;
 	
-	float distance = length(lights[instance].position - frag_position);
+	float distance = length(lights[instance].position.xyz - frag_position);
 
 	vec3 view_direction = normalize(view_position - frag_position);
-	vec3 light_direction = normalize(lights[instance].position - frag_position);
+	vec3 light_direction = normalize(lights[instance].position.xyz - frag_position);
 	vec3 reflect_direction = reflect(-light_direction, normal);
 
 	float diff = max(dot(normal, light_direction), 0.0);
 	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
-	vec3 ambient = (lights[instance].color * lights[instance].color_components.x) * sample_color;
+	vec3 ambient = (lights[instance].color.xyz * lights[instance].color_components.x) * sample_color;
 
-	vec3 diffuse = (lights[instance].color * lights[instance].color_components.y) * diff * sample_color;
+	vec3 diffuse = (lights[instance].color.xyz * lights[instance].color_components.y) * diff * sample_color;
 
-	vec3 specular = (lights[instance].color * lights[instance].color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+	vec3 specular = (lights[instance].color.xyz * lights[instance].color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
 
 	float attenuation = clamp(1.0 - distance/lights[instance].radius, 0.0, 1.0);
 	attenuation *= attenuation;
@@ -109,7 +117,7 @@ void main(){
 	diffuse *= attenuation;
 	specular *= attenuation;
 
-	if (bool(shadow_settings.x)) {
+	if (lights[instance].apply_ssao && bool(shadow_settings.x)) {
 		apply_SSAO(ambient, frag_tex_coord);
 	}
 	

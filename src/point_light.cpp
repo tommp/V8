@@ -12,6 +12,7 @@ Point_light::Point_light(GLfloat radius,
 	this->color_components = color_components;
 	this->position = pos;
 	this->render_shadows = render_shadows;
+	apply_SSAO = true;
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for point light!" << std::endl;
@@ -33,6 +34,7 @@ Point_light::Point_light(){
 	randomize_color(5);
 	color_components = {0.0f, 1.0f, 1.0f};
 	render_shadows = false;
+	apply_SSAO = true;
 	
 
 	if (!calculate_light_uniforms()) {
@@ -49,38 +51,39 @@ Point_light::Point_light(){
 }
 
 bool Point_light::bind_lambda_expression()const{
-	base_light_context->setup_base_uniforms = [&](const Shader_ptr& shader, const glm::mat4& view, GLuint instance) {
-		if (!shader) {
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Null shader passed when rendering point light!" << std::endl;
-			errorlogger("ERROR: Null shader passed when rendering point light!");
-			return false;
-		}
-
-		glUniformMatrix4fv(shader->load_uniform_location("models", instance),
-						 1, 
-						 GL_FALSE, 
-						 glm::value_ptr(quad_model_matrix));
+	base_light_context->setup_base_uniforms = [&](GLuint buffer, const glm::mat4& view, GLuint instance) {
 		
-		if(check_ogl_error()){
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to set model matrix for point light!" << std::endl;
-			errorlogger("ERROR: Failed to set model matrix for point light!");
-			return false;
-		}
+		GLuint base_offset = Utility_consts::SIZEOF_POINT_LIGHT * instance;
 		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
+		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
 
-		//std::cout << view_position.x << ":" << view_position.y << ":" << view_position.z << std::endl;
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::mat4), glm::value_ptr(quad_model_matrix));
+		base_offset += sizeof(glm::mat4);
 
-		glUniform3fv(shader->load_uniform_location("lights", instance, "position"), 1, (float*)&(view_position));
-		glUniform1f(shader->load_uniform_location("lights", instance, "radius"), radius);
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(view_position));
+		base_offset += sizeof(glm::vec4);
 
-		glUniform3fv(shader->load_uniform_location("lights", instance, "color"), 1, (float*)&(color));
-		glUniform3fv(shader->load_uniform_location("lights", instance, "color_components"), 1, (float*)&(color_components));
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color));
+		base_offset += sizeof(glm::vec4);
+
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color_components));
+		base_offset += sizeof(glm::vec4);
+
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(GLfloat), (GLvoid*)(&radius));
+		base_offset += sizeof(GLfloat);
+
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(GLuint), (GLvoid*)(&render_shadows));
+		base_offset += sizeof(GLuint);
+
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(GLuint), (GLvoid*)(&apply_SSAO));
+		base_offset += sizeof(GLuint);
+
 		
-		glUniform1i(shader->load_uniform_location("lights", instance, "render_shadows"), render_shadows);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		if(check_ogl_error()) {
-			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind point light uniforms!" << std::endl;
-			errorlogger("ERROR: Failed to bind point light uniforms!");
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload point light uniforms!" << std::endl;
+			errorlogger("ERROR: Failed to upload point light uniforms!");
 			return false;
 		}
 
