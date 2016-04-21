@@ -38,7 +38,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 				30,
 				60,
 				1.0,
-				true);
+				false);
 
 	prev_position = position * 2.0f;
 	prev_scale = scale;

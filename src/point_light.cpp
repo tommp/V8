@@ -11,8 +11,13 @@ Point_light::Point_light(GLfloat radius,
 	this->color = color;
 	this->color_components = color_components;
 	this->position = pos;
-	this->render_shadows = render_shadows;
-	apply_SSAO = true;
+	if (render_shadows) {
+		this->render_shadows = 1;
+	}
+	else{
+		this->render_shadows = 0;
+	}
+	apply_SSAO = 1;
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for point light!" << std::endl;
@@ -33,8 +38,8 @@ Point_light::Point_light(){
 	randomize_position(glm::i16vec3(1000, 10, 1000), glm::i16vec3(500, -70, 500));
 	randomize_color(5);
 	color_components = {0.0f, 1.0f, 1.0f};
-	render_shadows = false;
-	apply_SSAO = true;
+	render_shadows = 0;
+	apply_SSAO = 0;
 	
 
 	if (!calculate_light_uniforms()) {
@@ -76,8 +81,6 @@ bool Point_light::bind_lambda_expression()const{
 		base_offset += sizeof(GLuint);
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(GLuint), (GLvoid*)(&apply_SSAO));
-		base_offset += sizeof(GLuint);
-
 		
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 

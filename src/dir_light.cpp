@@ -9,8 +9,13 @@ Directional_light::Directional_light(const glm::vec3& dir,
 	this->direction = dir;
 	this->color = color;
 	this->color_components = color_components;
-	this->render_shadows = render_shadows;
-	apply_SSAO = true;
+	if (render_shadows) {
+		this->render_shadows = 1;
+	}
+	else{
+		this->render_shadows = 0;
+	}
+	apply_SSAO = 1;
 
 	if (!bind_lambda_expression()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to bind lambda expression for directional light!" << std::endl;
@@ -25,8 +30,8 @@ Directional_light::Directional_light(){
 	direction = glm::normalize(direction);
 	color = {0.02f, 0.02f, 0.02f};
 	color_components = {1.0f, 1.0f, 0.0f};
-	render_shadows = true;
-	apply_SSAO = true;
+	render_shadows = 1;
+	apply_SSAO = 1;
 
 	if (!bind_lambda_expression()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to bind lambda expression for directional light!" << std::endl;

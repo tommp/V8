@@ -6,8 +6,8 @@ Base_light::Base_light(){
 
 	scale = {100.0f, 100.0f, 100.0f};
 
-	render_shadows = false;
-	apply_SSAO = false;
+	render_shadows = 0;
+	apply_SSAO = 0;
 
 	quad_model_matrix = glm::mat4();
 	quad_model_matrix = glm::translate(quad_model_matrix, position);  

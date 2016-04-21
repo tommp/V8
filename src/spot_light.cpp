@@ -19,8 +19,13 @@ Spot_light::Spot_light(GLfloat radius,
 	this->cutoff = cutoff;
 	this->outer_cutoff = outer_cutoff;
 	this->intensity = intensity;
-	this->render_shadows = render_shadows;
-	apply_SSAO = true;
+	if (render_shadows) {
+		this->render_shadows = 1;
+	}
+	else{
+		this->render_shadows = 0;
+	}
+	this->apply_SSAO = 0;
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for spot light!" << std::endl;
@@ -52,8 +57,8 @@ Spot_light::Spot_light(){
 	cutoff = (rand() % 35) + 15;
 	outer_cutoff = cutoff + (rand() % 10) + 10;
 
-	render_shadows = false;
-	apply_SSAO = true;
+	render_shadows = 0;
+	apply_SSAO = 0;
 
 	if (!calculate_light_uniforms()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "FATAL ERROR: Failed to calculate light uniforms for spot light!" << std::endl;

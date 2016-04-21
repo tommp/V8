@@ -22,7 +22,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 						position, 
 						color, 
 						color_components,
-						true);
+						false);
 		add_light(point_light);
 	}
 
