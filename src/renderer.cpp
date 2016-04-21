@@ -178,6 +178,8 @@ bool Renderer::init_window(){
 		return false;
 	}
 
+	window_init_pos = glm::vec2(0.0, 0.0);
+
 	/* Set to enable opengl window context */
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, Renderer_consts::OPENGL_MAJOR_VERSION);
@@ -2695,6 +2697,39 @@ bool Renderer::upload_settings()const{
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload settings!" << std::endl;
 		errorlogger("ERROR: Failed to upload settings!");
 		return false;
+	}
+
+	return true;
+}
+
+bool Renderer::make_viewport_matrix(glm::mat3& matrix){
+	if(!window_initialized){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Window not initialized, cannot construct viewport matrix!"<<std::endl;
+		errorlogger("ERROR: Window not initialized, cannot construct viewport matrix!");
+		return false;
+	}
+
+	glm::mat3 viewport = glm::mat3();
+
+	viewport[0][0] = window_size.x/2;
+	viewport[1][1] = window_size.y/2;
+	viewport[2][2] = 1.0f;
+
+	viewport[2][0] = window_size.x/2 + window_init_pos.x;
+	viewport[2][1] = window_size.y/2 + window_init_pos.y;
+
+	matrix = viewport;
+
+	return true;
+}
+
+bool Renderer::init_tiles(){
+	GLuint num_tiles_width = resolution.x / Renderer_consts::TILESIZE;
+	GLuint num_tiles_height = resolution.y / Renderer_consts::TILESIZE;
+
+	tiles.resize(num_tiles_height);
+	for (GLuint i = 0; i < num_tiles_height; ++i){
+	    tiles[i].resize(num_tiles_width);
 	}
 
 	return true;

@@ -30,7 +30,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	glm::vec3 lightcolor = {1.0f, 1.0f, 1.0f};
 	glm::vec3 lightcomponents = {0.0f, 1.0f, 1.0f};
 
-	flashlight = std::make_shared<Spot_light>(600, 
+	/*flashlight = std::make_shared<Spot_light>(600, 
 				position,
 				direction,
 				lightcolor, 
@@ -38,7 +38,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 				30,
 				60,
 				1.0,
-				false);
+				false);*/
 
 	prev_position = position * 2.0f;
 	prev_scale = scale;
@@ -91,9 +91,9 @@ bool Player::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
 	}
 
 	update_matrices(view_matrix);
-	flashlight->set_direction(direction);
+	/*flashlight->set_direction(direction);
 	flashlight->set_position(get_position());
-	flashlight->calculate_light_uniforms();
+	flashlight->calculate_light_uniforms();*/
 	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
 	return true;
 }
@@ -109,7 +109,7 @@ bool Player::add_contexts_to_renderer(Renderer& renderer)const{
 		return false;
 	}
 
-	flashlight->add_context(renderer);
+	//flashlight->add_context(renderer);
 
 	return true;
 }
@@ -120,7 +120,6 @@ bool Player::update_matrices(const glm::mat4& view_matrix){
 	fill_glm_matrix(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
 	normal_model_matrix = glm::inverseTranspose(glm::mat3(view_matrix * model_matrix));
-	
 
 	return true;
 }

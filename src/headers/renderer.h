@@ -35,15 +35,19 @@
 
 namespace Renderer_consts{
 	/* Not really necessary, but paranoia :] */
-	const GLuint NDC_WIDTH = 			2;
-	const GLuint NDC_HEIGHT = 			2;
+	const GLuint NDC_WIDTH = 					2;
+	const GLuint NDC_HEIGHT = 					2;
 	/* ==================================== */
-	const GLuint TILESIZE = 			16;
-	const GLuint SHADOW_LAYERS = 		1;
-	const GLuint BATCH_SIZE = 			100;
-	const GLuint OPENGL_MAJOR_VERSION =	3;
-	const GLuint OPENGL_MINOR_VERSION =	2;
-	const glm::vec4 CLEARCOLOR = 		{0.0, 0.0, 0.0, 1.0};
+	const GLuint TILESIZE = 					16;
+	const GLuint MAX_DIR_LIGHTS_PER_TILE =		3;
+	const GLuint MAX_POINT_LIGHTS_PER_TILE =	30;
+	const GLuint MAX_SPOT_LIGHTS_PER_TILE =		30;
+	const GLfloat MAX_INTENSITY_PER_TILE =		5;
+	const GLuint SHADOW_LAYERS = 				1;
+	const GLuint BATCH_SIZE = 					100;
+	const GLuint OPENGL_MAJOR_VERSION =			3;
+	const GLuint OPENGL_MINOR_VERSION =			2;
+	const glm::vec4 CLEARCOLOR = 				{0.0, 0.0, 0.0, 1.0};
 }
 
 class Mesh;
@@ -53,9 +57,12 @@ typedef std::shared_ptr<Mesh> Mesh_ptr;
 
 class Tile{
 private:
-	std::vector<GLuint> light_indices;
+	std::vector<GLuint> dir_light_indices;
+	std::vector<GLuint> point_light_indices;
+	std::vector<GLuint> spot_light_indices;
 	GLuint num_lights;
 public:
+
 
 };
 
@@ -83,6 +90,7 @@ class Renderer{
 	    GLfloat far_plane;
 
 	    glm::vec2 window_size;
+	    glm::vec2 window_init_pos;
 	    glm::vec2 resolution;
 
 	    /* Used for error checking */
@@ -178,6 +186,7 @@ class Renderer{
 		Shader_ptr LFST_layer_shader;
 
 		bool init_window();
+		bool init_tiles();
 		bool init_openGL();
 		bool init_settings();
 		bool init_g_buffer();
@@ -260,6 +269,7 @@ class Renderer{
 		bool ppe_blend();
 
 		bool copy_depth(GLuint source_fbo, GLuint target_fbo);
+		bool make_viewport_matrix(glm::mat3& matrix);
 
 		bool apply_AA()const;
 		bool apply_SSAO();
