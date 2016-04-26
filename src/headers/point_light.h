@@ -33,7 +33,6 @@ class Point_light : public Base_light {
 		Point_light(GLfloat radius, 
 					const glm::vec3& pos, 
 					const glm::vec3& color, 
-					const glm::vec3& color_components,
 					GLboolean render_shadows = false);
 		bool calculate_light_uniforms();
 };

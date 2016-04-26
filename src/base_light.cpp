@@ -2,7 +2,6 @@
 
 Base_light::Base_light(){
 	color = {0.0f, 0.0f, 0.0f};
-	color_components = {0.0f, 0.0f, 0.0f};
 
 	scale = {100.0f, 100.0f, 100.0f};
 
@@ -32,22 +31,6 @@ bool Base_light::randomize_color(GLfloat intensity){
 
 	color *= intensity;
 
-	return true;
-}
-
-bool Base_light::randomize_diffuse(){
-	color_components.x = (rand() % 1000) / 1000.0f;
-	return true;
-}
-
-
-bool Base_light::randomize_ambient(){
-	color_components.y = (rand() % 1000) / 1000.0f;
-	return true;
-}
-
-bool Base_light::randomize_specular(){
-	color_components.z = (rand() % 1000) / 1000.0f;
 	return true;
 }
 

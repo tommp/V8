@@ -29,7 +29,6 @@ class Directional_light : public Base_light {
 		Directional_light();
 		Directional_light(const glm::vec3& dir, 
 						const glm::vec3& color, 
-						const glm::vec3& color_components,
 						GLboolean render_shadows = false);
 };
 typedef std::shared_ptr<Directional_light> Directional_light_ptr;

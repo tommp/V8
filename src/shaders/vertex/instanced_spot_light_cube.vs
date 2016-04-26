@@ -6,7 +6,6 @@ struct Spot_light {
 	vec4 position;
 	vec4 direction;
 	vec4 color;
-	vec4 color_components;
 	
 	float radius;
 	float cut_off;

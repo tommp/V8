@@ -1,7 +1,6 @@
 struct Directional_light {
 	vec4 direction;
 	vec4 color;
-	vec4 color_components;
 
 	bool render_shadows;
 	bool apply_ssao;
@@ -12,11 +11,16 @@ struct Directional_light {
 out vec4 color;
 
 flat in int instance;
-const int shininess = 32;
+const float gloss = 0.0;
+const float reflectivity = 0.8;
+const float DIFFUSE_SPREAD_DIVISOR = 0.1;
+const float REFLECTION_SLACK = 0.00001;
+
 const int SHADOW_LAYERS = 1;
 const float NUM_STEPS = 40.0;
 const float OFFSET = 2.0;
 const float STEPSIZE = 1.0;
+
 
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
@@ -59,7 +63,7 @@ float calc_shadow_occlusion(vec3 light_direction, vec3 frag_position){
 	vec3 trace_offset = light_direction * STEPSIZE;
 	vec3 trace_position = frag_position + trace_offset * OFFSET;
 
-	vec4 sample_offset = vec4(trace_offset, 1.0);
+	vec4 sample_offset = projection * vec4(trace_offset, 1.0);
     vec4 sample_coords = projection * vec4(trace_position, 1.0);
 
     vec3 final_coords;
@@ -85,27 +89,61 @@ float calc_shadow_occlusion(vec3 light_direction, vec3 frag_position){
 	return shadow_occlusion;
 }
 
+/*void calc_light_at_fragment(){
+	float shadow_occlusion = 0.0;
+
+	vec3 trace_offset = light_direction * STEPSIZE;
+	vec3 trace_position = frag_position + trace_offset * OFFSET;
+
+	vec4 sample_offset = vec4(trace_offset, 1.0);
+    vec4 sample_coords = projection * vec4(trace_position, 1.0);
+
+    vec3 final_coords;
+    vec2 layer_sample;
+
+	for (float counter = OFFSET; counter < NUM_STEPS; counter += STEPSIZE) {
+		trace_position += trace_offset;
+		sample_coords += sample_offset;
+
+		final_coords = (sample_coords.xyz / sample_coords.w) * 0.5 + 0.5;
+
+		// UNROLLED LOOP
+		layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
+		float sign_1 = step(0.0, trace_position.z - (layer_sample.x - layer_sample.y)) * 2 - 1;
+		float sign_2 = step(0.0, layer_sample.x - trace_position.z) * 2 - 1;
+		shadow_occlusion = max(sign_1 + sign_2, shadow_occlusion);
+		// ====================
+	}
+
+	shadow_occlusion /= 2;
+	shadow_occlusion = 1 - step(1.0, shadow_occlusion); 
+}*/
+
 void main(){
 	vec2 frag_tex_coord = (gl_FragCoord.xy / resolution);
 	vec3 frag_position = texture(g_position, frag_tex_coord).rgb;
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).rgb);
 	vec3 sample_color = texture(g_albedo_spec, frag_tex_coord).rgb;
+	vec3 light_color = lights[instance].color.xyz;
 
-	vec3 view_direction = normalize(view_position - frag_position);
 	vec3 light_direction = normalize(-lights[instance].direction.xyz);
 	vec3 reflect_direction = reflect(-light_direction, normal);
+	vec3 view_direction = normalize(view_position - frag_position);
 
-	float diff = max(dot(normal, light_direction), 0.0);
-	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
+	float face_factor = max(dot(normal, light_direction), 0.0);
 
-	vec3 ambient = (lights[instance].color.xyz * lights[instance].color_components.x) * sample_color;
+	float reflection_factor = reflectivity * ((1 - face_factor) + REFLECTION_SLACK);
+	float reflection_divisor = smoothstep(pow(gloss, 2), 1.0, max(dot(view_direction, reflect_direction), 0.0)) * gloss;
 
-	vec3 diffuse = (lights[instance].color.xyz * lights[instance].color_components.y) * diff * sample_color;
+	vec3 reflected_light = light_color  * reflection_factor;
+	vec3 scattered_light = sample_color * light_color * (1 - reflection_factor);
+	
+	vec3 diffuse = scattered_light * DIFFUSE_SPREAD_DIVISOR;
 
-	vec3 specular = (lights[instance].color.xyz * lights[instance].color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+	vec3 specular = reflected_light * reflection_divisor;
 
 	if (lights[instance].apply_ssao && bool(shadow_settings.x)) {
-		apply_SSAO(ambient, frag_tex_coord);
+		apply_SSAO(diffuse, frag_tex_coord);
 	}
 
 	if (lights[instance].render_shadows && bool(shadow_settings.y)) {
@@ -114,5 +152,5 @@ void main(){
 		specular *= shadow_occlusion;
 	}
   
-    color = vec4(ambient + diffuse + specular, 1.0);
+    color = vec4(diffuse + specular, 1.0);
 }

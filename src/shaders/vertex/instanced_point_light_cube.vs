@@ -5,7 +5,6 @@ struct Point_light {
 
 	vec4 position;
 	vec4 color;
-	vec4 color_components;
 
 	float radius;
 	bool render_shadows;
