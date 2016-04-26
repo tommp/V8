@@ -16,7 +16,7 @@ const int shininess = 32;
 const int SHADOW_LAYERS = 1;
 const float NUM_STEPS = 40.0;
 const float OFFSET = 2.0;
-const float STEPSIZE = 5.0;
+const float STEPSIZE = 1.0;
 
 uniform sampler2D g_position;
 uniform sampler2D g_normal;

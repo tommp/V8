@@ -84,8 +84,6 @@ class Renderer{
 
 	    GLboolean clear_shadow_layers[Renderer_consts::SHADOW_LAYERS];
 
-	    GLuint last_blurred;
-
 	    GLfloat near_plane;
 	    GLfloat far_plane;
 
@@ -102,6 +100,7 @@ class Renderer{
 		GLboolean shaders_initialized;
 		GLboolean primitives_initialized;
 		GLboolean uniform_data_initialized;
+		GLuint last_blurred;
 
 	    glm::mat4 projection;
 	    glm::mat4 view;
@@ -293,10 +292,6 @@ class Renderer{
 		GLuint get_uniform_buffer(const std::string& name)const;
 		GLuint get_window_width()const{return window_size.x;};
 		GLuint get_window_height()const{return window_size.y;};
-
-		bool render_line(const glm::vec3& start, 
-							const glm::vec3& end, 
-							const glm::vec3& color);
 
 		void update_view_matrix(const glm::vec3& position, 
 							const glm::vec3& target, 

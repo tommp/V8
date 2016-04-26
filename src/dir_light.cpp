@@ -6,7 +6,7 @@ Directional_light::Directional_light(const glm::vec3& dir,
 									GLboolean render_shadows){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
 	
-	this->direction = dir;
+	this->direction = glm::normalize(dir);
 	this->color = color;
 	this->color_components = color_components;
 	if (render_shadows) {
@@ -26,8 +26,8 @@ Directional_light::Directional_light(const glm::vec3& dir,
 
 Directional_light::Directional_light(){
 	base_light_context->shader_type = LIGHT_DIRECTIONAL;
-	direction = {-1.0f, -1.0f, -1.0f};
-	direction = glm::normalize(direction);
+	direction = {0.0f, -1.0f, -1.0f};
+	//direction = glm::normalize(direction);
 	color = {0.02f, 0.02f, 0.02f};
 	color_components = {1.0f, 1.0f, 0.0f};
 	render_shadows = 1;
@@ -51,7 +51,6 @@ bool Directional_light::bind_lambda_expression()const{
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color));
 		base_offset += sizeof(glm::vec4);
-
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color_components));
 		base_offset += sizeof(glm::vec4);

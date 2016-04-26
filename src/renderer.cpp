@@ -2384,12 +2384,6 @@ GLuint Renderer::get_uniform_buffer(const std::string& name)const{
 	}
 };
 
-bool Renderer::render_line(const glm::vec3& start, 
-							const glm::vec3& end, 
-							const glm::vec3& color){
-	return true;
-}
-
 bool Renderer::update_projection_matrix(){
 	if (ortographic) {
 		projection = glm::ortho(0.0f, window_size.x, 0.0f, window_size.y, near_plane, far_plane);

@@ -32,12 +32,12 @@ btRigidBody* Object::get_collision_body()const{
 bool Object::generate_collision_volume(const std::string& modelname, Collision_shape type, const glm::vec3& scale){
 	switch(type){
 		case SPHERE:{
-			GLuint radius = std::max(scale.x, std::max(scale.y, scale.z)); 
+			GLuint radius = std::max(scale.x, std::max(scale.y, scale.z)) + 1; 
 			collision_shape = new btSphereShape(radius);
 			break;
 		}
 		case BOX:{
-			btVector3 box_size = {scale.x, scale.y, scale.z};
+			btVector3 box_size = {scale.x + 1, scale.y + 1, scale.z + 1};
 			collision_shape = new btBoxShape(box_size);
 			break;
 		}

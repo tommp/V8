@@ -42,6 +42,14 @@ public:
 		const glm::vec3& direction,
 		GLfloat mass,
 		Collision_shape shape);
+	Prop(Resource_manager& manager, 
+		const std::string& model_name,
+		const glm::vec3& position,
+		const glm::vec3& scale,
+		const glm::vec3& direction,
+		GLfloat mass,
+		Collision_shape shape,
+		const glm::vec3& collision_scale);
 	~Prop();
 	bool update_position(GLfloat timedelta, const glm::mat4& view_matrix);
 	bool touch_object(Object& object);

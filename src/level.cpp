@@ -31,7 +31,10 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_light(spot_light);
 	}
 
-	Light_ptr dir_light = std::make_shared<Directional_light>();
+	Light_ptr dir_light = std::make_shared<Directional_light>(glm::vec3(0.0, -1.0, 0.0), 
+									glm::vec3(1.0, 1.0, 1.0), 
+									glm::vec3(0.02, 0.02, 0.02),
+									true);
 	add_light(dir_light);
 
 	
@@ -74,14 +77,15 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_object(prop);
 	}
 
-	for (GLuint i = 0; i < 100; ++i) {
+	for (GLuint i = 0; i < 1; ++i) {
 		glm::vec3 position = glm::vec3(0.0, 200.0, 0.0);
-		Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
+		Prop_ptr prop = std::make_shared<Prop>(init_manager, "house plant", 
 										position, 
-										glm::vec3(20.0, 10.0, 20.0),
+										glm::vec3(0.1, 0.1, 0.1),
 										glm::vec3(0.0, 0.0, -1.0),
 										10.0f,
-										BOX);
+										BOX,
+										glm::vec3(20.0, 20.0, 20.0));
 		add_object(prop);
 	}
 

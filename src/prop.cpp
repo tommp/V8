@@ -67,6 +67,41 @@ Prop::Prop(Resource_manager& manager,
 	generate_collision_body(mass, rotation, position);
 }
 
+Prop::Prop(Resource_manager& manager, 
+		const std::string& model_name,
+		const glm::vec3& position,
+		const glm::vec3& scale,
+		const glm::vec3& direction,
+		GLfloat mass,
+		Collision_shape shape,
+		const glm::vec3& collision_scale){
+
+	glm::vec4 color;
+	color.x = (rand()%100) /100.0f;
+	color.y = (rand()%100) /100.0f;
+	color.z = (rand()%100) /100.0f;
+	color.w = 0.0;
+
+	if (!(model = manager.load_model(model_name, color))){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Prop constructor failed to load model: " << model_name << std::endl;
+		errorlogger("FATAL ERROR: Prop constructor failed to load model: ", model_name.c_str());
+		exit(EXIT_FAILURE);
+	}
+
+	model->bind_context(model_matrix, normal_model_matrix, context_name);
+
+	this->position = position;
+	this->direction = glm::normalize(direction);
+	this->scale = scale;
+
+	prev_position = position + glm::vec3(10.0, 0.0, 0.0);
+
+	/* Physics */
+	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
+	generate_collision_volume(model_name, shape, collision_scale);
+	generate_collision_body(mass, rotation, position);
+}
+
 
 
 
