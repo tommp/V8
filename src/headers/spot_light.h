@@ -40,7 +40,6 @@ class Spot_light : public Base_light{
 				const glm::vec3& pos,
 				const glm::vec3& dir,
 				const glm::vec3& color, 
-				const glm::vec3& color_components,
 				const GLfloat cutoff,
 				const GLfloat outer_cutoff,
 				GLfloat intensity,

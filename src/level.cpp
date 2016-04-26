@@ -11,18 +11,16 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		exit(EXIT_FAILURE);
 	}
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = rand() % 200 + 100;
 		position.z = rand() % 2000 - 1000;
-		glm::vec3 color = {0.5, 0.5, 0.3};
-		glm::vec3 color_components = {0.2, 0.8, 0.0};
+		glm::vec3 color = {1.0, 1.0, 1.0};
 		Light_ptr point_light = std::make_shared<Point_light>(400, 
 						position, 
 						color, 
-						color_components,
-						false);
+						true);
 		add_light(point_light);
 	}
 
@@ -31,9 +29,8 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_light(spot_light);
 	}
 
-	Light_ptr dir_light = std::make_shared<Directional_light>(glm::vec3(0.0, -1.0, 0.0), 
-									glm::vec3(1.0, 1.0, 1.0), 
-									glm::vec3(0.02, 0.02, 0.02),
+	Light_ptr dir_light = std::make_shared<Directional_light>(glm::vec3(0.0, -1.0, -1.0), 
+									glm::vec3(0.4, 0.4, 0.4), 
 									true);
 	add_light(dir_light);
 
@@ -79,7 +76,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 
 	for (GLuint i = 0; i < 1; ++i) {
 		glm::vec3 position = glm::vec3(0.0, 200.0, 0.0);
-		Prop_ptr prop = std::make_shared<Prop>(init_manager, "house plant", 
+		Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
 										position, 
 										glm::vec3(0.1, 0.1, 0.1),
 										glm::vec3(0.0, 0.0, -1.0),

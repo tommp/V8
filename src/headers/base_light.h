@@ -31,9 +31,6 @@ class Base_light: public Actor{
 	protected:
 		glm::vec3 color;
 
-		/* x is ambient, y is diffuse, z is specular */
-		glm::vec3 color_components;
-
 		/* Ints beacause of std 140 */
 		GLuint render_shadows;
 		GLuint apply_SSAO;
@@ -46,9 +43,6 @@ class Base_light: public Actor{
 		Shader_type get_type(){return base_light_context->shader_type;};
 		bool randomize_position(const glm::i16vec3& maxpos, const glm::i16vec3& offset);
 		bool randomize_color(GLfloat intensity);
-		bool randomize_diffuse();
-		bool randomize_ambient();
-		bool randomize_specular();
 		bool add_context(Renderer& renderer)const;
 		bool set_direction(const glm::vec3& dir);
 		bool set_position(const glm::vec3& pos);

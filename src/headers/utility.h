@@ -41,9 +41,9 @@ namespace Utility_consts{
 	const GLuint FALSE_BOOL = 				0;
 	
 	/* Light uniform specs. */
-	const GLuint SIZEOF_DIR_LIGHT = 	4 * sizeof(glm::vec4);
-	const GLuint SIZEOF_POINT_LIGHT = 	sizeof(glm::mat4) + 4 * sizeof(glm::vec4);
-	const GLuint SIZEOF_SPOT_LIGHT = 	sizeof(glm::mat4) + 6 * sizeof(glm::vec4);
+	const GLuint SIZEOF_DIR_LIGHT = 	3 * sizeof(glm::vec4);
+	const GLuint SIZEOF_POINT_LIGHT = 	sizeof(glm::mat4) + 3 * sizeof(glm::vec4);
+	const GLuint SIZEOF_SPOT_LIGHT = 	sizeof(glm::mat4) + 5 * sizeof(glm::vec4);
 
 	const GLuint MAX_DIR_LIGHTS = 		10;
 	const GLuint MAX_POINT_LIGHTS = 	100;

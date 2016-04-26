@@ -2,7 +2,11 @@
 out vec4 color;
 
 flat in int instance;
-const int shininess = 32;
+const float gloss = 0.00;
+const float reflectivity = 0.8;
+const float DIFFUSE_SPREAD_DIVISOR = 0.15;
+const float REFLECTION_SLACK = 0.001;
+
 const int SHADOW_LAYERS = 1;
 const float NUM_STEPS = 100.0;
 const float OFFSET = 2.0;
@@ -19,7 +23,6 @@ struct Point_light {
 
 	vec4 position;
 	vec4 color;
-	vec4 color_components;
 
 	float radius;
 	bool render_shadows;
@@ -63,7 +66,7 @@ float calc_shadow_occlusion(vec3 light_direction, vec3 frag_position){
 	vec3 trace_offset = light_direction * STEPSIZE;
 	vec3 trace_position = frag_position + trace_offset * OFFSET;
 
-	vec4 sample_offset = vec4(trace_offset, 1.0);
+	vec4 sample_offset = projection * vec4(trace_offset, 1.0);
     vec4 sample_coords = projection * vec4(trace_position, 1.0);
 
     vec3 final_coords;
@@ -94,31 +97,34 @@ void main(){
 	vec3 frag_position = texture(g_position, frag_tex_coord).xyz;
 	vec3 normal = normalize(texture(g_normal, frag_tex_coord).xyz);
 	vec3 sample_color = texture(g_albedo_spec, frag_tex_coord).rgb;
-	
-	float distance = length(lights[instance].position.xyz - frag_position);
+	vec3 light_color = lights[instance].color.xyz;
 
+	float distance = length(lights[instance].position.xyz - frag_position);
+	
 	vec3 view_direction = normalize(view_position - frag_position);
 	vec3 light_direction = normalize(lights[instance].position.xyz - frag_position);
-	vec3 reflect_direction = reflect(-light_direction, normal);
+	vec3 reflect_direction = reflect(-light_direction, normal); 
 
-	float diff = max(dot(normal, light_direction), 0.0);
-	float spec = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
+	float face_factor = max(dot(normal, light_direction), 0.0);
 
-	vec3 ambient = (lights[instance].color.xyz * lights[instance].color_components.x) * sample_color;
+	float reflection_factor = reflectivity * ((1 - face_factor) + REFLECTION_SLACK);
+	float reflection_divisor = smoothstep(pow(gloss, 2), 1.0, max(dot(view_direction, reflect_direction), 0.0)) * gloss;
 
-	vec3 diffuse = (lights[instance].color.xyz * lights[instance].color_components.y) * diff * sample_color;
+	vec3 reflected_light = light_color  * reflection_factor;
+	vec3 scattered_light = sample_color * light_color * (1 - reflection_factor);
+	
+	vec3 diffuse = scattered_light * DIFFUSE_SPREAD_DIVISOR;
 
-	vec3 specular = (lights[instance].color.xyz * lights[instance].color_components.z) * spec * vec3(texture(g_albedo_spec, frag_tex_coord).a);
+	vec3 specular = reflected_light * reflection_divisor;
 
 	float attenuation = clamp(1.0 - distance/lights[instance].radius, 0.0, 1.0);
 	attenuation *= attenuation;
 	
-	ambient *= attenuation;
 	diffuse *= attenuation;
 	specular *= attenuation;
 
 	if (lights[instance].apply_ssao && bool(shadow_settings.x)) {
-		apply_SSAO(ambient, frag_tex_coord);
+		apply_SSAO(diffuse, frag_tex_coord);
 	}
 	
 	if (lights[instance].render_shadows && bool(shadow_settings.y)) {
@@ -128,5 +134,5 @@ void main(){
 
 	}
 
-    color = vec4(ambient + diffuse + specular, 1.0);
+    color = vec4(diffuse + specular, 1.0);
 }

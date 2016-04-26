@@ -3,13 +3,11 @@
 Point_light::Point_light(GLfloat radius, 
 						const glm::vec3& pos, 
 						const glm::vec3& color, 
-						const glm::vec3& color_components,
 						GLboolean render_shadows) {
 	base_light_context->shader_type = LIGHT_POINT;
 
 	this->radius = radius;
 	this->color = color;
-	this->color_components = color_components;
 	this->position = pos;
 	if (render_shadows) {
 		this->render_shadows = 1;
@@ -37,7 +35,6 @@ Point_light::Point_light(){
 	radius = rand() % 500;
 	randomize_position(glm::i16vec3(1000, 10, 1000), glm::i16vec3(500, -70, 500));
 	randomize_color(5);
-	color_components = {0.0f, 1.0f, 1.0f};
 	render_shadows = 0;
 	apply_SSAO = 0;
 	
@@ -69,9 +66,6 @@ bool Point_light::bind_lambda_expression()const{
 		base_offset += sizeof(glm::vec4);
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color));
-		base_offset += sizeof(glm::vec4);
-
-		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color_components));
 		base_offset += sizeof(glm::vec4);
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(GLfloat), (GLvoid*)(&radius));
