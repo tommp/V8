@@ -11,7 +11,7 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 	color.x = (rand()%100) /100.0f;
 	color.y = (rand()%100) /100.0f;
 	color.z = (rand()%100) /100.0f;
-	color.w = 0.0;
+	color.w = 0.8;
 	if (!(model = manager.load_model(model_name, color))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Prop constructor failed to load model: " << model_name << std::endl;
 		errorlogger("FATAL ERROR: Prop constructor failed to load model: ", model_name.c_str());
@@ -45,7 +45,7 @@ Prop::Prop(Resource_manager& manager,
 	color.x = (rand()%100) /100.0f;
 	color.y = (rand()%100) /100.0f;
 	color.z = (rand()%100) /100.0f;
-	color.w = 0.0;
+	color.w = 0.8;
 
 	if (!(model = manager.load_model(model_name, color))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Prop constructor failed to load model: " << model_name << std::endl;
@@ -114,6 +114,7 @@ Prop::~Prop(){
 }
 
 bool Prop::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
+	(void(timedelta));
 
 	if (!update_matrices(view_matrix)) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to update matrices for prop!" << std::endl;
@@ -121,10 +122,6 @@ bool Prop::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
 		return false;
 	}
 
-	return true;
-}
-
-bool Prop::touch_object(Object& object){
 	return true;
 }
 

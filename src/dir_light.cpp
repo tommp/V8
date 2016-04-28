@@ -39,7 +39,7 @@ Directional_light::Directional_light(){
 
 bool Directional_light::bind_lambda_expression()const{
 	base_light_context->setup_base_uniforms = [&](GLuint buffer, const glm::mat4& view, GLuint instance) {
-
+		(void(view));
 		GLuint base_offset = Utility_consts::SIZEOF_DIR_LIGHT * instance;
 		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
 

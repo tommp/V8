@@ -37,7 +37,7 @@ void Debug_drawer::drawLine(const btVector3 &from, const btVector3 &to, const bt
 }
 
 void Debug_drawer::draw3dText(const btVector3 &location, const char* textString){
-
+	(void(location)); (void(textString));
 }
 
 void Debug_drawer::drawContactPoint(const btVector3& PointOnB, 
@@ -45,6 +45,7 @@ void Debug_drawer::drawContactPoint(const btVector3& PointOnB,
 	btScalar distance,
 	int lifeTime,
 	const btVector3& color){
+	(void(PointOnB)); (void(normalOnB)); (void(distance)); (void(lifeTime)); (void(color));
 
 }
       

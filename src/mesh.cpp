@@ -3,7 +3,7 @@
 Mesh::Mesh(){
 	VBO = 0;
 	EBO = 0;
-	object_color = {1.0f, 1.0f, 1.0f, 1.0f};
+	object_color = {1.0f, 1.0f, 1.0f, 0.8f};
 	material = nullptr;
 
 	mesh_in_renderer = false;
@@ -179,8 +179,7 @@ bool Mesh::load_binary_mesh(const std::string& name, std::vector<Vertex>& vertic
 	return true;
 }
 
-bool Mesh::load_base_box(std::vector<Vertex>& vertices, 
-				std::vector<GLuint>& indices) {
+bool Mesh::load_base_box(std::vector<Vertex>& vertices) {
 	base_context->shader_type = GEOMETRY_STATIC;
 	base_context->render_elements = false;
 	std::vector<glm::vec3> cube_v_positions = {
@@ -301,7 +300,7 @@ bool Mesh::load_from_file(Resource_manager& manager, const std::string& name){
 	std::string material_name = "";
 
 	if (name == Mesh_vars::BOX) {
-		if (!load_base_box(vertices, indices)) {
+		if (!load_base_box(vertices)) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load base box mesh!" << std::endl;
 			errorlogger("ERROR: Failed to load base box mesh!");
 			return false;

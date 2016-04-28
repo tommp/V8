@@ -173,6 +173,14 @@ bool Model::add_mesh_contexts_to_renderer(Renderer& renderer)const{
 }
 
 bool Model::add_light_contexts_to_renderer(Renderer& renderer)const{
+	for (auto& light : lights) {
+		if (!light->add_context(renderer)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to add light context to renderer!" << std::endl;
+			errorlogger("ERROR: Failed to add light context to renderer!");
+			return false;
+		}
+	}
+	
 	return true;
 }
 

@@ -52,7 +52,6 @@ public:
 		const glm::vec3& collision_scale);
 	~Prop();
 	bool update_position(GLfloat timedelta, const glm::mat4& view_matrix);
-	bool touch_object(Object& object);
 	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 

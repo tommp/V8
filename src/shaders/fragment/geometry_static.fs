@@ -1,15 +1,16 @@
 layout (location = 0) out vec4 g_position;
-layout (location = 1) out vec3 g_normal;
+layout (location = 1) out vec4 g_normal;
 layout (location = 2) out vec4 g_albedo_spec;
-layout (location = 3) out vec4 g_bloom;
 
 in vec2 frag_tex_coord;
 in vec3 frag_position;
 in vec3 frag_normal;
 
 struct Material {
-	sampler2D diffuse;
-	sampler2D specular;
+    sampler2D diffuse;
+    sampler2D normal;
+    sampler2D reflectivity;
+    sampler2D gloss;
 }; 
 
 uniform Material material;
@@ -32,16 +33,11 @@ float linearize_depth(float depth)
 void main()
 {    
     g_position.xyz = frag_position;
-
     g_position.w = linearize_depth(gl_FragCoord.z);
 
-    g_normal = normalize(frag_normal);
-
-    g_albedo_spec.a = texture(material.specular, frag_tex_coord).r;
+    g_normal.xyz = texture(material.normal, frag_tex_coord).xyz;
+    g_normal.w = texture(material.gloss, frag_tex_coord).r;
 
     g_albedo_spec.rgb = texture(material.diffuse, frag_tex_coord).rgb;
-
-    float brightness = dot(g_albedo_spec.rgb, vec3(0.2126, 0.7152, 0.0722));
-
-    g_bloom = vec4(g_albedo_spec.rgb * step(1.0, brightness), 1.0);
+    g_albedo_spec.a = texture(material.reflectivity, frag_tex_coord).r;
 }

@@ -21,7 +21,6 @@ out vec4 color;
 
 flat in int instance;
 const float gloss = 0.0;
-const float reflectivity = 0.1;
 const float DIFFUSE_SPREAD_DIVISOR = 0.15;
 const float REFLECTION_SLACK = 0.001;
 
@@ -52,6 +51,7 @@ layout (std140) uniform Resolution_data{
 
 layout (std140) uniform Settings{
 	vec4 shadow_settings;
+	vec4 ppe_settings;
 };
 
 layout (std140) uniform Matrices{
@@ -105,6 +105,7 @@ void main(){
 	vec3 light_color = lights[instance].color.xyz;
 
 	float distance = length(lights[instance].position.xyz - frag_position);
+	float reflectivity = texture(g_albedo_spec, frag_tex_coord).a;
 
 	vec3 view_direction = normalize(view_position - texture(g_position, frag_tex_coord).rgb);
 	vec3 light_direction = normalize(lights[instance].position.xyz - frag_position); 

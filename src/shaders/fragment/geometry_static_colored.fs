@@ -1,12 +1,12 @@
 layout (location = 0) out vec4 g_position;
-layout (location = 1) out vec3 g_normal;
+layout (location = 1) out vec4 g_normal;
 layout (location = 2) out vec4 g_albedo_spec;
-layout (location = 3) out vec4 g_bloom;
 
 in vec3 frag_normal;
 in vec3 frag_position;
 
 uniform vec4 object_color;
+uniform float gloss;
 
 layout (std140) uniform Plane_data
 {
@@ -23,19 +23,13 @@ float linearize_depth(float depth)
     return linear_depth;
 }
 
-void main()
-{    
+void main(){    
 	g_position.xyz = frag_position;
-
     g_position.w = linearize_depth(gl_FragCoord.z);
 
-    g_normal = normalize(frag_normal);
-
-    g_albedo_spec.a = object_color.w;
+    g_normal.xyz = normalize(frag_normal);
+    g_normal.w = gloss;
 
     g_albedo_spec.rgb = object_color.xyz;
-
-    float brightness = dot(object_color.xyz, vec3(0.2126, 0.7152, 0.0722));
-    
-    g_bloom = vec4(g_albedo_spec.rgb * step(1.0, brightness), 1.0);
+    g_albedo_spec.a = object_color.w;
 }

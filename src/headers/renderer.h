@@ -8,6 +8,7 @@
 #include "glm.h"
 #include "errorlogger.h"
 #include "utility.h"
+#include "tile.h"
 #include "camera.h"
 #include "enum_light_type.h"
 #include "material.h"
@@ -55,16 +56,7 @@ class Resource_manager;
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;
 
-class Tile{
-private:
-	std::vector<GLuint> dir_light_indices;
-	std::vector<GLuint> point_light_indices;
-	std::vector<GLuint> spot_light_indices;
-	GLuint num_lights;
-public:
 
-
-};
 
 class Renderer{
 	private:
@@ -76,7 +68,8 @@ class Renderer{
 	    GLboolean use_vsync;
 	    GLboolean use_AA;
 	    GLboolean use_SSAO;
-	    GLboolean use_bloom;
+	    GLboolean use_pre_bloom;
+	    GLboolean use_post_bloom;
 	    GLboolean use_shadows;
 	    GLboolean use_fullscreen;
 	    GLboolean use_mouse;
@@ -86,6 +79,11 @@ class Renderer{
 
 	    GLfloat near_plane;
 	    GLfloat far_plane;
+
+	    GLfloat lower_bloom_threshold;
+	    GLfloat higher_bloom_threshold;
+	    GLfloat gamma;
+	    GLfloat exposure;
 
 	    glm::vec2 window_size;
 	    glm::vec2 window_init_pos;
@@ -111,8 +109,10 @@ class Renderer{
 		GLuint AA_fbo;
 		GLuint SSAO_fbo;
 		GLuint bb_fbos[2];
-		GLuint blurred_output;
 		GLuint light_fbo;
+		GLuint pre_bloom_fbo;
+		GLuint post_bloom_fbo;
+		GLuint ppe_blend_fbo;
 
 		GLuint g_position;
 		GLuint g_normal;
@@ -125,6 +125,9 @@ class Renderer{
 		GLuint light_color_buffer;
 		GLuint light_ambient_buffer;
 		GLuint light_rbo_depth;
+		GLuint pre_bloom_buffer;
+		GLuint post_bloom_buffer;
+		GLuint ppe_blend_buffer;
 
 		/* LFST fbos */
 		GLuint shadow_layer_fbos[Renderer_consts::SHADOW_LAYERS];
@@ -176,9 +179,11 @@ class Renderer{
 		Shader_ptr animated_geometry_shader;
 		Shader_ptr animated_geometry_shader_colored;
 		Shader_ptr primitive_line_shader;
+		Shader_ptr bloom_shader;
 		Shader_ptr vertical_blur_shader;
 		Shader_ptr horizontal_blur_shader;
-		Shader_ptr final_shader;
+		Shader_ptr ppe_blend_shader;
+		Shader_ptr HDR_shader;
 		Shader_ptr FXAA_shader;
 		Shader_ptr SSAO_shader;
 		Shader_ptr LFST_cull_shader;
@@ -190,10 +195,12 @@ class Renderer{
 		bool init_settings();
 		bool init_g_buffer();
 		bool init_blur_buffers();
+		bool init_bloom_buffers();
 		bool init_AA_buffer();
 		bool init_SSAO_buffer();
 		bool init_light_buffer();
 		bool init_shadow_buffers();
+		bool init_ppe_blend_buffer();
 		bool init_framebuffers();
 		bool init_uniform_buffers();
 		bool init_shaders(Resource_manager& resource_manager);
@@ -208,7 +215,6 @@ class Renderer{
 		bool set_viewport_window()const;
 		bool set_viewport_resolution()const;
 
-		bool use_g_buffer()const;
 		bool use_default_buffer()const;
 
 		bool upload_res_data()const;
@@ -219,8 +225,6 @@ class Renderer{
 		bool update_projection_matrix();
 		bool upload_settings()const;
 
-		bool setup_geometry_rendering(const Camera_ptr& camera);
-		bool detach_geometry_rendering()const;
 		bool render_static_geomety()const;
 		bool render_static_colored_geomety()const;
 		bool render_animated_geomety()const;
@@ -260,17 +264,20 @@ class Renderer{
 
 		bool set_clear_color_black();
 		GLfloat lerp(GLfloat a, GLfloat b, GLfloat f)const;
-		bool blur_texture(GLuint amount, GLuint texture);
+		bool blur_texture(GLuint amount, GLuint texture, GLuint texture_fbo);
 		bool update_window_size();
 
-		bool render_geometry(const Camera_ptr& camera);
+		bool render_geometry();
 		bool render_lights(const glm::vec3& position);
 		bool ppe_blend();
+		bool hdr_to_default_buffer();
 
 		bool copy_depth(GLuint source_fbo, GLuint target_fbo);
 		bool make_viewport_matrix(glm::mat3& matrix);
 
+		bool apply_ppe();
 		bool apply_AA()const;
+		bool apply_bloom(GLuint bloom_fbo, GLuint color_texture);
 		bool apply_SSAO();
 		bool apply_shadows();
 		
@@ -312,7 +319,8 @@ class Renderer{
 
 		
 		bool toggle_aliasing();
-		bool toggle_bloom();
+		bool toggle_pre_bloom();
+		bool toggle_post_bloom();
 		bool toggle_mouse();
 		bool toggle_ambient_occlusion();
 		bool toggle_shadows();

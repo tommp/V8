@@ -67,6 +67,7 @@ bool Object::generate_collision_volume(const std::string& modelname, Collision_s
 }
 
 bool Object::load_model_vertices(const std::string& modelname, std::vector<Vertex>& vertices){
+	(void(vertices));
 	std::string model_path = Utility_vars::folder_path + MODEL_DATA_PATH + modelname + ".model";
 
 	return true;

@@ -24,6 +24,7 @@
 /*Header content*/
 /*=============================================*/
 class Shader;
+class Renderer;
 
 typedef std::shared_ptr<Shader> Shader_ptr;
 

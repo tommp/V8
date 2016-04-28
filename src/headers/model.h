@@ -11,6 +11,7 @@
 #include "animation_set.h"
 #include "rendering_context.h"
 #include "resource_manager.h"
+#include "base_light.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -27,9 +28,11 @@ class Resource_manager;
 class Mesh;
 class Renderer;
 class Animation_set;
+class Base_light;
 
 typedef std::shared_ptr<Animation_set> Animation_set_ptr;
 typedef std::shared_ptr<Mesh> Mesh_ptr;
+typedef std::shared_ptr<Base_light> Light_ptr;
 
 class Model{
 	private:
@@ -42,6 +45,8 @@ class Model{
 		glm::vec3 init_direction;
 
 		std::list<Mesh_ptr> meshes;
+
+		std::list<Light_ptr> lights;
 
 		GLboolean is_animated;
 		Animation_set_ptr animations;

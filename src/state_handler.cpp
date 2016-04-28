@@ -22,7 +22,8 @@ void State_handler::handle_events(){
 				renderer->toggle_aliasing();
 			}
 			else if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", A1)) {
-				renderer->toggle_bloom();
+				renderer->toggle_post_bloom();
+				renderer->toggle_pre_bloom();
 			}
 			else if (ehandler.key.keysym.scancode == manager->get_button_map_key("player", A2)) {
 				renderer->toggle_ambient_occlusion();

@@ -6,6 +6,17 @@ Shader::Shader(){
     program = 0;
 }
 
+bool Shader::use(){
+    glUseProgram(program);
+    if(check_ogl_error()){
+        std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to use shader: " << name << std::endl;
+        errorlogger("ERROR: Failed to use shader:", name.c_str());
+        return false;
+    }
+
+    return true;
+}
+
 char* Shader::read_data_from_file(const char* filename) {
     SDL_RWops *rw = SDL_RWFromFile(filename, "rb");
     if (rw == NULL){
@@ -66,12 +77,14 @@ GLuint Shader::create_shader(const char* filename, GLenum type) {
 }
 
 bool Shader::load_from_file(const std::string& name){
-
     if (WORLD_SHADERS.find(name) == WORLD_SHADERS.end()) {
         std::cout << "ERROR: Shader not found!: " << name << std::endl;
         errorlogger("ERROR: Shader not found!: ", name.c_str());
         return false;
     }
+
+    this->name = name;
+
     std::string vertex_path = Utility_vars::folder_path + SHADER_PATH + WORLD_SHADERS.find(name)->second.first;
     std::string fragment_path = Utility_vars::folder_path + SHADER_PATH + WORLD_SHADERS.find(name)->second.second;
     

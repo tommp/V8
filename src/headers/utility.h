@@ -123,12 +123,10 @@ void load_mesh_bones(const aiMesh* mesh,
 						std::vector<glm::mat4>& bone_info);
 
 std::vector<std::string> load_material_textures(const aiMaterial* mat, 
-												aiTextureType type, 
-												const std::string& typeName);
+												aiTextureType type);
 
 std::string load_material_texture(const aiMaterial* mat, 
-									aiTextureType type, 
-									const std::string& typeName);
+									aiTextureType type);
 
 GLboolean convert_all_images();
 

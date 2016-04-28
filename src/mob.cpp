@@ -16,7 +16,7 @@ Mob::Mob(Resource_manager& manager,
 	color.x = (rand()%100) /100.0f;
 	color.y = (rand()%100) /100.0f;
 	color.z = (rand()%100) /100.0f;
-	color.w = 0.0;
+	color.w = 0.8;
 	if ( !(model = manager.load_model(model_name, color))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Mob constructor failed to load model: " << model_name << std::endl;
 		errorlogger("FATAL ERROR: Mob constructor failed to load model: ", model_name.c_str());
@@ -103,7 +103,7 @@ bool Mob::update_position(float timedelta, const glm::mat4& view_matrix){
 		if(glm::length(velocity)){
 			velocity = glm::normalize(velocity);
 			direction = velocity;
-			velocity *= speed;
+			velocity *= speed * timedelta;
 		}
 	}
 
@@ -117,10 +117,6 @@ bool Mob::update_position(float timedelta, const glm::mat4& view_matrix){
 		return false;
 	}
 
-	return true;
-}
-
-bool Mob::touch_object(Object& object){
 	return true;
 }
 

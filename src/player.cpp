@@ -1,17 +1,17 @@
 #include "player.h"
 
 Player::Player(){
-	std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: No default mob constructor!" << std::endl;
-	errorlogger("FATAL ERROR: No default mob constructor!");
+	std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: No default player constructor!" << std::endl;
+	errorlogger("FATAL ERROR: No default player constructor!");
 	exit(EXIT_FAILURE);
 }
 
 Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	glm::vec4 color;
-	color.x = (rand()%100) /100.0f ;
-	color.y = (rand()%100) /10.0f;
-	color.z = (rand()%100) /100.0f;
-	color.w = 0.0;
+	color.x = (rand()%90) /100.0f ;
+	color.y = (rand()%90) /100.0f;
+	color.z = (rand()%90) /100.0f;
+	color.w = 0.8;
 	if (!(model = init_manager.load_model(model_name, color))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Player constructor failed to load model: " << model_name << std::endl;
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
@@ -20,7 +20,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	model->bind_context(model_matrix, normal_model_matrix, context_name);
 
 	manager = &init_manager;
-	speed = 400.0f;
+	speed = 10000.0f;
 	velocity = {0.0f, 0.0f, 0.0f};
 
 	position = {100.0f, 100.0f, 100.0f};
@@ -87,7 +87,7 @@ bool Player::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
 	if(glm::length(velocity)) {
 		velocity = glm::normalize(velocity);
 		direction = velocity;
-		velocity *= speed;
+		velocity *= speed * timedelta;
 	}
 
 	update_matrices(view_matrix);
@@ -95,10 +95,6 @@ bool Player::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
 	flashlight->set_position(get_position());
 	flashlight->calculate_light_uniforms();*/
 	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
-	return true;
-}
-
-bool Player::touch_object(Object& object){
 	return true;
 }
 

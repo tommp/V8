@@ -66,7 +66,7 @@ class Mesh {
 							std::vector<GLuint>& indices,
 							std::string& material);
 
-		bool load_base_box(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
+		bool load_base_box(std::vector<Vertex>& vertices);
 		bool load_base_line(std::vector<Vertex>& vertices);
 	public:
 		Mesh();

@@ -12,7 +12,6 @@ out vec4 color;
 
 flat in int instance;
 const float gloss = 0.0;
-const float reflectivity = 0.8;
 const float DIFFUSE_SPREAD_DIVISOR = 0.1;
 const float REFLECTION_SLACK = 0.00001;
 
@@ -44,6 +43,7 @@ layout (std140) uniform Resolution_data{
 
 layout (std140) uniform Settings{
 	vec4 shadow_settings;
+	vec4 ppe_settings;
 };
 
 layout (std140) uniform Matrices{
@@ -131,6 +131,7 @@ void main(){
 	vec3 view_direction = normalize(view_position - frag_position);
 
 	float face_factor = max(dot(normal, light_direction), 0.0);
+	float reflectivity = texture(g_albedo_spec, frag_tex_coord).a;
 
 	float reflection_factor = reflectivity * ((1 - face_factor) + REFLECTION_SLACK);
 	float reflection_divisor = smoothstep(pow(gloss, 2), 1.0, max(dot(view_direction, reflect_direction), 0.0)) * gloss;

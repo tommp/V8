@@ -56,7 +56,6 @@ public:
 		Collision_shape shape);
 	~Mob();
 	bool update_position(GLfloat timedelta, const glm::mat4& view_matrix);
-	bool touch_object(Object& object);
 	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 

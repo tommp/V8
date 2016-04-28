@@ -31,6 +31,7 @@ namespace Shader_vars{
 
 class Shader{
 private:
+	std::string name;
 	GLuint program;
 	std::unordered_map<std::string, GLuint> uniform_locations;
 	bool bind_uniform_buffers(GLuint program, const std::string& name)const;
@@ -45,7 +46,7 @@ public:
 	bool load_from_file(const std::string& name);
 	GLuint create_shader(const char* filename, GLenum type);
 	void print_log(GLuint object);
-	void use(){glUseProgram(program);};
+	bool use();
 };
 
 typedef std::shared_ptr<Shader> Shader_ptr;

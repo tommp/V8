@@ -73,7 +73,7 @@ GLboolean write_string_to_binary_file(std::ofstream& fstream, const std::string&
 		string_length = MAX_FILENAME_LENGTH;
 	}
 	fstream.write(reinterpret_cast<const char *>(&string_length), sizeof(GLuint));
-	for (int i = 0; i < string_length; ++i) {
+	for (GLuint i = 0; i < string_length; ++i) {
 		fstream.write(reinterpret_cast<const char *>(&(string[i])), sizeof(char));
 	}
 
@@ -93,7 +93,7 @@ bool read_string_from_binary_file(std::ifstream& fstream, std::string& data){
 	}
 
 	char string[MAX_FILENAME_LENGTH];
-	for (int i = 0; i < string_length; ++i) {
+	for (GLuint i = 0; i < string_length; ++i) {
 		fstream.read(reinterpret_cast<char *>(&(string[i])), sizeof(char));
 	}
 
@@ -710,8 +710,8 @@ GLboolean store_binary_material(const aiScene* scene, const aiMesh* mesh, std::s
 		errorlogger("ERROR: Cannot store material with empty name!");
 		return false;
 	}
-	diffuse_name = load_material_texture(new_material, aiTextureType_DIFFUSE, "texture_diffuse");
-	specular_name = load_material_texture(new_material, aiTextureType_SPECULAR, "texture_specular");
+	diffuse_name = load_material_texture(new_material, aiTextureType_DIFFUSE);
+	specular_name = load_material_texture(new_material, aiTextureType_SPECULAR);
 
 	material_path = Utility_vars::folder_path + MATERIAL_DATA_PATH + material_name + ".mat";
 
@@ -806,8 +806,7 @@ void load_mesh_bones(const aiMesh* mesh,
 
 /* Not in use, rework it if needed */
 std::vector<std::string> load_material_textures(const aiMaterial* mat, 
-												aiTextureType type, 
-												const std::string& typeName){
+												aiTextureType type){
 	std::vector<std::string> textures;
 	for(GLuint i = 0; i < mat->GetTextureCount(type); i++) {
 		aiString str;
@@ -822,8 +821,7 @@ std::vector<std::string> load_material_textures(const aiMaterial* mat,
 }
 
 std::string load_material_texture(const aiMaterial* mat, 
-									aiTextureType type, 
-									const std::string& typeName){
+									aiTextureType type){
 	std::string texture = "";
 	if(mat->GetTextureCount(type) >= 1){
 		aiString str;
