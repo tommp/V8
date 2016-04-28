@@ -148,7 +148,7 @@ bool Renderer::init_settings(){
 		use_fullscreen = false;
 		use_AA = true;
 		use_SSAO = true;
-		use_pre_bloom = false;
+		use_pre_bloom = true;
 		use_post_bloom = true;
 		use_shadows = false;
 

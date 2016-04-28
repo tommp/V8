@@ -20,7 +20,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		Light_ptr point_light = std::make_shared<Point_light>(400, 
 						position, 
 						color, 
-						true);
+						false);
 		add_light(point_light);
 	}
 
@@ -29,7 +29,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 		add_light(spot_light);
 	}
 
-	Light_ptr dir_light = std::make_shared<Directional_light>(glm::vec3(0.0, -1.0, -1.0), 
+	Light_ptr dir_light = std::make_shared<Directional_light>(glm::vec3(-1.0, -1.0, -1.0), 
 									glm::vec3(7.0, 7.0, 7.0), 
 									true);
 	add_light(dir_light);
