@@ -35,7 +35,6 @@ src/headers/rocket_includes
 src/headers/glm_includes
 src/headers/bullet3_includes
 src/headers/assimp_includes
-data/display.conf
 v8
 utility/
 pixelart/
