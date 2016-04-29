@@ -20,6 +20,7 @@
 #include <string>
 #include <unistd.h>
 #include <list>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/

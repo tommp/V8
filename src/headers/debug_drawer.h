@@ -15,6 +15,7 @@
 #include <GL/glew.h>
 #include <string>
 #include <cmath>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/

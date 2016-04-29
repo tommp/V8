@@ -27,6 +27,7 @@
 
 /*Included dependencies*/
 /*---------------------------------------------*/
+#include <GL/glew.h>
 #include <vector>
 #include <memory>
 #include <forward_list>

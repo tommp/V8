@@ -9,6 +9,7 @@
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <GL/glew.h>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/

@@ -14,6 +14,7 @@
 #include <GL/glew.h>
 #include <string>
 #include <unistd.h>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/

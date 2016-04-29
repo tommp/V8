@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <list>
 #include <forward_list>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/

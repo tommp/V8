@@ -6,6 +6,7 @@
 #include "actor.h"
 #include "model_context.h"
 #include "object.h"
+#include "base_controller.h"
 #include "enum_collision_shape_type.h"
 /*---------------------------------------------*/
 
@@ -14,6 +15,7 @@
 #include <GL/glew.h>
 #include <unistd.h>
 #include <iostream>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -29,6 +31,9 @@ class Entity: public Actor{
 
 		GLboolean has_physics;
 		Object physics_context;
+
+		GLboolean has_controller;
+		Base_controller_ptr controller;
 
 	public:
 		Entity();

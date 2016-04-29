@@ -16,6 +16,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <unistd.h>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/

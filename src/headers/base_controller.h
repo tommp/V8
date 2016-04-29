@@ -8,6 +8,8 @@
 /*Included dependencies*/
 /*---------------------------------------------*/
 #include <GL/glew.h>
+#include <unistd.h>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/
@@ -20,6 +22,8 @@ class Base_controller{
 		virtual bool update();
 
 };
+
+typedef std::shared_ptr<Base_controller> Base_controller_ptr;
 /*=============================================*/
 
 #endif

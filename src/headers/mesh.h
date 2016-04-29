@@ -23,6 +23,7 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/

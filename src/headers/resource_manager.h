@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <unordered_map>
 #include <array>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/

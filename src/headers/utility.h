@@ -25,6 +25,7 @@
 #include <glob.h>
 #include <cstdio>
 #include <unistd.h>
+#include <memory>
 /*---------------------------------------------*/
 
 /*Header content*/
