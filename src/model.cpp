@@ -80,7 +80,9 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name){
 	return true;
 }
 
-bool Model::load_from_file(Resource_manager& manager, const std::string& name, const glm::vec4& color){
+bool Model::load_from_file(Resource_manager& manager, const std::string& name, const glm::vec4& color, GLfloat gloss){
+	(void(gloss));
+
 	this->name = name;
 	std::vector<std::string> mesh_names;
 

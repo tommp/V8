@@ -12,7 +12,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	color.y = (rand()%90) /100.0f;
 	color.z = (rand()%90) /100.0f;
 	color.w = 0.8;
-	if (!(model = init_manager.load_model(model_name, color))){
+	if (!(model = init_manager.load_model(model_name, color, 1.0))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Player constructor failed to load model: " << model_name << std::endl;
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
 	}
@@ -46,7 +46,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 
 	mass = 100.0f;
 	btQuaternion rotation = {0.0, 1.0, 0.0, 0.0};
-	generate_collision_volume(model_name, SPHERE, scale);
+	generate_collision_volume(SPHERE, scale);
 	generate_collision_body(mass, rotation, position);
 	collision_body->setActivationState(DISABLE_DEACTIVATION);
 }
@@ -60,7 +60,7 @@ Player::~Player(){
 }
 
 bool Player::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
-
+	(void(timedelta));
 	velocity = {0.0f, 0.0f, 0.0f};
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
 	if(current_key_states[manager->get_button_map_key("player", UP)]){
@@ -87,9 +87,10 @@ bool Player::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
 	if(glm::length(velocity)) {
 		velocity = glm::normalize(velocity);
 		direction = velocity;
-		velocity *= speed * timedelta;
+		velocity *= 400;
 	}
 
+	
 	update_matrices(view_matrix);
 	/*flashlight->set_direction(direction);
 	flashlight->set_position(get_position());
@@ -115,7 +116,8 @@ bool Player::update_matrices(const glm::mat4& view_matrix){
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
-	normal_model_matrix = glm::inverseTranspose(glm::mat3(view_matrix * model_matrix));
+	model_matrix = view_matrix * model_matrix;
+	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
 
 	return true;
 }

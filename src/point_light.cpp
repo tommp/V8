@@ -59,7 +59,7 @@ bool Point_light::bind_lambda_expression()const{
 		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
 		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
 
-		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::mat4), glm::value_ptr(quad_model_matrix));
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::mat4), glm::value_ptr(view * quad_model_matrix));
 		base_offset += sizeof(glm::mat4);
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(view_position));
@@ -97,6 +97,7 @@ bool Point_light::calculate_light_uniforms(){
 	quad_model_matrix = glm::mat4();
 	quad_model_matrix = glm::translate(quad_model_matrix, position);  
 	quad_model_matrix = glm::scale(quad_model_matrix, scale); 
+
 
 	return true;
 }

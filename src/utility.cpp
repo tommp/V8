@@ -944,7 +944,7 @@ bool set_folder_path(){
 		return false;
 	}
 
-	GLuint string_size = readlink("/proc/self/exe", buffer, MAX_FILENAME_LENGTH);
+	GLuint string_size = readlink("/proc/self/exe", buffer, MAX_FILENAME_LENGTH - 1);
 
 	if (string_size >= MAX_FILENAME_LENGTH) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Exe path name read was too long!" << std::endl;

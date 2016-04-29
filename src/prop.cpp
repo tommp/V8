@@ -12,7 +12,7 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 	color.y = (rand()%100) /100.0f;
 	color.z = (rand()%100) /100.0f;
 	color.w = 0.8;
-	if (!(model = manager.load_model(model_name, color))){
+	if (!(model = manager.load_model(model_name, color, 1.0))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Prop constructor failed to load model: " << model_name << std::endl;
 		errorlogger("FATAL ERROR: Prop constructor failed to load model: ", model_name.c_str());
 		exit(EXIT_FAILURE);
@@ -29,7 +29,7 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 	/* Physics */
 	GLfloat mass = 10;
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
-	generate_collision_volume(model_name, BOX, scale);
+	generate_collision_volume(BOX, scale);
 	generate_collision_body(mass, rotation, position);
 }
 
@@ -47,7 +47,7 @@ Prop::Prop(Resource_manager& manager,
 	color.z = (rand()%100) /100.0f;
 	color.w = 0.8;
 
-	if (!(model = manager.load_model(model_name, color))){
+	if (!(model = manager.load_model(model_name, color, 1.0))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Prop constructor failed to load model: " << model_name << std::endl;
 		errorlogger("FATAL ERROR: Prop constructor failed to load model: ", model_name.c_str());
 		exit(EXIT_FAILURE);
@@ -63,7 +63,7 @@ Prop::Prop(Resource_manager& manager,
 
 	/* Physics */
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
-	generate_collision_volume(model_name, shape, scale);
+	generate_collision_volume(shape, scale);
 	generate_collision_body(mass, rotation, position);
 }
 
@@ -82,7 +82,7 @@ Prop::Prop(Resource_manager& manager,
 	color.z = (rand()%100) /100.0f;
 	color.w = 0.0;
 
-	if (!(model = manager.load_model(model_name, color))){
+	if (!(model = manager.load_model(model_name, color, 1.0))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Prop constructor failed to load model: " << model_name << std::endl;
 		errorlogger("FATAL ERROR: Prop constructor failed to load model: ", model_name.c_str());
 		exit(EXIT_FAILURE);
@@ -98,7 +98,7 @@ Prop::Prop(Resource_manager& manager,
 
 	/* Physics */
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
-	generate_collision_volume(model_name, shape, collision_scale);
+	generate_collision_volume(shape, collision_scale);
 	generate_collision_body(mass, rotation, position);
 }
 
@@ -140,7 +140,8 @@ bool Prop::update_matrices(const glm::mat4& view_matrix){
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
-	normal_model_matrix = glm::inverseTranspose(glm::mat3(view_matrix * model_matrix));
+	model_matrix = view_matrix * model_matrix;
+	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
 
 	return true;
 }

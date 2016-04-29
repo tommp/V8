@@ -56,8 +56,6 @@ class Resource_manager;
 
 typedef std::shared_ptr<Mesh> Mesh_ptr;
 
-
-
 class Renderer{
 	private:
 		SDL_Window* window;
@@ -98,7 +96,6 @@ class Renderer{
 		GLboolean shaders_initialized;
 		GLboolean primitives_initialized;
 		GLboolean uniform_data_initialized;
-		GLuint last_blurred;
 
 	    glm::mat4 projection;
 	    glm::mat4 view;

@@ -1521,6 +1521,9 @@ bool Renderer::upload_plane_data()const{
 bool Renderer::render_geometry(){
 	glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+	glCullFace(GL_FRONT);
 	glDepthMask(GL_TRUE);
 	clear();
 
@@ -1569,6 +1572,7 @@ bool Renderer::render_geometry(){
 	
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 	if(check_ogl_error()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to detach geometry rendering!" << std::endl;
 		errorlogger("ERROR: Failed to detach geometry rendering!");

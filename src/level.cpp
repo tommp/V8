@@ -219,7 +219,7 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 		}
 	}
 
-	physics_world->stepSimulation(timedelta, 10);
+	physics_world->stepSimulation(timedelta, 7);
 
 	mousepicker->calculate_ray(2000.0f, renderer);
 	mousepicker->check_for_intersection(physics_world);

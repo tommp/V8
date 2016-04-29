@@ -63,7 +63,7 @@ class Resource_manager {
 		Mesh_ptr load_mesh(const std::string& name);
 		Mesh_ptr load_mesh(const std::string& name, const glm::vec4& color);
 		Model_ptr load_model(const std::string& name);
-		Model_ptr load_model(const std::string& name, const glm::vec4& color);
+		Model_ptr load_model(const std::string& name, const glm::vec4& color, GLfloat gloss);
 		Shader_ptr load_shader(const std::string& name);
 		Animation_ptr load_animation(const std::string& name);
 		Animation_set_ptr load_animation_set(const std::string& name);

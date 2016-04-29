@@ -78,7 +78,7 @@ bool Spot_light::bind_lambda_expression()const{
 		
 		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
 
-		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::mat4), glm::value_ptr(quad_model_matrix));
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::mat4), glm::value_ptr(view * quad_model_matrix));
 		base_offset += sizeof(glm::mat4);
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(view_position));

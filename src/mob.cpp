@@ -17,7 +17,7 @@ Mob::Mob(Resource_manager& manager,
 	color.y = (rand()%100) /100.0f;
 	color.z = (rand()%100) /100.0f;
 	color.w = 0.8;
-	if ( !(model = manager.load_model(model_name, color))){
+	if ( !(model = manager.load_model(model_name, color, 1.0))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Mob constructor failed to load model: " << model_name << std::endl;
 		errorlogger("FATAL ERROR: Mob constructor failed to load model: ", model_name.c_str());
 		exit(EXIT_FAILURE);
@@ -35,7 +35,7 @@ Mob::Mob(Resource_manager& manager,
 
 	mass = 10.0f;
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
-	generate_collision_volume(model_name, BOX, scale);
+	generate_collision_volume(BOX, scale);
 	generate_collision_body(mass, rotation, position);
 	collision_body->setActivationState(DISABLE_DEACTIVATION);
 }
@@ -68,7 +68,7 @@ Mob::Mob(Resource_manager& manager,
 	speed = 400;
 
 	btQuaternion rotation = {0.0, 0.0, 0.0, 1.0};
-	generate_collision_volume(model_name, shape, scale);
+	generate_collision_volume(shape, scale);
 	generate_collision_body(mass, rotation, position);
 	collision_body->setActivationState(DISABLE_DEACTIVATION);
 }
@@ -134,6 +134,7 @@ bool Mob::update_matrices(const glm::mat4& view_matrix){
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
+	model_matrix = view_matrix * model_matrix;
 	/* TODO::Optimize if necessary */
 	normal_model_matrix = glm::inverseTranspose(glm::mat3(view_matrix * model_matrix));
 

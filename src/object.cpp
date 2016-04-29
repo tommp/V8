@@ -29,21 +29,23 @@ btRigidBody* Object::get_collision_body()const{
 	return collision_body;
 }
 
-bool Object::generate_collision_volume(const std::string& modelname, Collision_shape type, const glm::vec3& scale){
+bool Object::generate_collision_volume(Collision_shape type, const std::string& modelname, const glm::vec3& scale){
+	std::vector<Vertex> vertices;
+	load_model_vertices(modelname, vertices);
+	glm::vec3 dimensions = get_volume_dimensions(vertices);
+	dimensions *= scale;
 	switch(type){
 		case SPHERE:{
-			GLuint radius = std::max(scale.x, std::max(scale.y, scale.z)) + 1; 
+			GLuint radius = std::max(dimensions.x, std::max(dimensions.y, dimensions.z)) + 1; 
 			collision_shape = new btSphereShape(radius);
 			break;
 		}
 		case BOX:{
-			btVector3 box_size = {scale.x + 1, scale.y + 1, scale.z + 1};
+			btVector3 box_size = {dimensions.x + 1, dimensions.y + 1, dimensions.z + 1};
 			collision_shape = new btBoxShape(box_size);
 			break;
 		}
 		case CONVEX_HULL:{
-			std::vector<Vertex> vertices;
-			load_model_vertices(modelname, vertices);
 			btConvexHullShape* shape = new btConvexHullShape();
 
 			for (auto& vertex : vertices) {
@@ -56,11 +58,36 @@ bool Object::generate_collision_volume(const std::string& modelname, Collision_s
 			hull->buildHull(margin);
 
 			collision_shape = new btConvexHullShape(reinterpret_cast<const btScalar*>(hull->getVertexPointer()), hull->numVertices());
-			collision_shape->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
+			collision_shape->setLocalScaling(btVector3(dimensions.x, dimensions.y, dimensions.z));
 			break;
 		}
-		default:
-			exit(EXIT_FAILURE);
+		default:{
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid collision volume type!" << std::endl;
+			errorlogger("ERROR: Invalid collision volume type!");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Object::generate_collision_volume(Collision_shape type, const glm::vec3& scale){
+	switch(type){
+		case SPHERE:{
+			GLuint radius = std::max(scale.x, std::max(scale.y, scale.z)) + 1; 
+			collision_shape = new btSphereShape(radius);
+			break;
+		}
+		case BOX:{
+			btVector3 box_size = {scale.x + 1, scale.y + 1, scale.z + 1};
+			collision_shape = new btBoxShape(box_size);
+			break;
+		}
+		default:{
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid collision volume type!" << std::endl;
+			errorlogger("ERROR: Invalid collision volume type!");
+			return false;
+		}
 	}
 
 	return true;
@@ -124,4 +151,34 @@ glm::vec3 Object::get_position()const{
 	glm::vec3 position = glm::vec3(origin.getX(), origin.getY(), origin.getZ());
 
 	return position;
+}
+
+glm::vec3 Object::get_volume_dimensions(const std::vector<Vertex>& vertices)const{
+	GLfloat max_x = -10.0f;
+	GLfloat max_y = -10.0f;
+	GLfloat max_z = -10.0f;
+
+	GLfloat min_x = 10.0f;
+	GLfloat min_y = 10.0f;
+	GLfloat min_z = 10.0f;
+
+	for (auto vertex : vertices) {
+		max_x = vertex.position.x > max_x ? vertex.position.x : max_x;
+		max_y = vertex.position.y > max_y ? vertex.position.y : max_y;
+		max_z = vertex.position.z > max_z ? vertex.position.z : max_z;
+
+		min_x = vertex.position.x < min_x ? vertex.position.x : min_x;
+		min_y = vertex.position.y < min_y ? vertex.position.x : min_y;
+		min_z = vertex.position.z < min_z ? vertex.position.x : min_z;
+	}
+
+	GLfloat delta_x = max_x + glm::abs(min_x);
+	GLfloat delta_y = max_y + glm::abs(min_y);
+	GLfloat delta_z = max_z + glm::abs(min_z);
+
+	delta_x /= 2;
+	delta_y /= 2;
+	delta_z /= 2;
+
+	return glm::vec3(delta_x, delta_y, delta_z);
 }

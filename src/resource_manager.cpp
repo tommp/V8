@@ -115,13 +115,13 @@ Model_ptr Resource_manager::load_model(const std::string& name){
 	}
 }
 
-Model_ptr Resource_manager::load_model(const std::string& name, const glm::vec4& color){
+Model_ptr Resource_manager::load_model(const std::string& name, const glm::vec4& color, GLfloat gloss){
 	if (models.find(name) != models.end()){
 		return models[name];
 	}
 	else{
 		Model_ptr new_model = std::make_shared<Model>();
-		if ( !(new_model->load_from_file(*this, name, color)) ){
+		if ( !(new_model->load_from_file(*this, name, color, gloss)) ){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Resource manager failed to load new model with keyname: " << name << std::endl;
 			errorlogger("ERROR: Resource manager failed to load new model: ", name.c_str());
 			return nullptr;
