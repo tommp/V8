@@ -136,4 +136,7 @@ void main(){
 	}
 
     color = vec4(diffuse + specular, 1.0);
+    if (distance < 10) {
+    	color = vec4 (1.0);
+    }
 }

@@ -53,16 +53,19 @@ Point_light::Point_light(){
 }
 
 bool Point_light::bind_lambda_expression()const{
-	base_light_context->setup_base_uniforms = [&](GLuint buffer, const glm::mat4& view, GLuint instance) {
+	base_light_context->setup_base_uniforms = [&](GLuint buffer, const glm::mat4& transform, const glm::mat3& screen_transform, GLuint instance) {
 		
+		glm::vec4 proj_position = transform * glm::vec4(position, 1.0);
+		proj_position /= proj_position.w;
+		glm::vec3 true_position = screen_transform * glm::vec3(proj_position.x, proj_position.y, proj_position.z);
+
 		GLuint base_offset = Utility_consts::SIZEOF_POINT_LIGHT * instance;
-		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
 		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
 
-		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::mat4), glm::value_ptr(view * quad_model_matrix));
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::mat4), glm::value_ptr(transform * quad_model_matrix));
 		base_offset += sizeof(glm::mat4);
 
-		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(view_position));
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(true_position));
 		base_offset += sizeof(glm::vec4);
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color));

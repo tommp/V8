@@ -101,6 +101,7 @@ class Renderer{
 	    glm::mat4 projection;
 	    glm::mat4 view;
 	    glm::mat4 unrotated_view;
+	    glm::mat3 screen;
 
 	    /* TODO::Optimize lots here, wasting a ton of res. */
 		GLuint g_buffer;

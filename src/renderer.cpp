@@ -1366,7 +1366,7 @@ bool Renderer::upload_dir_lights_data(){
 			continue;
 		}
 
-		if(!context->setup_base_uniforms(uniform_buffer, view, num_active_dir_lights)){
+		if(!context->setup_base_uniforms(uniform_buffer, view, screen, num_active_dir_lights)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup directional light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup directional light uniforms!");
 			return false;
@@ -1396,7 +1396,7 @@ bool Renderer::upload_point_lights_data(){
 			continue;
 		}
 
-		if(!context->setup_base_uniforms(uniform_buffer, view, num_active_point_lights)){
+		if(!context->setup_base_uniforms(uniform_buffer, projection * view, screen, num_active_point_lights)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render point light!" << std::endl;
 			errorlogger("ERROR: Failed to render point light!");
 			return false;
@@ -1426,7 +1426,7 @@ bool Renderer::upload_spot_lights_data(){
 			continue;
 		}
 
-		if(!context->setup_base_uniforms(uniform_buffer, view, num_active_spot_lights)){
+		if(!context->setup_base_uniforms(uniform_buffer, projection * view, screen, num_active_spot_lights)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup spot light uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup spot light uniforms!");
 			return false;
@@ -1452,6 +1452,15 @@ bool Renderer::render_dir_lights(){
 		return false;
 	}
 
+	glm::vec4 test_pos = glm::vec4(10.0, 40000.0, 50000.0, 1.0);
+	glm::mat3 viewport_matrix;
+	make_viewport_matrix(viewport_matrix);
+	test_pos = projection * view * test_pos;
+	test_pos /= test_pos.w;
+
+	glm::vec3 view_test_pos = viewport_matrix * glm::vec3(test_pos.x, test_pos.y, test_pos.z);
+
+	std::cout << "X: " << view_test_pos.x << " Y: " << view_test_pos.y << " Z: " << view_test_pos.z << " Z_NDC: " << test_pos.z << std::endl;
 	return true;
 }
 
@@ -2691,6 +2700,11 @@ bool Renderer::update_window_size(){
 			return false;
 		}
 	}
+
+	if (!make_viewport_matrix(screen)){
+		return false;
+	}
+
 	return true;
 }
 

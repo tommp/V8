@@ -3,7 +3,6 @@ layout (location = 1) out vec4 g_normal;
 layout (location = 2) out vec4 g_albedo_spec;
 
 in vec3 frag_normal;
-in vec3 frag_position;
 
 uniform vec4 object_color;
 uniform float gloss;
@@ -24,7 +23,7 @@ float linearize_depth(float depth)
 }
 
 void main(){    
-	g_position.xyz = frag_position;
+	g_position.xyz = gl_FragCoord.xyz;
     g_position.w = linearize_depth(gl_FragCoord.z);
 
     g_normal.xyz = normalize(frag_normal);

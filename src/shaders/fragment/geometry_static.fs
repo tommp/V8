@@ -3,7 +3,6 @@ layout (location = 1) out vec4 g_normal;
 layout (location = 2) out vec4 g_albedo_spec;
 
 in vec2 frag_tex_coord;
-in vec3 frag_position;
 in vec3 frag_normal;
 
 struct Material {
@@ -32,7 +31,7 @@ float linearize_depth(float depth)
 
 void main()
 {    
-    g_position.xyz = frag_position;
+    g_position.xyz = gl_FragCoord.xyz;
     g_position.w = linearize_depth(gl_FragCoord.z);
 
     g_normal.xyz = texture(material.normal, frag_tex_coord).xyz;
