@@ -105,7 +105,6 @@ bool Entity::update_model_context(const glm::mat4& view_matrix){
 
 	model_context.model_view_matrix = glm::scale(model_context.model_view_matrix, scale);
 	model_context.model_view_matrix = view_matrix * model_context.model_view_matrix;
-	model_context.normal_model_view_matrix = glm::inverseTranspose(glm::mat3(model_context.model_view_matrix));
 
 	return true;
 }

@@ -1699,7 +1699,7 @@ bool Renderer::render_base_geometry(const Rendering_context_ptr& context,
 
 	GLuint instance = 0;
 	for (auto context_iterator = context->instance_uniform_setups.begin(); context_iterator != context->instance_uniform_setups.end(); ++context_iterator) {
-		if (!context_iterator->second(shader, instance, false)){
+		if (!context_iterator->second(shader, view, instance, false)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup instance uniforms!");
 			return false;
@@ -1896,7 +1896,7 @@ bool Renderer::toggle_ambient_occlusion() {
 bool Renderer::render_shadow_geometry(const Rendering_context_ptr& context){
 	GLuint instance = 0;
 	for (auto context_iterator = context->instance_uniform_setups.begin(); context_iterator != context->instance_uniform_setups.end(); ++context_iterator) {
-		if (!context_iterator->second(LFST_cull_shader, instance, true)){
+		if (!context_iterator->second(LFST_cull_shader, view, instance, true)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup instance uniforms!" << std::endl;
 			errorlogger("ERROR: Failed to setup instance uniforms!");
 			return false;
@@ -2162,8 +2162,6 @@ bool Renderer::render_all(const Camera_ptr& camera){
 		errorlogger("ERROR: Failed to set viewport resolution!");
 		return false;
 	}
-
-	update_view_matrix(camera->get_position(), camera->get_target(), camera->get_up_dir());
 
 	if (!upload_view_matrix()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to upload view matrix!"<< std::endl;

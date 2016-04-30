@@ -17,7 +17,7 @@
 
 class Base_controller{
 	private:
-
+		
 	public:
 		virtual bool update();
 

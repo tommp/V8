@@ -111,20 +111,20 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name, c
 	return true;
 }
 
-bool Model::bind_context(const glm::mat4& model_matrix,
-								const glm::mat3& normal_model_matrix, 
-								std::string& context_name){
-	std::function<GLboolean(const Shader_ptr& shader, GLuint instance, GLboolean only_model)> expression = [&](const Shader_ptr& shader, GLuint instance, GLboolean only_model) ->GLboolean {
+bool Model::bind_context(const glm::mat4& model_matrix, std::string& context_name){
+	std::function<GLboolean(const Shader_ptr& shader, const glm::mat4& view_matrix, GLuint instance, GLboolean only_model)> expression = [&](const Shader_ptr& shader, const glm::mat4& view_matrix, GLuint instance, GLboolean only_model) ->GLboolean {
+		
+		glm::mat4 render_matrix = view_matrix * model_matrix;
 		glUniformMatrix4fv(shader->load_uniform_location("models", instance),
 						 1, 
 						 GL_FALSE, 
-						 glm::value_ptr(model_matrix));
+						 glm::value_ptr(render_matrix));
 
 		if (!only_model) {
 			glUniformMatrix3fv(shader->load_uniform_location("normal_models", instance),
 					 1, 
 					 GL_FALSE, 
-					 glm::value_ptr(normal_model_matrix));
+					 glm::value_ptr(glm::inverseTranspose(glm::mat3(render_matrix))));
 		}
 
 		if(check_ogl_error()) {

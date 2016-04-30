@@ -17,7 +17,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
 	}
 
-	model->bind_context(model_matrix, normal_model_matrix, context_name);
+	model->bind_context(model_matrix, context_name);
 
 	manager = &init_manager;
 	speed = 10000.0f;
@@ -59,7 +59,7 @@ Player::~Player(){
 	}
 }
 
-bool Player::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
+bool Player::update_position(GLfloat timedelta){
 	(void(timedelta));
 	velocity = {0.0f, 0.0f, 0.0f};
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
@@ -91,7 +91,7 @@ bool Player::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
 	}
 
 	
-	update_matrices(view_matrix);
+	update_matrices();
 	/*flashlight->set_direction(direction);
 	flashlight->set_position(get_position());
 	flashlight->calculate_light_uniforms();*/
@@ -111,13 +111,11 @@ bool Player::add_contexts_to_renderer(Renderer& renderer)const{
 	return true;
 }
 
-bool Player::update_matrices(const glm::mat4& view_matrix){
+bool Player::update_matrices(){
 	update_transform();
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
-	model_matrix = view_matrix * model_matrix;
-	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
 
 	return true;
 }

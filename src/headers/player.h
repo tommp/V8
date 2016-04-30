@@ -29,7 +29,6 @@ class Player: public Actor, public Object{
 private:
 	Model_ptr model;
 	glm::mat4 model_matrix;
-	glm::mat3 normal_model_matrix;
 	std::string context_name;
 	Spot_light_ptr flashlight;
 
@@ -44,12 +43,12 @@ private:
 	glm::vec3 prev_scale;
 	glm::vec3 prev_direction;
 
-	bool update_matrices(const glm::mat4& view_matrix);
+	bool update_matrices();
 public:
 	~Player();
 	Player();
 	Player(Resource_manager& init_manager, const std::string& model_name);
-	bool update_position(GLfloat timedelta, const glm::mat4& view_matrix);
+	bool update_position(GLfloat timedelta);
 	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 

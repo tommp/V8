@@ -41,7 +41,7 @@ private:
 	glm::vec3 prev_position;
 	glm::vec3 prev_scale;
 	glm::vec3 prev_direction;
-	bool update_matrices(const glm::mat4& view_matrix);
+	bool update_matrices();
 
 public:
 	Mob();
@@ -55,7 +55,7 @@ public:
 		GLfloat mass,
 		Collision_shape shape);
 	~Mob();
-	bool update_position(GLfloat timedelta, const glm::mat4& view_matrix);
+	bool update_position(GLfloat timedelta);
 	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 

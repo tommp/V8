@@ -19,7 +19,6 @@
 struct Model_context{
 		Model_ptr model;
 		glm::mat4 model_view_matrix;
-		glm::mat3 normal_model_view_matrix;
 		std::string model_context_name;
 
 		GLboolean complete;

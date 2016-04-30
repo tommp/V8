@@ -62,9 +62,7 @@ class Model{
 		std::string get_name()const{return name;};
 		bool load_from_file(Resource_manager& manager, const std::string& name);
 		bool load_from_file(Resource_manager& manager, const std::string& name, const glm::vec4& color, GLfloat gloss);
-		bool bind_context(const glm::mat4& model_matrix,
-								const glm::mat3& normal_model_matrix, 
-								std::string& context_name);
+		bool bind_context(const glm::mat4& model_matrix, std::string& context_name);
 		bool unbind_context(std::string& context_name);
 		bool add_contexts_to_renderer(Renderer& renderer)const;
 

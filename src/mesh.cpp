@@ -425,7 +425,7 @@ Rendering_context_weak Mesh::get_context()const {
 }
 
 bool Mesh::add_uniform_setup(const std::string& modelname, 
-					std::function<GLboolean(const Shader_ptr& shader, GLuint instance, GLboolean only_model)> expression) {
+					std::function<GLboolean(const Shader_ptr& shader, const glm::mat4& view_matrix, GLuint instance, GLboolean only_model)> expression) {
 	if (base_context->instance_uniform_setups.find(modelname) == base_context->instance_uniform_setups.end()) {
 		base_context->instance_uniform_setups[modelname] = expression;
 		return true;

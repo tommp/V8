@@ -25,13 +25,12 @@ private:
 	Model_ptr model;
 	std::string context_name;
 	glm::mat4 model_matrix;
-	glm::mat3 normal_model_matrix;
 	
 	glm::vec3 prev_position;
 	glm::vec3 prev_scale;
 	glm::vec3 prev_direction;
 
-	bool update_matrices(const glm::mat4& view_matrix);
+	bool update_matrices();
 public:
 	Prop();
 	Prop(Resource_manager& manager, const std::string& model_name);
@@ -51,7 +50,7 @@ public:
 		Collision_shape shape,
 		const glm::vec3& collision_scale);
 	~Prop();
-	bool update_position(GLfloat timedelta, const glm::mat4& view_matrix);
+	bool update_position(GLfloat timedelta);
 	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 

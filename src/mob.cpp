@@ -23,7 +23,7 @@ Mob::Mob(Resource_manager& manager,
 		exit(EXIT_FAILURE);
 	}
 
-	model->bind_context(model_matrix, normal_model_matrix, context_name);
+	model->bind_context(model_matrix, context_name);
 
 	position = {0.0, 0.0, 0.0};
 	scale = {20.0f, 20.0f, 20.0f};
@@ -56,7 +56,7 @@ Mob::Mob(Resource_manager& manager,
 		exit(EXIT_FAILURE);
 	}
 
-	model->bind_context(model_matrix, normal_model_matrix, context_name);
+	model->bind_context(model_matrix, context_name);
 
 	this->position = position;
 	this->direction = direction;
@@ -81,7 +81,7 @@ Mob::~Mob(){
 	}
 }
 
-bool Mob::update_position(float timedelta, const glm::mat4& view_matrix){
+bool Mob::update_position(float timedelta){
 	btTransform transform;
     motion_state->getWorldTransform(transform);
 
@@ -111,7 +111,7 @@ bool Mob::update_position(float timedelta, const glm::mat4& view_matrix){
 
 	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
 
-	if (!update_matrices(view_matrix)) {
+	if (!update_matrices()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to update mob model matrix!" << std::endl;
 		errorlogger("ERROR: Failed to update mob model matrix!");
 		return false;
@@ -130,13 +130,10 @@ bool Mob::add_contexts_to_renderer(Renderer& renderer)const{
 	return true;
 }
 
-bool Mob::update_matrices(const glm::mat4& view_matrix){
+bool Mob::update_matrices(){
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
-	model_matrix = view_matrix * model_matrix;
-	/* TODO::Optimize if necessary */
-	normal_model_matrix = glm::inverseTranspose(glm::mat3(view_matrix * model_matrix));
 
 	return true;
 }

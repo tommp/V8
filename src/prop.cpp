@@ -18,7 +18,7 @@ Prop::Prop(Resource_manager& manager, const std::string& model_name){
 		exit(EXIT_FAILURE);
 	}
 
-	model->bind_context(model_matrix, normal_model_matrix, context_name);
+	model->bind_context(model_matrix, context_name);
 
 	position = {0, 0, 0};
 	direction = {0.0f, 0.0f, -1.0f};
@@ -53,7 +53,7 @@ Prop::Prop(Resource_manager& manager,
 		exit(EXIT_FAILURE);
 	}
 
-	model->bind_context(model_matrix, normal_model_matrix, context_name);
+	model->bind_context(model_matrix, context_name);
 
 	this->position = position;
 	this->direction = glm::normalize(direction);
@@ -88,7 +88,7 @@ Prop::Prop(Resource_manager& manager,
 		exit(EXIT_FAILURE);
 	}
 
-	model->bind_context(model_matrix, normal_model_matrix, context_name);
+	model->bind_context(model_matrix, context_name);
 
 	this->position = position;
 	this->direction = glm::normalize(direction);
@@ -113,10 +113,10 @@ Prop::~Prop(){
 	}
 }
 
-bool Prop::update_position(GLfloat timedelta, const glm::mat4& view_matrix){
+bool Prop::update_position(GLfloat timedelta){
 	(void(timedelta));
 
-	if (!update_matrices(view_matrix)) {
+	if (!update_matrices()) {
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to update matrices for prop!" << std::endl;
 		errorlogger("ERROR: Failed to update matrices for prop!");
 		return false;
@@ -135,13 +135,11 @@ bool Prop::add_contexts_to_renderer(Renderer& renderer)const{
 	return true;
 }
 
-bool Prop::update_matrices(const glm::mat4& view_matrix){
+bool Prop::update_matrices(){
 	update_transform();
 	update_model_matrix();
 	fill_glm_matrix(model_matrix);
 	model_matrix = glm::scale(model_matrix, scale);
-	model_matrix = view_matrix * model_matrix;
-	normal_model_matrix = glm::inverseTranspose(glm::mat3(model_matrix));
 
 	return true;
 }

@@ -203,8 +203,9 @@ void Level::update_gravity(){
 }
 
 bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
+	
 	for (auto& object : props) {
-		if (!object->update_position(timedelta, renderer.get_view_matrix())){
+		if (!object->update_position(timedelta)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
 			errorlogger("ERROR: Failed to update object position!");
 			return false;
@@ -212,7 +213,7 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	}
 
 	for (auto& object : mobs) {
-		if (!object->update_position(timedelta, renderer.get_view_matrix())){
+		if (!object->update_position(timedelta)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
 			errorlogger("ERROR: Failed to update object position!");
 			return false;
