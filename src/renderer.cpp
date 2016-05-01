@@ -1954,12 +1954,12 @@ bool Renderer::ogl_render_shadow_geometry(const Rendering_context_ptr& context, 
 
 			glActiveTexture(GL_TEXTURE0);
 			glUniform1i(LFST_cull_shader->load_uniform_location("discard_mask"), 0);
-			glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i-1]);
+			glBindTexture(GL_TEXTURE_2D, shadow_back_cull_buffers[i-1]);
 		}
 		else{
 			glActiveTexture(GL_TEXTURE0);
 			glUniform1i(LFST_cull_shader->load_uniform_location("discard_mask"), 0);
-			glBindTexture(GL_TEXTURE_2D, shadow_front_cull_buffers[i-1]);
+			glBindTexture(GL_TEXTURE_2D, shadow_back_cull_buffers[i-1]);
 		}
 
 		if(check_ogl_error()) {
@@ -2871,8 +2871,8 @@ bool Renderer::render_cube(GLuint instances)const{
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glBindVertexArray(cube_VAO);
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
-	glFrontFace(GL_CCW); 
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW); 
 
 	glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, instances);
 

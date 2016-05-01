@@ -5,7 +5,7 @@ bool Entity::init_entity(const glm::vec3& pos, const glm::vec3& scale, const glm
 	this->scale = scale;
 	this->direction = dir;
 	this->init_direction = dir;
-
+	this->billboarded = false;
 	return true;
 }
 
@@ -103,8 +103,15 @@ bool Entity::update_model_context(const glm::mat4& view_matrix){
 		/* TODO:: Rotate based on actor directions */
 	}
 
-	model_context.model_view_matrix = glm::scale(model_context.model_view_matrix, scale);
-	model_context.model_view_matrix = view_matrix * model_context.model_view_matrix;
+	if(billboarded){
+		model_context.model_view_matrix = view_matrix * model_context.model_view_matrix;
+		clean_rot_n_scale(model_context.model_view_matrix);
+		model_context.model_view_matrix = glm::scale(model_context.model_view_matrix, scale);
+	}
+	else{
+		model_context.model_view_matrix = glm::scale(model_context.model_view_matrix, scale);
+		model_context.model_view_matrix = view_matrix * model_context.model_view_matrix;
+	}
 
 	return true;
 }
@@ -121,6 +128,16 @@ bool Entity::synchronize_contexts(const glm::mat4& view_matrix){
 		errorlogger("ERROR: Failed to update model context for entity: ", name.c_str());
 		return false;
 	}
+
+	return true;
+}
+
+/* Script funcs */
+
+bool Entity::clean_rot_n_scale(glm::mat4& matrix){
+	matrix[0] = glm::vec4(1.0, 0.0, 0.0, matrix[0][3]);
+	matrix[1] = glm::vec4(0.0, 1.0, 0.0, matrix[1][3]);
+	matrix[2] = glm::vec4(0.0, 0.0, 1.0, matrix[2][3]);
 
 	return true;
 }

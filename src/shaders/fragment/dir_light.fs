@@ -17,8 +17,8 @@ const float REFLECTION_SLACK = 0.00001;
 
 const int SHADOW_LAYERS = 1;
 const float NUM_STEPS = 100.0;
-const float OFFSET = 2.0;
-const float STEPSIZE = 1.0;
+const float OFFSET = 1.0;
+const float STEPSIZE = 5.0;
 
 
 uniform sampler2D g_position;
@@ -75,9 +75,13 @@ float calc_shadow_occlusion(vec3 light_direction, vec3 frag_position){
 
 		final_coords = (sample_coords.xyz / sample_coords.w) * 0.5 + 0.5;
 
+		if (final_coords.x >= 1.0 || final_coords.x <= -1.0 || final_coords.y >= 1.0 || final_coords.y <= -1.0){
+			break;
+		}
+
 		layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
 		if ((trace_position.z > (layer_sample.x - layer_sample.y)) && (layer_sample.x > trace_position.z)){	
-			float occlusion_factor = pow(length(frag_position - trace_position) / (NUM_STEPS * STEPSIZE), 2);
+			float occlusion_factor = pow(min(counter, NUM_STEPS) / (NUM_STEPS), 2);
 
 			shadow_occlusion *= occlusion_factor;
 			break;

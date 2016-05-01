@@ -8,8 +8,8 @@ const float REFLECTION_SLACK = 0.001;
 
 const int SHADOW_LAYERS = 1;
 const float NUM_STEPS = 100.0;
-const float OFFSET = 2.0;
-const float STEPSIZE = 2.0;
+const float OFFSET = 1.0;
+const float STEPSIZE = 5.0;
 
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
@@ -61,7 +61,7 @@ void apply_SSAO(inout vec3 ambient, vec2 sample_coords){
 }
 
 float calc_shadow_occlusion(vec3 light_direction, vec3 frag_position){
-	float shadow_occlusion = 0.0;
+	float shadow_occlusion = 1.0;
 
 	vec3 trace_offset = light_direction * STEPSIZE;
 	vec3 trace_position = frag_position + trace_offset * OFFSET;
@@ -78,6 +78,44 @@ float calc_shadow_occlusion(vec3 light_direction, vec3 frag_position){
 
 		final_coords = (sample_coords.xyz / sample_coords.w) * 0.5 + 0.5;
 
+		if (final_coords.x >= 1.0 || final_coords.x <= -1.0 || final_coords.y >= 1.0 || final_coords.y <= -1.0){
+			break;
+		}
+
+		layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
+		if ((trace_position.z > (layer_sample.x - layer_sample.y)) && (layer_sample.x > trace_position.z)){	
+			float occlusion_factor = pow(min(counter, NUM_STEPS) / (NUM_STEPS), 2);
+
+			shadow_occlusion *= occlusion_factor;
+			break;
+		}
+	}
+
+	return shadow_occlusion;
+}
+
+/*float calc_reflection(vec3 direction, vec3 frag_position){
+	vec3 reflected_color = ;
+
+	vec3 trace_offset = light_direction * STEPSIZE;
+	vec3 trace_position = frag_position + trace_offset * OFFSET;
+
+	vec4 sample_offset = projection * vec4(trace_offset, 1.0);
+    vec4 sample_coords = projection * vec4(trace_position, 1.0);
+
+    vec3 final_coords;
+    vec2 layer_sample;
+
+	for (float counter = OFFSET; counter < NUM_STEPS; counter += STEPSIZE) {
+		trace_position += trace_offset;
+		sample_coords += sample_offset;
+
+		final_coords = (sample_coords.xyz / sample_coords.w) * 0.5 + 0.5;
+
+		if (final_coords.x >= 1.0 || final_coords.x <= -1.0 || final_coords.y >= 1.0 || final_coords.y <= -1.0){
+			break;
+		}
+
 		// UNROLLED LOOP 
 		layer_sample = texture(shadow_layers[0], final_coords.xy).xy;
 		float sign_1 = step(0.0, trace_position.z - (layer_sample.x - layer_sample.y)) * 2 - 1;
@@ -90,7 +128,7 @@ float calc_shadow_occlusion(vec3 light_direction, vec3 frag_position){
 	shadow_occlusion = 1 - step(1.0, shadow_occlusion); 
 
 	return shadow_occlusion;
-}
+}*/
 
 void main(){    
 	vec2 frag_tex_coord = gl_FragCoord.xy / resolution;

@@ -7,15 +7,13 @@ out vec3 frag_position;
 uniform mat4 models[100];
 uniform vec3 colors[100];
 
-layout (std140) uniform Matrices
-{
+layout (std140) uniform Matrices{
     mat4 projection;
     mat4 view;
     mat4 unrotated_view;
 };
 
-void main()
-{
+void main(){
     gl_Position = projection * view * models[gl_InstanceID] * vec4(position, 1.0f);
 
     frag_normal = vec3(0.0, 1.0, 0.0);

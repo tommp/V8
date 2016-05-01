@@ -41,7 +41,8 @@ class Object{
 	public:
 		Object();
 		~Object();
-		//virtual bool update_position(GLfloat timedelta, const glm::mat4& view_matrix) = 0;
+		void set_mass(btScalar new_mass){this->mass = new_mass;};
+		GLfloat get_mass()const{return (GLfloat)mass;};
 		bool generate_collision_volume(Collision_shape type, const std::string& modelname, const glm::vec3& scale);
 		bool generate_collision_volume(Collision_shape type, const glm::vec3& scale);
 		bool generate_collision_body(GLfloat mass, 

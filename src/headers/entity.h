@@ -23,6 +23,8 @@
 
 class Entity: public Actor{
 	private:
+		GLboolean billboarded;
+
 		std::string name;
 		Resource_manager* manager;
 
@@ -31,10 +33,6 @@ class Entity: public Actor{
 
 		GLboolean has_physics;
 		Object physics_context;
-
-		GLboolean has_controller;
-		Base_controller_ptr controller;
-
 	public:
 		Entity();
 		Entity(const std::string& filename);
@@ -59,6 +57,10 @@ class Entity: public Actor{
 		bool update_model_context(const glm::mat4& view_matrix);
 
 		bool synchronize_contexts(const glm::mat4& view_matrix);
+
+		/* Script funcs */
+		bool clean_rot_n_scale(glm::mat4& matrix);
+
 };
 
 
