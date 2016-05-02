@@ -5,12 +5,6 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 
 	camera = std::make_shared<Camera>();
 
-	if (!init_physics()){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "FATAL ERROR: Failed to initialize physics!"<< std::endl;
-		errorlogger("FATAL ERROR: Failed to initialize physics!");
-		exit(EXIT_FAILURE);
-	}
-
 	for (int i = 0; i < 5; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
@@ -119,14 +113,6 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 #endif
 }
 
-Level::~Level(){
-	delete physics_world;
-	delete broadphase;
-	delete collisionConfiguration;
-	delete dispatcher;
-	delete solver;
-}
-
 bool Level::add_light(const Light_ptr& light){
 	if (light){
 		lights.push_front(light);	
@@ -149,61 +135,16 @@ bool Level::add_object(const Mob_ptr& mob) {
 	return true;
 }
 
-bool Level::init_physics(){
-	broadphase = new btDbvtBroadphase();
-	if (!broadphase){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize broadphase for physics!"<< std::endl;
-		errorlogger("ERROR: Failed initialize broadphase for physics!");
-		return false;
-	}
-
-	collisionConfiguration = new btDefaultCollisionConfiguration();
-	if(!collisionConfiguration){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize collision configuration for physics!"<< std::endl;
-		errorlogger("ERROR: Failed initialize collision configuration for physics!");
-		return false;
-	}
-
-	dispatcher = new btCollisionDispatcher(collisionConfiguration);
-	if (!dispatcher){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize dispatcher for physics!"<< std::endl;
-		errorlogger("ERROR: Failed initialize dispatcher for physics!");
-		return false;
-	}
-
-	solver = new btSequentialImpulseConstraintSolver;
-	if (!solver){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize constraint solver for physics!"<< std::endl;
-		errorlogger("ERROR: Failed initialize constraint solver for physics!");
-		return false;
-	}
-
-	physics_world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	if (!physics_world){
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed initialize world for physics!"<< std::endl;
-		errorlogger("ERROR: Failed initialize world for physics!");
-		return false;
-	}
-
-	gravity = {0.0f, -1000.0f, 0.0f};
-	update_gravity();
-
-#if ENABLE_BULLET_DEBUG
-	physics_world->setDebugDrawer(&debugDrawer);
-#endif
-	return true;
-}
-
 void Level::set_gravity(const glm::vec3& gravity){
-	this->gravity = gravity;
+	physics_engine.set_gravity(gravity);
 }
 
 void Level::update_gravity(){
-	physics_world->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
+	physics_engine.update_gravity();
 }
 
 bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
-	
+	(void(renderer));
 	for (auto& object : props) {
 		if (!object->update_position(timedelta)){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update object position!"<< std::endl;
@@ -220,10 +161,7 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 		}
 	}
 
-	physics_world->stepSimulation(timedelta, 7);
-
-	mousepicker->calculate_ray(2000.0f, renderer);
-	mousepicker->check_for_intersection(physics_world);
+	physics_engine.step_world(timedelta);
 
 	return true;
 }
@@ -248,7 +186,7 @@ bool Level::add_to_physics_world(btRigidBody* object)const{
 		errorlogger("ERROR: Cannot add nullptr to physics world!");
 		return false;
 	}
-	physics_world->addRigidBody(object);
+	physics_engine.add_to_physics_world(object);
 	return true;
 }
 
@@ -258,7 +196,7 @@ bool Level::remove_from_physics_world(btRigidBody* object)const{
 		errorlogger("ERROR: Cannot remove nullptr from physics world!");
 		return false;
 	}
-	physics_world->removeRigidBody(object);
+	physics_engine.remove_from_physics_world(object);
 	return true;
 }
 
@@ -268,11 +206,11 @@ bool Level::resolve_collisions(){
 
 bool Level::add_objects_to_physics_world()const{
 	for (auto& prop : props) {
-		physics_world->addRigidBody(prop->get_collision_body());
+		physics_engine.add_to_physics_world(prop->get_collision_body());
 	}
 
 	for (auto& mob : mobs) {
-		physics_world->addRigidBody(mob->get_collision_body());
+		physics_engine.add_to_physics_world(mob->get_collision_body());
 	}
 
 	return true;

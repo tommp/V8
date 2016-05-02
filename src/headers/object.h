@@ -41,8 +41,11 @@ class Object{
 	public:
 		Object();
 		~Object();
-		void set_mass(btScalar new_mass){this->mass = new_mass;};
+		void set_mass(GLfloat new_mass){this->mass = (btScalar)new_mass;};
 		GLfloat get_mass()const{return (GLfloat)mass;};
+		void set_linear_velocity(const glm::vec3& velocity);
+		void inc_linear_velocity(const glm::vec3& velocity);
+
 		bool generate_collision_volume(Collision_shape type, const std::string& modelname, const glm::vec3& scale);
 		bool generate_collision_volume(Collision_shape type, const glm::vec3& scale);
 		bool generate_collision_body(GLfloat mass, 

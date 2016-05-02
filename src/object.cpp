@@ -25,6 +25,16 @@ bool Object::delete_collision_data() {
 	return true;
 }
 
+void Object::set_linear_velocity(const glm::vec3& velocity){
+	collision_body->setLinearVelocity(btVector3(velocity.x,velocity.y,velocity.z));
+}
+
+void Object::inc_linear_velocity(const glm::vec3& velocity){
+	btVector3 increment = btVector3(velocity.x,velocity.y,velocity.z);
+	btVector3 linear_velocity = collision_body->getLinearVelocity();
+	collision_body->setLinearVelocity(linear_velocity + increment);
+}
+
 btRigidBody* Object::get_collision_body()const{
 	return collision_body;
 }

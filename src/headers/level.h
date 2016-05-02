@@ -19,9 +19,10 @@
 #include "dir_light.h"
 #include "point_light.h"
 #include "spot_light.h"
+#include "physics_engine.h"
 
 #if ENABLE_BULLET_DEBUG
-#include "debug_drawer.h"
+	#include "debug_drawer.h"
 #endif
 /*---------------------------------------------*/
 
@@ -65,18 +66,7 @@ class Level {
 		Camera_ptr camera;
 		Mousepicker_ptr mousepicker;
 
-		/* ==================== Physics stuff ===================== */
-		btDiscreteDynamicsWorld* physics_world;
-		btBroadphaseInterface* broadphase;
-		btDefaultCollisionConfiguration* collisionConfiguration;
-		btCollisionDispatcher* dispatcher;
-		btSequentialImpulseConstraintSolver* solver;
-#if ENABLE_BULLET_DEBUG
-		Debug_drawer debugDrawer;
-#endif
-
-		glm::vec3 gravity;
-		/* ======================================================== */
+		Physics_engine physics_engine;
 
 		std::list<Prop_ptr> props;
 		std::list<Mob_ptr> mobs;
@@ -85,7 +75,6 @@ class Level {
 
 	public:
 		Level(Resource_manager& init_manager, Renderer& renderer);
-		~Level();
 
 		bool update_groups();
 

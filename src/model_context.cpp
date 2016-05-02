@@ -13,7 +13,7 @@ bool Model_context::load_model(Resource_manager& init_manager, const std::string
 		return false;
 	}
 
-	if (!this->model->bind_context(model_view_matrix, model_context_name)){
+	if (!this->model->bind_context(model_matrix, model_context_name)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind context for model: " << model_name << std::endl;
 		errorlogger("ERROR: Failed to bind context for model: ", model_name.c_str());
 		return false;
@@ -35,7 +35,7 @@ bool Model_context::load_model(Resource_manager& init_manager,
 		return false;
 	}
 
-	if (!this->model->bind_context(model_view_matrix, model_context_name)){
+	if (!this->model->bind_context(model_matrix, model_context_name)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind context for model: " << model_name << std::endl;
 		errorlogger("ERROR: Failed to bind context for model: ", model_name.c_str());
 		return false;

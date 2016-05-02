@@ -18,7 +18,9 @@
 class Actor{
 	protected:
 		glm::vec3 position;
+		glm::vec3 init_position;
 		glm::vec3 scale;
+		glm::vec3 init_scale;
 		glm::vec3 direction;
 		glm::vec3 init_direction;
 	public:
