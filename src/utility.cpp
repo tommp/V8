@@ -873,7 +873,7 @@ void print_framebuffer_error_in_english(){
 			std::cout <<  "FRAMEBUFFER ERROR: Default framebuffer does not exist." << std::endl;
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-			std::cout <<  "FRAMEBUFFER ERROR:  Framebuffer attachment point(s) are framebuffer incomplete." << std::endl;
+			std::cout <<  "FRAMEBUFFER ERROR: Framebuffer attachment point(s) are framebuffer incomplete." << std::endl;
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
 			std::cout <<  "FRAMEBUFFER ERROR: Missing attachment." << std::endl;
@@ -936,8 +936,8 @@ void discard_ogl_errors(){
 }
 
 bool set_folder_path(){
-	/* Linux with proc */
-	char* buffer = (char*)malloc(sizeof(char) * MAX_FILENAME_LENGTH);
+	/* Linux with proc, TODO::Sometimes returns wierd stuff, find out why */
+	/*char* buffer = (char*)malloc(sizeof(char) * MAX_FILENAME_LENGTH);
 	if (!buffer) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to allocate buffer memory!" << std::endl;
 		errorlogger("ERROR: Failed to allocate buffer memory!");
@@ -964,6 +964,8 @@ bool set_folder_path(){
 	ss << '/';
 
 	Utility_vars::folder_path = ss.str();
+	*/
+	Utility_vars::folder_path = "/home/tommp/V8/";
 	SDL_Log("Folder path initialized to: %s", Utility_vars::folder_path.c_str());
 	/* End linux with proc */
 

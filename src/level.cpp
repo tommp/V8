@@ -5,7 +5,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 
 	camera = std::make_shared<Camera>();
 
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 0; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = rand() % 200 + 100;
@@ -24,7 +24,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	}
 
 	Light_ptr dir_light = std::make_shared<Directional_light>(glm::vec3(-1.0, -1.0, -1.0), 
-									glm::vec3(7.0, 7.0, 7.0), 
+									glm::vec3(20.0, 20.0, 20.0), 
 									false);
 	add_light(dir_light);
 

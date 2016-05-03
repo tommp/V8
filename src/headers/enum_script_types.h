@@ -12,7 +12,7 @@
 
 /*Header content*/
 /*=============================================*/
-enum Script_types {
+enum Script_type {
 	BOOL 		= 1,
 	INT 		= 2,
 	FLOAT 		= 3,

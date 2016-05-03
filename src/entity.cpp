@@ -1,5 +1,168 @@
 #include "entity.h"
 
+bool Entity::load_script(const std::string& script_name){
+	std::ifstream contentf (Utility_vars::folder_path + SCRIPT_PATH + script_name + SCRIPT_POSTFIX, std::ios::binary);
+
+	if (!contentf.is_open()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for script: " << script_name << std::endl;
+		errorlogger("ERROR: Failed to open content file for script: ", script_name.c_str());
+		return false;
+	}
+
+	GLuint script_matrix_width = 0;
+	GLuint script_matrix_height = 0;
+
+	contentf.read(reinterpret_cast<char *>(&script_matrix_width), sizeof(GLuint));
+	contentf.read(reinterpret_cast<char *>(&script_matrix_height), sizeof(GLuint));
+
+	if (script_matrix_height == 0 || script_matrix_width == 0){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Invalid matrix dimensions for script: " << script_name << std::endl;
+		errorlogger("ERROR: Invalid matrix dimensions for script: ", script_name.c_str());
+		return false;
+	}
+
+	function_array.resize(script_matrix_width);
+	for (auto& col : function_array){
+		col.resize(script_matrix_height);
+	}
+
+	for (GLuint i = 0 ; i < script_matrix_width * script_matrix_height; ++i){
+		if (!read_and_set_function_block(contentf)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to read function block for script: " << script_name << std::endl;
+			errorlogger("ERROR: Failed to read function block for script: ", script_name.c_str());
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Entity::read_and_set_function_block(std::ifstream& contentf){
+	GLuint col_index;
+	GLuint row_index;
+
+	contentf.read(reinterpret_cast<char *>(&col_index), sizeof(GLuint));
+	contentf.read(reinterpret_cast<char *>(&row_index), sizeof(GLuint));
+
+	GLint function_id = 0;
+
+	contentf.read(reinterpret_cast<char *>(&function_id), sizeof(GLint));
+
+	switch(function_id){
+		case entity::CLEAN_ROT_N_SCALE: {
+			
+			break;
+		}
+		case entity::CHECK_IF_MAPPED_BUTTON_PRESSED: {
+			std::string str_value;
+			GLint key_value;
+			if (!read_string_from_binary_file(contentf, str_value)){
+				return false;
+			}
+
+			contentf.read(reinterpret_cast<char *>(&key_value), sizeof(GLint));
+
+			string_buffer.push_back(str_value);
+			int_buffer.push_back(key_value);
+
+			function_array[col_index][row_index] = [&]()->GLboolean{
+				return check_if_mapped_button_pressed(string_buffer[string_buffer.size() - 1], 
+										static_cast<Key>(int_buffer[int_buffer.size() - 1]));
+			};
+
+			break;
+		}			
+		case SET_LINEAR_VELOCITY: {
+
+			break;
+		}
+		case entity::INC_LINEAR_VELOCITY: {
+
+			break;
+		}
+		case entity::SET_DIRECTION: {
+
+			break;
+		}
+		case entity::RESIZE_VEC3_BUFFER: {
+
+			break;
+		}
+		case entity::SET_VEC3_BUFFER: {
+
+			break;
+		}
+		case entity::INC_VEC3_BUFFER: {
+
+			break;
+		}
+		case entity::NORMALIZE_VEC3_IN_BUFFER: {
+
+			break;
+		}
+		case entity::RESIZE_INT_BUFFER: {
+
+			break;
+		}
+		case entity::SET_INT_BUFFER: {
+
+			break;
+		}
+		case entity::INC_INT_BUFFER: {
+
+			break;
+		}
+		case entity::RESIZE_FLOAT_BUFFER: {
+
+			break;
+		}
+		case entity::SET_FLOAT_BUFFER: {
+
+			break;
+		}
+		case entity::INC_FLOAT_BUFFER: {
+
+			break;
+		}
+		case entity::RESIZE_BOOL_BUFFER: {
+
+			break;
+		}
+		case entity::SET_BOOL_BUFFER: {
+
+			break;
+		}
+		case entity::TOGGLE_BOOL_BUFFER: {
+
+			break;
+		}
+		case entity::INT_COMPARE: {
+
+			break;
+		}	
+		case entity::FLOAT_COMPARE: {
+
+			break;
+		}
+		default: {
+			return false;	
+		}
+	}
+	return true;
+}
+
+bool Entity::execute_script_from_file(const std::string& script_name){
+	std::ifstream contentf (Utility_vars::folder_path + SCRIPT_PATH + script_name + SCRIPT_POSTFIX, std::ios::binary);
+
+	if (!contentf.is_open()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to open content file for script: " << script_name << std::endl;
+		errorlogger("ERROR: Failed to open content file for script: ", script_name.c_str());
+		return false;
+	}
+	
+	return true;
+}
+
 void Entity::init(const glm::vec3& pos, const glm::vec3& scale, const glm::vec3& dir){
 	this->position = pos;
 	this->init_position = pos;
@@ -8,6 +171,13 @@ void Entity::init(const glm::vec3& pos, const glm::vec3& scale, const glm::vec3&
 	this->scale = scale;
 	this->init_scale = scale;
 	this->billboarded = false;
+}
+
+bool Entity::init_scripts(const std::string& init_script_name, const std::string& loop_script_name){
+	(void(init_script_name)); (void(loop_script_name));
+
+
+	return true;
 }
 
 bool Entity::init_model_context(const std::string& model_name){
@@ -204,7 +374,7 @@ bool Entity::clean_rot_n_scale(glm::mat4& matrix)const{
 	return true;
 }
 
-bool Entity::check_if_mapped_button_pressed(const std::string& map, const Key& key)const{
+bool Entity::check_if_mapped_button_pressed(const std::string& map, Key key)const{
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
 	if(current_key_states[manager->get_button_map_key(map, key)]){
 		return true;

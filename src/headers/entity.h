@@ -6,9 +6,9 @@
 #include "actor.h"
 #include "model_context.h"
 #include "object.h"
-#include "base_controller.h"
 #include "enum_collision_shape_type.h"
 #include "enum_key_type.h"
+#include "enum_script_functions.h"
 #include "base_light.h"
 #include "dir_light.h"
 #include "point_light.h"
@@ -28,6 +28,32 @@
 /*=============================================*/
 class Physics_engine;
 
+namespace entity{
+	const GLuint NUM_SCRIPT_FUNCS 				= 20;
+
+	const GLint CLEAN_ROT_N_SCALE				=  1;
+	const GLint CHECK_IF_MAPPED_BUTTON_PRESSED	=  2;
+	const GLint SET_LINEAR_VELOCITY				=  3;
+	const GLint INC_LINEAR_VELOCITY				=  4;
+	const GLint SET_DIRECTION					=  5;
+	const GLint RESIZE_VEC3_BUFFER				=  6;
+	const GLint SET_VEC3_BUFFER					=  7;
+	const GLint INC_VEC3_BUFFER					=  8;
+	const GLint NORMALIZE_VEC3_IN_BUFFER		=  9;
+	const GLint RESIZE_INT_BUFFER				= 10;
+	const GLint SET_INT_BUFFER					= 11;
+	const GLint INC_INT_BUFFER					= 12;
+	const GLint RESIZE_FLOAT_BUFFER				= 13;
+	const GLint SET_FLOAT_BUFFER				= 14;
+	const GLint INC_FLOAT_BUFFER				= 15;
+	const GLint RESIZE_BOOL_BUFFER				= 16;
+	const GLint SET_BOOL_BUFFER					= 17;
+	const GLint TOGGLE_BOOL_BUFFER				= 18;
+	const GLint INT_COMPARE						= 19;
+	const GLint FLOAT_COMPARE					= 20;
+
+}
+
 class Entity: public Actor{
 	private:
 		std::string name;
@@ -35,6 +61,7 @@ class Entity: public Actor{
 		std::string init_script_name;
 
 		std::vector<std::vector<std::vector<GLuint>>> script_matrix;
+		std::vector<std::vector<std::function<GLboolean()>>> function_array;
 
 		Resource_manager* manager;
 
@@ -43,6 +70,7 @@ class Entity: public Actor{
 		std::vector<GLint> int_buffer;
 		std::vector<GLfloat> float_buffer;
 		std::vector<glm::vec3> vec3_buffer;
+		std::vector<std::string> string_buffer;
 
 		/* Script variable call buffers */
 		std::vector<GLboolean> bool_vars;
@@ -50,7 +78,6 @@ class Entity: public Actor{
 		std::vector<GLfloat> float_vars;
 		std::vector<glm::vec3> vec3_vars;
 		std::vector<std::string> string_vars;
-
 
 		GLboolean has_model;
 		GLboolean billboarded;
@@ -73,7 +100,13 @@ class Entity: public Actor{
 		bool save_entity()const;
 		bool load_entity(const std::string& filename);
 
+		bool load_script(const std::string& script_name);
+		bool execute_script_from_file(const std::string& script_name);
+
+		bool read_and_set_function_block(std::ifstream& contentf);
+
 		void init(const glm::vec3& pos, const glm::vec3& scale, const glm::vec3& dir);
+		bool init_scripts(const std::string& init_script_name, const std::string& loop_script_name);
 		bool init_model_context(const std::string& model_name);
 		bool init_model_context(const std::string& model_name, 
 								const glm::vec4& color, 
@@ -95,7 +128,7 @@ class Entity: public Actor{
 
 		/* Script funcs */
 		bool clean_rot_n_scale(glm::mat4& matrix)const;
-		bool check_if_mapped_button_pressed(const std::string& map, const Key& key)const;
+		bool check_if_mapped_button_pressed(const std::string& map, Key key)const;
 		bool set_linear_velocity(const glm::vec3& velocity);
 		bool inc_linear_velocity(const glm::vec3& velocity);
 		bool set_direction(const glm::vec3& direction);
