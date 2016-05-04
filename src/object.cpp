@@ -34,6 +34,21 @@ void Object::inc_linear_velocity(const glm::vec3& velocity){
 	btVector3 linear_velocity = collision_body->getLinearVelocity();
 	collision_body->setLinearVelocity(linear_velocity + increment);
 }
+void Object::set_mouse_pick_callback(const std::function<GLboolean(const glm::vec3& hit_coords)>& collision_callback){
+	this->mouse_pick_callback = collision_callback;
+}
+
+bool Object::execute_mouse_pick_callback(const glm::vec3& hit_coords){
+	if(mouse_pick_callback){
+		if(!mouse_pick_callback(hit_coords)){
+			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Mouse picking callback failed!" << std::endl;
+			errorlogger("ERROR: Mouse picking callback failed!");
+			return false;
+		}
+	}
+	
+	return true;
+}
 
 btRigidBody* Object::get_collision_body()const{
 	return collision_body;
@@ -131,6 +146,7 @@ bool Object::generate_collision_body(GLfloat mass,
 	collision_body_CI.m_friction = 10.0;
 	collision_body_CI.m_rollingFriction = 10.0;
 	collision_body = new btRigidBody(collision_body_CI);
+	collision_body->setUserPointer(static_cast<void*>(this));
 
 	trans.getOpenGLMatrix(&raw_model_matrix[0]);
 

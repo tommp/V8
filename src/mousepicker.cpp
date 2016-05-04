@@ -40,12 +40,10 @@ void Mousepicker::check_for_intersection(const btDiscreteDynamicsWorld* physics_
 							btVector3(ray_end.x, ray_end.y, ray_end.z), 
 							ray_callback);
 
-	/*
+	
 	if(ray_callback.hasHit()) {
-		//std::cout << "mesh ray hit at: " << ray_callback.m_hitPointWorld.getX() << ":" << ray_callback.m_hitPointWorld.getY() << ":" << ray_callback.m_hitPointWorld.getZ() << std::endl;
+		void* raw_pointer = ray_callback.m_collisionObject->getUserPointer();
+		Object* object = static_cast<Object*>(raw_pointer);
+		object->execute_mouse_pick_callback(glm::vec3(ray_callback.m_hitPointWorld.getX(), ray_callback.m_hitPointWorld.getY(), ray_callback.m_hitPointWorld.getZ()));
 	}
-	else{
-		//std::cout << "background" << std::endl;
-	}
-	*/
 }

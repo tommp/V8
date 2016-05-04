@@ -52,6 +52,7 @@ public:
 	~Prop();
 	bool update_position(GLfloat timedelta);
 	bool add_contexts_to_renderer(Renderer& renderer)const;
+	std::string get_name()const{return context_name;};
 };
 
 typedef std::shared_ptr<Prop> Prop_ptr;

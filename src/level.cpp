@@ -109,8 +109,10 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	}
 
 #if ENABLE_BULLET_DEBUG
-	debugDrawer.set_renderer(&renderer);
+	physics_engine.set_debug_renderer(&renderer);
 #endif
+
+
 }
 
 bool Level::add_light(const Light_ptr& light){
@@ -161,6 +163,7 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 		}
 	}
 
+	physics_engine.ray_trace(2000.0, renderer);
 	physics_engine.step_world(timedelta);
 
 	return true;
@@ -174,7 +177,7 @@ bool Level::render_level(Renderer& renderer)const{
 	}
 
 #if ENABLE_BULLET_DEBUG
-	physics_world->debugDrawWorld();
+	physics_engine.debug_draw_world();
 #endif
 
 	return true;

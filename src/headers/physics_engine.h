@@ -65,6 +65,11 @@ class Physics_engine{
 		bool remove_from_physics_world(Entity_ptr entity)const;
 
 		void ray_trace(GLfloat distance, const Renderer& renderer);
+
+#if ENABLE_BULLET_DEBUG
+		void debug_draw_world()const{physics_world->debugDrawWorld();};
+		void set_debug_renderer(Renderer* renderer){debugDrawer.set_renderer(renderer);};
+#endif
 };
 
 /*=============================================*/

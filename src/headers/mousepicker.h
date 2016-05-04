@@ -8,6 +8,8 @@
 #include "glm.h"
 #include "errorlogger.h"
 #include "renderer.h"
+
+#include "prop.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/

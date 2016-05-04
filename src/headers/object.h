@@ -37,6 +37,8 @@ class Object{
 		btVector3 inertia;
 		btQuaternion init_rotation;
 
+		std::function<GLboolean(const glm::vec3& hit_coords)> mouse_pick_callback;
+
 		bool delete_collision_data();
 	public:
 		Object();
@@ -46,11 +48,12 @@ class Object{
 		void set_linear_velocity(const glm::vec3& velocity);
 		void inc_linear_velocity(const glm::vec3& velocity);
 
+		void set_mouse_pick_callback(const std::function<GLboolean(const glm::vec3& hit_coords)>& collision_callback);
+		bool execute_mouse_pick_callback(const glm::vec3& hit_coords);
+
 		bool generate_collision_volume(Collision_shape type, const std::string& modelname, const glm::vec3& scale);
 		bool generate_collision_volume(Collision_shape type, const glm::vec3& scale);
-		bool generate_collision_body(GLfloat mass, 
-				const btQuaternion& rotation, 
-				const glm::vec3& position);
+		bool generate_collision_body(GLfloat mass, const btQuaternion& rotation, const glm::vec3& position);
 		bool load_model_vertices(const std::string& modelname, std::vector<Vertex>& vertices);
 
 		btRigidBody* get_collision_body()const;
