@@ -20,6 +20,7 @@ struct Model_context{
 		Model_ptr model;
 		glm::mat4 model_matrix;
 		std::string model_context_name;
+		glm::vec4 color_coeff;
 
 		GLboolean complete;
 
@@ -28,6 +29,7 @@ struct Model_context{
 		bool load_model(Resource_manager& init_manager, 
 						const std::string& model_name, 
 						const glm::vec4& color, 
+						const glm::vec4& color_coeff, 
 						GLfloat gloss);
 };
 /*=============================================*/

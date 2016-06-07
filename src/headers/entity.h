@@ -110,6 +110,7 @@ class Entity: public Actor{
 		bool init_model_context(const std::string& model_name);
 		bool init_model_context(const std::string& model_name, 
 								const glm::vec4& color, 
+								const glm::vec4& color_coeff, 
 								GLfloat gloss);
 
 		bool init_physics_context(Collision_shape shape, 

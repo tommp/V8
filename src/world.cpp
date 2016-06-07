@@ -5,6 +5,7 @@ World::~World() {
 
 World::World(Resource_manager& init_manager, Renderer& renderer){
 	manager = &init_manager;
+	camera = std::make_shared<Camera>();
 
 	std::cout << "------------ Initializing world player..." << std::endl;
 	Player_ptr player = std::make_shared<Player>(init_manager, "sphere_colored");
@@ -36,7 +37,7 @@ World::World(Resource_manager& init_manager, Renderer& renderer){
 bool World::update_positions(GLfloat timedelta, Renderer& renderer){
 
 	for (auto it = players.begin(); it != players.end(); ++it) {
-		if (!(*it)->update_position(timedelta)){
+		if (!(*it)->update_position(timedelta, camera->get_direction(), camera->get_right_dir())){
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to update player position" << std::endl;
 			errorlogger("ERROR: Failed to update player position");
 			return false;
@@ -51,21 +52,21 @@ bool World::update_positions(GLfloat timedelta, Renderer& renderer){
 
 	/* TODO:: MOVE THIS */
 	if(!players.empty()){
-		if (!current_level->camera->center_camera(players.front()->get_position())) {
+		if (!camera->center_camera(players.front()->get_position())) {
 			std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to center camera" << std::endl;
 			errorlogger("ERROR: Failed to center camera");
 			return false;
 		}
 	}
 	
-	renderer.update_view_matrix(current_level->camera->get_position(), current_level->camera->get_target(), current_level->camera->get_up_dir());
+	renderer.update_view_matrix(camera->get_position(), camera->get_target(), camera->get_up_dir());
 
 	return true;
 }
 
 
 bool World::render_world(Renderer& renderer){
-	if (!current_level->render_level(renderer)) {
+	if (!current_level->render_level(renderer, camera)) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render level!" << std::endl;
 		errorlogger("ERROR: Failed to render level!");
 		return false;

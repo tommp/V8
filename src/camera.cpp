@@ -1,46 +1,62 @@
 #include "camera.h"
 
 Camera::Camera(){
-	init_position = glm::vec3(0.0f, 300.0f, 400.0f);
-	position = glm::vec3(0.0f, 300.0f, 400.0f);
+	position = glm::vec3(0.0f, 0.0f, 0.0f);
 	target = glm::vec3(0.0f, 0.0f, 0.0f);
 	world_up = glm::vec3(0.0f, 1.0f, 0.0f);
-	offset = {0.0f,0.0f,0.0f};//{-640.0f, 0.0f, 320.0f};
 	ortographic = false;
 
-	camera_direction = glm::normalize(position - target);
+	pitch = 45.0;
+	yaw = 90.0;
+
+	target_offset = 200.0;
+
+	SDL_GetMouseState(&(prev_mouse_pos[0]), &(prev_mouse_pos[1]));
+
+	camera_direction.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	camera_direction.y = sin(glm::radians(pitch));
+	camera_direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+
 	right = glm::normalize(glm::cross(world_up, camera_direction));
 	camera_up = glm::normalize(glm::cross(camera_direction, right));
 }
 
 bool Camera::focus_target(const glm::vec3& focus_target){
-	position = focus_target + init_position + offset;
-	target = focus_target + offset;
+
+	position = focus_target + camera_direction * target_offset;
+	target = focus_target;
 
 	return true;
 }
 
 bool Camera::center_camera(const glm::vec3& position) {
 	/* Center on the actor collision box */
-	if (focus_target(position)){
+	glm::ivec2 new_mouse_pos;
+	SDL_GetMouseState(&(new_mouse_pos[0]), &(new_mouse_pos[1]));
 
-		/*
-		if( target->get_position()->x < (screen_width/2.0f) ) { 
-			set_x(screen_width/2.0f);
-			set_tx(screen_width/2.0f);
-		}
-		if( target->get_position()->z < (screen_height/2.0f) ) {
-			set_z(screen_height/2.0f);
-			set_tz(screen_height/2.0f);
-		}
-		if( (target->get_position()->x + (screen_width/2.0f)) > bound_width) {
-			set_x(bound_width - (screen_width/2.0f));
-			set_tx(bound_width - (screen_width/2.0f));
-		}
-		if( (target->get_position()->z + (screen_height/2.0f)) > bound_height) {
-			set_z(bound_height - (screen_height/2.0f));
-			set_tz(bound_height - (screen_height/2.0f));
-		}*/
+	glm::ivec2 m_diff = prev_mouse_pos - new_mouse_pos;
+
+	prev_mouse_pos = new_mouse_pos;
+
+	yaw += (float)m_diff.x;
+	pitch += (float)m_diff.y;
+
+	if(pitch > 89.0f){
+		pitch =  89.0f;
+	}
+	else if(pitch < -89.0f){
+		pitch = -89.0f;
+	}
+
+	camera_direction.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	camera_direction.y = sin(glm::radians(pitch));
+	camera_direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+
+	right = glm::normalize(glm::cross(world_up, camera_direction));
+	camera_up = glm::normalize(glm::cross(camera_direction, right));
+
+
+	if (focus_target(position)){
 		return true;
 	}
 	else{

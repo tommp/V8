@@ -31,6 +31,7 @@ private:
 	glm::mat4 model_matrix;
 	std::string context_name;
 	Spot_light_ptr flashlight;
+	glm::vec4 color_coeff;
 
 	glm::vec3 velocity;
 
@@ -48,7 +49,7 @@ public:
 	~Player();
 	Player();
 	Player(Resource_manager& init_manager, const std::string& model_name);
-	bool update_position(GLfloat timedelta);
+	bool update_position(GLfloat timedelta, const glm::vec3& dir, const glm::vec3& right);
 	bool add_contexts_to_renderer(Renderer& renderer)const;
 };
 

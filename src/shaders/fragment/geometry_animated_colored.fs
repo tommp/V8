@@ -4,8 +4,10 @@ layout (location = 2) out vec4 g_albedo_spec;
 
 in vec3 frag_normal;
 in vec3 frag_position;
+flat in int instance;
 
 uniform vec4 object_color;
+uniform vec4 color_coeff[100];
 uniform float gloss;
 
 layout (std140) uniform Plane_data{
@@ -28,6 +30,5 @@ void main(){
     g_normal.xyz = normalize(frag_normal);
     g_normal.w = gloss;
 
-    g_albedo_spec.rgb = object_color.xyz;
-    g_albedo_spec.a = object_color.w;
+    g_albedo_spec.rgba = object_color.rgba * color_coeff[instance].rgba;
 }

@@ -136,27 +136,26 @@ bool Renderer::init_upload_uniform_data(){
 bool Renderer::init_settings(){
 	if (!load_settings()) {
 		/* These are the default settings */
-		ortographic = false;
-		use_mouse = true;
+		ortographic 			= false;
+		use_mouse 				= false;
 		
-		window_size.x = 640.0f * 2;
-		window_size.y = 320.0f * 2;
-		resolution.x = 640.0f * 2;
-		resolution.y = 320.0f * 2;
+		window_size.x 			= 640.0f * 2;
+		window_size.y 			= 320.0f * 2;
+		resolution.x 			= 640.0f * 2;
+		resolution.y 			= 320.0f * 2;
 
-		use_vsync = true;
-		use_fullscreen = false;
-		use_AA = true;
-		use_SSAO = true;
-		use_pre_bloom = true;
-		use_post_bloom = true;
-		use_shadows = false;
+		use_vsync 				= true;
+		use_fullscreen 			= false;
+		use_AA 					= true;
+		use_SSAO 				= true;
+		use_pre_bloom 			= true;
+		use_post_bloom 			= true;
+		use_shadows 			= false;
+		near_plane 				= 10.0;
+		far_plane 				= 3000.0;
 
-		near_plane = 10.0;
-		far_plane = 3000.0;
-
-		lower_bloom_threshold = 0.6;
-		higher_bloom_threshold = 1.0;
+		lower_bloom_threshold 	= 0.6;
+		higher_bloom_threshold 	= 1.0;
 
 		gamma = 2.2;
 		exposure = 1.0;

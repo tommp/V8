@@ -132,7 +132,7 @@ int main(){
 
 #if DISABLE_VSYNC
 		/* If frame finished early */
-		int frame_ticks = cap_timer.get_ticks();
+		GLuint frame_ticks = cap_timer.get_ticks();
 		if (frame_ticks < Utility_consts::SCREEN_TICKS_PER_FRAME) {
 			/* Wait remaining time */
 			SDL_Delay(Utility_consts::SCREEN_TICKS_PER_FRAME - frame_ticks);

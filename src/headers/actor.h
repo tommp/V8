@@ -41,6 +41,9 @@ class Actor{
 		void set_width(float new_width){scale[0] = new_width;};
 		void set_height(float new_height){scale[1] = new_height;};
 		void set_depth(float new_depth){scale[2] = new_depth;};
+
+		glm::vec3 get_direction()const{return direction;};
+		void set_direction(const glm::vec3& new_direction){this->direction = new_direction;};
 };
 
 typedef std::shared_ptr<Actor> Actor_ptr;

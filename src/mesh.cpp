@@ -3,7 +3,7 @@
 Mesh::Mesh(){
 	VBO = 0;
 	EBO = 0;
-	object_color = {0.5f, 0.5f, 0.5f, 0.5f};
+	object_color = {0.5f, 0.0f, 0.0f, 0.2f};
 	material = nullptr;
 
 	mesh_in_renderer = false;

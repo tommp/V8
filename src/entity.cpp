@@ -191,8 +191,8 @@ bool Entity::init_model_context(const std::string& model_name){
 	return true;
 }
 
-bool Entity::init_model_context(const std::string& model_name, const glm::vec4& color, GLfloat gloss){
-	if (!model_context.load_model(*manager, model_name, color,  gloss)){
+bool Entity::init_model_context(const std::string& model_name, const glm::vec4& color, const glm::vec4& color_coeff, GLfloat gloss){
+	if (!model_context.load_model(*manager, model_name, color, color_coeff, gloss)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load model with name: " << model_name << ", for entity: " << name << std::endl;
 		errorlogger("ERROR: Failed to load model for entity: ", name.c_str());
 		return false;

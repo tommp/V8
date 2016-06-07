@@ -3,9 +3,8 @@
 Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	mousepicker = std::make_shared<Mousepicker>();
 
-	camera = std::make_shared<Camera>();
 
-	for (int i = 0; i < 0; ++i) {
+	for (int i = 0; i < 3; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = rand() % 200 + 100;
@@ -33,8 +32,11 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 										glm::vec3(0.0, 0.0, 0.0), 
 										glm::vec3(1000.0, 2.0, 1000.0),
 										glm::vec3(0.0, 0.0, -1.0),
+										glm::vec4(0.2, 0.2, 0.2, 0.8),
+										glm::vec4(1.0, 1.0, 1.0, 1.0),
 										0.0f,
-										BOX);
+										BOX,
+										glm::vec3(1000.0, 2.0, 1000.0));
 	add_object(prop);
 
 	for (GLuint i = 0; i < 10; ++i) {
@@ -47,8 +49,11 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 										position, 
 										glm::vec3(10.0, 130.0, 10.0),
 										glm::vec3(0.0, 0.0, -1.0),
+										glm::vec4(0.7, 0.0, 0.0, 0.8),
+										glm::vec4(4.0, 0.0, 0.0, 1.0),
 										1000.0f,
-										BOX);
+										BOX,
+										glm::vec3(10.0, 130.0, 10.0));
 		add_object(prop);
 	}
 
@@ -62,8 +67,11 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 										position, 
 										glm::vec3(20.0, 20.0, 20.0),
 										glm::vec3(0.0, 0.0, -1.0),
+										glm::vec4(0.0, 0.7, 0.0, 0.8),
+										glm::vec4(0.0, 4.0, 0.0, 1.0),
 										60.0f,
-										BOX);
+										BOX,
+										glm::vec3(20.0, 20.0, 20.0));
 		add_object(prop);
 	}
 
@@ -77,8 +85,11 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 										position, 
 										glm::vec3(50.0, 50.0, 50.0),
 										glm::vec3(0.0, 0.0, -1.0),
+										glm::vec4(0.7, 0.0, 0.0, 0.8),
+										glm::vec4(0.1, 0.1, 0.1, 1.0),
 										6000.0f,
-										BOX);
+										BOX,
+										glm::vec3(50.0, 50.0, 50.0));
 		add_object(prop);
 	}
 
@@ -91,8 +102,11 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 										position, 
 										glm::vec3(40.0, 2.0, 40.0),
 										glm::vec3(0.0, 0.0, -1.0),
+										glm::vec4(0.7, 0.0, 0.0, 0.8),
+										glm::vec4(0.0, 0.0, 4.0, 1.0),
 										0.0f,
-										BOX);
+										BOX,
+										glm::vec3(40.0, 2.0, 40.0));
 		add_object(prop);
 	}
 
@@ -169,7 +183,7 @@ bool Level::update_positions(GLfloat timedelta, Renderer& renderer){
 	return true;
 }
 
-bool Level::render_level(Renderer& renderer)const{
+bool Level::render_level(Renderer& renderer, Camera_ptr& camera)const{
 	if (!renderer.render_all(camera)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Renderer failed to render level!"<< std::endl;
 		errorlogger("ERROR: Renderer failed to render level!");

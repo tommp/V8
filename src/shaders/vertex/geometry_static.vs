@@ -5,6 +5,7 @@ layout (location = 2) in vec2 tex_coord;
 out vec2 frag_tex_coord;
 out vec3 frag_position;
 out vec3 frag_normal;
+flat out int instance;
 
 uniform mat4 models[100];
 uniform mat3 normal_models[100];
@@ -25,4 +26,6 @@ void main(){
     frag_tex_coord = tex_coord;
 
     frag_normal = normal_models[gl_InstanceID] * normal;
+
+    instance = gl_InstanceID;
 }

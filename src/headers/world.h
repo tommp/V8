@@ -28,6 +28,7 @@ class btDiscreteDynamicsWorld;
 class World {
 private:
 	Level_ptr current_level;
+	Camera_ptr camera;
 	Resource_manager* manager;
 
 	std::list<Player_ptr> players;

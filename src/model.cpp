@@ -111,7 +111,7 @@ bool Model::load_from_file(Resource_manager& manager, const std::string& name, c
 	return true;
 }
 
-bool Model::bind_context(const glm::mat4& model_matrix, std::string& context_name){
+bool Model::bind_context(const glm::mat4& model_matrix, std::string& context_name, const glm::vec4& color_coeff){
 	std::function<GLboolean(const Shader_ptr& shader, const glm::mat4& view_matrix, GLuint instance, GLboolean only_model)> expression = [&](const Shader_ptr& shader, const glm::mat4& view_matrix, GLuint instance, GLboolean only_model) ->GLboolean {
 		
 		glm::mat4 render_matrix = view_matrix * model_matrix;
@@ -119,6 +119,10 @@ bool Model::bind_context(const glm::mat4& model_matrix, std::string& context_nam
 						 1, 
 						 GL_FALSE, 
 						 glm::value_ptr(render_matrix));
+
+		glUniform4fv(shader->load_uniform_location("color_coeff", instance),
+					1,
+ 					glm::value_ptr(color_coeff));
 
 		if (!only_model) {
 			glUniformMatrix3fv(shader->load_uniform_location("normal_models", instance),

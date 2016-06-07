@@ -3,6 +3,7 @@ layout (location = 1) in vec3 normal;
 
 out vec3 frag_normal;
 out vec3 frag_position;
+flat out int instance;
 
 uniform mat4 models[100];
 uniform mat3 normal_models[100];
@@ -21,4 +22,6 @@ void main(){
     gl_Position = projection * view_pos;
 
     frag_normal = normal_models[gl_InstanceID] * normal;
+
+    instance = gl_InstanceID;
 }

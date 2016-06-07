@@ -25,10 +25,13 @@ private:
 	Model_ptr model;
 	std::string context_name;
 	glm::mat4 model_matrix;
+	glm::vec4 color_coeff;
 	
 	glm::vec3 prev_position;
 	glm::vec3 prev_scale;
 	glm::vec3 prev_direction;
+
+	glm::vec4 color;
 
 	bool update_matrices();
 public:
@@ -39,13 +42,8 @@ public:
 		const glm::vec3& position,
 		const glm::vec3& scale,
 		const glm::vec3& direction,
-		GLfloat mass,
-		Collision_shape shape);
-	Prop(Resource_manager& manager, 
-		const std::string& model_name,
-		const glm::vec3& position,
-		const glm::vec3& scale,
-		const glm::vec3& direction,
+		const glm::vec4& color,
+		const glm::vec4& color_coeff,
 		GLfloat mass,
 		Collision_shape shape,
 		const glm::vec3& collision_scale);

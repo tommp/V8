@@ -5,6 +5,7 @@ layout (location = 2) out vec4 g_albedo_spec;
 in vec2 frag_tex_coord;
 in vec3 frag_position;
 in vec3 frag_normal;
+flat in int instance;
 
 struct Material {
 	sampler2D diffuse;
@@ -14,6 +15,7 @@ struct Material {
 }; 
 
 uniform Material material;
+uniform vec4 color_coeff[100];
 
 layout (std140) uniform Plane_data
 {
@@ -38,6 +40,6 @@ void main()
     g_normal.xyz = texture(material.normal, frag_tex_coord).xyz;
     g_normal.w = texture(material.gloss, frag_tex_coord).x;
 
-    g_albedo_spec.rgb = texture(material.diffuse, frag_tex_coord).rgb;
-    g_albedo_spec.a = texture(material.reflectivity, frag_tex_coord).r;
+    g_albedo_spec.rgb = texture(material.diffuse, frag_tex_coord).rgb * color_coeff[instance].rgb;
+    g_albedo_spec.a = texture(material.reflectivity, frag_tex_coord).r * color_coeff[instance].a;
 }

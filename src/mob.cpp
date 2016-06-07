@@ -23,7 +23,9 @@ Mob::Mob(Resource_manager& manager,
 		exit(EXIT_FAILURE);
 	}
 
-	model->bind_context(model_matrix, context_name);
+	this->color_coeff = glm::vec4(1.0);
+
+	model->bind_context(model_matrix, context_name, color_coeff);
 
 	position = {0.0, 0.0, 0.0};
 	scale = {20.0f, 20.0f, 20.0f};
@@ -56,7 +58,9 @@ Mob::Mob(Resource_manager& manager,
 		exit(EXIT_FAILURE);
 	}
 
-	model->bind_context(model_matrix, context_name);
+	this->color_coeff = glm::vec4(1.0);
+
+	model->bind_context(model_matrix, context_name, color_coeff);
 
 	this->position = position;
 	this->direction = direction;

@@ -173,5 +173,8 @@ void main(){
 
 	}
 
-    color = vec4(diffuse + specular, 1.0);
+
+	color = vec4(diffuse + specular, 1.0);
+	
+    
 }

@@ -7,17 +7,15 @@ Player::Player(){
 }
 
 Player::Player(Resource_manager& init_manager, const std::string& model_name){
-	glm::vec4 color;
-	color.x = (rand()%90) /100.0f ;
-	color.y = (rand()%90) /100.0f;
-	color.z = (rand()%90) /100.0f;
-	color.w = 0.8;
+	glm::vec4 color = glm::vec4(0.5, 0.0, 1.0, 0.8);
 	if (!(model = init_manager.load_model(model_name, color, 1.0))){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Player constructor failed to load model: " << model_name << std::endl;
 		errorlogger("ERROR: Player constructor failed to load model: ", model_name.c_str());
 	}
 
-	model->bind_context(model_matrix, context_name);
+	this->color_coeff = glm::vec4(1.0);
+
+	model->bind_context(model_matrix, context_name, color_coeff);
 
 	manager = &init_manager;
 	speed = 10000.0f;
@@ -49,21 +47,25 @@ Player::~Player(){
 	}
 }
 
-bool Player::update_position(GLfloat timedelta){
+bool Player::update_position(GLfloat timedelta, const glm::vec3& dir, const glm::vec3& right){
 	(void(timedelta));
 	velocity = {0.0f, 0.0f, 0.0f};
 	const Uint8* current_key_states = SDL_GetKeyboardState(NULL);
 	if(current_key_states[manager->get_button_map_key("player", UP)]){
-		velocity.z -= 1;
+		velocity.x -= dir.x;
+		velocity.z -= dir.z;
 	}
 	if(current_key_states[manager->get_button_map_key("player", LEFT)]){
-		velocity.x -= 1;
+		velocity.x -= right.x;
+		velocity.z -= right.z;
 	}
 	if(current_key_states[manager->get_button_map_key("player", DOWN)]){
-		velocity.z += 1;
+		velocity.x += dir.x;
+		velocity.z += dir.z;
 	}
 	if(current_key_states[manager->get_button_map_key("player", RIGHT)]){
-		velocity.x += 1;
+		velocity.x += right.x;
+		velocity.z += right.z;
 
 	}
 	if(current_key_states[manager->get_button_map_key("player", JUMP)]){

@@ -36,6 +36,12 @@ class Camera {
 
 		glm::vec3 offset;
 		glm::mat4 view;
+		glm::ivec2 prev_mouse_pos;
+
+		GLfloat yaw;
+		GLfloat pitch;
+
+		GLfloat target_offset;
 
 		GLboolean ortographic;
 	public:
@@ -48,6 +54,8 @@ class Camera {
 		glm::vec3 get_position()const{return position;};
 		glm::vec3 get_up_dir()const{return camera_up;};
 		glm::vec3 get_target()const{return target;};
+		glm::vec3 get_direction()const{return camera_direction;};
+		glm::vec3 get_right_dir()const{return right;};
 
 		GLfloat get_x(){return position.x;};
 		GLfloat get_y(){return position.y;};
