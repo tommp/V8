@@ -4,7 +4,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	mousepicker = std::make_shared<Mousepicker>();
 
 
-	for (int i = 0; i < 3; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		glm::vec3 position;
 		position.x = rand() % 2000 - 1000;
 		position.y = rand() % 200 + 100;
@@ -18,11 +18,23 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	}
 
 	for (int i = 0; i < 0; ++i) {
-		Light_ptr spot_light = std::make_shared<Spot_light>();
+		glm::vec3 position;
+		position.x = rand() % 1000 - 500;
+		position.y = rand() % 50 + 10;
+		position.z = rand() % 1000 - 500;
+		glm::vec3 color = {40.0, 40.0, 40.0};
+		Light_ptr spot_light = std::make_shared<Spot_light>(400, 
+						position,
+						glm::vec3(-1.0, 0.0, 1.0),
+						color, 
+						35.0,
+						55.0,
+						1.0,
+						true);
 		add_light(spot_light);
 	}
 
-	Light_ptr dir_light = std::make_shared<Directional_light>(glm::vec3(-1.0, -1.0, -1.0), 
+	Light_ptr dir_light = std::make_shared<Directional_light>(glm::vec3(-0.8, -1.0, -0.32), 
 									glm::vec3(20.0, 20.0, 20.0), 
 									false);
 	add_light(dir_light);

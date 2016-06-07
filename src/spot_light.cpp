@@ -40,16 +40,16 @@ Spot_light::Spot_light(GLfloat radius,
 
 Spot_light::Spot_light(){
 	base_light_context->shader_type = LIGHT_SPOT;
-	direction = {0.0f, -1.0f, 0.0f};
-	intensity = 1.0;
+	direction = {0.0f, 0.0f, 0.0f};
+	intensity = 10.0;
 
 	direction.x = ((rand() % 1500) / 501) - 1;
 	direction.z = ((rand() % 1500) / 501) - 1;
 
-	randomize_position(glm::i16vec3(1000, 50, 1000), glm::i16vec3(0, -100, 0));
+	randomize_position(glm::i16vec3(1500, 50, 1500), glm::i16vec3(0, -100, 0));
 	randomize_color(5);
 
-	radius = (rand() % 400) + 200;
+	radius = (rand() % 400) + 500;
 
 	cutoff = (rand() % 35) + 15;
 	outer_cutoff = cutoff + (rand() % 10) + 10;
@@ -75,6 +75,7 @@ bool Spot_light::bind_lambda_expression()const{
 	base_light_context->setup_base_uniforms = [&](GLuint buffer, const glm::mat4& view, GLuint instance) {
 		GLuint base_offset = Utility_consts::SIZEOF_SPOT_LIGHT * instance;
 		glm::vec3 view_position = glm::vec3(view * glm::vec4(position, 1.0));
+		glm::vec3 view_direction = glm::vec3(view * glm::vec4(direction, 0.0));
 		
 		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
 
@@ -84,10 +85,10 @@ bool Spot_light::bind_lambda_expression()const{
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(view_position));
 		base_offset += sizeof(glm::vec4);
 
-		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(direction));
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(view_direction));
 		base_offset += sizeof(glm::vec4);
 
-		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color));
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color * intensity));
 		base_offset += sizeof(glm::vec4);
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(GLfloat), (GLvoid*)(&radius));

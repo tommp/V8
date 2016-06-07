@@ -43,7 +43,7 @@ bool Directional_light::bind_lambda_expression()const{
 		GLuint base_offset = Utility_consts::SIZEOF_DIR_LIGHT * instance;
 		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
 
-		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(direction)); 
+		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(view * glm::vec4(direction, 0.0))); 
 		base_offset += sizeof(glm::vec4);
 
 		glBufferSubData(GL_UNIFORM_BUFFER, base_offset, sizeof(glm::vec3), glm::value_ptr(color));
