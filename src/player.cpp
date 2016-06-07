@@ -18,11 +18,11 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	model->bind_context(model_matrix, context_name, color_coeff);
 
 	manager = &init_manager;
-	speed = 10000.0f;
+	speed = 1000.0f;
 	velocity = {0.0f, 0.0f, 0.0f};
 
-	position = {100.0f, 100.0f, 100.0f};
-	scale = {20.0f, 20.0f, 20.0f};
+	position = {10.0f, 10.0f, 10.0f};
+	scale = {1.0f, 1.0f, 1.0f};
 	direction = {0.0f, 0.0f, -1.0f};
 
 	glm::vec3 lightcolor = {1.0f, 1.0f, 1.0f};
@@ -79,7 +79,7 @@ bool Player::update_position(GLfloat timedelta, const glm::vec3& dir, const glm:
 	if(glm::length(velocity)) {
 		velocity = glm::normalize(velocity);
 		direction = velocity;
-		velocity *= 400;
+		velocity *= 40;
 	}
 
 	

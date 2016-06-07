@@ -61,12 +61,14 @@ bool Object::generate_collision_volume(Collision_shape type, const std::string& 
 	dimensions *= scale;
 	switch(type){
 		case SPHERE:{
-			GLuint radius = std::max(dimensions.x, std::max(dimensions.y, dimensions.z)) + 1; 
+			GLuint radius = std::max(dimensions.x, std::max(dimensions.y, dimensions.z)) + Object_vars::COLLISION_SLACK; 
 			collision_shape = new btSphereShape(radius);
 			break;
 		}
 		case BOX:{
-			btVector3 box_size = {dimensions.x + 1, dimensions.y + 1, dimensions.z + 1};
+			btVector3 box_size = {dimensions.x + Object_vars::COLLISION_SLACK, 
+								dimensions.y + Object_vars::COLLISION_SLACK, 
+								dimensions.z + Object_vars::COLLISION_SLACK};
 			collision_shape = new btBoxShape(box_size);
 			break;
 		}
@@ -99,12 +101,14 @@ bool Object::generate_collision_volume(Collision_shape type, const std::string& 
 bool Object::generate_collision_volume(Collision_shape type, const glm::vec3& scale){
 	switch(type){
 		case SPHERE:{
-			GLuint radius = std::max(scale.x, std::max(scale.y, scale.z)) + 1; 
+			GLuint radius = std::max(scale.x, std::max(scale.y, scale.z)) + Object_vars::COLLISION_SLACK; 
 			collision_shape = new btSphereShape(radius);
 			break;
 		}
 		case BOX:{
-			btVector3 box_size = {scale.x + 1, scale.y + 1, scale.z + 1};
+			btVector3 box_size = {scale.x + Object_vars::COLLISION_SLACK, 
+								scale.y + Object_vars::COLLISION_SLACK, 
+								scale.z + Object_vars::COLLISION_SLACK};
 			collision_shape = new btBoxShape(box_size);
 			break;
 		}

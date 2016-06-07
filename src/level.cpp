@@ -4,13 +4,13 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	mousepicker = std::make_shared<Mousepicker>();
 
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 3; ++i) {
 		glm::vec3 position;
-		position.x = rand() % 2000 - 1000;
-		position.y = rand() % 200 + 100;
-		position.z = rand() % 2000 - 1000;
+		position.x = rand() % 200 - 100;
+		position.y = rand() % 20 + 10;
+		position.z = rand() % 200 - 100;
 		glm::vec3 color = {10.0, 10.0, 10.0};
-		Light_ptr point_light = std::make_shared<Point_light>(400, 
+		Light_ptr point_light = std::make_shared<Point_light>(40, 
 						position, 
 						color, 
 						true);
@@ -19,11 +19,11 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 
 	for (int i = 0; i < 0; ++i) {
 		glm::vec3 position;
-		position.x = rand() % 1000 - 500;
-		position.y = rand() % 50 + 10;
-		position.z = rand() % 1000 - 500;
+		position.x = rand() % 100 - 50;
+		position.y = rand() % 5 + 1;
+		position.z = rand() % 100 - 50;
 		glm::vec3 color = {40.0, 40.0, 40.0};
-		Light_ptr spot_light = std::make_shared<Spot_light>(400, 
+		Light_ptr spot_light = std::make_shared<Spot_light>(40, 
 						position,
 						glm::vec3(-1.0, 0.0, 1.0),
 						color, 
@@ -42,83 +42,83 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 	Prop_ptr prop = std::make_shared<Prop>(init_manager, 
 										"BOX", 
 										glm::vec3(0.0, 0.0, 0.0), 
-										glm::vec3(1000.0, 2.0, 1000.0),
+										glm::vec3(100.0, 0.2, 100.0),
 										glm::vec3(0.0, 0.0, -1.0),
 										glm::vec4(0.2, 0.2, 0.2, 0.8),
 										glm::vec4(1.0, 1.0, 1.0, 1.0),
 										0.0f,
 										BOX,
-										glm::vec3(1000.0, 2.0, 1000.0));
+										glm::vec3(100.0, 0.2, 100.0));
 	add_object(prop);
 
 	for (GLuint i = 0; i < 10; ++i) {
 		glm::vec3 position;
-		position.x = rand() % 2000 - 1000;
-		position.y = rand() % 500;
-		position.z = rand() % 2000 - 1000;
+		position.x = rand() % 200 - 100;
+		position.y = rand() % 50 + 1;
+		position.z = rand() % 200 - 100;
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, 
 										"BOX", 
 										position, 
-										glm::vec3(10.0, 130.0, 10.0),
+										glm::vec3(1.0, 13.0, 1.0),
 										glm::vec3(0.0, 0.0, -1.0),
 										glm::vec4(0.7, 0.0, 0.0, 0.8),
 										glm::vec4(4.0, 0.0, 0.0, 1.0),
-										1000.0f,
+										300.0f,
 										BOX,
-										glm::vec3(10.0, 130.0, 10.0));
+										glm::vec3(1.0, 13.0, 1.0));
 		add_object(prop);
 	}
 
 	for (GLuint i = 0; i < 30; ++i) {
 		glm::vec3 position;
-		position.x = rand() % 2000 - 1000;
-		position.y = rand() % 700;
-		position.z = rand() % 2000 - 1000;
+		position.x = rand() % 200 - 100;
+		position.y = rand() % 70 + 1;
+		position.z = rand() % 200 - 100;
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, 
 										"BOX", 
 										position, 
-										glm::vec3(20.0, 20.0, 20.0),
+										glm::vec3(2.0, 2.0, 2.0),
 										glm::vec3(0.0, 0.0, -1.0),
 										glm::vec4(0.0, 0.7, 0.0, 0.8),
 										glm::vec4(0.0, 4.0, 0.0, 1.0),
-										60.0f,
+										70.0f,
 										BOX,
-										glm::vec3(20.0, 20.0, 20.0));
+										glm::vec3(2.0, 2.0, 2.0));
 		add_object(prop);
 	}
 
 	for (GLuint i = 0; i < 3; ++i) {
 		glm::vec3 position;
-		position.x = rand() % 2000 - 1000;
-		position.y = rand() % 700;
-		position.z = rand() % 2000 - 1000;
+		position.x = rand() % 200 - 100;
+		position.y = rand() % 70 + 1;
+		position.z = rand() % 200 - 100;
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, 
 										"BOX", 
 										position, 
-										glm::vec3(50.0, 50.0, 50.0),
+										glm::vec3(5.0, 5.0, 5.0),
 										glm::vec3(0.0, 0.0, -1.0),
 										glm::vec4(0.7, 0.0, 0.0, 0.8),
 										glm::vec4(0.1, 0.1, 0.1, 1.0),
-										6000.0f,
+										600.0f,
 										BOX,
-										glm::vec3(50.0, 50.0, 50.0));
+										glm::vec3(5.0, 5.0, 5.0));
 		add_object(prop);
 	}
 
 	for (GLuint i = 0; i < 20; ++i) {
 		glm::vec3 position;
-		position.x = rand() % 2000 - 1000;
-		position.y = rand() % 400;
-		position.z = rand() % 2000 - 1000;
+		position.x = rand() % 200 - 100;
+		position.y = rand() % 40 + 1;
+		position.z = rand() % 200 - 100;
 		Prop_ptr prop = std::make_shared<Prop>(init_manager, "BOX", 
 										position, 
-										glm::vec3(40.0, 2.0, 40.0),
+										glm::vec3(4.0, 0.2, 4.0),
 										glm::vec3(0.0, 0.0, -1.0),
 										glm::vec4(0.7, 0.0, 0.0, 0.8),
 										glm::vec4(0.0, 0.0, 4.0, 1.0),
 										0.0f,
 										BOX,
-										glm::vec3(40.0, 2.0, 40.0));
+										glm::vec3(4.0, 0.2, 4.0));
 		add_object(prop);
 	}
 

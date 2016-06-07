@@ -9,7 +9,7 @@ Camera::Camera(){
 	pitch = 45.0;
 	yaw = 90.0;
 
-	target_offset = 200.0;
+	target_offset = 20.0;
 
 	SDL_GetMouseState(&(prev_mouse_pos[0]), &(prev_mouse_pos[1]));
 

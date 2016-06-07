@@ -151,8 +151,8 @@ bool Renderer::init_settings(){
 		use_pre_bloom 			= true;
 		use_post_bloom 			= true;
 		use_shadows 			= false;
-		near_plane 				= 10.0;
-		far_plane 				= 3000.0;
+		near_plane 				= 1.0;
+		far_plane 				= 300.0;
 
 		lower_bloom_threshold 	= 0.6;
 		higher_bloom_threshold 	= 1.0;

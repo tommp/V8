@@ -23,6 +23,11 @@
 
 /*Header content*/
 /*=============================================*/
+
+namespace Object_vars{
+	const GLfloat COLLISION_SLACK = 0.001;
+}
+
 class Object{
 	protected:
 		btRigidBody* collision_body;
