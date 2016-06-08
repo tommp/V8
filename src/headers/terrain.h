@@ -6,8 +6,7 @@
 /*---------------------------------------------*/
 #include "errorlogger.h"
 #include "utility.h"
-#include "object.h"
-#include "rendering_context.h"
+#include "shader.h"
 /*---------------------------------------------*/
 
 /*Included dependencies*/
@@ -21,16 +20,15 @@
 /*Header content*/
 /*=============================================*/
 
-class Terrain : public Object{
-    private:
-        Rendering_context_ptr base_context;
-    public:
-        bool update_position(float timedelta, const glm::mat4& view_matrix);
-        bool update_context();
-        bool touch_object(Object& object);
-        bool add_bases_to_context();
+class MC_Terrain{
+	private:
+		
+	public:
+		MC_Terrain();
+		~MC_Terrain();
+
 };
 
-typedef std::shared_ptr<Terrain> Terrain_ptr;
+typedef std::shared_ptr<MC_Terrain> MC_Terrain_ptr;
 /*=============================================*/
 #endif

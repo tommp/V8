@@ -25,6 +25,11 @@ const std::unordered_map<std::string, std::pair<std::string, std::string>> WORLD
 	{"LFST_cull_shader", 					{"vertex/LFST_face_culled_geometry.vs",	"fragment/LFST_face_culled_geometry.fs"}},
 	{"LFST_layer_shader", 					{"vertex/fullscreen_quad.vs",			"fragment/LFST_thickness_map.fs"}},
 	{"ppe_blend_shader", 					{"vertex/fullscreen_quad.vs", 			"fragment/ppe_blend.fs"}},
+	{"mc_density_shader", 					{"vertex/instanced_fullscreen_quad.vs", "fragment/mc_density.fs"}},
+};
+
+const std::unordered_map<std::string, std::string> GEOM_SHADERS = {
+	{"mc_density_shader", 					"geometry/layered.gs"},
 };
 
 #endif

@@ -35,6 +35,11 @@
 /*Header content*/
 /*=============================================*/
 
+namespace Terrain_consts{
+	const GLuint MC_NUM_CUBES =         500;
+	const GLuint CUBE_DIMENSION =       33;
+}
+
 namespace Renderer_consts{
 	/* Not really necessary, but paranoia :] */
 	const GLuint NDC_WIDTH = 					2;
@@ -112,6 +117,7 @@ class Renderer{
 		GLuint pre_bloom_fbo;
 		GLuint post_bloom_fbo;
 		GLuint ppe_blend_fbo;
+		GLuint density_fbo;
 
 		GLuint g_position;
 		GLuint g_normal;
@@ -127,6 +133,7 @@ class Renderer{
 		GLuint pre_bloom_buffer;
 		GLuint post_bloom_buffer;
 		GLuint ppe_blend_buffer;
+		GLuint density_buffer;
 
 		/* LFST fbos */
 		GLuint shadow_layer_fbos[Renderer_consts::SHADOW_LAYERS];
@@ -146,6 +153,9 @@ class Renderer{
 		GLuint cube_VAO;
 		GLuint cube_VBO;
 		GLuint cube_EBO;
+
+		GLuint mc_VAOS[Terrain_consts::MC_NUM_CUBES];
+		GLuint mc_VBOS[Terrain_consts::MC_NUM_CUBES];
 
 #if ENABLE_BULLET_DEBUG
 		Mesh_ptr line;
@@ -169,7 +179,6 @@ class Renderer{
 #if ENABLE_BULLET_DEBUG
 		std::list<Line_data> lines;
 #endif
-
 		Shader_ptr dir_light_shader;
 		Shader_ptr point_light_shader;
 		Shader_ptr spot_light_shader;
@@ -187,7 +196,9 @@ class Renderer{
 		Shader_ptr SSAO_shader;
 		Shader_ptr LFST_cull_shader;
 		Shader_ptr LFST_layer_shader;
-
+		Shader_ptr mc_density_shader;
+		Shader_ptr mc_cube_shader;
+		
 		bool init_window();
 		bool init_tiles();
 		bool init_openGL();
@@ -202,6 +213,7 @@ class Renderer{
 		bool init_ppe_blend_buffer();
 		bool init_framebuffers();
 		bool init_uniform_buffers();
+		bool init_density_buffer();
 		bool init_shaders(Resource_manager& resource_manager);
 		bool init_quad();
 		bool init_cube();
@@ -279,6 +291,9 @@ class Renderer{
 		bool apply_bloom(GLuint bloom_fbo, GLuint color_texture);
 		bool apply_SSAO();
 		bool apply_shadows();
+
+		bool generate_density_map(const glm::vec3& position);
+		bool generate_mc_cube();
 		
 	public:
 		Renderer();

@@ -538,29 +538,36 @@ bool Renderer::init_shaders(Resource_manager& resource_manager){
 
 	FXAA_shader = resource_manager.load_shader("FXAA_shader");
 	if (!FXAA_shader) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to FXAA_shader shader in renderer!" << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load FXAA_shader shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load FXAA_shader in renderer");
 		return false;
 	}
 
 	SSAO_shader = resource_manager.load_shader("SSAO_shader");
 	if (!SSAO_shader) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to SSAO_shader shader in renderer!" << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load SSAO_shader shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load SSAO_shader in renderer");
 		return false;
 	}
 
 	LFST_cull_shader = resource_manager.load_shader("LFST_cull_shader");
 	if (!LFST_cull_shader) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to LFST_cull_shader shader in renderer!" << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load LFST_cull_shader shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load LFST_cull_shader in renderer");
 		return false;
 	}
 
 	LFST_layer_shader = resource_manager.load_shader("LFST_layer_shader");
 	if (!LFST_layer_shader) {
-		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to LFST_layer_shader shader in renderer!" << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load LFST_layer_shader shader in renderer!" << std::endl;
 		errorlogger("ERROR: Failed to load LFST_layer_shader in renderer");
+		return false;
+	}
+
+	mc_density_shader = resource_manager.load_shader("mc_density_shader");
+	if (!mc_density_shader) {
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to load mc_density shader in renderer!" << std::endl;
+		errorlogger("ERROR: Failed to load mc_density in renderer");
 		return false;
 	}
 
@@ -1022,9 +1029,15 @@ bool Renderer::init_framebuffers() {
 		return false;
 	}
 
-	if(!init_ppe_blend_buffer()){
+	if (!init_ppe_blend_buffer()){
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: failed to initialize ppe blend buffers!" << std::endl;
 		errorlogger("ERROR: Failed to initialize ppe blend buffers!");
+		return false;
+	}
+
+	if (!init_density_buffer()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: failed to initialize density buffers!" << std::endl;
+		errorlogger("ERROR: Failed to initialize density buffers!");
 		return false;
 	}
 
@@ -2961,5 +2974,46 @@ bool Renderer::init_tiles(){
 	    tiles[i].resize(num_tiles_width);
 	}
 
+	return true;
+}
+
+/* Random terrain generation ===================================================== */
+bool Renderer::init_density_buffer(){
+	glGenFramebuffers(1, &density_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, density_fbo);
+	  
+	glGenTextures(1, &density_buffer);
+	glBindTexture(GL_TEXTURE_3D, density_buffer);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, Terrain_consts::CUBE_DIMENSION, Terrain_consts::CUBE_DIMENSION, Terrain_consts::CUBE_DIMENSION, 0, GL_RED, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
+	glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_3D, density_buffer, 0, 0);
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize density buffer for terrain cubes!" << std::endl;
+		errorlogger("ERROR: Failed to initialize density buffer for terrain cubes!");
+		return false;
+	}
+	
+	return true;
+}
+
+bool Renderer::generate_density_map(const glm::vec3& position){
+	mc_density_shader->use();
+	glBindFramebuffer(GL_FRAMEBUFFER, density_fbo);
+	glViewport(0, 0, Terrain_consts::CUBE_DIMENSION, Terrain_consts::CUBE_DIMENSION);
+	glUniform1fv(mc_density_shader->load_uniform_location("world_position"), 0, glm::value_ptr(position));
+	if (!render_quad(Terrain_consts::CUBE_DIMENSION)){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to render density quads!" << std::endl;
+		errorlogger("ERROR: Failed to render density quads!");
+		return false;
+	}
+	glViewport(0, 0, resolution.x, resolution.x);
+
+	return true;
+}
+
+bool Renderer::generate_mc_cube(){
 	return true;
 }

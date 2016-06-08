@@ -83,6 +83,25 @@ bool Shader::load_from_file(const std::string& name){
         return false;
     }
 
+    GLboolean geom_shader_found = false;
+    if (GEOM_SHADERS.find(name) != GEOM_SHADERS.end()) {
+        geom_shader_found = true;
+    }
+
+    GLuint geometry_shader = 0;
+    if (geom_shader_found){
+        std::string geometry_path = Utility_vars::folder_path + SHADER_PATH + GEOM_SHADERS.find(name)->second;
+        
+        const GLchar* geometry_shader_path = geometry_path.c_str();
+        
+        geometry_shader = create_shader(geometry_shader_path, GL_GEOMETRY_SHADER);
+        if(!geometry_shader) {
+            std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to create geometry shader: " << geometry_shader_path << std::endl;
+            errorlogger("ERROR: Failed to create geometry shader: ", geometry_shader_path);
+            return false;
+        }
+    }
+
     this->name = name;
 
     std::string vertex_path = Utility_vars::folder_path + SHADER_PATH + WORLD_SHADERS.find(name)->second.first;
@@ -113,6 +132,13 @@ bool Shader::load_from_file(const std::string& name){
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
 
+    if (geometry_shader) {
+        glAttachShader(program, geometry_shader);
+    }
+    else{
+        SDL_Log("No geometry shader for: %s", name.c_str());
+    }
+
     /* Link the program */
     GLint success;
     glLinkProgram(program);
@@ -125,6 +151,10 @@ bool Shader::load_from_file(const std::string& name){
     /* Delete the linked shaders */
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
+
+    if (geometry_shader){
+        glDeleteShader(geometry_shader);
+    }
 
     if(check_ogl_error()){
         std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to delete bound shaders in shader: " << name << std::endl;
