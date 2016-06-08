@@ -646,16 +646,17 @@ bool Renderer::init_blur_buffers(){
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, bb_fbos[i]);
 		glBindTexture(GL_TEXTURE_2D, bb_buffers[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, resolution.x, resolution.y, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, resolution.x / Renderer_consts::BLUR_BUFFER_DOWNSCALE, resolution.y / Renderer_consts::BLUR_BUFFER_DOWNSCALE, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bb_buffers[i], 0);
+		//glGenerateMipmap(GL_TEXTURE_2D);
 		if(check_ogl_error()){
 			std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to initialize blur color buffer in blur fbo!" << std::endl;
 			errorlogger("ERROR: Failed to initialize blur color buffer in blur fbo!");
-			glDeleteRenderbuffers(1, &g_rbo_depth);
+			glDeleteRenderbuffers(1, &bb_buffers[i]);
 			return false;
 		}
 
@@ -710,7 +711,7 @@ bool Renderer::init_SSAO_buffer(){
 	glBindFramebuffer(GL_FRAMEBUFFER, SSAO_fbo);
 	glBindTexture(GL_TEXTURE_2D, SSAO_buffer);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, resolution.x, resolution.y, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, resolution.x / Renderer_consts::BLUR_BUFFER_DOWNSCALE, resolution.y / Renderer_consts::BLUR_BUFFER_DOWNSCALE, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -883,9 +884,9 @@ bool Renderer::init_bloom_buffers(){
 	glBindFramebuffer(GL_FRAMEBUFFER, pre_bloom_fbo);
 	glBindTexture(GL_TEXTURE_2D, pre_bloom_buffer);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, resolution.x, resolution.y, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, resolution.x / Renderer_consts::BLUR_BUFFER_DOWNSCALE, resolution.y / Renderer_consts::BLUR_BUFFER_DOWNSCALE, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pre_bloom_buffer, 0);
@@ -910,9 +911,9 @@ bool Renderer::init_bloom_buffers(){
 	glBindFramebuffer(GL_FRAMEBUFFER, post_bloom_fbo);
 	glBindTexture(GL_TEXTURE_2D, post_bloom_buffer);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, resolution.x, resolution.y, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, resolution.x / Renderer_consts::BLUR_BUFFER_DOWNSCALE, resolution.y / Renderer_consts::BLUR_BUFFER_DOWNSCALE, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, post_bloom_buffer, 0);
@@ -1755,6 +1756,7 @@ bool Renderer::ogl_render_geometry(const Rendering_context_ptr& context, GLuint 
 /* ================================================================== BloomBloom */
 
 bool Renderer::apply_bloom(GLuint bloom_fbo, GLuint color_texture){
+	glViewport(0, 0, resolution.x / Renderer_consts::BLUR_BUFFER_DOWNSCALE, resolution.y / Renderer_consts::BLUR_BUFFER_DOWNSCALE);
 	glBindFramebuffer(GL_FRAMEBUFFER, bloom_fbo);
 	clear();
 
@@ -1766,14 +1768,18 @@ bool Renderer::apply_bloom(GLuint bloom_fbo, GLuint color_texture){
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind bloom buffers!" << std::endl;
 		errorlogger("ERROR: Failed to bind bloom buffers!");
+		glViewport(0, 0, resolution.x, resolution.y);
 		return false;
 	}
 
 	if (!render_quad()){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render bloom quad!" << std::endl;
 		errorlogger("ERROR: Failed to render bloom quad!");
+		glViewport(0, 0, resolution.x, resolution.y);
 		return false;
 	}
+
+	glViewport(0, 0, resolution.x, resolution.y);
 
 	return true;
 }
@@ -1847,6 +1853,8 @@ bool Renderer::apply_SSAO(){
 	glBindFramebuffer(GL_FRAMEBUFFER, SSAO_fbo);
 	clear();
 
+	glViewport(0, 0, resolution.x / Renderer_consts::BLUR_BUFFER_DOWNSCALE, resolution.y / Renderer_consts::BLUR_BUFFER_DOWNSCALE);
+
 	SSAO_shader->use();
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(SSAO_shader->load_uniform_location("g_position"), 0);
@@ -1855,6 +1863,7 @@ bool Renderer::apply_SSAO(){
 	if(check_ogl_error()) {
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to setup SSAO rendering!" << std::endl;
 		errorlogger("ERROR: Failed to setup SSAO rendering!");
+		glViewport(0, 0, resolution.x, resolution.y);
 		return false;
 	}
 
@@ -1867,8 +1876,11 @@ bool Renderer::apply_SSAO(){
 	if (!blur_texture(2, SSAO_buffer, SSAO_fbo)){
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to blur SSAO_buffer!" << std::endl;
 		errorlogger("ERROR: Failed to blur SSAO_buffer!");
+		glViewport(0, 0, resolution.x, resolution.y);
 		return false;
 	}
+
+	glViewport(0, 0, resolution.x, resolution.y);
 
 	return true;
 }
@@ -2832,6 +2844,7 @@ bool Renderer::blur_texture(GLuint amount, GLuint texture, GLuint texture_fbo){
 	GLboolean first_shader_set = false;
 	GLboolean second_shader_set = false;
 	GLuint target_texture = texture;
+	glViewport(0, 0, resolution.x / Renderer_consts::BLUR_BUFFER_DOWNSCALE, resolution.y / Renderer_consts::BLUR_BUFFER_DOWNSCALE);
 
 	for (GLuint i = 0; i < amount; i++) {
 		if (!first_shader_set && (i < amount/2)) {
@@ -2862,6 +2875,8 @@ bool Renderer::blur_texture(GLuint amount, GLuint texture, GLuint texture_fbo){
 			return false;
 		}
 	}
+
+	glViewport(0, 0, resolution.x, resolution.y);
 
 	return true;
 }

@@ -32,7 +32,7 @@ Player::Player(Resource_manager& init_manager, const std::string& model_name){
 	prev_scale = scale;
 	prev_direction = direction;
 
-	mass = 100.0f;
+	mass = 20.0f;
 	btQuaternion rotation = {0.0, 1.0, 0.0, 0.0};
 	generate_collision_volume(SPHERE, scale);
 	generate_collision_body(mass, rotation, position);

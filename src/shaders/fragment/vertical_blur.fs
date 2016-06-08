@@ -10,7 +10,7 @@ void main(){
     vec2 tex_offset = 1.0 / textureSize(color, 0); // gets size of single texel
     vec3 result = texture(color, frag_tex_coord).rgb * weight[0];
 
-    for(int i = 1; i < 5; ++i){
+    for(int i = 1; i < 4; ++i){
         result += texture(color, frag_tex_coord + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
         result += texture(color, frag_tex_coord - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
     }

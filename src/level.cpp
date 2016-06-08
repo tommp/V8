@@ -80,7 +80,7 @@ Level::Level(Resource_manager& init_manager, Renderer& renderer){
 										glm::vec3(2.0, 2.0, 2.0),
 										glm::vec3(0.0, 0.0, -1.0),
 										glm::vec4(0.0, 0.7, 0.0, 0.8),
-										glm::vec4(0.0, 4.0, 0.0, 1.0),
+										glm::vec4(0.0, 3.0, 0.0, 1.0),
 										70.0f,
 										BOX,
 										glm::vec3(2.0, 2.0, 2.0));

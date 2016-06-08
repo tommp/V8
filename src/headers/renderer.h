@@ -50,6 +50,7 @@ namespace Renderer_consts{
 	const GLuint OPENGL_MAJOR_VERSION =			3;
 	const GLuint OPENGL_MINOR_VERSION =			2;
 	const glm::vec4 CLEARCOLOR = 				{0.0, 0.0, 0.0, 1.0};
+	const GLuint BLUR_BUFFER_DOWNSCALE = 		2;
 }
 
 class Mesh;
