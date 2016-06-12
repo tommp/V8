@@ -37,7 +37,8 @@
 
 namespace Terrain_consts{
 	const GLuint MC_NUM_CUBES =         500;
-	const GLuint CUBE_DIMENSION =       33;
+	const GLuint CUBE_DIVISIONS =       4;
+	const GLuint CUBE_SIZE = 			1;
 }
 
 namespace Renderer_consts{
@@ -153,6 +154,9 @@ class Renderer{
 		GLuint cube_VAO;
 		GLuint cube_VBO;
 		GLuint cube_EBO;
+
+		GLuint mc_gen_VAO;
+		GLuint mc_gen_VBO;
 
 		GLuint mc_VAOS[Terrain_consts::MC_NUM_CUBES];
 		GLuint mc_VBOS[Terrain_consts::MC_NUM_CUBES];

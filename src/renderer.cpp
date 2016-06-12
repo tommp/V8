@@ -2920,7 +2920,7 @@ bool Renderer::render_quad(GLuint instances)const{
 	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, instances);
 	glBindVertexArray(0);
 	if(check_ogl_error()) {
-		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to bind quad!" << std::endl;
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to render quad!" << std::endl;
 		errorlogger("ERROR: Failed to bind quad!");
 		return false;
 	}
@@ -2984,7 +2984,7 @@ bool Renderer::init_density_buffer(){
 	  
 	glGenTextures(1, &density_buffer);
 	glBindTexture(GL_TEXTURE_3D, density_buffer);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, Terrain_consts::CUBE_DIMENSION, Terrain_consts::CUBE_DIMENSION, Terrain_consts::CUBE_DIMENSION, 0, GL_RED, GL_FLOAT, NULL);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, Terrain_consts::CUBE_DIVISIONS, Terrain_consts::CUBE_DIVISIONS, Terrain_consts::CUBE_DIVISIONS, 0, GL_RED, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -2999,12 +2999,81 @@ bool Renderer::init_density_buffer(){
 	return true;
 }
 
+bool Renderer::init_mc_vbo(){
+	std::vector<glm::vec3> cube_v_positions;
+
+	GLfloat stepsize = (float)Terrain_consts::CUBE_SIZE / (float)Terrain_consts::CUBE_DIVISIONS;
+
+	GLfloat cube_r = Terrain_consts::CUBE_SIZE / 2;
+
+	for(GLfloat i = -cube_r; i <= cube_r; i += stepsize){
+		for(GLfloat j = -cube_r; j <= cube_r; j += stepsize){
+			for(GLfloat k = -cube_r; k <= cube_r; k += stepsize){
+				cube_v_positions.push_back(glm::vec3(i, j, k));
+				GLfloat z = Terrain_consts::CUBE_DIVISIONS * ((k + cube_r) / 2 * cube_r);
+				GLfloat y = (j + cube_r) / (2 * cube_r);
+				GLfloat x = (i + cube_r) / (2 * cube_r);
+				//glm::vec3()
+			}
+		}
+	}
+
+	glGenVertexArrays(1, &mc_gen_VAO);
+	glGenBuffers(1, &mc_gen_VBO);
+  
+	glBindVertexArray(mc_gen_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, mc_gen_VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), 
+				 &vertices[0], GL_DYNAMIC_DRAW);
+
+
+	/* Position attribute */
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+	
+	/* Normal attribute */
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
+
+	/* TexCoord attribute */
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tex_coords));
+
+	/* TODO:: Make conditional after vertex struct split */
+	/* Bone ID attribute */
+	glEnableVertexAttribArray(3);
+    glVertexAttribIPointer(3, 4, GL_INT, sizeof(Vertex), (GLvoid*)offsetof(Vertex, bone_ids));
+
+    /* Bone weight attribute */
+    glEnableVertexAttribArray(4); 
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, bone_weights));
+
+	/* Unbind */
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0); 
+
+	/* Check for errors */
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << "ERROR: Failed to load mesh from file with name: " << name << std::endl;
+		errorlogger("ERROR: Failed to load mesh from file with name: ", name.c_str());
+		return false;
+	}
+	
+	return true;
+}
+
 bool Renderer::generate_density_map(const glm::vec3& position){
 	mc_density_shader->use();
 	glBindFramebuffer(GL_FRAMEBUFFER, density_fbo);
-	glViewport(0, 0, Terrain_consts::CUBE_DIMENSION, Terrain_consts::CUBE_DIMENSION);
+	glViewport(0, 0, Terrain_consts::CUBE_DIVISIONS, Terrain_consts::CUBE_DIVISIONS);
 	glUniform1fv(mc_density_shader->load_uniform_location("world_position"), 0, glm::value_ptr(position));
-	if (!render_quad(Terrain_consts::CUBE_DIMENSION)){
+	if(check_ogl_error()){
+		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to setup density rendering!" << std::endl;
+		errorlogger("ERROR: Failed to setup density rendering!");
+		return false;
+	}
+
+	if (!render_quad(Terrain_consts::CUBE_DIVISIONS)){
 		std::cout << __FILE__ << ":" << __LINE__  << ": " << "ERROR: Failed to render density quads!" << std::endl;
 		errorlogger("ERROR: Failed to render density quads!");
 		return false;
