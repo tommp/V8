@@ -1,9 +1,2 @@
-sudo apt-get install git
-sudo apt-get install cmake
-sudo apt-get install libsdl2-dev
-sudo apt-get install libsdl2-mixer-dev
-sudo apt-get install libglew-dev
-sudo apt-get install libgl1-mesa-dev
-sudo apt-get install libglm-dev
-
-Also, SOIL must be installed in order for the engine to compile as it is used to load images.
+sudo apt-get install git cmake libsdl2-dev libsdl2-mixer-dev libglew-dev libgl1-mesa-dev libglm-dev soil bullet
+sudo pacman -S cmake sdl2 glew soil sdl2_image sdl2_mixer sdl2_gfx bullet assimp glm bullet

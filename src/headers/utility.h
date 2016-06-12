@@ -3,7 +3,7 @@
 
 /*Included headers*/
 /*---------------------------------------------*/
-#include "SOIL.h"
+
 #include "DEFINES.h"
 #include "errorlogger.h"
 #include "vertex.h"
@@ -14,6 +14,7 @@
 
 /*Included dependencies*/
 /*---------------------------------------------*/
+#include <SOIL/SOIL.h>
 #include <GL/glew.h>
 #include <string>
 #include <sstream>

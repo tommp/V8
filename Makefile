@@ -26,7 +26,7 @@ SOIL_LIB := SOIL
 ASSIMP_LIB := assimp
 
 program_INCLUDE_DIRS := $(current_path)/projects/$(game_EXECUTABLE)/src/headers/ $(current_path)/src/headers/ $(current_path)/src/headers/maps/ $(current_path)/src/headers/bullet3_includes $(current_path)/src/headers/glm_includes $(current_path)/src/headers/assimp_includes $(current_path)
-program_LIBRARY_DIRS := /usr/local/lib $(current_path)/src/lib/static
+program_LIBRARY_DIRS := /usr/local/lib
 program_RUNTIME_LIBRARY_DIRS := $(current_path)/src/lib/dynamic
 program_LIBRARIES := $(OPENGL_LIB) $(SDL_LIB) $(BULLET_LIB) $(SOIL_LIB) $(ASSIMP_LIB) m 
 
